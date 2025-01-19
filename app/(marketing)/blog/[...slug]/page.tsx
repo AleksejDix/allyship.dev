@@ -7,7 +7,7 @@ import "@/styles/mdx.css"
 
 import { Metadata } from "next"
 import Image from "next/image"
-import Link from "next/link"
+import RouterLink from "next/link"
 
 import { env } from "@/env.mjs"
 import { absoluteUrl, cn, formatDate } from "@/lib/utils"
@@ -89,17 +89,7 @@ export default async function PostPage(props: PostPageProps) {
   )
 
   return (
-    <article className="container relative max-w-3xl py-6 lg:py-10">
-      <Link
-        href="/blog"
-        className={cn(
-          buttonVariants({ variant: "ghost" }),
-          "absolute left-[-200px] top-14 hidden xl:inline-flex"
-        )}
-      >
-        <Icons.chevronLeft className="mr-2 h-4 w-4" />
-        See all posts
-      </Link>
+    <article className="container max-w-3xl">
       <div>
         {post.date && (
           <time
@@ -109,36 +99,40 @@ export default async function PostPage(props: PostPageProps) {
             Published on {formatDate(post.date)}
           </time>
         )}
-        <h1 className="mt-2 inline-block font-heading text-4xl leading-tight lg:text-5xl">
+        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
           {post.title}
         </h1>
-        {authors?.length ? (
-          <div className="mt-4 flex space-x-4">
-            {authors.map((author) =>
-              author ? (
-                <Link
-                  key={author._id}
-                  href={`https://twitter.com/${author.twitter}`}
-                  className="flex items-center space-x-2 text-sm"
-                >
-                  <Image
-                    src={author.avatar}
-                    alt={author.title}
-                    width={42}
-                    height={42}
-                    className="rounded-full bg-white"
-                  />
-                  <div className="flex-1 text-left leading-tight">
-                    <p className="font-medium">{author.title}</p>
-                    <p className="text-[12px] text-muted-foreground">
-                      @{author.twitter}
-                    </p>
-                  </div>
-                </Link>
-              ) : null
-            )}
-          </div>
-        ) : null}
+        <hr className="my-8" />
+        <div>
+          {authors?.length ? (
+            <div className="mt-4 flex space-x-4">
+              {authors.map((author) =>
+                author ? (
+                  <RouterLink
+                    key={author._id}
+                    href={`https://twitter.com/${author.twitter}`}
+                    className="flex items-center space-x-2 text-sm"
+                  >
+                    <Image
+                      src={author.avatar}
+                      alt={author.title}
+                      width={42}
+                      height={42}
+                      className="rounded-full bg-white"
+                    />
+                    <div className="flex-1 text-left leading-tight">
+                      <p className="font-medium">{author.title}</p>
+                      <p className="text-[12px] text-muted-foreground">
+                        @{author.twitter}
+                      </p>
+                    </div>
+                  </RouterLink>
+                ) : null
+              )}
+            </div>
+          ) : null}
+        </div>
+        <hr className="my-8" />
       </div>
       {post.image && (
         <Image
@@ -153,10 +147,13 @@ export default async function PostPage(props: PostPageProps) {
       <Mdx code={post.body.code} />
       <hr className="mt-12" />
       <div className="flex justify-center py-6 lg:py-10">
-        <Link href="/blog" className={cn(buttonVariants({ variant: "ghost" }))}>
+        <RouterLink
+          href="/blog"
+          className={cn(buttonVariants({ variant: "ghost" }))}
+        >
           <Icons.chevronLeft className="mr-2 h-4 w-4" />
           See all posts
-        </Link>
+        </RouterLink>
       </div>
     </article>
   )

@@ -1,7 +1,7 @@
 export const Logo = () => {
   return (
     <span className="text-3xl font-bold" aria-label="allyship homepage">
-      <span className="text-red-400">a</span>
+      <span className="text-red-400">A</span>
       <span className="text-orange-400">l</span>
       <span className="text-amber-400">l</span>
       <span className="text-yellow-500">y</span>

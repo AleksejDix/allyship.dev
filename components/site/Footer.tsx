@@ -1,15 +1,17 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
+
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
 
 const sections = [
   {
-    title: "Product",
+    title: "Services",
     links: [
-      { name: "e2e tests", href: "#" },
-      { name: "a11y audits", href: "#" },
-      { name: "a11y courses", href: "#" },
+      { name: "e2e tests" },
+      { name: "a11y audits" },
+      { name: "a11y courses" },
       // { name: "workshops", href: "#" },
       // { name: "Integrations", href: "#" },
       // { name: "Pricing", href: "#" },
@@ -19,9 +21,9 @@ const sections = [
     title: "Company",
     links: [
       { name: "About", href: "/about" },
-      { name: "Team", href: "/team" },
+      // { name: "Team", href: "/team" },
       { name: "Blog", href: "/blog" },
-      { name: "Careers", href: "/jobs" },
+      // { name: "Careers", href: "/jobs" },
       { name: "Contact", href: "/contact" },
     ],
   },
@@ -39,9 +41,13 @@ const sections = [
   {
     title: "Social",
     links: [
-      { name: "Twitter", href: "#" },
-      { name: "Instagram", href: "#" },
-      { name: "LinkedIn", href: "#" },
+      { name: "Twitter", href: "https://x.com/aleksejdix" },
+      { name: "LinkedIn", href: "https://www.linkedin.com/in/aleksejdix/" },
+      { name: "GitHub", href: "https://github.com/AleksejDix" },
+      {
+        name: "Bluesky",
+        href: "https://bsky.app/profile/aleksejdix.bsky.social",
+      },
     ],
   },
 ]
@@ -67,10 +73,12 @@ export const Footer = () => {
                       key={linkIdx}
                       className="font-medium hover:text-primary"
                     >
-                      {link.href ? (
+                      {"href" in link ? (
                         <RouterLink href={link.href}>{link.name}</RouterLink>
                       ) : (
-                        <a aria-disabled="true">{link.name}</a>
+                        <a aria-disabled="true">
+                          {link.name} <Badge variant="outline">Soon</Badge>
+                        </a>
                       )}
                     </li>
                   ))}

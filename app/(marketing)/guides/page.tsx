@@ -1,9 +1,9 @@
 import Image from "next/image"
-import Link from "next/link"
 import { allPosts } from "contentlayer/generated"
 import { compareDesc } from "date-fns"
 
 import { formatDate } from "@/lib/utils"
+import { RouterLink } from "@/components/RouterLink"
 
 export const metadata = {
   title: "Blog",
@@ -55,9 +55,9 @@ export default async function BlogPage() {
                   {formatDate(post.date)}
                 </p>
               )}
-              <Link href={post.slug} className="absolute inset-0">
+              <RouterLink href={post.slug} className="absolute inset-0">
                 <span className="sr-only">View Article</span>
-              </Link>
+              </RouterLink>
             </article>
           ))}
         </div>
