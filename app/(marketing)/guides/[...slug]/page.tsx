@@ -1,23 +1,25 @@
-import { Block, CodeBlock, parseRoot } from "codehike/blocks";
-import { z } from "zod";
-import { Pre, RawCode, highlight } from "codehike/code";
+import Link from "next/link"
+import { Block, CodeBlock, parseRoot } from "codehike/blocks"
+import { highlight, Pre, RawCode } from "codehike/code"
 import {
-  Selection,
   Selectable,
+  Selection,
   SelectionProvider,
-} from "codehike/utils/selection";
-import Content from "./content.md";
-import Link from "next/link";
-import { tokenTransitions } from "@/components/annotaions/token-transitions";
+} from "codehike/utils/selection"
+import { z } from "zod"
+
+import { tokenTransitions } from "@/components/annotaions/token-transitions"
+
+import Content from "./content.md"
 
 const Schema = Block.extend({
   intro: Block,
   steps: z.array(Block.extend({ code: CodeBlock })),
   outro: Block,
-});
+})
 
 export default function Page() {
-  const { intro, steps, outro } = parseRoot(Content, Schema);
+  const { intro, steps, outro } = parseRoot(Content, Schema)
   return (
     <main className="container">
       <Link href="/">Back</Link>
@@ -50,16 +52,16 @@ export default function Page() {
       <h2>{outro.title}</h2>
       {outro.children}
     </main>
-  );
+  )
 }
 
 async function Code({ codeblock }: { codeblock: RawCode }) {
-  const highlighted = await highlight(codeblock, "github-dark");
+  const highlighted = await highlight(codeblock, "github-dark")
   return (
     <Pre
       code={highlighted}
       handlers={[tokenTransitions]}
       className="min-h-[40rem] bg-transparent"
     />
-  );
+  )
 }
