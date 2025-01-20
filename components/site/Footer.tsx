@@ -25,6 +25,7 @@ const sections = [
       { name: "Blog", href: "/blog" },
       // { name: "Careers", href: "/jobs" },
       { name: "Contact", href: "/contact" },
+      { name: "Newsletter", href: "/newsletter" },
     ],
   },
   {

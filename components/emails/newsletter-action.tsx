@@ -6,11 +6,11 @@ import { z } from "zod"
 import { env } from "@/env.mjs"
 import { NewsletterTemplate } from "@/components/emails/newsletter-template"
 
-import { contactFormSchema } from "./contact-schema"
+import { newsletterShema } from "./newsletter-schema"
 
 const resend = new Resend(env.RESEND_API_KEY)
 
-export async function contactFormAction(
+export async function newsletterFormAction(
   _prevState: unknown,
   formData: FormData
 ) {
@@ -19,20 +19,18 @@ export async function contactFormAction(
     .parse(Object.fromEntries(formData.entries()))
 
   try {
-    const data = contactFormSchema.parse(Object.fromEntries(formData))
+    const data = newsletterShema.parse(Object.fromEntries(formData))
 
     await resend.emails.send({
-      from: `Allyship <contact@allyship.dev>`,
-      to: ["privat@aleksejdix.com"],
-      subject: `New Message from ${data.name}`,
+      from: `Newsletter: <newsletter@allyship.dev>`,
+      to: [data.email],
+      subject: `Confirm your newsletter subscription`,
       react: NewsletterTemplate(data) as React.ReactElement,
     })
 
     return {
       defaultValues: {
-        name: "",
         email: "",
-        message: "",
       },
       success: true,
       errors: null,
