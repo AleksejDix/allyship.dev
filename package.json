@@ -18,6 +18,7 @@
     "@mdx-js/mdx": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^14.2.20",
+    "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@t3-oss/env-nextjs": "^0.11.1",
