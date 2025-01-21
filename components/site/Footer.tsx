@@ -10,6 +10,7 @@ const sections = [
     title: "Services",
     links: [
       { name: "e2e tests" },
+      { name: "a11y e2e tests" },
       { name: "a11y audits" },
       { name: "a11y courses" },
       // { name: "workshops", href: "#" },
@@ -25,7 +26,8 @@ const sections = [
       { name: "Blog", href: "/blog" },
       // { name: "Careers", href: "/jobs" },
       { name: "Contact", href: "/contact" },
-      { name: "Newsletter", href: "/newsletter" },
+      // { name: "Newsletter", href: "/newsletter" },
+      { name: "Brand", href: "/brand" },
     ],
   },
   {
@@ -37,13 +39,17 @@ const sections = [
       { name: "Privacy", href: "/privacy" },
       { name: "Terms and Conditions", href: "/terms" },
       { name: "Imprint", href: "/imprint" },
+      { name: "Glossary", href: "/glossary" },
     ],
   },
   {
     title: "Social",
     links: [
       { name: "Twitter", href: "https://x.com/aleksejdix" },
-      { name: "LinkedIn", href: "https://www.linkedin.com/in/aleksejdix/" },
+      {
+        name: "LinkedIn",
+        href: "https://www.linkedin.com/company/allyship-dev",
+      },
       { name: "GitHub", href: "https://github.com/AleksejDix" },
       {
         name: "Bluesky",
@@ -55,7 +61,10 @@ const sections = [
 
 export const Footer = () => {
   return (
-    <footer>
+    <footer aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">
+        Footer
+      </h2>
       <section className="pb-4 pt-8">
         <div className="container">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
@@ -66,9 +75,20 @@ export const Footer = () => {
               </p>
             </div>
             {sections.map((section, sectionIdx) => (
-              <div key={sectionIdx}>
-                <h3 className="mb-4 font-bold">{section.title}</h3>
-                <ul className="space-y-4 text-muted-foreground">
+              <nav
+                key={sectionIdx}
+                aria-labelledby={`footer-section-${sectionIdx}`}
+              >
+                <h3
+                  className="mb-4 font-bold"
+                  id={`footer-section-${sectionIdx}`}
+                >
+                  {section.title}
+                </h3>
+                <ul
+                  className="space-y-4 text-muted-foreground"
+                  aria-labelledby={`footer-section-${sectionIdx}`}
+                >
                   {section.links.map((link, linkIdx) => (
                     <li
                       key={linkIdx}
@@ -77,14 +97,14 @@ export const Footer = () => {
                       {"href" in link ? (
                         <RouterLink href={link.href}>{link.name}</RouterLink>
                       ) : (
-                        <a aria-disabled="true">
+                        <a aria-disabled="true" className="cursor-not-allowed">
                           {link.name} <Badge variant="outline">Soon</Badge>
                         </a>
                       )}
                     </li>
                   ))}
                 </ul>
-              </div>
+              </nav>
             ))}
           </div>
           <div className="mt-24 flex flex-col justify-between gap-4 border-t pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
@@ -97,7 +117,7 @@ export const Footer = () => {
                 <RouterLink href="/terms">Terms and Conditions</RouterLink>
               </li>
               <li className="underline hover:text-primary">
-                <RouterLink href="/privacy">Privacy Policy</RouterLink>
+                <RouterLink href="/privacy">Privacy</RouterLink>
               </li>
             </ul>
           </div>

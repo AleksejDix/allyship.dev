@@ -18,11 +18,15 @@ const config: PlaywrightTestConfig = {
 
   globalSetup: "./e2e/setup/globalSetup.ts",
 
+  reporter: [["html", { open: "onFirstRun" }]],
+
   use: {
     // Retry a test if its failing with enabled tracing. This allows you to analyse the DOM, console logs, network traffic etc.
     // More information: https://playwright.dev/docs/trace-viewer
     trace: "retry-with-trace",
     storageState: "./e2e/setup/storageState.json",
+    // Base URL to use in actions like `await page.goto('/')`.
+    baseURL: "http://127.0.0.1:3000",
   },
 
   projects: [
