@@ -5,7 +5,7 @@ test("WCAG 3.1.1: Validate lang attribute with BCP-47 standard", async ({
   page,
 }) => {
   // Navigate to the page
-  await page.goto("http://localhost:3000") // Replace with your URL
+  await page.goto("/") // Replace with your URL
 
   // Get the `lang` attribute of the <html> element
   const langAttribute = await page.getAttribute("html", "lang")

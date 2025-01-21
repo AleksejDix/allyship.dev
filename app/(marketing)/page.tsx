@@ -2,13 +2,14 @@
 
 import { Faqs } from "@/components/blocks/Faqs"
 import { Services } from "@/components/blocks/Services"
+import { Compliance } from "@/components/charts/Compliance"
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
 
 // import { Button } f rom "@/components/ui/button"
 
 const Page = () => (
-  <main className=" md:py-20 lg:py-40">
+  <main className="md:py-20 lg:py-40">
     <div className="container max-w-2xl">
       <div>
         {/* <Button variant="secondary" size="sm" className="gap-4">
@@ -28,7 +29,23 @@ const Page = () => (
       </div>
     </div>
     <Services />
+
+    <div className="container max-w-6xl space-y-8">
+      <div className="space-y-4 md:text-center ">
+        <h2 className="text-3xl font-bold md:text-5xl max-w-2xl tracking-tighter text-pretty text-center mx-auto">
+          Get Started with Allyship
+        </h2>
+        <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">
+          Start your journey to web accessibility mastery today. Allyship offers
+          a range of services to help you create inclusive digital experiences.
+        </p>
+      </div>
+
+      <Compliance />
+    </div>
+
     <Faqs />
+
     {/* <NewsletterFormSection /> */}
     {/* <div className="flex flex-row gap-3">
           <Button size="lg" className="gap-4" variant="outline">

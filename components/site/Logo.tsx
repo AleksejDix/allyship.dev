@@ -1,6 +1,16 @@
-export const Logo = () => {
+import React from "react"
+
+import { cn } from "@/lib/utils"
+
+type LogoProps = React.HTMLAttributes<HTMLSpanElement>
+
+export const Logo: React.FC<LogoProps> = ({ className, ...props }) => {
   return (
-    <span className="text-3xl font-bold" aria-label="allyship homepage">
+    <span
+      className={cn("text-3xl font-bold", className)}
+      {...props}
+      aria-label="allyship homepage"
+    >
       <span className="text-red-400">A</span>
       <span className="text-orange-400">l</span>
       <span className="text-amber-400">l</span>

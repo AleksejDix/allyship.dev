@@ -45,11 +45,14 @@ export const Faqs = () => {
   ]
 
   return (
-    <section className="py-32">
+    <section className="py-32" aria-labelledby="faq">
       <div className="container max-w-2xl">
         <header>
-          <h2 className="mb-4 text-3xl font-semibold md:mb-11 md:text-5xl">
-            Frequently Asked Questions
+          <h2
+            className="mb-4 text-3xl font-bold mx-auto md:mb-11 md:text-5xl md:text-center"
+            id="faq"
+          >
+            Questions & Answers
           </h2>
         </header>
         <Accordion type="single" collapsible>
