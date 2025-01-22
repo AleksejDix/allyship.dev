@@ -9,10 +9,10 @@ const sections = [
   {
     title: "Services",
     links: [
-      { name: "e2e tests" },
+      { name: "e2e tests", href: null },
       { name: "a11y e2e tests", href: "/services/a11y-e2e-tests" },
-      { name: "a11y audits" },
-      { name: "a11y courses" },
+      { name: "a11y audits", href: null },
+      { name: "a11y courses", href: null },
       // { name: "workshops", href: "#" },
       // { name: "Integrations", href: "#" },
       // { name: "Pricing", href: "#" },
@@ -94,7 +94,7 @@ export const Footer = () => {
                       key={linkIdx}
                       className="font-medium hover:text-primary"
                     >
-                      {"href" in link ? (
+                      {link.href ? (
                         <RouterLink href={link.href}>{link.name}</RouterLink>
                       ) : (
                         <a aria-disabled="true" className="cursor-not-allowed">

@@ -246,7 +246,7 @@ export const AccessibilityTests = () => {
 
           if (randomOutcome === "failed") {
             console.log(
-              `Test ${currentTest.id} (${currentTest.level}) failed. Propagating failure.`
+              `Test ${currentTest.criterion} (${currentTest.level}) failed. Propagating failure.`
             )
             propagateFailure(updatedTests, currentTest.level)
           }
@@ -270,7 +270,9 @@ export const AccessibilityTests = () => {
         test.status === "pending"
       ) {
         test.status = "failed"
-        console.log(`Propagated failure to Test ${test.id} (${test.level}).`)
+        console.log(
+          `Propagated failure to Test ${test.criterion} (${test.level}).`
+        )
       }
     })
   }
