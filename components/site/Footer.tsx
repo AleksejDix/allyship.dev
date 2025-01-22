@@ -10,7 +10,7 @@ const sections = [
     title: "Services",
     links: [
       { name: "e2e tests" },
-      { name: "a11y e2e tests" },
+      { name: "a11y e2e tests", href: "/services/a11y-e2e-tests" },
       { name: "a11y audits" },
       { name: "a11y courses" },
       // { name: "workshops", href: "#" },

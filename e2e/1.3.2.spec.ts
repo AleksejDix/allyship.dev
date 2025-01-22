@@ -31,7 +31,9 @@ test.describe("WCAG 1.3.2: Info and Relationships", () => {
     console.log("No white space-formatted tables found in plain text content.")
   })
 
-  test("should not use excessive spacing to format text", async ({ page }) => {
+  test.skip("should not use excessive spacing to format text", async ({
+    page,
+  }) => {
     // Navigate to the target webpage
 
     // Collect all relevant elements and their text

@@ -9,8 +9,8 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <header>
-        <div className="container py-4">
+      <header className="">
+        <div className="container ">
           <RouterLink href="/">
             <Logo />
           </RouterLink>

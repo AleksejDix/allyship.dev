@@ -30,6 +30,7 @@ const Page = () => (
         </p>
       </div>
     </div>
+
     <Stats />
     <Issues />
     <Services />
@@ -44,7 +45,6 @@ const Page = () => (
           a range of services to help you create inclusive digital experiences.
         </p>
       </div>
-
       <Compliance />
     </div>
 
