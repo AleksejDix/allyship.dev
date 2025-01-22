@@ -11,8 +11,8 @@ import { Compliance } from "@/components/charts/Compliance"
 // import { Button } f rom "@/components/ui/button"
 
 const Page = () => (
-  <main className="md:py-20 lg:py-40">
-    <div className="container max-w-2xl">
+  <main>
+    <div className="container max-w-2xl py-12">
       <div>
         {/* <Button variant="secondary" size="sm" className="gap-4">
             Read our launch article <MoveRight className="w-4 h-4" />
@@ -20,7 +20,7 @@ const Page = () => (
       </div>
       <div className="space-y-4 md:text-center">
         <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
-          Master Web Accessibility with Allyship
+          Master Web Accessibility
         </h1>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">
           Learn web accessibility through interactive guides, videos, and

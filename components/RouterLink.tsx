@@ -3,6 +3,8 @@
 import { HTMLAttributes } from "react"
 import Link, { LinkProps } from "next/link"
 
+import { cn } from "@/lib/utils"
+
 import { useRouterLinkContext } from "../providers/RouterLinkContext"
 
 type RouterLinkProps = LinkProps & HTMLAttributes<HTMLAnchorElement>
@@ -17,7 +19,10 @@ export const RouterLink = (props: RouterLinkProps) => {
     <Link
       {...props}
       aria-current={ariaCurrent}
-      className="aria-[current=page]:text-orange-400 aria-[current=page]:underline"
+      className={cn(
+        "aria-[current=page]:text-orange-400 aria-[current=page]:underline",
+        props.className
+      )}
     ></Link>
   )
 }

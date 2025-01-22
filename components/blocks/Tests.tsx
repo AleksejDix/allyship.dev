@@ -5,6 +5,7 @@ import Link from "next/link"
 import { CheckCircle, LoaderCircle, XCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 import {
   Card,
@@ -20,19 +21,19 @@ const initialTests: Test[] = [
     criterion: "1.1.1 Non-text Content",
     level: "A",
     link: "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html",
-    status: "pending",
+    status: "passed",
   },
   {
     criterion: "1.2.1 Audio-only and Video-only (Prerecorded)",
     level: "A",
     link: "https://www.w3.org/WAI/WCAG21/Understanding/audio-only-and-video-only-prerecorded.html",
-    status: "pending",
+    status: "passed",
   },
   {
     criterion: "1.2.2 Captions (Prerecorded)",
     level: "A",
     link: "https://www.w3.org/WAI/WCAG21/Understanding/captions-prerecorded.html",
-    status: "pending",
+    status: "failed",
   },
   {
     criterion: "1.2.3 Audio Description or Media Alternative (Prerecorded)",
@@ -44,13 +45,13 @@ const initialTests: Test[] = [
     criterion: "1.2.4 Captions (Live)",
     level: "AA",
     link: "https://www.w3.org/WAI/WCAG21/Understanding/captions-live.html",
-    status: "pending",
+    status: "failed",
   },
   {
     criterion: "1.2.5 Audio Description (Prerecorded)",
     level: "AA",
     link: "https://www.w3.org/WAI/WCAG21/Understanding/audio-description-prerecorded.html",
-    status: "pending",
+    status: "failed",
   },
   {
     criterion: "1.2.6 Sign Language (Prerecorded)",
@@ -228,97 +229,86 @@ const initialTests: Test[] = [
   },
 ]
 
-export const AccessibilityTests = () => {
-  const [tests, setTests] = useState(initialTests)
+type TestCasesProps = {
+  tests: Test[]
+}
+
+const TestCases = (props: TestCasesProps) => {
+  const [tests, setTests] = useState(props.tests)
 
   useEffect(() => {
-    const updateStatusSequentially = async () => {
-      const updatedTests = [...tests] // Make a copy of the tests state
+    setTests(props.tests)
+  }, [props.tests])
 
-      for (let i = 0; i < updatedTests.length; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 100)) // 100ms delay per test
+  return (
+    <div className="space-y-2">
+      {tests.map((test) => (
+        <div key={test.criterion}>
+          <div
+            className={cn(
+              test.status === "passed" && "text-green-500",
+              test.status === "pending" && "text-yellow-500",
+              test.status === "failed" && "text-red-500",
+              "flex items-center space-x-2 justify-between",
+              test.level === "AA" && "pl-6",
+              test.level === "AAA" && "pl-12"
+            )}
+          >
+            <span className="inline-flex items-center gap-2">
+              {test.status === "passed" && <CheckCircle size={16} />}
+              {test.status === "pending" && (
+                <LoaderCircle className="animate-spin" size={16} />
+              )}
+              {test.status === "failed" && <XCircle size={16} />}
 
-        const currentTest = updatedTests[i]
+              <Link href={test.link} className="font-medium">
+                {test.criterion}
+              </Link>
+            </span>
+            <span className="font-medium">{test.level}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
-        if (currentTest.status === "pending") {
-          const randomOutcome = Math.random() > 0.5 ? "passed" : "failed"
-          currentTest.status = randomOutcome
+export const AccessibilityTests = () => {
+  const [tests] = useState(initialTests)
+  const [value, setValue] = React.useState("All")
 
-          if (randomOutcome === "failed") {
-            console.log(
-              `Test ${currentTest.criterion} (${currentTest.level}) failed. Propagating failure.`
-            )
-            propagateFailure(updatedTests, currentTest.level)
-          }
-        }
-
-        // Batch state updates to minimize re-renders
-        setTests([...updatedTests])
-      }
-    }
-
-    updateStatusSequentially()
-  }, [])
-
-  const propagateFailure = (tests: Test[], failedLevel: TestLevel) => {
-    const levels = ["A", "AA", "AAA"]
-    const failedIndex = levels.indexOf(failedLevel)
-
-    tests.forEach((test) => {
-      if (
-        levels.indexOf(test.level) > failedIndex &&
-        test.status === "pending"
-      ) {
-        test.status = "failed"
-        console.log(
-          `Propagated failure to Test ${test.criterion} (${test.level}).`
-        )
-      }
-    })
+  function handleChange(newValue: string) {
+    setValue(newValue)
   }
+
+  const filterdList =
+    value === "All" ? tests : tests.filter((test) => test.level === value)
 
   return (
     <div className=" max-w-3xl">
       <Card>
         <CardHeader>
-          <CardTitle>
-            We test WCAG 2.1 criteria to catch accessibility issues early in
-            development
+          <CardTitle className="flex items-center justify-between">
+            <div>WCAG 2.1 Success criterions</div>
+            <div>
+              <ToggleGroup
+                type="single"
+                onValueChange={handleChange}
+                value={value}
+              >
+                <ToggleGroupItem value="All">All</ToggleGroupItem>
+                <ToggleGroupItem value="A">A</ToggleGroupItem>
+                <ToggleGroupItem value="AA">AA</ToggleGroupItem>
+                <ToggleGroupItem value="AAA">AAA</ToggleGroupItem>
+              </ToggleGroup>
+            </div>
           </CardTitle>
           <CardDescription>
             Over 100 test cases to ensure your application is accessible
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {tests.map((test) => (
-              <div key={test.criterion}>
-                <div
-                  className={cn(
-                    test.status === "passed" && "text-green-500",
-                    test.status === "pending" && "text-yellow-500",
-                    test.status === "failed" && "text-red-500",
-                    "flex items-center space-x-2 justify-between",
-                    test.level === "AA" && "pl-6",
-                    test.level === "AAA" && "pl-12"
-                  )}
-                >
-                  <span className="inline-flex items-center gap-2">
-                    {test.status === "passed" && <CheckCircle size={16} />}
-                    {test.status === "pending" && (
-                      <LoaderCircle className="animate-spin" size={16} />
-                    )}
-                    {test.status === "failed" && <XCircle size={16} />}
-
-                    <Link href={test.link} className="font-medium">
-                      {test.criterion}
-                    </Link>
-                  </span>
-                  <span className="font-medium">{test.level}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <TestCases tests={[...filterdList]} />
         </CardContent>
         <CardFooter>
           We make sure your application is accessible to all users. New tests

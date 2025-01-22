@@ -47,7 +47,7 @@ const chartData = [
     fill: "var(--color-form-labels)",
   },
   {
-    issue: "Missing document Language",
+    issue: "Missing Document Language",
     percent: 17,
     fill: "var(--color-form-labels)",
   },
@@ -139,17 +139,17 @@ export function Issues() {
                   <LabelList
                     dataKey="issue"
                     position="top"
-                    offset={12}
+                    offset={10}
                     className="fill-foreground"
-                    fontSize={12}
+                    fontSize={10}
                   />
                   <LabelList
                     dataKey="percent"
                     position="top"
                     formatter={(value: number) => `${value}%`}
-                    offset={36}
-                    className="fill-foreground"
-                    fontSize={12}
+                    offset={-42}
+                    className="fill-background"
+                    fontSize={42}
                   />
                 </Bar>
                 <ChartLegend content={<ChartLegendContent />} />
