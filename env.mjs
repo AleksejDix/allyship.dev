@@ -19,6 +19,8 @@ export const env = createEnv({
     // STRIPE_API_KEY: z.string().min(1),
     // STRIPE_WEBHOOK_SECRET: z.string().min(1),
     // STRIPE_PRO_MONTHLY_PLAN_ID: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_URL: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -27,6 +29,7 @@ export const env = createEnv({
     // NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+
     // GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     // GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     // GITHUB_ACCESS_TOKEN: process.env.GITHUB_ACCESS_TOKEN,
@@ -39,5 +42,7 @@ export const env = createEnv({
     // STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     // STRIPE_PRO_MONTHLY_PLAN_ID: process.env.STRIPE_PRO_MONTHLY_PLAN_ID,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
 })

@@ -1,6 +1,5 @@
-import { RouterLink } from "@/components/RouterLink"
 import { Footer } from "@/components/site/Footer"
-import { Logo } from "@/components/site/Logo"
+import { Header } from "@/components/site/Header"
 
 export default function RootLayout({
   children,
@@ -9,29 +8,21 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <header className="">
-        <div className="container ">
-          <RouterLink href="/">
-            <Logo />
+      <Header />
+      {/* <div className="container ">
+        <nav
+          aria-labelledby="primary-navigation"
+          className="inline-flex gap-4 ml-4"
+        >
+          <span id="primary-navigation" className="sr-only">
+            Website
+          </span>
+          <RouterLink href="/blog" className="font-medium hover:text-primary">
+            Blog
           </RouterLink>
-          <nav
-            aria-labelledby="primary-navigation"
-            className="inline-flex gap-4 ml-4"
-          >
-            <span id="primary-navigation" className="sr-only">
-              Website
-            </span>
-            <RouterLink href="/blog" className="font-medium hover:text-primary">
-              Blog
-            </RouterLink>
-            {/* <Link href="/guides" className="font-medium hover:text-primary">
-              Guides
-            </Link> */}
-          </nav>
-        </div>
-      </header>
-
-      {children}
+        </nav>
+      </div> */}
+      <main>{children}</main>
 
       <Footer />
     </>
