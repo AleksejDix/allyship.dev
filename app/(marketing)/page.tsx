@@ -1,7 +1,9 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
 
 import { Faqs } from "@/components/blocks/Faqs"
+import { Issues } from "@/components/blocks/Issues"
 import { Services } from "@/components/blocks/Services"
+import { Stats } from "@/components/blocks/Stats"
 import { Compliance } from "@/components/charts/Compliance"
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
@@ -28,6 +30,8 @@ const Page = () => (
         </p>
       </div>
     </div>
+    <Stats />
+    <Issues />
     <Services />
 
     <div className="container max-w-6xl space-y-8">
