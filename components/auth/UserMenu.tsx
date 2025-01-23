@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { createClient } from "@/lib/auth/server"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 import { SignoutButton } from "@/app/(auth)/_components/SignoutButton"
 
 import { RouterLink } from "../RouterLink"
+import ThemeToggle from "../ThemeToggle"
 
 export async function UserMenu() {
   const supabase = await createClient()
@@ -19,30 +20,40 @@ export async function UserMenu() {
 
   if (error || !data?.user) {
     return (
-      <RouterLink
-        href="/login"
-        className={buttonVariants({ variant: "default" })}
-      >
-        Log in
-      </RouterLink>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <RouterLink
+          href="/auth/login"
+          className={buttonVariants({ variant: "default" })}
+        >
+          Sign in
+        </RouterLink>
+      </div>
     )
   }
   return (
     <div className="flex items-center gap-2">
+      {/* <div className="absolute top-0 right-0 bg-black">
+        <pre>{JSON.stringify(data.user, null, 2)}</pre>
+      </div> */}
+
+      <ThemeToggle />
       <span className="hidden text-sm sm:inline-flex">{data.user.email}</span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <pre>{JSON.stringify(data.user.user_metadata, null, 2)}</pre>
+              {data.user.user_metadata.avatar_url && (
+                <AvatarImage
+                  src={data.user.user_metadata.avatar_url}
+                  alt={data.user.user_metadata.full_name}
+                />
+              )}
+
               <AvatarImage
-                src={
-                  data.user.user_metadata.image ??
-                  `https://api.dicebear.com/9.x/thumbs/svg?seed=${Math.floor(Math.random() * 100000) + 1}&randomizeIds=true`
-                }
+                src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${Math.floor(Math.random() * 100000) + 1}`}
                 alt={data.user.user_metadata.full_name ?? ""}
               />
-              <AvatarFallback>ally</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
