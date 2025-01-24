@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import { createServerActionProcedure } from "zsa"
 
 import { createClient } from "@/lib/auth/server"
@@ -8,21 +9,19 @@ export const supabasePrecedure = createServerActionProcedure().handler(
     return { supabase }
   }
 )
+export const userProcedure = createServerActionProcedure(
+  supabasePrecedure
+).handler(async ({ ctx }) => {
+  const { supabase } = ctx
 
-// export const userProcedure = createServerActionProcedure(
-//   supabasePrecedure
-// ).handler(async ({ ctx }) => {
-//   const { supabase } = ctx
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
-//   const {
-//     data: { user },
-//     error,
-//   } = await supabase.auth.getUser()
+  if (error || !user) {
+    redirect("/auth/login")
+  }
 
-//   if (error || !user) {
-//     revalidatePath("/", "layout")
-//     redirect("/auth/login")
-//   }
-
-//   return { user, supabase }
-// })
+  return { user, supabase }
+})
