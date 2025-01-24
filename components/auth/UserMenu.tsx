@@ -33,11 +33,6 @@ export async function UserMenu() {
   }
   return (
     <div className="flex items-center gap-2">
-      {/* <div className="absolute top-0 right-0 bg-black">
-        <pre>{JSON.stringify(data.user, null, 2)}</pre>
-      </div> */}
-
-      <ThemeToggle />
       <span className="hidden text-sm sm:inline-flex">{data.user.email}</span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -68,6 +63,12 @@ export async function UserMenu() {
               </p>
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuItem>
+            <RouterLink href="/account">Account</RouterLink>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <RouterLink href="/dashboard">Dashboard</RouterLink>
+          </DropdownMenuItem>
           <DropdownMenuItem>
             <SignoutButton />
           </DropdownMenuItem>

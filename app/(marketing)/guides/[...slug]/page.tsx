@@ -21,7 +21,7 @@ const Schema = Block.extend({
 export default function Page() {
   const { intro, steps, outro } = parseRoot(Content, Schema)
   return (
-    <main className="container">
+    <div className="container">
       <Link href="/">Back</Link>
       <h1 className="mt-8">{intro.title}</h1>
       {intro.children}
@@ -51,7 +51,7 @@ export default function Page() {
       </SelectionProvider>
       <h2>{outro.title}</h2>
       {outro.children}
-    </main>
+    </div>
   )
 }
 

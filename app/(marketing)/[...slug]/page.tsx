@@ -85,7 +85,7 @@ export default async function PagePage(props: PageProps) {
   }
 
   return (
-    <main>
+    <div>
       <article className="container max-w-3xl ">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
@@ -98,6 +98,6 @@ export default async function PagePage(props: PageProps) {
         <hr className="my-4" />
         <Mdx code={page.body.code} />
       </article>
-    </main>
+    </div>
   )
 }

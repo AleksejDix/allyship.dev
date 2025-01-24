@@ -6,7 +6,7 @@ import { NewsletterForm } from "@/components/emails/newsletter-form"
 
 const Page = () => {
   return (
-    <main className="container max-w-4xl mx-auto">
+    <div className="container max-w-4xl mx-auto">
       <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
         <div className="flex-1 space-y-4">
           <h1
@@ -22,7 +22,7 @@ const Page = () => {
       </div>
       <hr className="my-8" />
       <NewsletterForm />
-    </main>
+    </div>
   )
 }
 

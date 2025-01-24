@@ -1,3 +1,4 @@
+import { SitemapCrawling } from "@/components/blocks/SitemapCrawling"
 import { AccessibilityTests } from "@/components/blocks/Tests"
 
 export default async function PostPage() {
@@ -12,7 +13,7 @@ export default async function PostPage() {
         </p>
       </header>
       <hr className="my-8" />
-
+      <SitemapCrawling />
       <AccessibilityTests />
     </div>
   )

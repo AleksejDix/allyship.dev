@@ -37,7 +37,7 @@ const sections = [
       // { name: "Sales" },
       // { name: "Advertise", href: "#" },
       { name: "Privacy", href: "/privacy" },
-      { name: "Terms and Conditions", href: "/terms" },
+      { name: "Terms", href: "/terms" },
       { name: "Imprint", href: "/imprint" },
       { name: "Glossary", href: "/glossary" },
     ],
@@ -114,7 +114,7 @@ export const Footer = () => {
                 <RouterLink href="/imprint">Imprint</RouterLink>
               </li>
               <li className="underline hover:text-primary">
-                <RouterLink href="/terms">Terms and Conditions</RouterLink>
+                <RouterLink href="/terms">Terms</RouterLink>
               </li>
               <li className="underline hover:text-primary">
                 <RouterLink href="/privacy">Privacy</RouterLink>

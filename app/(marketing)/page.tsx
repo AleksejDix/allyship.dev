@@ -11,7 +11,7 @@ import { Compliance } from "@/components/charts/Compliance"
 // import { Button } f rom "@/components/ui/button"
 
 const Page = () => (
-  <main>
+  <>
     <div className="container max-w-2xl py-12">
       <div>
         {/* <Button variant="secondary" size="sm" className="gap-4">
@@ -35,7 +35,7 @@ const Page = () => (
     <Issues />
     <Services />
 
-    <div className="container max-w-6xl space-y-8">
+    <div className="container space-y-8">
       <div className="space-y-4 md:text-center ">
         <h2 className="text-3xl font-bold md:text-5xl max-w-2xl tracking-tighter text-pretty text-center mx-auto">
           Get Started with Allyship
@@ -59,7 +59,7 @@ const Page = () => (
             Sign up here <MoveRight className="w-4 h-4" />
           </Button>
         </div> */}
-  </main>
+  </>
 )
 
 export default Page

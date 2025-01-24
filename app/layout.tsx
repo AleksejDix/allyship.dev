@@ -6,6 +6,8 @@ import "@/styles/index.css"
 
 import { RouterLinkProvider } from "@/providers/RouterLinkContext"
 
+import { ThemeProvider } from "@/components/ThemeProvider"
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -51,7 +53,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark  dark:bg-zinc-950 antialiased">
       <body className="stickyfooter">
-        <RouterLinkProvider>{children}</RouterLinkProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <RouterLinkProvider>{children}</RouterLinkProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
