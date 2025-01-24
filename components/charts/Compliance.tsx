@@ -1,7 +1,13 @@
 "use client"
 
 import { ShieldCheck, TrendingUp } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+} from "recharts"
 
 import {
   Card,
@@ -36,7 +42,7 @@ const complianceConfig = {
 
 export function Compliance() {
   return (
-    <div className="grid md:grid-cols-3 gap-8">
+    <div className="grid md:grid-cols-3 gap-8 items-center">
       <Card className="col-span-2">
         <CardHeader>
           <CardTitle>WCAG Compliance Over Time</CardTitle>
@@ -46,36 +52,43 @@ export function Compliance() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={complianceConfig}>
-            <LineChart
-              accessibilityLayer
-              data={complianceData}
-              margin={{
-                left: 12,
-                right: 12,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Line
-                dataKey="compliance"
-                type="natural"
-                stroke="var(--color-compliance)"
-                strokeWidth={7}
-                dot={false}
-              />
-            </LineChart>
-          </ChartContainer>
+          <div className="aspect-video">
+            <ResponsiveContainer>
+              <ChartContainer
+                config={complianceConfig}
+                className="min-h-[100px]"
+              >
+                <LineChart
+                  accessibilityLayer
+                  data={complianceData}
+                  margin={{
+                    left: 12,
+                    right: 12,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
+                  <Line
+                    dataKey="compliance"
+                    type="natural"
+                    stroke="var(--color-compliance)"
+                    strokeWidth={7}
+                    dot={false}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
         <CardFooter className="flex-col items-start gap-2 text-sm">
           <div className="flex gap-2 font-medium leading-none">

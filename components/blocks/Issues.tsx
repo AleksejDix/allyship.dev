@@ -1,21 +1,19 @@
 "use client"
 
 import { Circle, TrendingUp } from "lucide-react"
-import { Bar, BarChart, LabelList, Rectangle, YAxis } from "recharts"
-
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  Bar,
+  BarChart,
+  LabelList,
+  Rectangle,
+  ResponsiveContainer,
+  XAxis,
+} from "recharts"
+
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
@@ -27,7 +25,7 @@ const chartData = [
     fill: "var(--color-low-contrast)",
   },
   {
-    issue: "Missing Alt Text",
+    issue: "Alt Text",
     percent: 55,
     fill: "var(--color-missing-alt)",
   },
@@ -37,7 +35,7 @@ const chartData = [
     fill: "var(--color-empty-links)",
   },
   {
-    issue: "Missing Form Labels",
+    issue: "Form Labels",
     percent: 44,
     fill: "var(--color-form-labels)",
   },
@@ -47,7 +45,7 @@ const chartData = [
     fill: "var(--color-form-labels)",
   },
   {
-    issue: "Missing Document Language",
+    issue: "Document Language",
     percent: 17,
     fill: "var(--color-form-labels)",
   },
@@ -71,10 +69,6 @@ const chartConfig = {
   },
   "form-labels": {
     label: "Missing Form Labels",
-    color: "hsl(var(--chart-2))",
-  },
-  other: {
-    label: "Other Issues",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
@@ -108,53 +102,51 @@ export function Issues() {
         <Card className="col-span-2">
           <CardHeader></CardHeader>
           <CardContent>
-            <ChartContainer
-              config={chartConfig}
-              className="min-h-[200px] w-full"
-            >
-              <BarChart accessibilityLayer data={chartData}>
-                <YAxis domain={[0, 100]} />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
+            <div className="aspect-[3/1]">
+              <ResponsiveContainer>
+                <ChartContainer config={chartConfig} className="min-h-[200px]">
+                  <BarChart accessibilityLayer data={chartData}>
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />}
+                    />
 
-                <Bar
-                  dataKey="percent"
-                  strokeWidth={2}
-                  radius={8}
-                  fill="gray"
-                  activeBar={({ ...props }) => {
-                    return (
-                      <Rectangle
-                        {...props}
-                        fillOpacity={0.8}
-                        stroke={props.payload.fill}
-                        strokeDasharray={4}
-                        strokeDashoffset={4}
+                    <Bar
+                      dataKey="percent"
+                      strokeWidth={2}
+                      radius={8}
+                      fill="gray"
+                      activeBar={({ ...props }) => {
+                        return (
+                          <Rectangle
+                            {...props}
+                            fillOpacity={0.8}
+                            stroke={props.payload.fill}
+                            strokeDasharray={4}
+                            strokeDashoffset={4}
+                          />
+                        )
+                      }}
+                    >
+                      <LabelList
+                        dataKey="percent"
+                        position="bottom"
+                        offset={-24}
+                        formatter={(value: number) => `${value}%`}
+                        className="fill-background text-muted-foreground"
+                        fontSize={16}
                       />
-                    )
-                  }}
-                >
-                  <LabelList
-                    dataKey="issue"
-                    position="top"
-                    offset={10}
-                    className="fill-foreground"
-                    fontSize={10}
-                  />
-                  <LabelList
-                    dataKey="percent"
-                    position="top"
-                    formatter={(value: number) => `${value}%`}
-                    offset={-42}
-                    className="fill-background"
-                    fontSize={42}
-                  />
-                </Bar>
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
+                    </Bar>
+                    <XAxis
+                      dataKey="issue"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
           <CardFooter className="flex-col items-start gap-2 text-sm">
             <div className="flex gap-2 font-medium leading-none">

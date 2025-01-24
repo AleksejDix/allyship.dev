@@ -19,6 +19,10 @@ export function MainNav() {
       <RouterLink href="/blog" className="font-medium hover:text-primary">
         Blog
       </RouterLink>
+
+      <RouterLink href="/courses" className="font-medium hover:text-primary">
+        Courses
+      </RouterLink>
     </nav>
   )
 }
