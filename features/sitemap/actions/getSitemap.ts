@@ -3,17 +3,16 @@
 import { urlSchema } from "@/features/sitemap/types"
 import { createServerAction } from "zsa"
 
-import { env } from "@/env.mjs"
-
 // Create the server action
 // Server action to fetch the sitemap
 export const getSitemap = createServerAction()
   .input(urlSchema)
   .handler(async ({ input }) => {
     try {
+      console.log(input)
       // Call the /api/sitemap endpoint
       const response = await fetch(
-        env.NEXT_PUBLIC_APP_URL + "/api/sitemap?url=" + input.url
+        "http://localhost:3000/api/sitemap?url=" + input.url
       )
 
       if (!response.ok) {

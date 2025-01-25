@@ -38,6 +38,7 @@
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-query": "^5.64.1",
     "@tanstack/react-query-devtools": "^5.64.1",
+    "@tanstack/react-table": "^8.20.6",
     "@uidotdev/usehooks": "^2.4.1",
     "bcp47-validate": "^1.0.0",
     "class-variance-authority": "^0.7.1",
