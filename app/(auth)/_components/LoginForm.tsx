@@ -56,7 +56,6 @@ export function LoginForm({
   const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
     const [response] = await execute(data) // Pass the form data to the server action
     if (response) {
-      console.log(response)
       // Handle error returned from the server
       form.setError("root.serverError", {
         type: "server",

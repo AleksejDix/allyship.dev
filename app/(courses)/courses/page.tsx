@@ -1,15 +1,5 @@
-import Image from "next/image"
-import Link from "next/link"
+import { CourseListPage } from "@/features/courses/components/CourseListPage"
 
-import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
 export default function Page() {
@@ -31,78 +21,7 @@ export default function Page() {
 
       <Separator className="my-8" />
 
-      <div className="grid gap-10 sm:grid-cols-2">
-        {/* Course 1 */}
-        <Card className="group relative">
-          <CardHeader className="p-0">
-            <AspectRatio ratio={16 / 9}>
-              {/* <Image
-                src="/images/course-1.jpg"
-                alt="Applied Accessibility for Beginners"
-                className="rounded-t-lg object-cover"
-              /> */}
-            </AspectRatio>
-          </CardHeader>
-          <CardContent className="space-y-4 p-6">
-            <CardTitle className="text-2xl font-extrabold">
-              Applied Accessibility for Beginners
-            </CardTitle>
-            <p className="text-muted-foreground">
-              This course is designed for beginners who want to learn about web
-              accessibility. It covers the basics of accessibility and how to
-              implement it on your website.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">Level: Beginner</Badge>
-              <Badge variant="secondary">Rating: 4.5/5</Badge>
-              <Badge variant="secondary">Language: English</Badge>
-            </div>
-          </CardContent>
-          <CardFooter className="p-6 pt-0">
-            <Badge variant="outline">Author: Aleksej Dix</Badge>
-          </CardFooter>
-          <Link href="/courses/course-1" className="absolute inset-0">
-            <span className="sr-only">View Course</span>
-          </Link>
-        </Card>
-
-        {/* Course 2 */}
-        <Card className="group relative">
-          <CardHeader className="p-0">
-            <AspectRatio ratio={16 / 9}>
-              {/* <Image
-                src="/images/course-2.jpg"
-                alt="Applied Accessibility Techniques"
-                className="rounded-t-lg object-cover"
-              /> */}
-            </AspectRatio>
-          </CardHeader>
-          <CardContent className="space-y-4 p-6">
-            <CardTitle className="text-2xl font-extrabold">
-              Applied Accessibility Techniques
-            </CardTitle>
-            <p className="text-muted-foreground">
-              Dive deeper into accessibility with this advanced course. Learn
-              practical techniques and tools to create web applications that
-              meet accessibility standards and provide a seamless experience for
-              all users.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">Duration: 4 hours</Badge>
-              <Badge variant="secondary">Level: Intermediate</Badge>
-              <Badge variant="secondary">Price: $79</Badge>
-              <Badge variant="secondary">Rating: 4.7/5</Badge>
-              <Badge variant="secondary">Language: English</Badge>
-            </div>
-          </CardContent>
-          <CardFooter className="p-6 pt-0">
-            <Badge variant="outline">Author: Aleksej Dix</Badge>
-          </CardFooter>
-          <Link href="/courses/course-2" className="absolute inset-0">
-            <span className="sr-only">View Course</span>
-          </Link>
-        </Card>
-      </div>
+      <CourseListPage />
     </div>
   )
 }

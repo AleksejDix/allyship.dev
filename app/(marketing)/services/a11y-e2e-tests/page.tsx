@@ -3,7 +3,7 @@ import { AccessibilityTests } from "@/components/blocks/Tests"
 
 export default async function PostPage() {
   return (
-    <div className="container max-w-3xl space-y-8">
+    <div className="container  space-y-8 py-8">
       <header className=" space-y-4">
         <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
           Automated Accessibility Tests
