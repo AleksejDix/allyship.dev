@@ -52,6 +52,8 @@ async function crawlWebsite(
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  return new NextResponse(`Hello from ${process.env.VERCEL_REGION}`)
+
   // Create Supabase client
   const supabase = await createClient()
 
