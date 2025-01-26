@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardTitle, CardDescription, CardHeader } from "@/components/ui/card"
 import { ArrowRight, Bot, FileSearch, Users, Code } from "lucide-react"
 import Link from "next/link"
+import { PageHeader } from '@/components/page-header'
+import { Separator } from "@/components/ui/separator"
 
 const services = [
   {
@@ -15,8 +17,7 @@ const services = [
       "Implementation guidance"
     ],
     href: "/services/audits",
-    gradient: "from-blue-500/10 via-blue-500/5 to-background",
-    accent: "text-blue-600",
+
   },
   {
     title: "Automated Monitoring",
@@ -29,8 +30,7 @@ const services = [
       "Automated fixes"
     ],
     href: "/services/a11y-e2e-tests",
-    gradient: "from-green-500/10 via-green-500/5 to-background",
-    accent: "text-green-600"
+
   },
   {
     title: "Accessibility Training",
@@ -43,8 +43,7 @@ const services = [
       "Certification"
     ],
     href: "/services/courses",
-    gradient: "from-purple-500/10 via-purple-500/5 to-background",
-    accent: "text-purple-600"
+
   },
   {
     title: "Development Support",
@@ -57,38 +56,26 @@ const services = [
       "Custom solutions"
     ],
     href: "/services/e2e-testing",
-    gradient: "from-orange-500/10 via-orange-500/5 to-background",
-    accent: "text-orange-600"
+
   }
 ]
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen">
+    <main className="container py-8">
       {/* Hero Section */}
-      <section
-        className="bg-gradient-to-b from-primary/10 via-background to-background border-b"
-        aria-labelledby="hero-heading"
-      >
-        <div className="container py-24 sm:py-32">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1
-              id="hero-heading"
-              className="text-4xl font-bold tracking-tight sm:text-6xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80"
-            >
-              Accessibility Services
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Comprehensive solutions to help make your digital products accessible to everyone.
-              Choose the service that best fits your needs.
-            </p>
-          </div>
-        </div>
-      </section>
+
+
+        <PageHeader
+          heading="Services"
+          description="Comprehensive solutions to help make your digital products accessible to everyone."
+        />
+
+      <Separator className="my-4" />
 
       {/* Services Grid */}
       <section
-        className="container py-24 sm:py-32"
+        className=" py-8"
         aria-labelledby="services-heading"
       >
         <h2 id="services-heading" className="sr-only">Our Services</h2>
@@ -96,33 +83,27 @@ export default function ServicesPage() {
           {services.map((service) => (
             <Card
               key={service.title}
-              className={`group overflow-hidden bg-gradient-to-br ${service.gradient} border-0 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] motion-safe:transform`}
             >
-              <CardContent className="p-8">
-                <service.icon
-                  className={`h-12 w-12 ${service.accent} mb-6 transition-transform group-hover:scale-110 motion-safe:transform`}
-                  aria-hidden="true"
-                />
-                <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <CardHeader>
+
+
+                <CardTitle>{service.title}</CardTitle>
+                <CardDescription >
                   {service.description}
-                </p>
-                <ul className="space-y-3 mb-8" role="list">
+                </CardDescription>
+                </CardHeader>
+              <CardContent>
+                <ul>
                   {service.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-3">
-                      <div
-                        className={`h-2 w-2 rounded-full ${service.accent.replace('text', 'bg')}`}
-                        aria-hidden="true"
-                      />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter className="p-8 pt-0">
+              <CardFooter>
                 <Button
                   asChild
-                  className="w-full group-hover:translate-x-1 transition-transform motion-safe:transform"
                 >
                   <Link href={service.href}>
                     Learn more about {service.title}
@@ -137,7 +118,7 @@ export default function ServicesPage() {
 
       {/* CTA Section */}
       <section
-        className="container py-24 sm:py-32 border-t"
+        className="container py-16 border-t border-border"
         aria-labelledby="cta-heading"
       >
         <div className="max-w-3xl mx-auto text-center space-y-8">

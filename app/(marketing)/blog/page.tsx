@@ -20,7 +20,7 @@ export default async function BlogPage() {
 
   return (
 
-      <div className="container py-8 space-y-8">
+      <div className="container py-8 space-y-8 mx-auto">
         <PageHeader
           heading="Blog"
           description="Keep up to date with the latest news and updates."
@@ -32,7 +32,7 @@ export default async function BlogPage() {
           {posts.map((post, index) => (
             <article
               key={post._id}
-              className="group relative rounded-lg border bg-card p-6 shadow-md transition-shadow hover:shadow-lg"
+              className="group relative rounded-lg border border-border bg-card p-6 shadow-md transition-shadow hover:shadow-lg"
             >
               {post.image && (
                 <Image

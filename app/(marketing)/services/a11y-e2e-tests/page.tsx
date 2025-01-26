@@ -45,7 +45,7 @@ export default function E2ETestingPage() {
       </Dialog>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-green-500/10 via-background to-background border-b">
+      <section className="border-b border-border">
         <div className="container py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
@@ -154,7 +154,7 @@ export default function E2ETestingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="bg-gradient-to-b from-background via-green-500/5 to-background border-y">
+      <section className="border-y border-border">
         <div className="container py-20">
           <h2 className="text-3xl font-bold text-center mb-12">Key Benefits</h2>
           <div className="grid md:grid-cols-3 gap-8">
