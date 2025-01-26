@@ -4,6 +4,8 @@ import { allPosts } from "contentlayer/generated"
 import { compareDesc } from "date-fns"
 
 import { formatDate } from "@/lib/utils"
+import { PageHeader } from "@/components/page-header"
+import { Separator } from "@/components/ui/separator"
 
 export const metadata = {
   title: "Blog",
@@ -17,24 +19,20 @@ export default async function BlogPage() {
     })
 
   return (
-    <div className="container  py-8">
-      <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
-        <div className="flex-1 space-y-4">
-          <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
-            Blog
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Keep up to date with the latest news and updates.
-          </p>
-        </div>
-      </div>
-      <hr className="my-8" />
-      {posts?.length ? (
-        <div className="grid gap-10 sm:grid-cols-2">
+
+      <div className="container py-8 space-y-8">
+        <PageHeader
+          heading="Blog"
+          description="Keep up to date with the latest news and updates."
+        />
+
+        <Separator className="my-4" />
+
+        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {posts.map((post, index) => (
             <article
               key={post._id}
-              className="group relative flex flex-col space-y-2"
+              className="group relative rounded-lg border bg-card p-6 shadow-md transition-shadow hover:shadow-lg"
             >
               {post.image && (
                 <Image
@@ -42,16 +40,18 @@ export default async function BlogPage() {
                   alt={post.title}
                   width={804}
                   height={452}
-                  className="rounded-md border bg-muted transition-colors"
+                  className="rounded-md border bg-muted transition-colors mb-4"
                   priority={index <= 1}
                 />
               )}
-              <h2 className="text-2xl font-extrabold">{post.title}</h2>
+              <h2 className="text-xl font-bold">{post.title}</h2>
               {post.description && (
-                <p className="text-muted-foreground">{post.description}</p>
+                <p className="mt-2 line-clamp-3 text-muted-foreground">
+                  {post.description}
+                </p>
               )}
               {post.date && (
-                <p className="text-sm text-muted-foreground">
+                <p className="mt-4 text-sm text-muted-foreground">
                   {formatDate(post.date)}
                 </p>
               )}
@@ -61,9 +61,6 @@ export default async function BlogPage() {
             </article>
           ))}
         </div>
-      ) : (
-        <p>No posts published.</p>
-      )}
     </div>
   )
 }

@@ -13,7 +13,7 @@ export default async function PostPage() {
   }
 
   return (
-    <div className="container max-w-3xl" aria-asdasd>
+    <div className="container max-w-3xl">
       <div>
         <header>
           <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">

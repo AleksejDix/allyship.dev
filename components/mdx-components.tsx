@@ -146,7 +146,7 @@ const components: Record<string, React.ComponentType<any>> = {
   pre: ({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
       className={cn(
-        "mb-4 mt-6 max-w-full overflow-x-auto rounded-lg border bg-black py-4",
+        "mb-4 mt-6 min-w-full overflow-x-auto rounded-lg border bg-black p-4",
         className
       )}
       {...props}
@@ -157,7 +157,7 @@ const components: Record<string, React.ComponentType<any>> = {
   ),
   figure: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <figure
-      className={cn("font-mono w-full overflow-x-auto", className)}
+      className={cn("relative overflow-auto my-6 w-full", className)}
       {...props}
     />
   ),
@@ -174,7 +174,7 @@ export function Mdx({ code }: MdxProps) {
   const Component = useMDXComponent(code)
 
   return (
-    <div className="mdx w-96 md:w-auto">
+    <div className="mdx">
       <Component className="w-full overflow-x-hidden" components={components} />
     </div>
   )

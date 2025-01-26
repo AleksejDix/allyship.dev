@@ -1,5 +1,5 @@
 import { DollarSign, Eye, TrendingUp, Users } from "lucide-react"
-
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 const stats = [
   {
     id: 1,
@@ -43,18 +43,18 @@ export function Stats() {
       </h2>
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div
+          <Card
             key={stat.id}
-            className="rounded-xl border bg-card text-card-foreground shadow p-6"
-            aria-label={stat.title}
           >
-            <div className="flex items-center justify-between pb-4">
+            <CardHeader className="flex flex-row items-center justify-between">
               <div className="text-sm font-medium">{stat.title}</div>
               <div className="h-8 w-8 text-muted-foreground">{stat.icon}</div>
-            </div>
-            <div className="text-2xl font-bold mb-2">{stat.value}</div>
-            <p className="text-sm text-muted-foreground">{stat.description}</p>
-          </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold mb-2">{stat.value}</div>
+              <p className="text-sm text-muted-foreground">{stat.description}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

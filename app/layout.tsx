@@ -52,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark  dark:bg-zinc-950 antialiased">
-      <body className="stickyfooter">
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

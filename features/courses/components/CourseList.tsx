@@ -1,4 +1,5 @@
 import { CoursePreview } from "./CoursePreview"
+import Link from "next/link"
 
 type CourseListProps = {
   courses: Course[]
@@ -6,10 +7,12 @@ type CourseListProps = {
 
 export const CourseList = ({ courses }: CourseListProps) => {
   return (
-    <ul className="grid gap-4 grid-cols-4">
+    <ul className="grid gap-4 md:grid-cols-3">
       {courses.map((course) => (
         <li key={course.id}>
-          <CoursePreview course={course} />
+          <Link href={`/courses/${course.id}`}>
+            <CoursePreview course={course} />
+          </Link>
         </li>
       ))}
     </ul>
