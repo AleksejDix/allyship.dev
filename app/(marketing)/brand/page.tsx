@@ -8,19 +8,15 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Logo } from "@/components/site/Logo"
+import { PageHeader } from "@/components/page-header"
+import { Separator } from "@/components/ui/separator"
 
 export default async function PostPage() {
   return (
-    <div className="container space-y-8">
-      <header>
-        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
-          Brand
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Brand Assets and Guidelines
-        </p>
-      </header>
-      <hr className="my-8" />
+    <div className="container py-8">
+      <PageHeader heading="Brand" description="Brand Assets and Guidelines" />
+      <Separator className="my-8" />
+
 
       <Card>
         <CardHeader>

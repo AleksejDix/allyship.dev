@@ -49,7 +49,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b">
+      <section className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b border-border">
         <div className="container py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
@@ -93,7 +93,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
       </section>
 
       {/* Why Take This Course */}
-      <section className="bg-gradient-to-tr from-background via-primary/5 to-background">
+      <section className="">
         <FeatureCardsGrid
           title="Why Take This Course?"
           items={[
@@ -122,7 +122,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
       </section>
 
       {/* What You'll Learn */}
-      <section className="bg-gradient-to-bl from-primary/10 via-primary/5 to-background border-y">
+      <section className="border-y border-border">
         <div className="container py-20">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">What You'll Learn</h2>
@@ -178,7 +178,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
       </section>
 
       {/* Course Features */}
-      <section className="container py-20 bg-gradient-to-tl from-primary/5 via-background to-background">
+      <section className="container py-20">
         <h2 className="text-3xl font-bold text-center mb-12">Everything You Need to Succeed</h2>
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-6">

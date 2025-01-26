@@ -19,8 +19,7 @@ export default async function BlogPage() {
     })
 
   return (
-
-      <div className="container py-8 space-y-8 mx-auto">
+      <div className="container py-8">
         <PageHeader
           heading="Blog"
           description="Keep up to date with the latest news and updates."
@@ -40,7 +39,7 @@ export default async function BlogPage() {
                   alt={post.title}
                   width={804}
                   height={452}
-                  className="rounded-md border bg-muted transition-colors mb-4"
+                  className="rounded-md border border-border bg-muted transition-colors mb-4"
                   priority={index <= 1}
                 />
               )}

@@ -6,7 +6,7 @@ export default function AuditsPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/10 via-primary/5 to-background border-b">
+      <section className="bg-background border-b border-border">
         <div className="container py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
@@ -109,7 +109,7 @@ export default function AuditsPage() {
       </section>
 
       {/* What We Check */}
-      <section className="bg-gradient-to-b from-background via-primary/5 to-background border-y">
+      <section className="bg-background border-y border-border">
         <div className="container py-20">
           <h2 className="text-3xl font-bold text-center mb-12">What We Check</h2>
           <div className="grid md:grid-cols-3 gap-8">

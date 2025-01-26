@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { allTerms } from "contentlayer/generated"
-
+import { PageHeader } from "@/components/page-header"
+import { Separator } from "@/components/ui/separator"
 // import { Mdx } from "@/components/mdx-components"
 
 import "@/styles/mdx.css"
@@ -13,19 +14,12 @@ export default async function PostPage() {
   }
 
   return (
-    <div className="container max-w-3xl">
+    <div className="container py-8">
       <div>
-        <header>
-          <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
-            Glossary
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Learn the language of web accessibility.
-          </p>
-        </header>
-        <hr className="my-8" />
+        <PageHeader heading="Glossary" description="Learn the language of web accessibility." />
+        <Separator className="my-8" />
 
-        <ul className="space-y-2">
+        <ul className="space-y-2 max-w-[65ch]">
           {terms.map((term) => {
             return (
               <li

@@ -19,7 +19,7 @@ const components: Record<string, React.ComponentType<any>> = {
   h2: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
       className={cn(
-        "mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
+        "mt-10 scroll-m-20 border-b border-border pb-1 text-3xl font-semibold tracking-tight first:mt-0",
         className
       )}
       {...props}
@@ -103,7 +103,7 @@ const components: Record<string, React.ComponentType<any>> = {
     ...props
   }: React.ImgHTMLAttributes<HTMLImageElement>) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img className={cn("rounded-md border", className)} alt={alt} {...props} />
+    <img className={cn("rounded-md border border-border", className)} alt={alt} {...props} />
   ),
   hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
     <hr className="my-4 md:my-8" {...props} />
@@ -146,7 +146,7 @@ const components: Record<string, React.ComponentType<any>> = {
   pre: ({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
       className={cn(
-        "mb-4 mt-6 min-w-full overflow-x-auto rounded-lg border bg-black p-4",
+        "mb-4 mt-6 min-w-full overflow-x-auto rounded-lg border border-border bg-black p-4",
         className
       )}
       {...props}

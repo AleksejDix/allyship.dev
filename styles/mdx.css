@@ -30,3 +30,11 @@
 [data-rehype-pretty-code-title] + pre {
   @apply mt-0;
 }
+
+:not(pre) > code {
+  @apply rounded-md bg-black text-yellow-400 px-1.5 py-0.5 text-sm font-medium;
+}
+
+.prose a, .mdx a {
+  @apply text-yellow-400 hover:text-yellow-500 transition-colors;
+}
