@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { allPages } from "contentlayer/generated"
-
+import { Separator } from "@/components/ui/separator"
 import { Mdx } from "@/components/mdx-components"
 import { PageHeader } from "@/components/page-header"
 
@@ -87,10 +87,12 @@ export default async function PagePage(props: PageProps) {
 
   return (
     <div>
-      <article className="container max-w-3xl ">
+      <article className="container py-8">
         <PageHeader heading={page.title} description={page.description}/>
-        <hr className="my-4" />
-        <Mdx code={page.body.code} />
+        <Separator className="my-4" />
+        <div className="max-w-[65ch]">
+          <Mdx code={page.body.code} />
+        </div>
       </article>
     </div>
   )
