@@ -12,6 +12,7 @@
     "test:e2e:headless": "npx playwright test --headed"
   },
   "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
     "@hookform/resolvers": "^3.10.0",
     "@mdx-js/esbuild": "^3.1.0",
     "@mdx-js/loader": "^3.1.0",
@@ -43,6 +44,7 @@
     "@tanstack/react-table": "^8.20.6",
     "@uidotdev/usehooks": "^2.4.1",
     "@vercel/og": "^0.6.5",
+    "axe-core": "^4.10.2",
     "bcp47-validate": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

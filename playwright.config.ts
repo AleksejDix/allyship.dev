@@ -1,5 +1,6 @@
 import type { PlaywrightTestConfig } from "@playwright/test"
 import { devices } from "@playwright/test"
+import { defineConfig } from '@playwright/test'
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
@@ -27,6 +28,8 @@ const config: PlaywrightTestConfig = {
     storageState: "./e2e/setup/storageState.json",
     // Base URL to use in actions like `await page.goto('/')`.
     baseURL: "http://127.0.0.1:3000",
+    // Capture screenshot on failure
+    screenshot: 'only-on-failure',
   },
 
   projects: [
@@ -38,4 +41,5 @@ const config: PlaywrightTestConfig = {
     },
   ],
 }
-export default config
+
+export default defineConfig(config)
