@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/auth/server"
+
 import { VideoPlayer } from "@/features/courses/components/video-player"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CheckCircle, Clock, Users, Target, Zap, Award, BarChart } from "lucide-react"
@@ -9,13 +8,8 @@ import { FeatureCardsGrid } from "@/components/feature-cards-grid"
 
 
 export default async function CoursePage({ params }: { params: { slug: string[] } }) {
-  const supabase = await createClient()
   const courseId = params.slug[0]
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    redirect("/auth/login")
-  }
 
   const course = {
     id: courseId,

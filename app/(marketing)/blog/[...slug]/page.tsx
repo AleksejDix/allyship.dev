@@ -10,7 +10,7 @@ import Image from "next/image"
 import RouterLink from "next/link"
 
 import { env } from "@/env.mjs"
-import { absoluteUrl, cn, formatDate } from "@/lib/utils"
+import { absoluteUrl, cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 import { PageHeader } from "@/components/page-header"
