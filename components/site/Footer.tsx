@@ -11,7 +11,7 @@ const sections = [
     links: [
       { name: "e2e tests", href: null },
       { name: "a11y e2e tests", href: "/services/a11y-e2e-tests" },
-      { name: "a11y audits", href: null },
+      { name: "a11y audits", href: "/services/audits" },
       { name: "a11y courses", href: null },
       // { name: "workshops", href: "#" },
       // { name: "Integrations", href: "#" },
@@ -107,7 +107,7 @@ export const Footer = () => {
               </nav>
             ))}
           </div>
-          <div className="mt-24 flex flex-col justify-between gap-4 border-t pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
+          <div className="mt-24 flex flex-col justify-between gap-4 border-t border-border pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
             <p>© 2024 Allyship. All rights reserved.</p>
             <ul className="flex gap-4">
               <li className="underline hover:text-primary">

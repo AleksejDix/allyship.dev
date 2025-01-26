@@ -18,3 +18,11 @@ type Test = {
   link: string
   status: TestStatus
 }
+
+
+type Workspace = {
+  id: string
+  name: string
+  createdAt: Date
+  updatedAt: Date
+}
