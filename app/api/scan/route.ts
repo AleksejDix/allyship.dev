@@ -15,8 +15,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Launch a Chromium browser
-    const browser = await chromium.launch()
+    // Connect to BrowserCat with correct URL and headers
+    const browser = await chromium.connect("wss://api.browsercat.com/connect", {
+      headers: {
+        "Api-Key": process.env.BROWSERCAT_API_KEY || "",
+      },
+    })
+
     const context = await browser.newContext()
     const page = await context.newPage()
 
