@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/auth/server"
+import { SignoutButton } from "@/features/user/components/user-logout"
+
+import { createClient } from "@/lib/supabase/server"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
@@ -8,7 +10,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SignoutButton } from "@/app/(auth)/_components/SignoutButton"
 
 import { RouterLink } from "../RouterLink"
 import ThemeToggle from "../ThemeToggle"
@@ -67,7 +68,7 @@ export async function UserMenu() {
             <RouterLink href="/account">Account</RouterLink>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <RouterLink href="/dashboard">Dashboard</RouterLink>
+            <RouterLink href="/spaces">Spaces</RouterLink>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <SignoutButton />

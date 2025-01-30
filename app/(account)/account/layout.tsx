@@ -1,12 +1,12 @@
 import { Footer } from "@/components/site/Footer"
 import { Header } from "@/components/site/Header"
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+type RootLayoutProps = {
   children: React.ReactNode
-}>) {
-  return (
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
+    return (
     <>
       <Header />
       <main>{children}</main>

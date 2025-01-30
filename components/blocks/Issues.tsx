@@ -102,7 +102,7 @@ export function Issues() {
         <Card className="col-span-2">
           <CardHeader></CardHeader>
           <CardContent>
-            <div className="aspect-[3/1]">
+            <div className="w-full">
               <ResponsiveContainer>
                 <ChartContainer config={chartConfig} className="min-h-[200px]">
                   <BarChart accessibilityLayer data={chartData}>

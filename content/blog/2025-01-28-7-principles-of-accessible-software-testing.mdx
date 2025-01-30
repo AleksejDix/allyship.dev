@@ -1,0 +1,112 @@
+---
+title: "7 Principles of Accessible Software Testing"
+description: "Learn the 7 principles of software testing, their impact on accessibility, and how WCAG ensures inclusive, user-friendly applications."
+date: "2025-01-28"
+authors:
+  - aleksej-dix
+---
+
+# 7 Principles of Software Testing: Explained Feynman Style
+
+Let me ask you this: why do we test software? Is it to prove it’s perfect? No way! Testing is like shaking a tree to see if any apples fall off—you’re trying to find the weak spots, the bugs. The beauty of testing lies in its principles, and once you get them, it all makes sense. Let’s explore these principles in simple terms and see how accessibility (hello, **WCAG**) fits into the picture.
+
+---
+
+## Principle 1: Testing Shows Presence of Defects
+
+Testing is like turning on a flashlight in a dark room. It helps you see the problems, but it doesn’t guarantee there are no more hiding in the corners. In other words, **testing shows that bugs exist, but it can’t prove there are none left.**
+
+### Accessibility Insight:
+Think about accessibility: you might find missing alt text for images, but unless you dig deeper, you might miss a color contrast issue. For example:
+- Ensure error messages are descriptive and helpful (WCAG 3.3.1).
+- Check that interactive elements are operable by keyboard (WCAG 2.1.1).
+
+---
+
+## Principle 2: Exhaustive Testing Is Impossible
+
+Can you imagine testing every single combination of inputs for a web form? It’s like trying to count grains of sand on a beach—not happening. Instead, we prioritize what to test based on risks and importance.
+
+### Accessibility Insight:
+Exhaustive accessibility testing isn’t realistic either. Instead, focus on areas that matter most:
+- High-traffic pages.
+- Critical features like forms and navigation.
+- Key WCAG principles, such as color contrast (WCAG 1.4.3) and text alternatives for images (WCAG 1.1.1).
+
+---
+
+## Principle 3: Early Testing
+
+The earlier you test, the better. Finding a bug in the requirements phase is like catching a typo before printing a book. It saves time, money, and headaches. Start testing as soon as you can!
+
+### Accessibility Insight:
+Start thinking about accessibility early too. During the design phase, make sure:
+- Navigation is structured with landmarks like `<header>`, `<nav>`, and `<main>` (WCAG 1.3.1).
+- Interactive elements like buttons and links are properly labeled.
+
+Tools like [axe](https://www.deque.com/axe/) can help identify WCAG issues from the get-go.
+
+---
+
+## Principle 4: Defect Clustering
+
+Here’s the deal: most bugs hang out in a few spots, like bees around honey. These “problem areas” often have complex or rushed code. Focus your energy there.
+
+### Accessibility Insight:
+Accessibility issues tend to cluster too—especially in forms, navigation, or dynamic content. For example:
+- Ensure all form fields have clear labels (WCAG 3.3.2).
+- Validate that your skip links work and lead to meaningful content (WCAG 2.4.1).
+
+---
+
+## Principle 5: Pesticide Paradox
+
+If you keep using the same tests, eventually they’ll stop catching bugs. It’s like pests getting immune to pesticides. To stay effective, you need fresh tests and approaches.
+
+### Accessibility Insight:
+Accessibility testing needs regular updates too. As your site evolves, new issues might creep in. Keep testing:
+- Against updated WCAG standards (like WCAG 2.2).
+- Using different assistive technologies (e.g., screen readers like NVDA or VoiceOver).
+
+---
+
+## Principle 6: Testing Is Context-Dependent
+
+You wouldn’t test a space shuttle the same way you test a coffee maker, right? Testing depends on what you’re building and who it’s for.
+
+### Accessibility Insight:
+Context matters for accessibility too. A banking app must be secure and accessible for all users, while a gaming app might prioritize navigation ease. Focus on:
+- Ensuring critical workflows are accessible (WCAG 2.4.5).
+- Making dynamic content easy to navigate (WCAG 2.1.2).
+
+---
+
+## Principle 7: Absence of Errors Fallacy
+
+Even if all tests pass and no bugs are found, that doesn’t mean the product is good. A flawless system that doesn’t meet user needs is still a failure.
+
+### Accessibility Insight:
+A bug-free app isn’t necessarily accessible. WCAG helps ensure your product works for everyone by:
+- Making content adaptable (WCAG 1.3.2).
+- Ensuring compatibility with assistive tech (WCAG 4.1.2).
+
+---
+
+## How WCAG Fits Into Software Testing
+
+Accessibility is part of quality. Incorporating **WCAG** into your testing ensures your product is inclusive and usable by all. Here’s how WCAG aligns with testing:
+
+1. **Perceivable**: Provide alt text for images and captions for videos.
+2. **Operable**: Ensure keyboard navigation works for all interactive elements.
+3. **Understandable**: Use clear instructions and error messages.
+4. **Robust**: Support various browsers and assistive technologies.
+
+---
+
+## Wrapping It All Up
+
+The 7 principles of software testing are like a roadmap. They guide you to focus on what matters, avoid common pitfalls, and keep improving. Add WCAG into the mix, and you’re not just building functional software—you’re building software that works for everyone.
+
+> “What I cannot create, I do not understand.” – Richard Feynman
+
+So, start testing early, think about accessibility, and keep learning. The bugs—and barriers—won’t stand a chance!
