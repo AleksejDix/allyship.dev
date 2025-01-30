@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ["A11y", "Accessibility", "Testing", "Next.js", "Nuxt.js"],
   authors: [
     {
       name: "Aleksej Dix",

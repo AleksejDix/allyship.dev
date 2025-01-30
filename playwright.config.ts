@@ -1,6 +1,5 @@
 import type { PlaywrightTestConfig } from "@playwright/test"
-import { devices } from "@playwright/test"
-import { defineConfig } from '@playwright/test'
+import { defineConfig, devices } from "@playwright/test"
 
 // Reference: https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
@@ -29,7 +28,7 @@ const config: PlaywrightTestConfig = {
     // Base URL to use in actions like `await page.goto('/')`.
     baseURL: "http://127.0.0.1:3000",
     // Capture screenshot on failure
-    screenshot: 'only-on-failure',
+    screenshot: "only-on-failure",
   },
 
   projects: [

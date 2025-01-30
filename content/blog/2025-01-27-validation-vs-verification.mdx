@@ -1,0 +1,132 @@
+---
+title: "Verification vs Validation: Understanding the Difference and WCAG’s Role in Accessibility"
+description: "Learn the key differences between verification and validation in software testing, and discover how WCAG ensures accessibility for all users."
+date: "2025-01-27"
+authors:
+  - nataliia-luchytska
+---
+
+
+# Verification and Validation: What’s the Difference?
+
+Imagine this: You’re designing a bicycle. You build it, check that all the specifications match—two wheels, handlebars, pedals. It’s perfect! But wait, you forgot to consider that the target user is a 3-year-old. A two-wheeled bike won’t work for them—they need a tricycle. This is the difference between **verification** and **validation**, and it’s a fundamental concept in software testing and development.
+
+In this blog post, we’ll break it down simply, with examples to make these terms crystal clear. We’ll also explore how **WCAG** (Web Content Accessibility Guidelines) ties into these processes to ensure accessibility for all users.
+
+---
+
+## What Is Verification?
+
+**Verification** is about checking that a product meets the requirements and specifications. It answers the question: **"Are we building the product right?"**
+
+This process focuses on:
+- Ensuring all specified requirements are implemented.
+- Confirming that the product behaves as expected according to design documents.
+- Checking functionality without necessarily considering the end user’s experience.
+
+### Example:
+You’re tasked with testing a television. The requirements specify:
+- Screen size: 55 inches.
+- Ability to connect to HDMI devices.
+- Built-in support for YouTube.
+
+During verification, you ensure:
+1. The TV screen measures exactly 55 inches.
+2. HDMI devices connect successfully.
+3. YouTube opens and streams content without issues.
+
+If all of this works as intended, the product passes verification.
+
+---
+
+## What Is Validation?
+
+**Validation** ensures that the product meets the needs of the end user. It answers the question: **"Are we building the right product?"**
+
+While verification focuses on technical correctness, validation looks at usability, functionality, and whether the product solves the user’s problems.
+
+### Example:
+Let’s go back to the television. Imagine the TV is technically perfect, but you discover:
+- The remote control is too complicated for users.
+- The YouTube app has a confusing interface.
+- A common target audience uses streaming services that aren’t supported.
+
+In validation, you test whether the TV provides a good experience for the user and fulfills their expectations.
+
+---
+
+## Key Differences Between Verification and Validation
+
+| **Aspect**            | **Verification**                                              | **Validation**                                              |
+|------------------------|--------------------------------------------------------------|------------------------------------------------------------|
+| **Focus**             | Meeting specifications and requirements.                     | Meeting the needs of the user.                             |
+| **Question Answered** | "Are we building the product right?"                         | "Are we building the right product?"                      |
+| **Timing**            | Early in the development lifecycle (e.g., design phase).     | Later stages, involving real-world testing and feedback.   |
+| **Examples**          | Code reviews, design document checks, static analysis.       | Usability testing, user feedback, real-world use cases.    |
+
+---
+
+## Dynamic and Static Testing
+
+Sometimes people think verification is always static (no code execution) and validation is dynamic (code execution). While this is often true, it’s not a strict rule.
+
+- **Static Verification**: Reviewing documents, inspecting code, or conducting walkthroughs without running the program.
+- **Dynamic Verification**: Running tests to ensure the product functions correctly.
+
+Similarly, validation can include both:
+- Static validation: Reviewing requirements to ensure user needs are addressed.
+- Dynamic validation: Testing the product with real users or realistic scenarios.
+
+---
+
+## Incorporating WCAG into Verification and Validation
+
+When it comes to web development, ensuring accessibility is critical. This is where **WCAG (Web Content Accessibility Guidelines)** plays a role in both verification and validation.
+
+### WCAG in Verification
+In the verification stage, WCAG helps ensure that your website meets accessibility standards by checking against specific criteria, such as:
+- Providing text alternatives for non-text content (**WCAG 1.1.1**).
+- Ensuring sufficient color contrast between text and background (**WCAG 1.4.3**).
+- Structuring content with semantic HTML elements to support assistive technologies (**WCAG 1.3.1**).
+
+### WCAG in Validation
+Validation focuses on real-world usability. Here, WCAG helps confirm that:
+- Screen readers can effectively navigate and interpret the website.
+- Keyboard-only navigation is seamless and intuitive.
+- Users with disabilities can perform essential tasks without barriers, such as filling out forms or making purchases.
+
+For example, during validation, you might test your site with actual users who rely on assistive technologies to ensure that the design and functionality meet their needs.
+
+---
+
+## Why Both Matter
+
+Skipping verification can lead to a product that doesn’t meet the basic requirements. Skipping validation can result in a product that technically works but fails to satisfy users.
+
+### Example: Subscription Plans
+Imagine offering a subscription bundle with three services. Verification ensures the bundle applies the discount correctly. Validation, however, might reveal that users only want one service and find the bundle irrelevant.
+
+By integrating WCAG into both verification and validation, you ensure that your product is not only functional but also accessible and inclusive.
+
+---
+
+## A Simple Recap
+
+- **Verification**: Ensures the product is built correctly, meeting requirements and specifications.
+- **Validation**: Confirms the product meets user needs and provides value.
+- **WCAG**: Helps ensure the product is accessible to all users, addressing both technical and usability aspects.
+
+### Key Questions:
+1. **Verification:** Are we meeting the client’s specifications?
+2. **Validation:** Are we solving the user’s problem?
+3. **Accessibility:** Can all users, regardless of ability, interact with the product effectively?
+
+---
+
+## Closing Thoughts
+
+Understanding verification, validation, and WCAG is vital for software testing and development. While they often overlap in practice, knowing their distinctions ensures you’re building a product that works *and* delights users while being accessible to everyone.
+
+> “It is far better to foresee even without certainty than not to foresee at all.” – Henri Poincaré
+
+Remember, great testing isn’t just about ticking off requirements. It’s about creating solutions that people love to use—and can use.

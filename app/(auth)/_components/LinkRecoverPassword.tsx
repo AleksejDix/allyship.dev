@@ -1,12 +1,9 @@
-import Link from "next/link"
+import {RouterLink} from "@/components/RouterLink"
 
 export const LinkRecoverPassword = () => {
   return (
-    <Link
-      href="/auth/recover-password"
-      className="underline underline-offset-4 "
-    >
+    <RouterLink href="/auth/recover-password">
       Recover Password
-    </Link>
+    </RouterLink>
   )
 }

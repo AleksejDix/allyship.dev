@@ -1,9 +1,9 @@
-import { LoginForm } from "@/app/(auth)/_components/LoginForm"
+import { UserLoginForm } from "@/features/user/components/user-login-form"
 
 export default function LoginPage() {
   return (
     <div className="container max-w-md py-6">
-      <LoginForm />
+      <UserLoginForm />
     </div>
   )
 }

@@ -15,15 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import { Form } from "@/components/ui/form"
+import { FieldUrl } from "@/components/forms/field-url"
 
 export function FormSitemapCreate() {
   const form = useForm<URLSchema>({
@@ -73,25 +66,7 @@ export function FormSitemapCreate() {
             <CardContent>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-4">
-                  <FormField
-                    control={form.control}
-                    name="url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Root URL <span aria-hidden="true">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="url"
-                            {...field}
-                            placeholder="https://example.com"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <FieldUrl />
                 </div>
 
                 {form.formState.errors.root?.serverError && (
