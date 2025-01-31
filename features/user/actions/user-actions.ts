@@ -12,7 +12,7 @@ import { isAuthApiError } from "@supabase/supabase-js"
 import { env } from "@/env.mjs"
 import { createClient } from "@/lib/supabase/server"
 
-export const login = supabasePrecedure
+export const signInWithPassword = supabasePrecedure
   .createServerAction()
   .input(LoginFormSchema)
   .handler(async ({ input, ctx }) => {
@@ -61,7 +61,7 @@ export const signup = supabasePrecedure
     return redirect("/auth/check-email") // Redirect to the success page
   })
 
-export async function signout() {
+export async function signOut() {
   const supabase = await createClient()
 
   const { error } = await supabase.auth.signOut()

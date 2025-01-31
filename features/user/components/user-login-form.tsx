@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { login } from "@/features/user/actions/user-actions"
+import { signInWithPassword } from "@/features/user/actions/user-actions"
 import { LoginWithGoogle } from "@/features/user/components/user-login-with-google"
 import { LoginFormSchema } from "@/features/user/schemas/user-schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -38,7 +38,7 @@ export function UserLoginForm({
     },
   })
 
-  const { execute, isPending } = useServerAction(login, {
+  const { execute, isPending } = useServerAction(signInWithPassword, {
     onSuccess: (data) => {
       console.log("data", data)
       setShowSuccess(true)
