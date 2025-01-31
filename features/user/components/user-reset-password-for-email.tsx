@@ -29,9 +29,9 @@ export function UserResetPasswordForEmail({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const form = useForm<z.infer<typeof ResetPasswordForEmailSchema>>({
-    // resolver: zodResolver(ResetPasswordForEmailSchema),
+    resolver: zodResolver(ResetPasswordForEmailSchema),
     defaultValues: {
-      email: "",
+      username: "",
     },
   })
 
@@ -79,6 +79,7 @@ export function UserResetPasswordForEmail({
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           aria-labelledby="recover-password-form"
+          noValidate
         >
           <Card>
             <CardHeader>
@@ -92,7 +93,13 @@ export function UserResetPasswordForEmail({
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-6">
-                <Field type="email" name="email" label="E-Mail" required />
+                <Field
+                  type="email"
+                  name="username"
+                  autoComplete="username"
+                  label="E-Mail"
+                  required
+                />
 
                 {form.formState?.errors?.root?.serverError?.type ===
                   "server" && (

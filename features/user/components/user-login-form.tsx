@@ -34,7 +34,7 @@ export function UserLoginForm({
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   })
@@ -90,6 +90,7 @@ export function UserLoginForm({
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               aria-labelledby="login-form"
+              noValidate
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
@@ -107,17 +108,18 @@ export function UserLoginForm({
                 </div>
                 <div className="flex flex-col gap-4">
                   <Field
-                    name="email"
+                    name="username"
                     label="E-Mail"
                     type="email"
-                    autoComplete="email"
+                    autoComplete="username"
                     required
+                    autoFocus
                   />
                   <Field
                     name="password"
                     label="Password"
                     type="password"
-                    autoComplete="password"
+                    autoComplete="current-password"
                     description="Must be at least 6 characters long"
                     required
                   />

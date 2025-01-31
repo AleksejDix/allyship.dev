@@ -30,9 +30,9 @@ export function UserSignupForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const form = useForm<z.infer<typeof loginFormSchema>>({
-    // resolver: zodResolver(loginFormSchema),
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   })
@@ -88,6 +88,7 @@ export function UserSignupForm({
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               aria-labelledby="login-form"
+              noValidate
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
@@ -110,11 +111,18 @@ export function UserSignupForm({
                 </div>
 
                 <div className="flex flex-col gap-4">
-                  <Field type="email" name="email" label="E-Mail" required />
+                  <Field
+                    type="email"
+                    name="username"
+                    label="E-Mail"
+                    autoComplete="username"
+                    required
+                  />
                   <Field
                     type="password"
                     name="password"
                     label="Password"
+                    autoComplete="new-password"
                     description="Must be at least 6 characters long"
                     required
                   />

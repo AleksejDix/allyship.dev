@@ -7,7 +7,7 @@ const password = z
   .max(255, "Password must be at most 255 characters long")
 
 export const loginFormSchema = z.object({
-  email,
+  username: email,
   password,
 })
 

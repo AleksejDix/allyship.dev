@@ -8,12 +8,15 @@ import { createClient } from "@/lib/supabase/server"
 
 export const resetPasswordForEmail = createServerAction()
   .input(ResetPasswordForEmailSchema)
-  .handler(async ({ input: { email } }) => {
+  .handler(async ({ input }) => {
     const supabase = await createClient()
 
-    const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/account`,
-    })
+    const { error, data } = await supabase.auth.resetPasswordForEmail(
+      input.username,
+      {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/account`,
+      }
+    )
 
     if (error) {
       if (isAuthApiError(error)) {

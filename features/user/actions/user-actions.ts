@@ -20,7 +20,10 @@ export const signInWithPassword = supabasePrecedure
   .handler(async ({ input, ctx }) => {
     const { supabase } = ctx
 
-    const { error, data } = await supabase.auth.signInWithPassword(input)
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email: input.username,
+      password: input.password,
+    })
 
     if (error) {
       if (isAuthApiError(error)) {
@@ -59,7 +62,8 @@ export const signup = supabasePrecedure
   .handler(async ({ input, ctx }) => {
     const { supabase } = ctx
     const { error, data } = await supabase.auth.signUp({
-      ...input,
+      email: input.username,
+      password: input.password,
       options: {
         emailRedirectTo: env.NEXT_PUBLIC_APP_URL + "/auth/welcome",
       },
