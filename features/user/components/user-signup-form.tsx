@@ -2,13 +2,15 @@
 
 import { signup } from "@/features/user/actions/user-actions"
 import { LoginWithGoogle } from "@/features/user/components/user-login-with-google"
-import { LoginFormSchema } from "@/features/user/schemas/user-schemas"
+import { loginFormSchema } from "@/features/user/schemas/user-schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { LoaderCircle, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useServerAction } from "zsa-react"
 
 import { cn } from "@/lib/utils"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -27,25 +29,40 @@ export function UserSignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const form = useForm<z.infer<typeof LoginFormSchema>>({
-    resolver: zodResolver(LoginFormSchema),
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    // resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   })
 
-  const { execute } = useServerAction(signup, {
-    onSuccess: (data) => {
-      console.log(data)
-    },
-    onError: () => {
-      console.error("Error")
-    },
-  })
+  const { execute, isPending } = useServerAction(signup)
 
-  const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
-    execute(data) // Pass the form data to the server action
+  const onSubmit = async (formData: z.infer<typeof loginFormSchema>) => {
+    const [data, validationError] = await execute(formData) // Pass the form data to the server action
+    console.log({ data, validationError })
+    if (validationError) {
+      if (validationError.code === "INPUT_PARSE_ERROR") {
+        Object.entries(validationError.fieldErrors).forEach(
+          ([field, messages]) => {
+            form.setError(field as keyof z.infer<typeof loginFormSchema>, {
+              type: "server",
+              message: messages?.join(", "),
+            })
+          }
+        )
+      } else {
+        console.error({ validationError })
+      }
+    }
+
+    if (data && !data.success) {
+      form.setError("root.serverError", {
+        message: data.error?.message,
+        type: "server",
+      })
+    }
   }
 
   return (
@@ -88,7 +105,7 @@ export function UserSignupForm({
 
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                   <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                    Or continue with
+                    Or continue with credentials
                   </span>
                 </div>
 
@@ -98,11 +115,45 @@ export function UserSignupForm({
                     type="password"
                     name="password"
                     label="Password"
+                    description="Must be at least 6 characters long"
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Create new account
+
+                {form.formState?.errors?.root?.serverError?.type ===
+                  "server" && (
+                  <Alert variant="destructive">
+                    <TriangleAlert aria-hidden="true" size={16} />
+                    <AlertTitle>Authentication Error</AlertTitle>
+                    <AlertDescription>
+                      {form.formState?.errors?.root?.serverError?.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {form.formState.isSubmitSuccessful &&
+                  !(
+                    form.formState?.errors?.root?.serverError?.type === "server"
+                  ) && (
+                    <Alert variant="success">
+                      <TriangleAlert aria-hidden="true" size={16} />
+                      <AlertTitle>Check your email</AlertTitle>
+                      <AlertDescription>
+                        We sent you an email to verify your account.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? (
+                    <LoaderCircle
+                      className="-ms-1 me-2 animate-spin"
+                      size={16}
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  {isPending ? "Creating account..." : "Create new account"}
                 </Button>
               </div>
             </form>

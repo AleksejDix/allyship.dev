@@ -4,61 +4,95 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { supabasePrecedure } from "@/features/user/procedures/authPrecedude"
 import {
-  LoginFormSchema,
+  loginFormSchema,
   ResetPasswordForEmailSchema,
 } from "@/features/user/schemas/user-schemas"
 import { isAuthApiError } from "@supabase/supabase-js"
+
+// import { isAuthApiError } from "@supabase/supabase-js"
 
 import { env } from "@/env.mjs"
 import { createClient } from "@/lib/supabase/server"
 
 export const signInWithPassword = supabasePrecedure
   .createServerAction()
-  .input(LoginFormSchema)
+  .input(loginFormSchema)
   .handler(async ({ input, ctx }) => {
     const { supabase } = ctx
-    const { error } = await supabase.auth.signInWithPassword(input)
+
+    const { error, data } = await supabase.auth.signInWithPassword(input)
 
     if (error) {
-      // Handle other types of errors
-
       if (isAuthApiError(error)) {
+        const { message, code, status } = error
         return {
-          type: error.status,
-          message: error.message || "Something went wrong. Please try again.",
+          success: false,
+          error: {
+            message,
+            status,
+            code,
+          },
         }
       }
+      return {
+        success: false,
+        error: {
+          message: "Something went wrong",
+          status: 500,
+          code: "unknown_error",
+        },
+      }
     }
+
     revalidatePath("/", "layout")
     redirect("/")
+
+    return {
+      success: true,
+      data,
+    }
   })
 
 export const signup = supabasePrecedure
   .createServerAction()
-  .input(LoginFormSchema)
+  .input(loginFormSchema)
   .handler(async ({ input, ctx }) => {
     const { supabase } = ctx
-    const response = await supabase.auth.signUp(input)
+    const { error, data } = await supabase.auth.signUp({
+      ...input,
+      options: {
+        emailRedirectTo: env.NEXT_PUBLIC_APP_URL + "/auth/welcome",
+      },
+    })
 
-    if (response.error || !response.data.user) {
+    if (error) {
+      if (isAuthApiError(error)) {
+        const { message, code, status } = error
+        return {
+          success: false,
+          error: {
+            message,
+            status,
+            code,
+          },
+        }
+      }
       return {
         success: false,
-        message: response.error?.message || "User creation failed",
+        error: {
+          message: "Something went wrong",
+          status: 500,
+          code: "unknown_error",
+        },
       }
     }
 
-    if (response.data.user?.email === input.email && !response.data.session) {
-      const { error } = await supabase.auth.signInWithPassword(input)
+    revalidatePath("/", "layout")
 
-      if (error) {
-        redirect("/auth/login")
-      }
-
-      revalidatePath("/", "layout")
-      redirect("/")
+    return {
+      success: true,
+      data,
     }
-
-    return redirect("/auth/check-email") // Redirect to the success page
   })
 
 export async function signOut() {
@@ -81,7 +115,7 @@ export const resetPasswordForEmail = supabasePrecedure
     const { error } = await ctx.supabase.auth.resetPasswordForEmail(
       input.email,
       {
-        redirectTo: env.NEXT_PUBLIC_APP_URL + "/account", // Update with your reset password page URL
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/welcome`,
       }
     )
 

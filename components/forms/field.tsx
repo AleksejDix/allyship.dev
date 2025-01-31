@@ -1,8 +1,10 @@
 import { HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute } from "react"
+import { TriangleAlert } from "lucide-react"
 import { useFormContext } from "react-hook-form"
 
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,6 +19,7 @@ type FieldProps = {
   required?: boolean
   autoComplete?: HTMLInputAutoCompleteAttribute
   placeholder?: string
+  description?: string
 }
 
 export function Field(props: FieldProps) {
@@ -26,9 +29,9 @@ export function Field(props: FieldProps) {
     <FormField
       control={form.control}
       name={props.name}
-      render={({ field }) => (
+      render={(context) => (
         <FormItem className="space-y-2">
-          <FormLabel>
+          <FormLabel className="flex items-center justify-between min-h-4">
             <span className="inline-flex gap-1">
               <span>{props.label}</span>
               {props.required && (
@@ -37,11 +40,23 @@ export function Field(props: FieldProps) {
                 </span>
               )}
             </span>
+            <span>
+              {context.fieldState.invalid ? (
+                <TriangleAlert
+                  size={16}
+                  aria-hidden="true"
+                  className="text-destructive"
+                />
+              ) : null}
+            </span>
           </FormLabel>
+          {props.description && (
+            <FormDescription>{props.description}</FormDescription>
+          )}
           <FormControl>
             <Input
               type={props.type}
-              {...field}
+              {...context.field}
               autoComplete={props.autoComplete}
               placeholder={props.placeholder}
             />

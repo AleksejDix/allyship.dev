@@ -1,14 +1,7 @@
 "use client"
 
 import { Circle, TrendingUp } from "lucide-react"
-import {
-  Bar,
-  BarChart,
-  LabelList,
-  Rectangle,
-  ResponsiveContainer,
-  XAxis,
-} from "recharts"
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts"
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import {
@@ -20,32 +13,32 @@ import {
 
 const chartData = [
   {
-    issue: "Low Contrast",
+    issue: "Contrast",
     percent: 80,
     fill: "var(--color-low-contrast)",
   },
   {
-    issue: "Alt Text",
+    issue: "Images",
     percent: 55,
     fill: "var(--color-missing-alt)",
   },
   {
-    issue: "Empty Links",
+    issue: "Links",
     percent: 48,
     fill: "var(--color-empty-links)",
   },
   {
-    issue: "Form Labels",
+    issue: "Labels",
     percent: 44,
     fill: "var(--color-form-labels)",
   },
   {
-    issue: "Empty Buttons",
+    issue: "Buttons",
     percent: 28,
     fill: "var(--color-form-labels)",
   },
   {
-    issue: "Document Language",
+    issue: "Language",
     percent: 17,
     fill: "var(--color-form-labels)",
   },
@@ -72,6 +65,21 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
+
+const getPath = (x: number, y: number, width: number, height: number) => {
+  return `M${x},${y + height}C${x + width / 3},${y + height} ${x + width / 2},${y + height / 3}
+  ${x + width / 2}, ${y}
+  C${x + width / 2},${y + height / 3} ${x + (2 * width) / 3},${y + height} ${x + width}, ${y + height}
+  Z`
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const TriangleBar = (props: any) => {
+  const { fill, x, y, width, height } = props
+
+  return <path d={getPath(x, y, width, height)} stroke="none" fill={fill} />
+}
+const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "red", "pink"]
 
 export function Issues() {
   return (
@@ -103,49 +111,39 @@ export function Issues() {
           <CardHeader></CardHeader>
           <CardContent>
             <div className="w-full">
-              <ResponsiveContainer>
-                <ChartContainer config={chartConfig} className="min-h-[200px]">
-                  <BarChart accessibilityLayer data={chartData}>
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />}
-                    />
+              <ChartContainer config={chartConfig}>
+                <BarChart accessibilityLayer data={chartData}>
+                  <YAxis
+                    dataKey="percent"
+                    type="number"
+                    tickLine={false}
+                    axisLine={false}
+                    domain={[0, 100]}
+                    hide={true}
+                  />
+                  <CartesianGrid />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
 
-                    <Bar
-                      dataKey="percent"
-                      strokeWidth={2}
-                      radius={8}
-                      fill="gray"
-                      activeBar={({ ...props }) => {
-                        return (
-                          <Rectangle
-                            {...props}
-                            fillOpacity={0.8}
-                            stroke={props.payload.fill}
-                            strokeDasharray={4}
-                            strokeDashoffset={4}
-                          />
-                        )
-                      }}
-                    >
-                      <LabelList
-                        dataKey="percent"
-                        position="bottom"
-                        offset={-24}
-                        formatter={(value: number) => `${value}%`}
-                        className="fill-background text-muted-foreground"
-                        fontSize={16}
-                      />
-                    </Bar>
-                    <XAxis
-                      dataKey="issue"
-                      tickLine={false}
-                      tickMargin={10}
-                      axisLine={false}
-                    />
-                  </BarChart>
-                </ChartContainer>
-              </ResponsiveContainer>
+                  <XAxis dataKey="issue" tickLine={false} axisLine={false} />
+
+                  <Bar
+                    dataKey="percent"
+                    fill="#8884d8"
+                    shape={<TriangleBar />}
+                    label={{
+                      position: "top",
+                      formatter: (value: number) => `${value}%`,
+                    }}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={colors[index % 20]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
             </div>
           </CardContent>
           <CardFooter className="flex-col items-start gap-2 text-sm">
