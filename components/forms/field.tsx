@@ -20,6 +20,7 @@ type FieldProps = {
   autoComplete?: HTMLInputAutoCompleteAttribute
   placeholder?: string
   description?: string
+  autoFocus?: boolean
 }
 
 export function Field(props: FieldProps) {
@@ -59,6 +60,7 @@ export function Field(props: FieldProps) {
               {...context.field}
               autoComplete={props.autoComplete}
               placeholder={props.placeholder}
+              autoFocus={props.autoFocus}
             />
           </FormControl>
           <FormMessage />
