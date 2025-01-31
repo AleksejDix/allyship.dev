@@ -51,14 +51,28 @@ test("WCAG 1.1.3: Ensure sufficient contrast for non-text elements", async ({
     // Calculate the contrast ratio
     const contrastRatio = calculateContrast(fgColor, bgColor)
 
-    // Log the element if it fails the contrast ratio check
+    // Log detailed information if contrast ratio is insufficient
     if (contrastRatio < 3) {
       const elementHTML = await element.evaluate((el) => el.outerHTML)
+      const selector = await element.evaluate((el) => {
+        // Get a unique selector for the element
+        let selector = el.tagName.toLowerCase()
+        if (el.id) selector += `#${el.id}`
+        if (el.className) selector += `.${el.className.split(" ").join(".")}`
+        return selector
+      })
+      const bbox = await element.boundingBox()
+
       console.error(
-        `Element with insufficient contrast ratio (${contrastRatio.toFixed(2)}, ${elementHTML})`
+        `Low Contrast Element Found:
+        - Contrast Ratio: ${contrastRatio.toFixed(2)}
+        - Selector: ${selector}
+        - Position: x=${bbox?.x.toFixed(0)}, y=${bbox?.y.toFixed(0)}
+        - Colors: FG=${fgColor}, BG=${bgColor}
+        - HTML: ${elementHTML}`
       )
     }
     // Assert that the contrast ratio meets the minimum requirement (3:1 for non-text elements)
-    expect(contrastRatio).toBeGreaterThanOrEqual(3)
+    expect(contrastRatio).toBeGreaterThanOrEqual(4.5)
   }
 })
