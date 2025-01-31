@@ -120,7 +120,6 @@ export function UserLoginForm({
                     label="Password"
                     type="password"
                     autoComplete="current-password"
-                    description="Must be at least 6 characters long"
                     required
                   />
                 </div>

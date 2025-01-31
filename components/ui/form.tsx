@@ -118,7 +118,10 @@ const FormControl = React.forwardRef<
           ? `${formDescriptionId}`
           : `${formDescriptionId} ${formMessageId}`
       }
-      aria-invalid={!!error}
+      {...(error && {
+        "aria-invalid": true,
+        "aria-errormessage": formMessageId,
+      })}
       {...props}
     />
   )
@@ -160,6 +163,7 @@ const FormMessage = React.forwardRef<
       className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >
+      <span className="sr-only">Error: </span>
       {body}
     </p>
   )
