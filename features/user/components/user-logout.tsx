@@ -1,9 +1,9 @@
-import { signout } from "@/features/user/actions/user-actions"
+import { signOut } from "@/features/user/actions/user-actions"
 
 export function SignoutButton() {
   return (
     <form>
-      <button formAction={signout}>Sign out</button>
+      <button formAction={signOut}>Sign out</button>
     </form>
   )
 }

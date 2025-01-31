@@ -1,12 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { signOut } from "@/features/user/actions/user-actions"
 import { User } from "@supabase/supabase-js"
-import {
-  BadgeCheck,
-  ChevronsUpDown,
-  LogOut,
-} from "lucide-react"
+import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -24,7 +21,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { signout } from "@/features/user/actions/user-actions"
 
 type UserNavProps = {
   user: User
@@ -97,12 +93,10 @@ export function UserNav(props: UserNavProps) {
               </Link>
             </DropdownMenuItem>
 
-
             {/* <DropdownMenuItem>
               <CreditCard />
               Payments
             </DropdownMenuItem> */}
-
 
             <DropdownMenuSeparator />
             <DropdownMenuItem>
@@ -112,7 +106,7 @@ export function UserNav(props: UserNavProps) {
                   className="w-full"
                   size="sm"
                   variant="ghost"
-                  formAction={signout}
+                  formAction={signOut}
                 >
                   <LogOut />
                   Log out
