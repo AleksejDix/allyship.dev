@@ -6,19 +6,32 @@ type LogoProps = React.HTMLAttributes<HTMLSpanElement>
 
 export const Logo: React.FC<LogoProps> = ({ className, ...props }) => {
   return (
-    <span
-      className={cn("text-3xl font-bold", className)}
-      {...props}
-      aria-label="allyship homepage"
-    >
-      <span className="text-red-400">A</span>
-      <span className="text-orange-400">l</span>
-      <span className="text-amber-400">l</span>
-      <span className="text-yellow-500">y</span>
-      <span className="text-lime-400">s</span>
-      <span className="text-green-400">h</span>
-      <span className="text-emerald-400">i</span>
-      <span className="text-teal-400">p</span>
+    <span className={cn("text-3xl font-bold", className)} {...props}>
+      <span className="sr-only">Allyship</span>
+      <span className="text-red-500" aria-hidden="true">
+        A
+      </span>
+      <span className="text-orange-500" aria-hidden="true">
+        l
+      </span>
+      <span className="text-amber-500" aria-hidden="true">
+        l
+      </span>
+      <span className="text-yellow-500" aria-hidden="true">
+        y
+      </span>
+      <span className="text-lime-500" aria-hidden="true">
+        s
+      </span>
+      <span className="text-green-500" aria-hidden="true">
+        h
+      </span>
+      <span className="text-emerald-500" aria-hidden="true">
+        i
+      </span>
+      <span className="text-teal-500" aria-hidden="true">
+        p
+      </span>
     </span>
   )
 }
