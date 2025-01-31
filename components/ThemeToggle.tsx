@@ -27,8 +27,8 @@ export default function ModeToggle() {
           size="icon"
           onClick={() => setTheme("light")}
         >
-          <Sun className="w-5 h-5" />
-          <span className="sr-only">Toggle theme</span>
+          <Sun aria-hidden="true" className="w-5 h-5" />
+          <span className="sr-only">Set Light Mode</span>
         </Button>
       ) : (
         <Button
@@ -37,8 +37,8 @@ export default function ModeToggle() {
           className="hover:bg-inherit border-zinc-100 bg-inherit"
           onClick={() => setTheme("dark")}
         >
-          <Moon className="w-5 h-5" />
-          <span className="sr-only">Toggle theme</span>
+          <Moon aria-hidden="true" className="w-5 h-5" />
+          <span className="sr-only">Set Dark Mode</span>
         </Button>
       )}
     </div>
