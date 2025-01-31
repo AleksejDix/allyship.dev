@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site"
 import "@/styles/index.css"
 
 import { RouterLinkProvider } from "@/providers/RouterLinkContext"
+import { Analytics } from "@vercel/analytics/react"
 
 import { ThemeProvider } from "@/components/ThemeProvider"
 
@@ -60,6 +61,7 @@ export default function RootLayout({
         >
           <RouterLinkProvider>{children}</RouterLinkProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )

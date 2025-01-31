@@ -42,6 +42,7 @@
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-table": "^8.20.6",
     "@uidotdev/usehooks": "^2.4.1",
+    "@vercel/analytics": "^1.4.1",
     "@vercel/og": "^0.6.5",
     "axe-core": "^4.10.2",
     "bcp47-validate": "^1.0.0",
