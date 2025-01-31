@@ -44,6 +44,7 @@ a {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     --destructive: 0 84.2% 60.2%;
+    --success: 142 45% 55%;
   }
   .dark {
     --background: 240 3.7% 5.294%;
@@ -79,7 +80,14 @@ a {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     --destructive: 0 62.8% 50.6%;
+    --success: 142 45% 45%;
   }
 }
 
 
+
+@layer components {
+  [aria-invalid="true"].border-input {
+    @apply border-destructive bg-destructive/10;
+  }
+}

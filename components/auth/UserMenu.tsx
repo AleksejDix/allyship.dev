@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { SignoutButton } from "@/features/user/components/user-logout"
 
 import { createClient } from "@/lib/supabase/server"
@@ -10,8 +11,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-import { RouterLink } from "../RouterLink"
 import ThemeToggle from "../ThemeToggle"
 
 export async function UserMenu() {
@@ -23,12 +22,12 @@ export async function UserMenu() {
     return (
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <RouterLink
+        <Link
           href="/auth/login"
           className={buttonVariants({ variant: "default" })}
         >
           Sign in
-        </RouterLink>
+        </Link>
       </div>
     )
   }
@@ -64,13 +63,13 @@ export async function UserMenu() {
               </p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuItem>
-            <RouterLink href="/account">Account</RouterLink>
+          <DropdownMenuItem asChild>
+            <Link href="/account">Account</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <RouterLink href="/spaces">Spaces</RouterLink>
+          <DropdownMenuItem asChild>
+            <Link href="/spaces">Spaces</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <SignoutButton />
           </DropdownMenuItem>
         </DropdownMenuContent>

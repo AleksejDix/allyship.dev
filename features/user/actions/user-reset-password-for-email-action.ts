@@ -1,6 +1,7 @@
 "use server"
 
 import { ResetPasswordForEmailSchema } from "@/features/user/schemas/user-reset-password-for-email-schema"
+import { isAuthApiError } from "@supabase/supabase-js"
 import { createServerAction } from "zsa"
 
 import { createClient } from "@/lib/supabase/server"
@@ -10,13 +11,34 @@ export const resetPasswordForEmail = createServerAction()
   .handler(async ({ input: { email } }) => {
     const supabase = await createClient()
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/account`,
     })
 
     if (error) {
-      throw new Error(error.message)
+      if (isAuthApiError(error)) {
+        const { message, code, status } = error
+        return {
+          success: false,
+          error: {
+            message,
+            status,
+            code,
+          },
+        }
+      }
+      return {
+        success: false,
+        error: {
+          message: "Something went wrong",
+          status: 500,
+          code: "unknown_error",
+        },
+      }
     }
 
-    return { success: true, message: "Reset link sent if email exists." }
+    return {
+      success: true,
+      data,
+    }
   })

@@ -4,14 +4,15 @@ const email = z.string().email("Invalid email address")
 const password = z
   .string()
   .min(6, "Password must be at least 6 characters long")
+  .max(255, "Password must be at most 255 characters long")
 
-export const LoginFormSchema = z.object({
+export const loginFormSchema = z.object({
   email,
   password,
 })
 
 // TypeScript type inference
-export type LoginForm = z.infer<typeof LoginFormSchema>
+export type LoginFormSchema = z.infer<typeof loginFormSchema>
 
 export const ResetPasswordForEmailSchema = z.object({
   email,

@@ -3,11 +3,13 @@
 import { resetPasswordForEmail } from "@/features/user/actions/user-reset-password-for-email-action" // Update this to your RecoverPassword server action
 import { ResetPasswordForEmailSchema } from "@/features/user/schemas/user-reset-password-for-email-schema" // Update this schema to match Recover password form
 import { zodResolver } from "@hookform/resolvers/zod"
+import { LoaderCircle, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useServerAction } from "zsa-react"
 
 import { cn } from "@/lib/utils"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -27,28 +29,42 @@ export function UserResetPasswordForEmail({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const form = useForm<z.infer<typeof ResetPasswordForEmailSchema>>({
-    resolver: zodResolver(ResetPasswordForEmailSchema),
+    // resolver: zodResolver(ResetPasswordForEmailSchema),
     defaultValues: {
       email: "",
     },
   })
 
-  const { execute } = useServerAction(resetPasswordForEmail)
+  const { execute, isPending } = useServerAction(resetPasswordForEmail)
 
   const onSubmit = async (
-    data: z.infer<typeof ResetPasswordForEmailSchema>
+    formData: z.infer<typeof ResetPasswordForEmailSchema>
   ) => {
-    const [success, error] = await execute(data)
+    const [data, validationError] = await execute(formData)
 
-    // TODO: handle error
-
-    if (success?.success) {
-      form.reset()
-      return
+    if (validationError) {
+      if (validationError.code === "INPUT_PARSE_ERROR") {
+        Object.entries(validationError.fieldErrors).forEach(
+          ([field, messages]) => {
+            form.setError(
+              field as keyof z.infer<typeof ResetPasswordForEmailSchema>,
+              {
+                type: "server",
+                message: messages?.join(", "),
+              }
+            )
+          }
+        )
+      } else {
+        console.error(validationError)
+      }
     }
 
-    if (error) {
-      form.setError("email", { message: error.message })
+    if (data && !data.success) {
+      form.setError("root.serverError", {
+        message: data.error?.message,
+        type: "server",
+      })
     }
   }
 
@@ -77,7 +93,40 @@ export function UserResetPasswordForEmail({
             <CardContent>
               <div className="flex flex-col gap-6">
                 <Field type="email" name="email" label="E-Mail" required />
-                <Button type="submit" className="w-full">
+
+                {form.formState?.errors?.root?.serverError?.type ===
+                  "server" && (
+                  <Alert variant="destructive">
+                    <TriangleAlert aria-hidden="true" size={16} />
+                    <AlertTitle>Authentication Error</AlertTitle>
+                    <AlertDescription>
+                      {form.formState?.errors?.root?.serverError?.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {form.formState.isSubmitSuccessful &&
+                  !(
+                    form.formState?.errors?.root?.serverError?.type === "server"
+                  ) && (
+                    <Alert variant="success">
+                      <TriangleAlert aria-hidden="true" size={16} />
+                      <AlertTitle>Check your email</AlertTitle>
+                      <AlertDescription>
+                        We sent you an email to verify your account.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? (
+                    <LoaderCircle
+                      className="-ms-1 me-2 animate-spin"
+                      size={16}
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
+                  ) : null}
                   Send Reset Link
                 </Button>
               </div>

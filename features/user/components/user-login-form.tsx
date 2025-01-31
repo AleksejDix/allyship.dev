@@ -3,13 +3,15 @@
 import React from "react"
 import { signInWithPassword } from "@/features/user/actions/user-actions"
 import { LoginWithGoogle } from "@/features/user/components/user-login-with-google"
-import { LoginFormSchema } from "@/features/user/schemas/user-schemas"
+import { loginFormSchema } from "@/features/user/schemas/user-schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { LoaderCircle, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useServerAction } from "zsa-react"
 
 import { cn } from "@/lib/utils"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -29,39 +31,39 @@ export function UserLoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [showSuccess, setShowSuccess] = React.useState(false)
-  const form = useForm<z.infer<typeof LoginFormSchema>>({
-    resolver: zodResolver(LoginFormSchema),
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   })
 
-  const { execute, isPending } = useServerAction(signInWithPassword, {
-    onSuccess: (data) => {
-      console.log("data", data)
-      setShowSuccess(true)
-    },
-    onError: (error) => {
-      console.error("Error", error)
-    },
-  })
+  const { execute, isPending } = useServerAction(signInWithPassword)
 
-  const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
-    const [response] = await execute(data) // Pass the form data to the server action
-    if (response) {
-      // Handle error returned from the server
+  const onSubmit = async (formData: z.infer<typeof loginFormSchema>) => {
+    const [data, validationError] = await execute(formData) // Pass the form data to the server action
+
+    if (validationError) {
+      if (validationError.code === "INPUT_PARSE_ERROR") {
+        Object.entries(validationError.fieldErrors).forEach(
+          ([field, messages]) => {
+            form.setError(field as keyof z.infer<typeof loginFormSchema>, {
+              type: "server",
+              message: messages?.join(", "),
+            })
+          }
+        )
+      } else {
+        console.error(validationError)
+      }
+    }
+
+    if (data && !data.success) {
       form.setError("root.serverError", {
+        message: data.error?.message,
         type: "server",
-        message: response.message,
       })
-
-      // form.reset()
-
-      const invalid = document.querySelector("input")
-      invalid?.focus()
-      // focus on the first error field
     }
   }
 
@@ -100,7 +102,7 @@ export function UserLoginForm({
 
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                   <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                    Or continue with
+                    Or continue with credentials
                   </span>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -116,32 +118,31 @@ export function UserLoginForm({
                     label="Password"
                     type="password"
                     autoComplete="password"
+                    description="Must be at least 6 characters long"
                     required
                   />
                 </div>
 
-                {showSuccess && (
-                  <div
-                    aria-live="polite"
-                    role="alert"
-                    className="text-green-600 text-sm bg-green-50 p-3 rounded-md"
-                  >
-                    Successfully logged in! Redirecting you...
-                  </div>
-                )}
-
                 {form.formState?.errors?.root?.serverError?.type ===
                   "server" && (
-                  <div
-                    aria-live="polite"
-                    role="alert"
-                    className="text-red-500 text-sm"
-                  >
-                    {form.formState?.errors?.root?.serverError?.message}
-                  </div>
+                  <Alert variant="destructive">
+                    <TriangleAlert aria-hidden="true" size={16} />
+                    <AlertTitle>Authentication Error</AlertTitle>
+                    <AlertDescription>
+                      {form.formState?.errors?.root?.serverError?.message}
+                    </AlertDescription>
+                  </Alert>
                 )}
 
                 <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? (
+                    <LoaderCircle
+                      className="-ms-1 me-2 animate-spin"
+                      size={16}
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
+                  ) : null}
                   {isPending ? "Logging in..." : "Log in"}
                 </Button>
               </div>
@@ -149,7 +150,12 @@ export function UserLoginForm({
           </Form>
         </CardContent>
         <CardFooter className="gap-4 text-sm">
-          <RouterLink href="/auth/signup">Create new account</RouterLink>
+          <RouterLink
+            href="/auth/signup"
+            className="underline underline-offset-4"
+          >
+            Create new account
+          </RouterLink>
           <LinkRecoverPassword />
         </CardFooter>
       </Card>

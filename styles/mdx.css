@@ -38,3 +38,5 @@
 .prose a, .mdx a {
   @apply text-yellow-400 hover:text-yellow-500 transition-colors;
 }
+
+
