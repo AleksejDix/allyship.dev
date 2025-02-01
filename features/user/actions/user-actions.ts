@@ -3,13 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { supabasePrecedure } from "@/features/user/procedures/authPrecedude"
-import {
-  loginFormSchema,
-  ResetPasswordForEmailSchema,
-} from "@/features/user/schemas/user-schemas"
+import { loginFormSchema } from "@/features/user/schemas/user-schemas"
 import { isAuthApiError } from "@supabase/supabase-js"
-
-// import { isAuthApiError } from "@supabase/supabase-js"
 
 import { env } from "@/env.mjs"
 import { createClient } from "@/lib/supabase/server"
@@ -96,36 +91,21 @@ export const signup = supabasePrecedure
     return {
       success: true,
       data,
+      message: "Check your email to verify your account.",
     }
   })
 
 export async function signOut() {
   const supabase = await createClient()
-
   const { error } = await supabase.auth.signOut()
 
   if (error) {
-    redirect("/error")
+    if (isAuthApiError(error)) {
+      throw new Error(error.message)
+    }
+    throw new Error("Something went wrong during logout.")
   }
 
   revalidatePath("/", "layout")
-  redirect("/")
+  redirect("/auth/login")
 }
-
-export const resetPasswordForEmail = supabasePrecedure
-  .createServerAction()
-  .input(ResetPasswordForEmailSchema)
-  .handler(async ({ input, ctx }) => {
-    const { error } = await ctx.supabase.auth.resetPasswordForEmail(
-      input.email,
-      {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/welcome`,
-      }
-    )
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { success: true, message: "Reset link sent if email exists." }
-  })

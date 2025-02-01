@@ -22,7 +22,9 @@ export default function RootLayout({
           </RouterLink>
         </nav>
       </div> */}
-      <main>{children}</main>
+      <main id="main" tabIndex={-1} role="main" aria-label="Main">
+        {children}
+      </main>
       <Footer />
     </>
   )

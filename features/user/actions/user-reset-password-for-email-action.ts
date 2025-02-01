@@ -4,6 +4,7 @@ import { ResetPasswordForEmailSchema } from "@/features/user/schemas/user-reset-
 import { isAuthApiError } from "@supabase/supabase-js"
 import { createServerAction } from "zsa"
 
+import { env } from "@/env.mjs"
 import { createClient } from "@/lib/supabase/server"
 
 export const resetPasswordForEmail = createServerAction()
@@ -14,7 +15,7 @@ export const resetPasswordForEmail = createServerAction()
     const { error, data } = await supabase.auth.resetPasswordForEmail(
       input.username,
       {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/account`,
+        redirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/account`,
       }
     )
 
