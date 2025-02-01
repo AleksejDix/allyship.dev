@@ -9,13 +9,13 @@ export const Logo: React.FC<LogoProps> = ({ className, ...props }) => {
     <span className={cn("text-3xl font-bold", className)} {...props}>
       <span className="sr-only">Allyship</span>
       <span className="text-red-500" aria-hidden="true">
-        A
+        a
       </span>
       <span className="text-orange-500" aria-hidden="true">
-        l
+        1
       </span>
       <span className="text-amber-500" aria-hidden="true">
-        l
+        1
       </span>
       <span className="text-yellow-500" aria-hidden="true">
         y

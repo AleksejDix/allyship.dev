@@ -7,6 +7,7 @@ import "@/styles/index.css"
 import { RouterLinkProvider } from "@/providers/RouterLinkContext"
 import { Analytics } from "@vercel/analytics/react"
 
+import AccessibleNavigation from "@/components/site/AccessibleNavigation"
 import { ThemeProvider } from "@/components/ThemeProvider"
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark  dark:bg-zinc-950 antialiased">
       <body>
+        <AccessibleNavigation />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -1,13 +1,10 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
 import { userProcedure } from "@/features/user/procedures/authPrecedude"
+import { isAuthApiError } from "@supabase/supabase-js"
 
 import { schema } from "./schemas"
-
-// export const index  = userProcedure.createServerAction()
-// export const create = userProcedure.createServerAction()
-// export const store  = userProcedure.createServerAction()
-// export const show   = userProcedure.createServerAction()
 
 export const update = userProcedure
   .createServerAction()
@@ -15,11 +12,32 @@ export const update = userProcedure
   .handler(async ({ input, ctx }) => {
     const { supabase } = ctx
 
-    const userResponse = await supabase.auth.updateUser(input)
+    const { error } = await supabase.auth.updateUser({
+      password: input.password,
+    })
 
-    if (userResponse.error) {
-      throw new Error(userResponse.error.message)
+    if (error) {
+      if (isAuthApiError(error)) {
+        const { message, code, status } = error
+        return {
+          success: false,
+          error: {
+            message,
+            status,
+            code,
+          },
+        }
+      }
+      return {
+        success: false,
+        error: {
+          message: "Something went wrong",
+          status: 500,
+          code: "unknown_error",
+        },
+      }
     }
 
-    return { success: true }
+    revalidatePath("/", "layout") // Revalidate the layout to reflect changes
+    return { success: true, message: "Password updated successfully." }
   })

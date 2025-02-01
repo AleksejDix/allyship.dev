@@ -1,10 +1,12 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { LoaderCircle, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useServerAction } from "zsa-react"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -30,15 +32,26 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
   const { execute, isPending } = useServerAction(updateEmail)
 
   const onSubmit = async (data: z.infer<typeof FormUpdateEmailSchema>) => {
-    const [success, error] = await execute(data) // Pass the form data to the server action
-
-    if (success) {
-      form.reset()
-      return
-    }
+    const [result, error] = await execute(data)
 
     if (error) {
-      form.setError("email", { message: error.message })
+      if (error.code === "INPUT_PARSE_ERROR") {
+        Object.entries(error.fieldErrors).forEach(([field, messages]) => {
+          form.setError(field as keyof z.infer<typeof FormUpdateEmailSchema>, {
+            type: "server",
+            message: messages?.join(", "),
+          })
+        })
+      } else {
+        form.setError("root.serverError", {
+          type: "server",
+          message: error.message,
+        })
+      }
+    }
+
+    if (result?.success) {
+      form.reset({ email: data.email }) // Reset the form with the new email
     }
   }
 
@@ -47,7 +60,7 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
       <CardHeader>
         <CardTitle id="form-email-update">Your Email</CardTitle>
         <CardDescription>
-          Please enter the email address you want to use to login
+          Please enter the email address you want to use to login.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 lg:py-4">
@@ -65,17 +78,32 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
               placeholder="Enter your email"
               required
             />
+
             {form.formState?.errors?.root?.serverError?.type === "server" && (
-              <div
-                aria-live="polite"
-                role="alert"
-                className="text-red-500 text-sm"
-              >
-                {form.formState?.errors?.root?.serverError?.message}
-              </div>
+              <Alert variant="destructive">
+                <TriangleAlert aria-hidden="true" size={16} />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  {form.formState?.errors?.root?.serverError?.message}
+                </AlertDescription>
+              </Alert>
             )}
+
+            {form.formState.isSubmitSuccessful && (
+              <Alert variant="success">
+                <TriangleAlert aria-hidden="true" size={16} />
+                <AlertTitle>Success</AlertTitle>
+                <AlertDescription>
+                  Your email has been updated successfully.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="flex justify-end">
               <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
                 {isPending ? "Saving..." : "Save"}
               </Button>
             </div>

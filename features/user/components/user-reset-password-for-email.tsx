@@ -65,6 +65,8 @@ export function UserResetPasswordForEmail({
         message: data.error?.message,
         type: "server",
       })
+    } else if (data?.success) {
+      form.reset()
     }
   }
 

@@ -6,10 +6,12 @@ type RootLayoutProps = {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-    return (
+  return (
     <>
       <Header />
-      <main>{children}</main>
+      <main id="main" tabIndex={-1} role="main" aria-label="Main">
+        {children}
+      </main>
       <Footer />
     </>
   )

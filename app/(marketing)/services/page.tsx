@@ -70,7 +70,13 @@ const services = [
 
 export default function ServicesPage() {
   return (
-    <main className="container py-8">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="container py-8"
+      role="main"
+      aria-label="Main"
+    >
       {/* Hero Section */}
 
       <PageHeader

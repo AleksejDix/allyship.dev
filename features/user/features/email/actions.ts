@@ -1,7 +1,9 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
 import { userProcedure } from "@/features/user/procedures/authPrecedude"
 import { ResetPasswordForEmailSchema } from "@/features/user/schemas/user-schemas"
+import { isAuthApiError } from "@supabase/supabase-js"
 
 export const updateEmail = userProcedure
   .createServerAction()
@@ -14,8 +16,27 @@ export const updateEmail = userProcedure
     })
 
     if (error) {
-      throw new Error(error.message)
+      if (isAuthApiError(error)) {
+        const { message, code, status } = error
+        return {
+          success: false,
+          error: {
+            message,
+            status,
+            code,
+          },
+        }
+      }
+      return {
+        success: false,
+        error: {
+          message: "Something went wrong",
+          status: 500,
+          code: "unknown_error",
+        },
+      }
     }
 
-    return { success: true, message: "Email updated" }
+    revalidatePath("/", "layout") // Revalidate the layout to reflect changes
+    return { success: true, message: "Email updated successfully." }
   })
