@@ -4,21 +4,48 @@
 
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import puppeteer from 'https://deno.land/x/puppeteer@16.2.0/mod.ts'
+import { AxePuppeteer } from 'npm:@axe-core/puppeteer'
 
-console.log("Hello from Functions!")
+
+console.log(AxePuppeteer)
 
 Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+  try {
+    console.log(`wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`)
+
+    // const browser = await puppeteer.connect({
+    //   browserWSEndpoint: `wss://chrome.browserless.io?token=${Deno.env.get(
+    //     'PUPPETEER_BROWSERLESS_IO_KEY'
+    //   )}`,
+    // })
+
+    console.log(`wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`)
+
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: `wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`,
+    });
+
+
+    const page = await browser.newPage()
+
+    const url = new URL(req.url).searchParams.get('url')
+
+    await page.goto(url)
+
+    const results = await new AxePuppeteer(page).analyze();
+
+    return new Response(JSON.stringify(results), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  } catch (e) {
+    console.error(e)
+    return new Response(JSON.stringify({ error: e.message }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 500,
+    })
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
 })
-
 /* To invoke locally:
 
   1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
@@ -30,3 +57,4 @@ Deno.serve(async (req) => {
     --data '{"name":"Functions"}'
 
 */
+
