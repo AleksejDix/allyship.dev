@@ -51,7 +51,7 @@ const services = [
       "Hands-on exercises",
       "Certification",
     ],
-    href: "/services/courses",
+    href: "/education/courses",
   },
   // {
   //   title: "Development Support",

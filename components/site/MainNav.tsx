@@ -45,14 +45,14 @@ const components: { title: string; href: string; description: string }[] = [
   },
   {
     title: "Accessibility Training",
-    href: "/education/training",
+    href: "/education/courses",
     description: "A training program for accessibility",
   },
-  {
-    title: "Accessibility Resources",
-    href: "/education/resources",
-    description: "A list of resources for accessibility",
-  },
+  // {
+  //   title: "Accessibility Resources",
+  //   href: "/education/resources",
+  //   description: "A list of resources for accessibility",
+  // },
 ]
 
 const products = [
@@ -63,7 +63,7 @@ const products = [
   },
   {
     title: "Manual Accessibility Audits",
-    href: "/products/manual-audit",
+    href: "/products/manual-accessibility-audit",
     description: "A manual accessibility audit of your website",
   },
   {
@@ -123,13 +123,6 @@ export function MainNav() {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link href="/docs" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Company
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -157,11 +150,19 @@ export function MainNav() {
             </RouterLink>
 
             <RouterLink
-              href="/courses"
+              href="/education/courses"
               className="font-medium hover:text-primary"
               onClick={() => setOpen(false)}
             >
               Courses
+            </RouterLink>
+
+            <RouterLink
+              href="/education/checklist"
+              className="font-medium hover:text-primary"
+              onClick={() => setOpen(false)}
+            >
+              Checklist
             </RouterLink>
           </div>
         </SheetContent>
