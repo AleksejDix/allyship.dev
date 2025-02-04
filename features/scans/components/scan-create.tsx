@@ -45,8 +45,8 @@ export function ScanJobCreate() {
   }
 
   return (
-    <div className="max-w-xl">
-      <Card className="relative z-[1] shadow">
+    <div>
+      <Card>
         <CardHeader>
           <CardTitle>Web Accessibility Scanner</CardTitle>
           <CardDescription>

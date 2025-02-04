@@ -65,7 +65,12 @@ const products = [
     description: "A manual accessibility audit of your website",
   },
   {
-    title: "Tab Order Bookmarklet",
+    title: "Field Labels Bookmarklet",
+    href: "/products/field-label-bookmarklet",
+    description: "A bookmarklet to help you check form field labels",
+  },
+  {
+    title: "Focus Bookmarklet",
     href: "/products/focus-bookmarklet",
     description: "A bookmarklet to help you understand tab order",
   },
@@ -73,6 +78,11 @@ const products = [
     title: "Heading Order Bookmarklet",
     href: "/products/heading-order-bookmarklet",
     description: "A bookmarklet to help you understand heading order",
+  },
+  {
+    title: "Focus Styles Bookmarklet",
+    href: "/products/focus-styles-bookmarklet",
+    description: "A bookmarklet to help you check focus indicators",
   },
 ]
 
