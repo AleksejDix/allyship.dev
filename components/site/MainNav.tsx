@@ -1,10 +1,12 @@
 "use client"
 
+import * as React from "react"
+import { Menu } from "lucide-react"
+
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
-import * as React from "react"
 
 export function MainNav() {
   const [open, setOpen] = React.useState(false)
@@ -15,9 +17,7 @@ export function MainNav() {
         Main
       </span>
 
-      <RouterLink href="/">
-        <Logo />
-      </RouterLink>
+      <Logo />
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex gap-4">

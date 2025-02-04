@@ -1,0 +1,665 @@
+[
+  {
+    "criterion": "1.1.1",
+    "feature": "Non-text Content",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.2.1",
+    "feature": "Audio-only and Video-only (Prerecorded)",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.2.2",
+    "feature": "Captions (Prerecorded)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.2.3",
+    "feature": "Audio Description or Media Alternative (Prerecorded)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.2.4",
+    "feature": "Captions (Live)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.2.5",
+    "feature": "Audio Description (Prerecorded)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.3.1",
+    "feature": "Info and Relationships",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.3.2",
+    "feature": "Meaningful Sequence",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.3.3",
+    "feature": "Sensory Characteristics",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.3.4",
+    "feature": "Orientation",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.1",
+    "feature": "Use of Color",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.2",
+    "feature": "Audio Control",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.3",
+    "feature": "Contrast (Minimum)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.4",
+    "feature": "Resize Text",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.5",
+    "feature": "Images of Text",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.10",
+    "feature": "Reflow",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.11",
+    "feature": "Non-text Contrast",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.12",
+    "feature": "Text Spacing",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "1.4.13",
+    "feature": "Content on Hover or Focus",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.1.1",
+    "feature": "Keyboard Accessible",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.1.2",
+    "feature": "No Keyboard Trap",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.2.1",
+    "feature": "Timing Adjustable",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.2.2",
+    "feature": "Pause, Stop, Hide",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.3.1",
+    "feature": "Three Flashes or Below Threshold",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.1",
+    "feature": "Bypass Blocks",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.2",
+    "feature": "Page Titled",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.3",
+    "feature": "Focus Order",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.4",
+    "feature": "Link Purpose (In Context)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.5",
+    "feature": "Multiple Ways",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.6",
+    "feature": "Headings and Labels",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.4.7",
+    "feature": "Focus Visible",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.5.1",
+    "feature": "Pointer Gestures",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.5.2",
+    "feature": "Pointer Cancellation",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.5.3",
+    "feature": "Label in Name",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.5.4",
+    "feature": "Motion Actuation",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.5.5",
+    "feature": "Target Size",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "2.5.6",
+    "feature": "Concurrent Input Mechanisms",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.1.1",
+    "feature": "Language of Page",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.1.2",
+    "feature": "Language of Parts",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.2.1",
+    "feature": "On Focus",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.2.2",
+    "feature": "On Input",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.2.3",
+    "feature": "Consistent Navigation",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.2.4",
+    "feature": "Consistent Identification",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.3.1",
+    "feature": "Error Identification",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.3.2",
+    "feature": "Labels or Instructions",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.3.3",
+    "feature": "Error Suggestion",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "3.3.4",
+    "feature": "Error Prevention (Legal, Financial, Data)",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": false,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "4.1.1",
+    "feature": "Parsing",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "4.1.2",
+    "feature": "Name, Role, Value",
+    "tags": {
+      "wcag21a": true,
+      "wcag21aa": true,
+      "wcag22a": true,
+      "wcag22aa": true,
+      "bestPractice": false,
+      "section508": true,
+      "en301549": true
+    }
+  },
+  {
+    "criterion": "Best Practice",
+    "feature": "Focus Styling",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": false,
+      "wcag22aa": false,
+      "bestPractice": true,
+      "section508": false,
+      "en301549": false
+    }
+  },
+  {
+    "criterion": "Best Practice",
+    "feature": "Semantic HTML",
+    "tags": {
+      "wcag21a": false,
+      "wcag21aa": false,
+      "wcag22a": false,
+      "wcag22aa": false,
+      "bestPractice": true,
+      "section508": false,
+      "en301549": false
+    }
+  }
+]
