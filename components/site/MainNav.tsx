@@ -1,12 +1,82 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Menu } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
+
+const components: { title: string; href: string; description: string }[] = [
+  {
+    title: "Blog",
+    href: "/blog",
+    description:
+      "A blog about accessibility, quality assurance, and automated testing.",
+  },
+  {
+    title: "Glossary",
+    href: "/glossary",
+    description:
+      "A glossary of accessibility terms and definitions for the web.",
+  },
+  {
+    title: "Accessibility Standards Matrix",
+    href: "/education/accessibility-standards-matrix",
+    description:
+      "Compare accessibility criteria between different standards and guidelines.",
+  },
+  {
+    title: "Accessibility Checklist",
+    href: "/education/checklist",
+    description: "A checklist of accessibility criteria",
+  },
+  {
+    title: "Accessibility Training",
+    href: "/education/training",
+    description: "A training program for accessibility",
+  },
+  {
+    title: "Accessibility Resources",
+    href: "/education/resources",
+    description: "A list of resources for accessibility",
+  },
+]
+
+const products = [
+  {
+    title: "Automated Accessibility Scanning",
+    href: "/products/automated-accessibility-scanning",
+    description: "Scan your website for accessibility issues",
+  },
+  {
+    title: "Manual Accessibility Audits",
+    href: "/products/manual-audit",
+    description: "A manual accessibility audit of your website",
+  },
+  {
+    title: "Tab Order Bookmarklet",
+    href: "/products/focus-bookmarklet",
+    description: "A bookmarklet to help you understand tab order",
+  },
+  {
+    title: "Heading Order Bookmarklet",
+    href: "/products/heading-order-bookmarklet",
+    description: "A bookmarklet to help you understand heading order",
+  },
+]
 
 export function MainNav() {
   const [open, setOpen] = React.useState(false)
@@ -19,20 +89,49 @@ export function MainNav() {
 
       <Logo />
 
-      {/* Desktop Navigation */}
-      <div className="hidden md:flex gap-4">
-        <RouterLink href="/services" className="font-medium hover:text-primary">
-          Services
-        </RouterLink>
-
-        <RouterLink href="/blog" className="font-medium hover:text-primary">
-          Blog
-        </RouterLink>
-
-        <RouterLink href="/courses" className="font-medium hover:text-primary">
-          Courses
-        </RouterLink>
-      </div>
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                {products.map((component) => (
+                  <ListItem
+                    key={component.title}
+                    title={component.title}
+                    href={component.href}
+                  >
+                    {component.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Education</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                {components.map((component) => (
+                  <ListItem
+                    key={component.title}
+                    title={component.title}
+                    href={component.href}
+                  >
+                    {component.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/docs" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                Company
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
 
       {/* Mobile Menu */}
       <Sheet open={open} onOpenChange={setOpen}>
@@ -70,3 +169,29 @@ export function MainNav() {
     </nav>
   )
 }
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  )
+})
+ListItem.displayName = "ListItem"
