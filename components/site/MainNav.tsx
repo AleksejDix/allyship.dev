@@ -1,10 +1,8 @@
-"use client"
-
 import * as React from "react"
-import Link from "next/link"
 import { Menu } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,9 +10,9 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { UserMenu } from "@/components/auth/UserMenu"
 
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
@@ -79,95 +77,94 @@ const products = [
 ]
 
 export function MainNav() {
-  const [open, setOpen] = React.useState(false)
-
   return (
-    <nav aria-labelledby="main-nav" className="flex gap-4 items-center  w-full">
-      <span id="main-nav" className="sr-only">
-        Main
-      </span>
+    <>
+      <div className="flex flex-row gap-2">
+        <Logo />
+        <NavigationMenu className="hidden md:block">
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {products.map((component) => (
+                    <ListItem
+                      key={component.title}
+                      title={component.title}
+                      href={component.href}
+                    >
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Education</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {components.map((component) => (
+                    <ListItem
+                      key={component.title}
+                      title={component.title}
+                      href={component.href}
+                    >
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
 
-      <Logo />
+      <div className="flex flex-row gap-2">
+        <UserMenu />
 
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                {products.map((component) => (
-                  <ListItem
-                    key={component.title}
-                    title={component.title}
-                    href={component.href}
-                  >
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Education</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                {components.map((component) => (
-                  <ListItem
-                    key={component.title}
-                    title={component.title}
-                    href={component.href}
-                  >
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+        {/* Mobile Menu */}
+        <div className="md:hidden">
+          <Sheet>
+            <Button variant="ghost" size="icon" asChild>
+              <SheetTrigger aria-label="Toggle menu">
+                <Menu aria-hidden="true" className="w-6 h-6" />
+              </SheetTrigger>
+            </Button>
+            <SheetContent>
+              <div className="flex flex-col gap-4 mt-8">
+                <RouterLink
+                  href="/services"
+                  className="font-medium hover:text-primary"
+                >
+                  Services
+                </RouterLink>
 
-      {/* Mobile Menu */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger className="md:hidden p-2" aria-label="Toggle menu">
-          <Menu className="w-6 h-6" />
-        </SheetTrigger>
-        <SheetContent>
-          <div className="flex flex-col gap-4 mt-8">
-            <RouterLink
-              href="/services"
-              className="font-medium hover:text-primary"
-              onClick={() => setOpen(false)}
-            >
-              Services
-            </RouterLink>
+                <RouterLink
+                  href="/blog"
+                  className="font-medium hover:text-primary"
+                >
+                  Blog
+                </RouterLink>
 
-            <RouterLink
-              href="/blog"
-              className="font-medium hover:text-primary"
-              onClick={() => setOpen(false)}
-            >
-              Blog
-            </RouterLink>
+                <RouterLink
+                  href="/education/courses"
+                  className="font-medium hover:text-primary"
+                >
+                  Courses
+                </RouterLink>
 
-            <RouterLink
-              href="/education/courses"
-              className="font-medium hover:text-primary"
-              onClick={() => setOpen(false)}
-            >
-              Courses
-            </RouterLink>
-
-            <RouterLink
-              href="/education/checklist"
-              className="font-medium hover:text-primary"
-              onClick={() => setOpen(false)}
-            >
-              Checklist
-            </RouterLink>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </nav>
+                <RouterLink
+                  href="/education/checklist"
+                  className="font-medium hover:text-primary"
+                >
+                  Checklist
+                </RouterLink>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </>
   )
 }
 

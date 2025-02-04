@@ -111,12 +111,7 @@ function ChecklistItem({
 }: ChecklistItemProps) {
   return (
     <li className="flex items-start justify-between gap-3">
-      <Label
-        htmlFor={`switch-${index}`}
-        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-        {label}
-      </Label>
+      <Label htmlFor={`switch-${index}`}>{label}</Label>
       <Switch
         id={`switch-${index}`}
         className={`mt-0.5 ${isChecked ? "bg-green-500" : ""}`}

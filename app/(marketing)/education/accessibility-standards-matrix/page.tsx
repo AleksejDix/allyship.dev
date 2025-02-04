@@ -26,8 +26,8 @@ export default function Page() {
 
       <Separator className="my-8" />
 
-      <div className="grid gap-8 md:grid-cols-[2fr,1fr]">
-        <div className="dark:prose-invert prose mb-8 max-w-prose">
+      <div className="grid gap-8 md:grid-cols-[2fr,1fr] pb-8">
+        <div className="dark:prose-invert prose max-w-prose">
           <h2>Why Manual Testing Matters</h2>
           <p>
             While automated accessibility scans are valuable tools, they can
