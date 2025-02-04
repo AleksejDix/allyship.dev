@@ -1,20 +1,32 @@
-
 import { VideoPlayer } from "@/features/courses/components/video-player"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, CheckCircle, Clock, Users, Target, Zap, Award, BarChart } from "lucide-react"
+import {
+  ArrowRight,
+  Award,
+  BarChart,
+  CheckCircle,
+  Clock,
+  Target,
+  Users,
+  Zap,
+} from "lucide-react"
+
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { FeatureCardsGrid } from "@/components/feature-cards-grid"
 
-
-export default async function CoursePage({ params }: { params: { slug: string[] } }) {
+export default async function CoursePage({
+  params,
+}: {
+  params: { slug: string[] }
+}) {
   const courseId = params.slug[0]
-
 
   const course = {
     id: courseId,
     name: "Web Accessibility 101",
-    description: "Master the fundamentals of web accessibility and learn how to create inclusive digital experiences for all users.",
+    description:
+      "Master the fundamentals of web accessibility and learn how to create inclusive digital experiences for all users.",
     price: "49.99",
     duration: "4 hours",
     students: "1,234",
@@ -23,21 +35,22 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
         id: "intro",
         title: "Introduction to Web Accessibility",
         videoId: "intro-123",
-        transcription: "Welcome to Web Accessibility 101! In this course..."
+        transcription: "Welcome to Web Accessibility 101! In this course...",
       },
       {
         id: "wcag",
         title: "Understanding WCAG Guidelines",
         videoId: "wcag-123",
-        transcription: "The Web Content Accessibility Guidelines (WCAG) are..."
+        transcription: "The Web Content Accessibility Guidelines (WCAG) are...",
       },
       {
         id: "semantic",
         title: "Semantic HTML and Accessibility",
         videoId: "semantic-123",
-        transcription: "Semantic HTML is the foundation of accessible web content..."
-      }
-    ]
+        transcription:
+          "Semantic HTML is the foundation of accessible web content...",
+      },
+    ],
   }
 
   return (
@@ -54,7 +67,9 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
                 Web Accessibility 101
               </h1>
               <p className="text-xl text-muted-foreground">
-                Master web accessibility and expand your reach to over 1 billion users worldwide. Learn to create inclusive digital experiences that work for everyone.
+                Master web accessibility and expand your reach to over 1 billion
+                users worldwide. Learn to create inclusive digital experiences
+                that work for everyone.
               </p>
               <div className="flex gap-4">
                 <Button size="lg" className="shadow-lg">
@@ -72,7 +87,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" />
-                  <span>1,234+ enrolled</span>
+                  <span>72+ enrolled</span>
                 </div>
               </div>
             </div>
@@ -94,23 +109,27 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
             {
               icon: Target,
               title: "Stay Competitive",
-              description: "Accessibility skills are in high demand. Stand out in the job market with essential expertise."
+              description:
+                "Accessibility skills are in high demand. Stand out in the job market with essential expertise.",
             },
             {
               icon: Zap,
               title: "Immediate Impact",
-              description: "Apply your learning instantly. Make your websites accessible from day one."
+              description:
+                "Apply your learning instantly. Make your websites accessible from day one.",
             },
             {
               icon: Award,
               title: "Industry Recognition",
-              description: "Earn a certificate that demonstrates your commitment to inclusive design."
+              description:
+                "Earn a certificate that demonstrates your commitment to inclusive design.",
             },
             {
               icon: BarChart,
               title: "Reach More Users",
-              description: "Tap into a market of over 1 billion people with disabilities worldwide."
-            }
+              description:
+                "Tap into a market of over 1 billion people with disabilities worldwide.",
+            },
           ]}
         />
       </section>
@@ -121,8 +140,9 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">What You'll Learn</h2>
             <p className="text-lg text-muted-foreground">
-              Comprehensive curriculum designed to take you from beginner to accessibility expert.
-              Master both theoretical knowledge and practical implementation.
+              Comprehensive curriculum designed to take you from beginner to
+              accessibility expert. Master both theoretical knowledge and
+              practical implementation.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-12">
@@ -137,7 +157,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
                   "Handling images, media, and dynamic content",
                   "Writing meaningful alt text and descriptions",
                   "Color contrast and visual accessibility",
-                  "Mobile accessibility considerations"
+                  "Mobile accessibility considerations",
                 ].map((item) => (
                   <div key={item} className="flex gap-3">
                     <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
@@ -158,7 +178,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
                   "Building accessible forms and validation",
                   "Managing focus in single-page applications",
                   "WAI-ARIA implementation and best practices",
-                  "Automated testing and continuous monitoring"
+                  "Automated testing and continuous monitoring",
                 ].map((item) => (
                   <div key={item} className="flex gap-3">
                     <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
@@ -173,7 +193,9 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
 
       {/* Course Features */}
       <section className="container py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">Everything You Need to Succeed</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Everything You Need to Succeed
+        </h2>
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-6">
             <div className="grid gap-4">
@@ -185,7 +207,7 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
                 "Access to exclusive accessibility testing tools",
                 "Certificate of completion",
                 "Expert instructor support",
-                "Lifetime access to all course materials"
+                "Lifetime access to all course materials",
               ].map((item) => (
                 <div key={item} className="flex gap-3">
                   <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
@@ -200,12 +222,15 @@ export default async function CoursePage({ params }: { params: { slug: string[] 
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
                   <p className="text-4xl font-bold">$49.99</p>
-                  <p className="text-muted-foreground">One-time payment, lifetime access</p>
+                  <p className="text-muted-foreground">
+                    One-time payment, lifetime access
+                  </p>
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Course Guarantee</h3>
                 <p className="text-muted-foreground mb-6">
-                  If you're not satisfied with the course within 30 days, we'll give you a full refund.
-                  No questions asked. Your success and satisfaction are our top priorities.
+                  If you're not satisfied with the course within 30 days, we'll
+                  give you a full refund. No questions asked. Your success and
+                  satisfaction are our top priorities.
                 </p>
                 <Button className="w-full" size="lg">
                   Enroll Now - $49.99

@@ -1,22 +1,22 @@
 import { Metadata } from "next"
 
-import { FocusTracker } from "@/components/bookmarklet/focus-tracker"
+import { HeadingOrder } from "@/components/bookmarklet/heading-order"
 
 export const metadata: Metadata = {
-  title: "Focus Bookmarklet - Tab Order Visualization Tool",
+  title: "Heading Structure Bookmarklet - Document Outline Visualization Tool",
   description:
-    "Visualize keyboard navigation paths and improve web accessibility with our focus order visualization tool. Perfect for developers and accessibility testing.",
+    "Visualize HTML heading structure and hierarchy to improve web accessibility and document outline. Essential for WCAG 2.1 compliance testing.",
 }
 
-export default function FocusBookmarkletPage() {
+export default function HeadingBookmarkletPage() {
   return (
     <div className="container max-w-4xl py-12">
       <header className="flex flex-col items-center space-y-4 text-center mb-12">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-          Focus Order Visualization Tool
+          Heading Structure Visualization Tool
         </h1>
         <p className="text-muted-foreground text-lg">
-          Instantly visualize keyboard navigation paths on any webpage
+          Instantly analyze and visualize heading hierarchy on any webpage
         </p>
       </header>
 
@@ -27,7 +27,7 @@ export default function FocusBookmarkletPage() {
           <p className="mb-6 text-lg">
             Drag this button to your bookmarks bar:
           </p>
-          <FocusTracker />
+          <HeadingOrder />
         </div>
       </section>
 
@@ -40,27 +40,25 @@ export default function FocusBookmarkletPage() {
           <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm space-y-4">
             <p className="text-muted-foreground">
               This tool helps ensure compliance with key WCAG 2.1 success
-              criteria for keyboard navigation:
+              criteria:
             </p>
             <ul className="list-disc ml-6 text-muted-foreground space-y-2">
               <li>
-                <strong>2.1.1 Keyboard (Level A)</strong> - Verify all
-                functionality is operable through keyboard navigation
+                <strong>1.3.1 Info and Relationships (Level A)</strong> - Ensure
+                heading structure conveys document organization
               </li>
               <li>
-                <strong>2.4.3 Focus Order (Level A)</strong> - Ensure focusable
-                components receive focus in a meaningful sequence
+                <strong>2.4.6 Headings and Labels (Level AA)</strong> - Verify
+                that headings accurately describe their corresponding sections
               </li>
               <li>
-                <strong>2.4.7 Focus Visible (Level AA)</strong> - Make keyboard
-                focus indicator visible and clear for all interactive elements
+                <strong>2.4.10 Section Headings (Level AAA)</strong> - Validate
+                proper section organization using headings
               </li>
             </ul>
           </div>
         </section>
-      </div>
 
-      <div className="space-y-12">
         {/* Key Features */}
         <section>
           <h2 className="text-2xl font-semibold tracking-tight mb-6">
@@ -68,30 +66,28 @@ export default function FocusBookmarkletPage() {
           </h2>
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
-              <h3 className="font-semibold mb-2">Real-time Visualization</h3>
+              <h3 className="font-semibold mb-2">Visual Hierarchy Map</h3>
               <p className="text-muted-foreground">
-                See the exact path users will take when navigating with their
-                keyboard
+                See the complete heading structure and identify gaps in document
+                outline
               </p>
             </div>
             <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
-              <h3 className="font-semibold mb-2">Scroll-aware Tracking</h3>
+              <h3 className="font-semibold mb-2">Level Validation</h3>
               <p className="text-muted-foreground">
-                Works seamlessly with scrolled sections and dynamically loaded
-                content
+                Instantly spot skipped heading levels and structural issues
               </p>
             </div>
             <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
-              <h3 className="font-semibold mb-2">Dynamic DOM Monitoring</h3>
+              <h3 className="font-semibold mb-2">Dynamic Analysis</h3>
               <p className="text-muted-foreground">
-                Automatically detects and visualizes new elements as
-                they&apos;re added to the page
+                Works with dynamic content and single-page applications
               </p>
             </div>
             <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
-              <h3 className="font-semibold mb-2">Accessibility Testing</h3>
+              <h3 className="font-semibold mb-2">Content Structure Review</h3>
               <p className="text-muted-foreground">
-                Identify unreachable areas and improve keyboard navigation flows
+                Evaluate semantic structure and improve content organization
               </p>
             </div>
           </div>
@@ -105,9 +101,9 @@ export default function FocusBookmarkletPage() {
           <div className="text-muted-foreground">
             <ol className="space-y-4 ml-6 list-decimal">
               <li>Drag the bookmarklet to your browser&apos;s bookmark bar</li>
-              <li>Visit any webpage you want to test</li>
-              <li>Click the bookmarklet to activate the visualization</li>
-              <li>Use Tab key to see the navigation order in action</li>
+              <li>Visit any webpage you want to analyze</li>
+              <li>Click the bookmarklet to view heading structure</li>
+              <li>Review the visual hierarchy and identify any issues</li>
             </ol>
           </div>
         </section>
