@@ -1,6 +1,6 @@
 export const siteConfig: SiteConfig = {
-  name: "Master Web Accessibility with Allyship",
+  name: "Allyship.dev",
   description:
-    "Learn how to make your website more accessible and inclusive for everyone.",
+    "Empowering inclusive web experiences with accessibility courses, professional QA services, and advanced tools for end-to-end testing.",
   url: "https://www.allyship.dev",
 }

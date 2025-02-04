@@ -6,13 +6,26 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import puppeteer from 'https://deno.land/x/puppeteer@16.2.0/mod.ts'
 import { AxePuppeteer } from 'npm:@axe-core/puppeteer'
+import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 
-console.log(AxePuppeteer)
 
 Deno.serve(async (req) => {
   try {
-    console.log(`wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`)
+
+    const supabase = createClient(Deno.env.get('NEXT_PUBLIC_SUPABASE_URL'), Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY'))
+
+
+    const authHeader = req.headers.get('Authorization')!;
+    const token = authHeader.replace('Bearer ', '');
+    await supabase.auth.getUser(token);
+
+    // get body from request
+    const { url, id } = await req.json()
+
+    console.log({id, url})
+
+    // console.log(`wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`)
 
     // const browser = await puppeteer.connect({
     //   browserWSEndpoint: `wss://chrome.browserless.io?token=${Deno.env.get(
@@ -20,22 +33,38 @@ Deno.serve(async (req) => {
     //   )}`,
     // })
 
-    console.log(`wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`)
+    // console.log(`wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`)
 
     const browser = await puppeteer.connect({
-      browserWSEndpoint: `wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`,
+      browserWSEndpoint:   `wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`
     });
 
 
     const page = await browser.newPage()
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 }); // Wait until network is idle
 
-    const url = new URL(req.url).searchParams.get('url')
+    await page.waitForFunction(() => document.readyState === "complete");
 
-    await page.goto(url)
+    // https://www.deque.com/axe/core-documentation/api-documentation/#axe-core-tags
+    const results = await new AxePuppeteer(page)
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+      .analyze()
 
-    const results = await new AxePuppeteer(page).analyze();
+    const { data, error } = await supabase.from("scan").update({
+      results: results,
+      status: "completed",
+    }).eq("id", id)
 
-    return new Response(JSON.stringify(results), {
+    if (error) {
+      return new Response(JSON.stringify({error: error.message}), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 500,
+      })
+    }
+
+    // console.log({data, error})
+
+    return new Response(JSON.stringify(data), {
       headers: { 'Content-Type': 'application/json' },
     })
   } catch (e) {
