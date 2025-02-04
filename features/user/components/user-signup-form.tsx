@@ -70,9 +70,7 @@ export function UserSignupForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="mx-auto">
-        <RouterLink href="/">
-          <Logo />
-        </RouterLink>
+        <Logo />
       </div>
       <Card>
         <CardHeader>
