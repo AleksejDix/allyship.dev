@@ -2,7 +2,6 @@
 
 import { ScanJobCreate } from "@/features/scans/components/scan-create"
 
-import { A11yMatrix } from "@/components/a11y-matrix"
 import { Faqs } from "@/components/blocks/Faqs"
 import { Issues } from "@/components/blocks/Issues"
 import { Services } from "@/components/blocks/Services"
@@ -38,7 +37,6 @@ const Page = () => (
     <Stats />
     <Issues />
     <Services />
-    <A11yMatrix />
 
     <div className="container space-y-8">
       <div className="space-y-4 md:text-center ">
