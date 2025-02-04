@@ -91,10 +91,7 @@ export default async function PostPage(props: PostPageProps) {
 
   return (
     <article className="container  px-4 sm:px-6 lg:px-8">
-      <PageHeader
-        heading={post.title}
-
-      />
+      <PageHeader heading={post.title} />
       <hr className="my-8" />
       {authors?.length ? (
         <div className="mt-4 flex flex-wrap gap-4">

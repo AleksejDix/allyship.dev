@@ -1,5 +1,7 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
 
+import { ScanJobCreate } from "@/features/scans/components/scan-create"
+
 import { Faqs } from "@/components/blocks/Faqs"
 import { Issues } from "@/components/blocks/Issues"
 import { Services } from "@/components/blocks/Services"
@@ -12,7 +14,7 @@ import { Compliance } from "@/components/charts/Compliance"
 
 const Page = () => (
   <>
-    <div className="container max-w-2xl py-12">
+    <div className="container max-w-2xl py-12 space-y-8 relative">
       <div>
         {/* <Button variant="secondary" size="sm" className="gap-4">
             Read our launch article <MoveRight className="w-4 h-4" />
@@ -29,6 +31,7 @@ const Page = () => (
           together!
         </p>
       </div>
+      <ScanJobCreate />
     </div>
 
     <Stats />
