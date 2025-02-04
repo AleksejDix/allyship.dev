@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
-import { Ripple } from "@/components/ui/ripple"
 import { Field } from "@/components/forms/field"
 
 export function ScanJobCreate() {
@@ -46,7 +45,7 @@ export function ScanJobCreate() {
   }
 
   return (
-    <div className="container max-w-xl ">
+    <div className="max-w-xl">
       <Card className="relative z-[1] shadow">
         <CardHeader>
           <CardTitle>Web Accessibility Scanner</CardTitle>
@@ -57,7 +56,7 @@ export function ScanJobCreate() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
                 <Field
                   type="url"
                   name="url"
@@ -67,7 +66,7 @@ export function ScanJobCreate() {
                 />
                 <Button
                   type="submit"
-                  className="mt-6 min-w-24"
+                  className="md:mt-6 md:min-w-24 w-full md:w-auto"
                   disabled={isPending}
                 >
                   {isPending ? "Scanning..." : "Scan"}
@@ -85,7 +84,6 @@ export function ScanJobCreate() {
           ))}
         </CardFooter>
       </Card>
-      <Ripple className="translate-y-[190px]" />
     </div>
   )
 }

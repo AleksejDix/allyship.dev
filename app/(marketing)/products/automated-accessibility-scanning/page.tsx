@@ -8,12 +8,7 @@ export const metadata: Metadata = {
 
 export default function AutomatedScanningPage() {
   return (
-    <div className="container max-w-2xl py-12 space-y-8 relative">
-      <div>
-        {/* <Button variant="secondary" size="sm" className="gap-4">
-            Read our launch article <MoveRight className="w-4 h-4" />
-            </Button> */}
-      </div>
+    <div className="container max-w-2xl py-8 md:py-12 space-y-8 relative">
       <div className="space-y-4 md:text-center">
         <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
           Accessibility Scanner

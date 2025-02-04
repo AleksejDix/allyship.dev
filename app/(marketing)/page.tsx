@@ -15,11 +15,6 @@ import { Compliance } from "@/components/charts/Compliance"
 const Page = () => (
   <>
     <div className="container max-w-2xl py-12 space-y-8 relative">
-      <div>
-        {/* <Button variant="secondary" size="sm" className="gap-4">
-            Read our launch article <MoveRight className="w-4 h-4" />
-            </Button> */}
-      </div>
       <div className="space-y-4 md:text-center">
         <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
           Master Web Accessibility
@@ -53,15 +48,15 @@ const Page = () => (
 
     <Faqs />
 
-    {/* <NewsletterFormSection /> */}
-    {/* <div className="flex flex-row gap-3">
-          <Button size="lg" className="gap-4" variant="outline">
-            Jump on a call <PhoneCall className="w-4 h-4" />
-          </Button>
-          <Button size="lg" className="gap-4">
-            Sign up here <MoveRight className="w-4 h-4" />
-          </Button>
-        </div> */}
+    {/* <NewsletterFormSection />
+    <div className="flex flex-row gap-3">
+      <Button size="lg" className="gap-4" variant="outline">
+        Jump on a call <PhoneCall className="w-4 h-4" />
+      </Button>
+      <Button size="lg" className="gap-4">
+        Sign up here <MoveRight className="w-4 h-4" />
+      </Button>
+    </div> */}
   </>
 )
 
