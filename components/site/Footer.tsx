@@ -7,38 +7,41 @@ import { Logo } from "./Logo"
 
 const sections = [
   {
-    title: "Services",
+    title: "Products",
     links: [
-      { name: "e2e tests", href: null },
-      { name: "a11y e2e tests", href: "/services/a11y-e2e-tests" },
-      { name: "a11y audits", href: "/services/audits" },
-      { name: "a11y courses", href: null },
-      // { name: "workshops", href: "#" },
-      // { name: "Integrations", href: "#" },
-      // { name: "Pricing", href: "#" },
+      {
+        name: "Automated Audit",
+        href: "/products/automated-accessibility-scanning",
+      },
+      { name: "Manual Audit", href: "/products/manual-accessibility-audit" },
+      {
+        name: "Focus Bookmarklet",
+        href: "/products/focus-bookmarklet",
+      },
+      {
+        name: "Heading Bookmarklet",
+        href: "/products/heading-order-bookmarklet",
+      },
     ],
   },
   {
     title: "Company",
     links: [
-      { name: "About", href: "/about" },
-      // { name: "Team", href: "/team" },
-      { name: "Blog", href: "/blog" },
-      // { name: "Careers", href: "/jobs" },
-      { name: "Contact", href: "/contact" },
-      // { name: "Newsletter", href: "/newsletter" },
-      { name: "Brand", href: "/brand" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
       // { name: "Help", href: "#" },
       // { name: "Sales" },
       // { name: "Advertise", href: "#" },
+      { name: "About", href: "/about" },
       { name: "Privacy", href: "/privacy" },
       { name: "Terms", href: "/terms" },
       { name: "Imprint", href: "/imprint" },
+    ],
+  },
+  {
+    title: "Education",
+    links: [
+      { name: "Courses", href: "/education/courses" },
+      { name: "Checklist", href: "/education/checklist" },
+      { name: "Blog", href: "/blog" },
       { name: "Glossary", href: "/glossary" },
     ],
   },
