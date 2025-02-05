@@ -1,5 +1,13 @@
 import { DollarSign, Eye, TrendingUp, Users } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+
 const stats = [
   {
     id: 1,
@@ -37,22 +45,22 @@ const stats = [
 
 export function Stats() {
   return (
-    <div className="container py-16">
+    <div className="container max-w-screen-xl mx-auto py-16">
       <h2 className="text-3xl font-bold mb-8 text-center">
         Why Accessibility Matters
       </h2>
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card
-            key={stat.id}
-          >
+          <Card key={stat.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="text-sm font-medium">{stat.title}</div>
               <div className="h-8 w-8 text-muted-foreground">{stat.icon}</div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold mb-2">{stat.value}</div>
-              <p className="text-sm text-muted-foreground">{stat.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {stat.description}
+              </p>
             </CardContent>
           </Card>
         ))}

@@ -1,11 +1,9 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
-
-import { ScanJobCreate } from "@/features/scans/components/scan-create"
-
 import { Faqs } from "@/components/blocks/Faqs"
 import { Issues } from "@/components/blocks/Issues"
 import { Services } from "@/components/blocks/Services"
 import { Stats } from "@/components/blocks/Stats"
+import { WebScanner } from "@/components/blocks/WebScanner"
 import { Compliance } from "@/components/charts/Compliance"
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
@@ -26,9 +24,9 @@ const Page = () => (
           together!
         </p>
       </div>
-      <ScanJobCreate />
     </div>
 
+    <WebScanner />
     <Stats />
     <Issues />
     <Services />
