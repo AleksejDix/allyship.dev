@@ -53,13 +53,18 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
       )}
 
       <div className="mt-4">
-        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+        <div className="w-full bg-muted rounded-full h-2.5">
           <div
-            className="bg-green-600 h-2.5 rounded-full"
-            style={{ width: `${progressPercentage}%` }}
+            className="h-full bg-primary rounded-full transition-all duration-500 ease-in-out"
+            style={
+              {
+                width: `${progressPercentage}%`,
+                "--progress": `${progressPercentage}%`,
+              } as React.CSSProperties
+            }
           />
         </div>
-        <small className="block mt-1 text-sm text-gray-500">
+        <small className="block mt-1 text-sm text-muted-foreground">
           {progressPercentage}% Complete
         </small>
       </div>
