@@ -68,6 +68,7 @@
     "react-confetti": "^6.2.2",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.54.2",
+    "react-sparklines": "^1.7.0",
     "react-transition-group": "^4.4.5",
     "recharts": "^2.15.0",
     "remark": "^15.0.1",
