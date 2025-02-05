@@ -73,9 +73,7 @@ export const Footer = () => {
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
             <div className="col-span-2 mb-8 lg:mb-0">
               <Logo />
-              <p className="font-bold text-pretty max-w-44">
-                We can make the web more accessible.
-              </p>
+              <p className="font-bold text-pretty">ship accessible products</p>
             </div>
             {sections.map((section, sectionIdx) => (
               <nav

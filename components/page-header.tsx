@@ -6,7 +6,7 @@ interface PageHeaderProps {
 export function PageHeader({ heading, description }: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-4 py-6">
-      <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1] text-balance">
+      <h1 className="text-3xl font-bold leading-tight font-display md:text-6xl lg:leading-[1.1] text-balance">
         {heading}
       </h1>
       {description && (

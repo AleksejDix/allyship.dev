@@ -4,11 +4,18 @@ import { siteConfig } from "@/config/site"
 
 import "@/styles/index.css"
 
+import { Outfit } from "next/font/google"
 import { RouterLinkProvider } from "@/providers/RouterLinkContext"
 import { Analytics } from "@vercel/analytics/react"
 
 import AccessibleNavigation from "@/components/site/AccessibleNavigation"
 import { ThemeProvider } from "@/components/ThemeProvider"
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-outfit",
+})
 
 export const metadata: Metadata = {
   title: {
@@ -60,7 +67,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark  dark:bg-zinc-950 antialiased">
+    <html
+      lang="en"
+      className={`${outfit.variable} dark  dark:bg-zinc-950 antialiased`}
+    >
       <body>
         <AccessibleNavigation />
         <ThemeProvider

@@ -1,13 +1,7 @@
 "use client"
 
 import { ShieldCheck, TrendingUp } from "lucide-react"
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-} from "recharts"
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
 
 import {
   Card,
@@ -99,7 +93,7 @@ export function Compliance() {
         </CardFooter>
       </Card>
       <div className="space-y-4">
-        <h3 className="text-2xl font-bold md:text-3xl">
+        <h3 className="text-2xl font-bold md:text-3xl text-pretty font-display">
           Compliance is the act of adhering to legal standards and guidelines.
         </h3>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground mt-6">

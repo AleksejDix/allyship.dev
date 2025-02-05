@@ -89,3 +89,52 @@ a {
     @apply border-destructive bg-destructive/10;
   }
 }
+
+
+.logo {
+  --base: 16;
+  --base-width: calc(var(--base) * 1px);
+  display: grid;
+  width: calc(var(--base-width) * 1.7);
+  margin: 0 auto;
+  grid-template-columns: 1fr 1fr;
+  --c1: theme('colors.violet.500');
+  --c2: theme('colors.red.500');
+  --c3: theme('colors.orange.500');
+  --c4: theme('colors.yellow.500');
+  --c5: theme('colors.green.500');
+  --c6: theme('colors.blue.500');
+  --c7: theme('colors.indigo.500');
+}
+
+
+
+.circle {
+  width: calc(var(--base) * 1px);
+  height: calc(var(--base) * 1px);
+  border-radius: 50%;
+}
+
+.offset-y {
+  transform: translate3d(-30%, 0, 0) rotate(-45deg);
+}
+
+.g-1 {
+  background: conic-gradient(from 180deg at 50% 50%,
+    var(--c1) 0,
+    var(--c2) 90deg,
+    var(--c3) 180deg,
+    var(--c4) 270deg
+  );
+  transform: rotate(-45deg);
+}
+
+.g-2 {
+  background: conic-gradient(from 0deg at 50% 50%,
+    var(--c7) 0,
+    var(--c6) 90deg,
+    var(--c5) 180deg,
+    var(--c4) 270deg
+  );
+}
+
