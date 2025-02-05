@@ -83,7 +83,7 @@ const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "red", "pink"]
 
 export function Issues() {
   return (
-    <div className="container py-16">
+    <div className="container max-w-screen-xl mx-auto py-16">
       <div className="grid md:grid-cols-3 gap-8">
         <div className="flex flex-col space-y-4 md:col-span-1 justify-center">
           <h3 className="text-2xl font-bold md:text-3xl">

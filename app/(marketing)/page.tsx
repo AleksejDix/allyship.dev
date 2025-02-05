@@ -1,6 +1,7 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
 import { Faqs } from "@/components/blocks/Faqs"
 import { Issues } from "@/components/blocks/Issues"
+import { ScanProcess } from "@/components/blocks/ScanProcess"
 import { Services } from "@/components/blocks/Services"
 import { Stats } from "@/components/blocks/Stats"
 import { WebScanner } from "@/components/blocks/WebScanner"
@@ -28,6 +29,7 @@ const Page = () => (
 
     <WebScanner />
     <Stats />
+    <ScanProcess />
     <Issues />
     <Services />
 

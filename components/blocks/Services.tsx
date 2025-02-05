@@ -65,11 +65,8 @@ export function Services() {
             {services.map((service) => (
               <div key={service.name} className="relative pl-16">
                 <div className="font-semibold">
-                  <div className="absolute left-0 top-0 flex w-9 h-9 items-center justify-center rounded-lg border-[1.5px] border-foreground">
-                    <service.icon
-                      aria-hidden="true"
-                      className="h-5 w-5 stroke-[1.5px]"
-                    />
+                  <div className="absolute left-0 top-0 flex w-9 h-9 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-600 border-foreground">
+                    <service.icon aria-hidden="true" size={16} />
                   </div>
                   {service.name}
                 </div>
