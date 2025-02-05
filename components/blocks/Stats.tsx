@@ -47,7 +47,7 @@ const stats = [
 export function Stats() {
   return (
     <div className="container max-w-screen-xl mx-auto py-16">
-      <h2 className="text-3xl font-bold mb-8 text-center">
+      <h2 className="text-2xl font-bold mb-8 text-center text-pretty font-display md:text-3xl">
         Why Accessibility Matters
       </h2>
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

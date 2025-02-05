@@ -55,7 +55,7 @@ export const WebScanner = () => {
           <div className="p-4 space-y-3 relative overflow-hidden aspect-video w-full">
             {/* Scanning container */}
             <div>
-              <div className="absolute z-10 inset-0 animate-scan animate-duration-[5s]">
+              <div className="absolute inset-0 animate-scan animate-duration-[5s]">
                 {/* Left gradient glow */}
                 <div className="absolute top-0 left-0 bottom-0 w-[1px] h-full bg-green-500">
                   <div className="absolute animate-hide-right top-0 left-[1px] bottom-0 w-8 bg-gradient-to-l from-transparent to-green-500/20" />
@@ -72,7 +72,7 @@ export const WebScanner = () => {
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+          <h2 className="text-xl font-bold text-pretty font-display sm:text-3xl">
             Is Your Website Making These Accessibility Mistakes?
           </h2>
           <div className="space-y-4">

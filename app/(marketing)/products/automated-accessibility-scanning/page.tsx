@@ -10,7 +10,7 @@ export default function AutomatedScanningPage() {
   return (
     <div className="container max-w-2xl py-8 md:py-12 space-y-8 relative">
       <div className="space-y-4 md:text-center">
-        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
+        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl text-pretty font-display">
           Accessibility Scanner
         </h1>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">

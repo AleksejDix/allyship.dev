@@ -2,39 +2,27 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
+import { Loader } from "../loader"
 import { RouterLink } from "../RouterLink"
 
 type LogoProps = React.HTMLAttributes<HTMLSpanElement>
 
 export const Logo: React.FC<LogoProps> = ({ className, ...props }) => {
   return (
-    <RouterLink href="/" className="!no-underline">
-      <span className={cn("text-3xl font-bold", className)} {...props}>
-        <span className="sr-only">Allyship</span>
-        <span className="text-red-500" aria-hidden="true">
-          A
-        </span>
-        <span className="text-orange-500" aria-hidden="true">
-          l
-        </span>
-        <span className="text-amber-500" aria-hidden="true">
-          l
-        </span>
-        <span className="text-yellow-500" aria-hidden="true">
-          y
-        </span>
-        <span className="text-lime-500" aria-hidden="true">
-          s
-        </span>
-        <span className="text-green-500" aria-hidden="true">
-          h
-        </span>
-        <span className="text-emerald-500" aria-hidden="true">
-          i
-        </span>
-        <span className="text-teal-500" aria-hidden="true">
-          p
-        </span>
+    <RouterLink
+      href="/"
+      aria-label="Allyship.dev"
+      className="!no-underline inline-flex items-center gap-2"
+    >
+      <Loader size={32} />
+      <span
+        className={cn(
+          "text-3xl font-extrabold font-display leading-none uppercase text-foreground hidden md:block",
+          className
+        )}
+        {...props}
+      >
+        Allyship
       </span>
     </RouterLink>
   )

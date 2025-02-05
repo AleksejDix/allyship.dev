@@ -51,7 +51,7 @@ export function Services() {
     <section className="py-28">
       <div className="max-w-4xl mx-auto px-8">
         <header className="max-w-xl mx-auto lg:text-center">
-          <h2 className="text-2xl font-bold md:text-3xl">
+          <h2 className="text-2xl font-bold md:text-3xl text-pretty font-display">
             Services to Build Inclusive Digital Experiences
           </h2>
           <p className="text-foreground/60 mt-6 md:text-lg">

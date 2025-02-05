@@ -13,7 +13,7 @@ export default function ChecklistPage() {
   return (
     <div className="container max-w-2xl py-12 space-y-8 relative">
       <div className="space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-5xl font-bold text-pretty font-display">
           Accessibility Checklist
         </h1>
         <p className="text-muted-foreground text-lg">

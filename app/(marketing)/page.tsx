@@ -6,6 +6,7 @@ import { Services } from "@/components/blocks/Services"
 import { Stats } from "@/components/blocks/Stats"
 import { WebScanner } from "@/components/blocks/WebScanner"
 import { Compliance } from "@/components/charts/Compliance"
+import { Loader } from "@/components/loader"
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
 
@@ -13,9 +14,12 @@ import { Compliance } from "@/components/charts/Compliance"
 
 const Page = () => (
   <>
-    <div className="container max-w-2xl py-12 space-y-8 relative">
+    <div className="container max-w-2xl py-6 md:py-12 space-y-8 relative">
       <div className="space-y-4 md:text-center">
-        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl tracking-tighter text-pretty">
+        <div className="hidden md:block">
+          <Loader size={64} />
+        </div>
+        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl text-pretty font-display">
           Master Web Accessibility
         </h1>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">
@@ -33,9 +37,9 @@ const Page = () => (
     <Issues />
     <Services />
 
-    <div className="container space-y-8">
+    <div className="container max-w-screen-xl space-y-8">
       <div className="space-y-4 md:text-center ">
-        <h2 className="text-3xl font-bold md:text-5xl max-w-2xl tracking-tighter text-pretty text-center mx-auto">
+        <h2 className="text-3xl font-bold md:text-5xl max-w-2xl font-display text-pretty text-center mx-auto">
           Get Started with Allyship
         </h2>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">

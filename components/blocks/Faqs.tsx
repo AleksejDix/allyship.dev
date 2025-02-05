@@ -49,7 +49,7 @@ export const Faqs = () => {
       <div className="container max-w-2xl">
         <header>
           <h2
-            className="mb-4 text-3xl font-bold mx-auto md:mb-11 md:text-5xl md:text-center"
+            className="mb-4 text-3xl font-bold mx-auto md:mb-11 md:text-5xl md:text-center text-pretty font-display"
             id="faq"
           >
             Questions & Answers

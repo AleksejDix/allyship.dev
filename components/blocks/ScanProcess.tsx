@@ -88,7 +88,7 @@ export const ScanProcess = () => {
         {/* Left Side: Interactive Mockup */}
 
         <div className="space-y-6">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+          <h2 className="text-2xl font-bold text-pretty font-display sm:text-3xl">
             How Our Accessibility Scanner Works
           </h2>
           <div className="space-y-4">

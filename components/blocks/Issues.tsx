@@ -85,28 +85,6 @@ export function Issues() {
   return (
     <div className="container max-w-screen-xl mx-auto py-16">
       <div className="grid md:grid-cols-3 gap-8">
-        <div className="flex flex-col space-y-4 md:col-span-1 justify-center">
-          <h3 className="text-2xl font-bold md:text-3xl">
-            Accessibility Issues Overview
-          </h3>
-          <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground mt-6">
-            Top Issues in the WebAIM Million
-          </p>
-          <ul className="mt-6 space-y-4">
-            {chartData.map((item) => (
-              <li
-                key={item.issue}
-                className="flex items-center text-lg leading-snug text-muted-foreground"
-              >
-                <Circle className="h-4 w-4 text-primary mr-2" />
-                <span className="font-medium text-foreground">
-                  {item.issue}:
-                </span>
-                <span className="ml-2">{item.percent}%</span>
-              </li>
-            ))}
-          </ul>
-        </div>
         <Card className="col-span-2">
           <CardHeader></CardHeader>
           <CardContent>
@@ -155,6 +133,29 @@ export function Issues() {
             </div>
           </CardFooter>
         </Card>
+
+        <div className="flex flex-col space-y-4 md:col-span-1 justify-center">
+          <h3 className="text-2xl font-bold text-pretty font-display md:text-3xl">
+            Accessibility Issues Overview
+          </h3>
+          <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground mt-6">
+            Top Issues in the WebAIM Million
+          </p>
+          <ul className="mt-6 space-y-4">
+            {chartData.map((item) => (
+              <li
+                key={item.issue}
+                className="flex items-center text-lg leading-snug text-muted-foreground"
+              >
+                <Circle className="h-4 w-4 text-primary mr-2" />
+                <span className="font-medium text-foreground">
+                  {item.issue}:
+                </span>
+                <span className="ml-2">{item.percent}%</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   )

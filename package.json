@@ -44,6 +44,7 @@
     "@supabase/supabase-js": "^2.48.0",
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-table": "^8.20.6",
+    "@types/react-sparklines": "^1.7.5",
     "@uidotdev/usehooks": "^2.4.1",
     "@vercel/analytics": "^1.4.1",
     "@vercel/og": "^0.6.5",
