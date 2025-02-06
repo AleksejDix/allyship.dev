@@ -11,7 +11,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ThemeToggle from "../ThemeToggle"
 
 export async function UserMenu() {
   const supabase = await createClient()
@@ -21,7 +20,6 @@ export async function UserMenu() {
   if (error || !data?.user) {
     return (
       <div className="flex items-center gap-2">
-        <ThemeToggle />
         <Link
           href="/auth/login"
           className={buttonVariants({ variant: "default" })}
