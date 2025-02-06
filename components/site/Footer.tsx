@@ -73,7 +73,9 @@ export const Footer = () => {
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
             <div className="col-span-2 mb-8 lg:mb-0">
               <Logo />
-              <p className="font-bold text-pretty">ship accessible products</p>
+              <p className="text-pretty pl-[62px] relative bottom-[12px] font-display">
+                Learn & Audit Studio
+              </p>
             </div>
             {sections.map((section, sectionIdx) => (
               <nav
@@ -111,13 +113,13 @@ export const Footer = () => {
           <div className="mt-24 flex flex-col justify-between gap-4 border-t border-border pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
             <p>© 2024 Allyship. All rights reserved.</p>
             <ul className="flex gap-4">
-              <li className="underline hover:text-primary">
+              <li className="hover:text-primary">
                 <RouterLink href="/imprint">Imprint</RouterLink>
               </li>
-              <li className="underline hover:text-primary">
+              <li className="hover:text-primary">
                 <RouterLink href="/terms">Terms</RouterLink>
               </li>
-              <li className="underline hover:text-primary">
+              <li className="hover:text-primary">
                 <RouterLink href="/privacy">Privacy</RouterLink>
               </li>
             </ul>

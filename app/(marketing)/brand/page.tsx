@@ -7,9 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Logo } from "@/components/site/Logo"
-import { PageHeader } from "@/components/page-header"
 import { Separator } from "@/components/ui/separator"
+import { Loader } from "@/components/loader"
+import { PageHeader } from "@/components/page-header"
 
 export default async function PostPage() {
   return (
@@ -17,15 +17,14 @@ export default async function PostPage() {
       <PageHeader heading="Brand" description="Brand Assets and Guidelines" />
       <Separator className="my-8" />
 
-
       <Card>
         <CardHeader>
           <CardTitle>Allyship Logo</CardTitle>
           <CardDescription></CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="aspect-square grid place-content-center max-w-44">
-            <Logo />
+          <div className="aspect-square grid place-content-center max-w-44 border overflow-hidden">
+            <Loader size={64} />
           </div>
         </CardContent>
       </Card>
