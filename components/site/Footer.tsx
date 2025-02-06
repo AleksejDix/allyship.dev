@@ -1,6 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import ThemeToggle from "@/components/ThemeToggle"
 
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
@@ -113,6 +114,9 @@ export const Footer = () => {
           <div className="mt-24 flex flex-col justify-between gap-4 border-t border-border pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
             <p>© 2024 Allyship. All rights reserved.</p>
             <ul className="flex gap-4">
+              <li>
+                <ThemeToggle />
+              </li>
               <li className="hover:text-primary">
                 <RouterLink href="/imprint">Imprint</RouterLink>
               </li>

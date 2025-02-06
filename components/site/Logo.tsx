@@ -17,7 +17,7 @@ export const Logo: React.FC<LogoProps> = ({ className, ...props }) => {
       <Loader size={32} />
       <span
         className={cn(
-          "text-3xl font-extrabold font-display leading-none uppercase text-foreground",
+          "text-2xl sm:text-3xl font-extrabold font-display leading-none uppercase text-foreground",
           className
         )}
         {...props}
