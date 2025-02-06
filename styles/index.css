@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
 
 @layer base {
   :root {
@@ -138,3 +134,36 @@ a {
   );
 }
 
+
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:not(.button):hover {
+  text-decoration: underline;
+}
+
+a:not(.button):focus {
+  outline: 2px solid theme('colors.blue.500');
+  outline-offset: 2px;
+}
+
+a:not(.button):visited {
+  color: theme('colors.blue.700');
+}
+
+.dark a:not(.button):visited {
+  color: theme('colors.blue.400');
+}
+
+a:not(.button)[aria-current="page"] {
+  color: theme('colors.blue.700');
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.dark a:not(.button)[aria-current="page"] {
+  color: theme('colors.blue.400');
+}

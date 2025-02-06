@@ -19,10 +19,7 @@ export const RouterLink = (props: RouterLinkProps) => {
     <Link
       {...props}
       aria-current={ariaCurrent}
-      className={cn(
-        "aria-[current=page]:text-orange-400 aria-[current=page]:underline",
-        props.className
-      )}
+      className={cn(props.className)}
     ></Link>
   )
 }

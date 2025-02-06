@@ -14,18 +14,37 @@ import { Loader } from "@/components/loader"
 
 const Page = () => (
   <>
-    <div className="container max-w-2xl py-6 md:py-12 space-y-8 relative">
-      <div className="space-y-4 md:text-center">
-        <div className="hidden md:block">
+    <div className="container pt-6 md:py-12 space-y-8 relative">
+      {/* Tube light effect */}
+      <div className="absolute inset-x-0 top-0 -z-10 transform-gpu overflow-hidden">
+        <div className="relative w-full h-[400px]">
+          {/* Central light beam */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[200px] h-[200px] bg-gradient-to-b from-blue-500/50 to-transparent blur-[100px]" />
+
+          {/* Side glows */}
+          <div className="absolute left-1/3 -translate-x-1/2 top-0 w-[150px] h-[150px] bg-gradient-to-b from-purple-500/30 to-transparent blur-[100px]" />
+          <div className="absolute right-1/3 translate-x-1/2 top-0 w-[150px] h-[150px] bg-gradient-to-b from-purple-500/30 to-transparent blur-[100px]" />
+
+          {/* Wider ambient glow */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[500px] h-[300px] bg-gradient-to-b from-blue-500/20 to-transparent blur-[120px]" />
+
+          {/* Conical gradients */}
+          <div className="absolute left-0 top-0 w-[300px] h-[300px] bg-[conic-gradient(from_0deg_at_75%_50%,transparent_0deg,purple-500_90deg,transparent_180deg)] opacity-20 blur-[60px]" />
+          <div className="absolute right-0 top-0 w-[300px] h-[300px] bg-[conic-gradient(from_180deg_at_25%_50%,transparent_0deg,purple-500_90deg,transparent_180deg)] opacity-20 blur-[60px]" />
+        </div>
+      </div>
+
+      <div className="space-y-4 text-center">
+        <div>
           <Loader size={64} />
         </div>
-        <h1 className="text-4xl font-bold md:text-7xl max-w-2xl text-pretty font-display">
-          Master Web Accessibility
+        <h1 className="text-4xl mx-auto font-bold md:text-7xl max-w-2xl text-pretty font-display">
+          Master <br /> Web Accessibility
         </h1>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">
           Learn web accessibility through interactive guides, videos, and
           articles. Allyship gives you the tools to create inclusive,
-          user-friendly websites effortlessly. Let’s build the best site
+          user-friendly websites effortlessly. Let's build the best site
           together!
         </p>
       </div>
