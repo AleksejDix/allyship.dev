@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CheckCircle, XCircle } from "lucide-react"
+import { Bug, CheckCircle, XCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -12,10 +12,10 @@ export const WebScanner = () => {
         {/* Right content - macOS Browser Mock */}
         <div
           aria-hidden="true"
-          className="w-full h-full bg-card rounded-md border border-border"
+          className="w-full h-full bg-card rounded-md overflow-hidden border border-border"
         >
           {/* Browser Chrome */}
-          <div className="bg-muted border-b border-border">
+          <div className="bg-muted border-b border-border ">
             {/* Title bar */}
             <div className="px-4 py-2 flex items-center gap-2">
               {/* Traffic light buttons */}
@@ -61,9 +61,16 @@ export const WebScanner = () => {
                   <div className="absolute animate-hide-right top-0 left-[1px] bottom-0 w-8 bg-gradient-to-l from-transparent to-green-500/20" />
                   <div className="absolute animate-hide-left opacity-0 top-0 right-[1px] bottom-0 w-8 bg-gradient-to-r from-transparent to-green-500/20" />
                 </div>
-                {/* Glowing line */}
-                {/* Right gradient glow */}
               </div>
+              {/* Scattered icons */}
+              <Bug className="absolute text-red-500 w-4 h-4 top-[20%] left-[30%] animate-pulse" />
+              <XCircle className="absolute text-destructive w-4 h-4 top-[25%] left-[50%] animate-pulse" />
+              <Bug className="absolute text-red-500 w-4 h-4 top-[40%] left-[70%] animate-pulse" />
+              <CheckCircle className="absolute text-success w-4 h-4 top-[45%] left-[40%] animate-pulse" />
+              <Bug className="absolute text-red-500 w-4 h-4 top-[60%] left-[20%] animate-pulse" />
+              <XCircle className="absolute text-destructive w-4 h-4 top-[65%] left-[80%] animate-pulse" />
+              <Bug className="absolute text-red-500 w-4 h-4 top-[80%] left-[60%] animate-pulse" />
+              <CheckCircle className="absolute text-success w-4 h-4 top-[85%] left-[35%] animate-pulse" />
             </div>
             <div className="h-24 w-4/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
             <div className="h-12 w-3/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />

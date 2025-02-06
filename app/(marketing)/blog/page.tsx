@@ -1,11 +1,10 @@
-import Image from "next/image"
 import Link from "next/link"
 import { allPosts } from "contentlayer/generated"
 import { compareDesc } from "date-fns"
 
 import { formatDate } from "@/lib/utils"
-import { PageHeader } from "@/components/page-header"
 import { Separator } from "@/components/ui/separator"
+import { PageHeader } from "@/components/page-header"
 
 export const metadata = {
   title: "Blog",
@@ -19,47 +18,37 @@ export default async function BlogPage() {
     })
 
   return (
-      <div className="container py-8">
-        <PageHeader
-          heading="Blog"
-          description="Keep up to date with the latest news and updates."
-        />
+    <div className="container max-w-4xl py-8">
+      <PageHeader
+        heading="Blog"
+        description="Keep up to date with the latest news and updates."
+      />
 
-        <Separator className="my-4" />
+      <Separator className="my-4" />
 
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post, index) => (
-            <article
-              key={post._id}
-              className="group relative rounded-lg border border-border bg-card p-6 shadow-md transition-shadow hover:shadow-lg"
-            >
-              {post.image && (
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={804}
-                  height={452}
-                  className="rounded-md border border-border bg-muted transition-colors mb-4"
-                  priority={index <= 1}
-                />
-              )}
-              <h2 className="text-xl font-bold">{post.title}</h2>
-              {post.description && (
-                <p className="mt-2 line-clamp-3 text-muted-foreground">
-                  {post.description}
-                </p>
-              )}
-              {post.date && (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  {formatDate(post.date)}
-                </p>
-              )}
-              <Link href={post.slug} className="absolute inset-0">
-                <span className="sr-only">View Article</span>
+      <div className="mt-12 max-w-prose">
+        <ul className="space-y-4">
+          {posts.map((post) => (
+            <li key={post._id}>
+              <Link href={post.slug} className="block">
+                <div className="gap-4 justify-between">
+                  <h2 className="text-lg font-medium text-foreground ">
+                    {post.title}
+                  </h2>
+                  {post.date && (
+                    <time
+                      dateTime={post.date}
+                      className="text-sm text-muted-foreground tabular-nums whitespace-nowrap"
+                    >
+                      {formatDate(post.date)}
+                    </time>
+                  )}
+                </div>
               </Link>
-            </article>
+            </li>
           ))}
-        </div>
+        </ul>
+      </div>
     </div>
   )
 }
