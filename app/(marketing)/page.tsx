@@ -1,4 +1,7 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
+import Link from "next/link"
+
+import { Button } from "@/components/ui/button"
 import { Faqs } from "@/components/blocks/Faqs"
 import { Issues } from "@/components/blocks/Issues"
 import { ScanProcess } from "@/components/blocks/ScanProcess"
@@ -23,10 +26,21 @@ const Page = () => (
           Master <br /> Web Accessibility
         </h1>
         <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl mx-auto">
-          Learn web accessibility through interactive guides, videos, and
-          articles. Allyship gives you the tools to create inclusive,
-          user-friendly websites effortlessly. Let's build the best site
-          together!
+          Scan, identify, and fix accessibility issues with AllyStudio. Make
+          your website work for everyone.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Button size="lg" asChild>
+            <Link href="/auth/signup">Sign Up</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/auth/login">Login</Link>
+          </Button>
+        </div>
+        <p className="text-pretty text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl md:mx-auto">
+          Join organizations that trust Allyship to enhance their digital
+          accessibility. Our comprehensive tools and guidance make compliance
+          straightforward and achievable.
         </p>
       </div>
     </div>

@@ -48,7 +48,7 @@ body {
     --success: 142 45% 55%;
   }
   .dark {
-    --glow: 210 40% 15%;
+    --glow: 210 40% 25%;
     --background: 240 3.7% 5.294%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;

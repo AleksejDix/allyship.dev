@@ -34,7 +34,7 @@ const sections = [
       { name: "About", href: "/about" },
       { name: "Privacy", href: "/privacy" },
       { name: "Terms", href: "/terms" },
-      { name: "Imprint", href: "/imprint" },
+      { name: "Legal", href: "/legal" },
     ],
   },
   {
