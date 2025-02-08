@@ -26,6 +26,17 @@ export default async function PostPage() {
           <div className="aspect-square grid place-content-center max-w-44 border overflow-hidden">
             <Loader size={64} />
           </div>
+          <svg
+            viewBox="0 0 48 48"
+            className="w-[128px] h-[128px]"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <foreignObject x="0" y="0" width="48" height="48">
+              <div className="aspect-square grid place-content-center w-[48px] h-[48px] overflow-hidden">
+                <Loader size={24} />
+              </div>
+            </foreignObject>
+          </svg>
         </CardContent>
       </Card>
 
