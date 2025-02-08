@@ -11,10 +11,10 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
 
   useEffect(() => {
     const channel = supabase
-      .channel("scan")
+      .channel("Scan")
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "scan" },
+        { event: "UPDATE", schema: "public", table: "Scan" },
         (payload) => {
           if (payload.new.id === scan.id) {
             setScan(payload.new)

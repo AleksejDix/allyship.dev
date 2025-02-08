@@ -76,7 +76,7 @@ export function SpaceDelete(props: SpaceDeleteProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-destructive">
-                  Workspace Name <span aria-hidden="true">*</span>
+                  Space Name <span aria-hidden="true">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input type="hidden" {...field} />

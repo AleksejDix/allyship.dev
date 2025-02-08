@@ -1,0 +1,49 @@
+"use server"
+
+import { z } from "zod"
+import { createServerAction } from "zsa"
+
+import { prisma } from "@/lib/prisma"
+
+export async function getDomainsBySpaceId(spaceId: string) {
+  return prisma.domain.findMany({
+    where: { space_id: spaceId },
+  })
+}
+
+export const create = createServerAction()
+  .input(
+    z.object({
+      name: z.string().url().min(1, "Domain name is required"),
+      space_id: z.string().min(1, "Space ID is required"),
+    })
+  )
+  .handler(async ({ input }) => {
+    // Check if domain already exists
+    const existingDomain = await prisma.domain.findFirst({
+      where: {
+        name: input.name,
+        space_id: input.space_id,
+      },
+    })
+
+    if (existingDomain) {
+      return {
+        success: false,
+        error: {
+          message: "Domain already exists in this space",
+          status: 400,
+          code: "domain_already_exists",
+        },
+      }
+    }
+
+    const domain = await prisma.domain.create({
+      data: {
+        name: input.name,
+        space_id: input.space_id,
+      },
+    })
+
+    return { success: true, data: domain }
+  })

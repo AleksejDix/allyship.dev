@@ -1,22 +1,25 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { isAuthApiError } from "@supabase/supabase-js"
-import { createClient } from "@/lib/supabase/server"
-import { createServerAction } from "zsa"
-import { scanJobSchema } from "./schema"
 import { redirect } from "next/navigation"
 import { z } from "zod"
+import { createServerAction } from "zsa"
+
+import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
+
+import { scanJobSchema } from "./schema"
 
 export const create = createServerAction()
   .input(scanJobSchema)
   .handler(async ({ input }) => {
-
     const supabase = await createClient()
 
     const { url } = input
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     // if redirect to login
     if (!user) {
@@ -30,36 +33,80 @@ export const create = createServerAction()
       }
     }
 
-    // upsert to supabase scan table
-    const { data, error } = await supabase.from("scan").insert([
-      { url, user_id: user?.id, status: "pending" },
-    ]).select("id").single()
+    const websiteUrl = new URL(url)
 
-    if (error) {
-      if (isAuthApiError(error)) {
-        const { message, code, status } = error
-        return {
-          success: false,
-          error: {
-            message,
-            status,
-            code,
-          },
-        }
-      }
+    const space = await prisma.space.findFirst({
+      where: {
+        user_id: user.id,
+      },
+    })
+
+    if (!space) {
       return {
         success: false,
         error: {
-          message: "Something went wrong",
-          status: 500,
-          code: "unknown_error",
+          message: "You must be in a space to scan a website",
+          status: 401,
+          code: "unauthorized",
         },
       }
     }
 
+    const domain = await prisma.domain.upsert({
+      where: {
+        space_id_name: {
+          space_id: space.id,
+          name: websiteUrl.hostname,
+        },
+      },
+      update: {}, // No updates needed if it exists
+      create: {
+        name: websiteUrl.hostname,
+        space_id: space.id,
+      },
+    })
+
+    if (!domain) {
+      return {
+        success: false,
+        error: {
+          message: "Domain not found",
+          status: 401,
+          code: "unauthorized",
+        },
+      }
+    }
+
+    const page = await prisma.page.upsert({
+      where: {
+        domain_id_name: {
+          domain_id: domain.id,
+          name: websiteUrl.pathname,
+        },
+      },
+      update: {},
+      create: {
+        domain_id: domain.id,
+        name: websiteUrl.pathname,
+      },
+    })
+
+    console.log({ page })
+
+    const scan = await prisma.scan.create({
+      data: {
+        url,
+        user_id: user.id,
+        status: "pending",
+        page_id: page.id,
+      },
+      select: {
+        id: true,
+      },
+    })
 
     // if no id, return error
-    if (!data.id) {
+    if (!scan.id) {
       return {
         success: false,
         error: {
@@ -70,19 +117,19 @@ export const create = createServerAction()
       }
     }
 
-
     supabase.functions.invoke("scan", {
-      body: { url, id: data.id }
-    });
-
+      body: { url, id: scan.id },
+    })
 
     revalidatePath("/", "layout") // Revalidate the layout to reflect changes
-    redirect("/scans/" + data.id)
+    redirect("/scans/" + scan.id)
   })
 
-export const getScan = createServerAction().input(z.object({ id: z.string() })).handler(async ({ input }) => {
-  const supabase = await createClient()
-  const { id } = input
-  const response = await supabase.from("scan").select().match({ id }).single()
-  return response
-})
+export const getScan = createServerAction()
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+    const { id } = input
+    const response = await supabase.from("Scan").select().match({ id }).single()
+    return response
+  })

@@ -165,13 +165,13 @@ a:not(.button):visited {
 }
 
 a:not(.button)[aria-current="page"] {
-  color: theme('colors.blue.700');
+  color: theme('colors.orange.700');
   text-decoration: underline;
   font-weight: 700;
 }
 
 .dark a:not(.button)[aria-current="page"] {
-  color: theme('colors.blue.400');
+  color: theme('colors.orange.400');
 }
 
 .gradient {

@@ -6,7 +6,7 @@ export default async function ScansPage() {
   const supabase = await createClient()
 
   const { data } = await supabase
-    .from("scan")
+    .from("Scan")
     .select("id, url, status, created_at")
     .order("created_at", { ascending: false })
 
