@@ -10,7 +10,7 @@ export async function MembershipList() {
           <li key={membership.id}>
             {membership.user?.email}
 
-            <form>
+            <form noValidate>
               <input type="hidden" name="id" value={membership.id} />
               <button type="submit" formAction={remove}>
                 Remove

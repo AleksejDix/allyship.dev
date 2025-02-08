@@ -88,7 +88,7 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
       </div>
 
       <Form {...form}>
-        <form>
+        <form noValidate>
           <FormItem className="mb-4">
             <Label htmlFor="search-checklist">Search checklist</Label>
             <FormControl>

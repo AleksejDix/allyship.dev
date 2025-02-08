@@ -1,0 +1,14 @@
+Typescript:
+ - Use strong typing for all variables and functions and react components
+
+UI:
+  - Never update components/ui directory
+  - Use TailwindCSS for styling
+  - Use shadcn/ui for components
+  - Use react-hook-form for form handling
+  - Use rsa for server actions
+  - Use zod for validation
+
+Database:
+  - Use supabase for database
+

@@ -68,6 +68,7 @@ export function ContactForm({ className }: React.ComponentProps<typeof Card>) {
         </CardContent>
       ) : (
         <form
+          noValidate
           ref={formRef}
           action={async (event) => {
             await formAction(event)

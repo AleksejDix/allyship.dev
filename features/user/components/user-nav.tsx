@@ -100,7 +100,7 @@ export function UserNav(props: UserNavProps) {
 
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <form>
+              <form noValidate>
                 <Button
                   type="submit"
                   className="w-full"

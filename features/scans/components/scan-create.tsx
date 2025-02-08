@@ -83,7 +83,7 @@ export function ScanJobCreate() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col md:flex-row gap-2">
                   <Field

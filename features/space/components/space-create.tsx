@@ -29,7 +29,11 @@ export function SpaceCreate() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
         <Field type="text" name="name" label="Workspace Name" />
         <Button type="submit">Create</Button>
       </form>
