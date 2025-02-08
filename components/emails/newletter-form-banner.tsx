@@ -67,6 +67,7 @@ export function NewsletterFormSection({
           </CardContent>
         ) : (
           <form
+            noValidate
             ref={formRef}
             action={async (event) => {
               await formAction(event)

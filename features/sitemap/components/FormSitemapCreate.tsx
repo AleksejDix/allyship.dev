@@ -52,7 +52,11 @@ export function FormSitemapCreate() {
   return (
     <div className={cn("flex flex-col gap-6")}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} aria-labelledby="form">
+        <form
+          noValidate
+          onSubmit={form.handleSubmit(onSubmit)}
+          aria-labelledby="form"
+        >
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">

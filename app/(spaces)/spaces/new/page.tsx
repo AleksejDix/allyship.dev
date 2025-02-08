@@ -29,7 +29,11 @@ export default function Page() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
+      >
         <Field name="name" label="Space name:" type="text" required />
         <Button type="submit">Create Workspace</Button>
       </form>

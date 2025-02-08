@@ -67,7 +67,7 @@ export const Footer = () => {
   return (
     <footer aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
-        Footer
+        Site Navigation
       </h2>
       <section className="pb-4 pt-8">
         <div className="container">

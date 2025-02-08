@@ -66,6 +66,7 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
       <CardContent className="space-y-4 lg:py-4">
         <Form {...form}>
           <form
+            noValidate
             aria-labelledby="form-email-update"
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4"
