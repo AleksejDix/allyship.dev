@@ -22,7 +22,6 @@ export async function createSpace(data: { name: string }) {
     where: { id: user.id },
     create: {
       id: user.id,
-      email: user.email || "",
     },
     update: {}, // No updates needed if user exists
   })
@@ -30,15 +29,7 @@ export async function createSpace(data: { name: string }) {
   const space = await prisma.space.create({
     data: {
       name: data.name,
-      memberships: {
-        create: {
-          user_id: user.id,
-          email: user.email || "",
-        },
-      },
-    },
-    include: {
-      memberships: true,
+      user_id: user.id,
     },
   })
   revalidatePath("/spaces")
@@ -67,11 +58,7 @@ export async function getSpaces() {
 
   const spaces = await prisma.space.findMany({
     where: {
-      memberships: {
-        some: {
-          user_id: user.id,
-        },
-      },
+      user_id: user.id,
     },
   })
   return { spaces }

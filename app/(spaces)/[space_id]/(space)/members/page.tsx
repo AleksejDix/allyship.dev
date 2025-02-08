@@ -2,12 +2,12 @@ import { MembershipList } from "@/features/membership/components/membership-list
 import { getSpace } from "@/features/space/actions"
 
 type SpacePageProps = {
-  params: { id: string }
+  params: { space_id: string }
 }
 
-export default async function SpaceMembersPage(props: SpacePageProps) {
-  const params = await props.params
-  const { space } = await getSpace(params.id)
+export default async function SpaceMembersPage({ params }: SpacePageProps) {
+  const { space_id } = await params
+  const { space } = await getSpace(space_id)
 
   if (!space) {
     return <div>Space not found</div>
@@ -15,7 +15,7 @@ export default async function SpaceMembersPage(props: SpacePageProps) {
 
   return (
     <div>
-      Members
+      <h1>Members</h1>
       <MembershipList />
     </div>
   )

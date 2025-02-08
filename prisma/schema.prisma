@@ -9,22 +9,74 @@ datasource db {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model profiles {
-  first_name String?
-  last_name  String?
-  id         String  @id @db.Uuid
-  scans      scans[]
+model User {
+  first_name  String?
+  last_name   String?
+  id          String       @id @db.Uuid
+  memberships Membership[]
+  scans       Scan[]
+  spaces      Space[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model scans {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  profile_id String    @db.Uuid
+model Scan {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   url        String
   results    Json?
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   status     String?   @default("pending")
-  profiles   profiles  @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_id    String    @db.Uuid
+  page_id    String    @db.Uuid
+  user       User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  page       Page      @relation(fields: [page_id], references: [id], onDelete: Cascade)
+}
+
+model Space {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  created_at  DateTime?    @default(now()) @db.Timestamptz(6)
+  user_id     String       @db.Uuid
+  memberships Membership[]
+  domains     Domain[]
+  user        User         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Domain {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  space_id   String    @db.Uuid
+  space      Space     @relation(fields: [space_id], references: [id], onDelete: Cascade)
+  pages      Page[]
+
+  @@unique([space_id, name])
+  @@index([name])
+}
+
+model Page {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  domain_id  String    @db.Uuid
+  domain     Domain    @relation(fields: [domain_id], references: [id], onDelete: Cascade)
+  scans      Scan[]
+
+  @@unique([domain_id, name])
+  @@index([name])
+}
+
+model Membership {
+  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  space_id   String           @db.Uuid
+  status     MembershipStatus @default(PENDING)
+  created_at DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at DateTime         @updatedAt @db.Timestamptz(6)
+  role       MembershipRole   @default(MEMBER)
+  user_id    String           @db.Uuid
+  space      Space            @relation(fields: [space_id], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([space_id, user_id])
 }
 
 enum MembershipStatus {
@@ -37,4 +89,9 @@ enum SubStatus {
   ACTIVE
   PAST_DUE
   CANCELED
+}
+
+enum MembershipRole {
+  OWNER
+  MEMBER
 }

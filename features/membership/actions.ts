@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 
 import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 
 export async function index() {
   const memberships = await prisma.membership.findMany({
@@ -14,11 +15,21 @@ export async function index() {
   return memberships
 }
 
-export async function create(spaceId: string, email: string) {
+export async function create(spaceId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    throw new Error("Failed to get user")
+  }
+
   await prisma.membership.create({
     data: {
       space_id: spaceId,
-      email: email,
+      user_id: user.id,
     },
   })
 }

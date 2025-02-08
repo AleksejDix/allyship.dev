@@ -1,4 +1,4 @@
-import { space } from "@prisma/client"
+import { Space } from "@prisma/client"
 import { HomeIcon, UsersIcon } from "lucide-react"
 
 import {
@@ -22,9 +22,18 @@ const items = (id: string) => [
     url: `/spaces/${id}/members`,
     icon: UsersIcon,
   },
+  {
+    title: "Domains",
+    url: `/spaces/${id}/domains`,
+    icon: UsersIcon,
+  },
 ]
 
-export function SpaceNavigation({ activeSpace }: { activeSpace: space }) {
+type SpaceNavigationProps = {
+  activeSpace: Space
+}
+
+export function SpaceNavigation({ activeSpace }: SpaceNavigationProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Settings</SidebarGroupLabel>

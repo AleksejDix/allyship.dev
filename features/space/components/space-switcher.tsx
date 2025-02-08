@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { space } from "@prisma/client"
+import { Space } from "@prisma/client"
 import { ChevronsUpDown, Plus } from "lucide-react"
 
 import {
@@ -21,8 +21,8 @@ import {
 import { RouterLink } from "@/components/RouterLink"
 
 type SpaceSwitcherProps = {
-  activeSpace: space
-  spaces: space[]
+  activeSpace: Space
+  spaces: Space[]
 }
 
 export function SpaceSwitcher({ activeSpace, spaces }: SpaceSwitcherProps) {

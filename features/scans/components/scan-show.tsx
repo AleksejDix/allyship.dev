@@ -21,11 +21,12 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
 
   useEffect(() => {
     const channel = supabase
-      .channel("scan")
+      .channel("Scan")
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "scan" },
+        { event: "UPDATE", schema: "public", table: "Scan" },
         (payload) => {
+          console.log("payload", payload)
           if (payload.new.id === scan.id) {
             setScan(payload.new)
           }
@@ -37,10 +38,6 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
       supabase.removeChannel(channel)
     }
   })
-
-  const url = new URL(scan.url)
-  const protocol = url.protocol
-  const hostname = url.hostname
 
   if (scan.status === "pending") {
     return (
@@ -112,13 +109,6 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
   return (
     scan.status === "completed" && (
       <div className="container py-8 ">
-        {/*  extract domain from url  */}
-        <div>
-          <Link href={`/domains/${encodeURI(`${protocol}/${hostname}`)}`}>
-            {hostname}
-          </Link>
-        </div>
-
         {/* <pre>{JSON.stringify(scan, null, 2)}</pre> */}
         {scan.results && scan.status === "completed" && (
           <div className="space-y-8">

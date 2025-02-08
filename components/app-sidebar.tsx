@@ -28,10 +28,14 @@ export async function AppSidebar({ activeSpaceId, ...props }: AppSidebarProps) {
     return null
   }
 
+  if (!activeSpace) {
+    return null
+  }
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <SpaceSwitcher spaces={spaces} activeSpace={activeSpace!} />
+        <SpaceSwitcher spaces={spaces} activeSpace={activeSpace} />
       </SidebarHeader>
       <SidebarContent>
         <SpaceNavigation activeSpace={activeSpace!} />
