@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { A11yMatrix } from "@/components/a11y-matrix"
+import { A11yMatrix } from "@/components/blocks/a11y-matrix"
 import { PageHeader } from "@/components/page-header"
 
 export const metadata: Metadata = {
