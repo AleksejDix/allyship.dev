@@ -1,7 +1,6 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
@@ -10,18 +9,32 @@ import { createClient } from "@/lib/supabase/server"
 
 import { scanJobSchema } from "./schema"
 
+type ActionResponse =
+  | {
+      success: true
+      data: {
+        id: string
+      }
+    }
+  | {
+      success: false
+      error: {
+        message: string
+        status: number
+        code: string
+      }
+    }
+
 export const create = createServerAction()
   .input(scanJobSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ input }): Promise<ActionResponse> => {
     const supabase = await createClient()
-
     const { url } = input
 
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // if redirect to login
     if (!user) {
       return {
         success: false,
@@ -91,8 +104,6 @@ export const create = createServerAction()
       },
     })
 
-    console.log({ page })
-
     const scan = await prisma.scan.create({
       data: {
         url,
@@ -105,7 +116,6 @@ export const create = createServerAction()
       },
     })
 
-    // if no id, return error
     if (!scan.id) {
       return {
         success: false,
@@ -117,12 +127,17 @@ export const create = createServerAction()
       }
     }
 
-    supabase.functions.invoke("scan", {
+    await supabase.functions.invoke("scan", {
       body: { url, id: scan.id },
     })
 
-    revalidatePath("/", "layout") // Revalidate the layout to reflect changes
-    redirect("/scans/" + scan.id)
+    revalidatePath("/", "layout")
+    return {
+      success: true,
+      data: {
+        id: scan.id,
+      },
+    }
   })
 
 export const getScan = createServerAction()
