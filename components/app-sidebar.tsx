@@ -38,7 +38,7 @@ export async function AppSidebar({ activeSpaceId, ...props }: AppSidebarProps) {
         <SpaceSwitcher spaces={spaces} activeSpace={activeSpace} />
       </SidebarHeader>
       <SidebarContent>
-        <SpaceNavigation activeSpace={activeSpace!} />
+        <SpaceNavigation spaceId={activeSpace.id} />
       </SidebarContent>
       <SidebarFooter>
         <UserNav user={data.user} />
