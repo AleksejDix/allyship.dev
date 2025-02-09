@@ -22,15 +22,15 @@ model User {
 model Scan {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   url              String
-  metrics          Json?
   created_at       DateTime? @default(now()) @db.Timestamptz(6)
   status           String?   @default("pending")
   user_id          String    @db.Uuid
   page_id          String    @db.Uuid
-  screenshot_light String?
   screenshot_dark  String?
-  user             User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  screenshot_light String?
+  metrics          Json?
   page             Page      @relation(fields: [page_id], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Space {
@@ -38,8 +38,8 @@ model Space {
   name        String
   created_at  DateTime?    @default(now()) @db.Timestamptz(6)
   user_id     String       @db.Uuid
-  memberships Membership[]
   domains     Domain[]
+  memberships Membership[]
   user        User         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
