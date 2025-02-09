@@ -13,10 +13,24 @@ export default async function ScansPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data } = await supabase
+  const { data: scans } = await supabase
     .from("Scan")
-    .select("id, url, status, created_at, page_id, results, user_id")
+    .select("*")
     .order("created_at", { ascending: false })
+
+  // Transform the data to match the expected type
+  const transformedScans =
+    scans?.map((scan) => ({
+      id: scan.id,
+      url: scan.url,
+      user_id: scan.user_id,
+      status: scan.status,
+      created_at: scan.created_at ? new Date(scan.created_at) : null,
+      metrics: scan.metrics || null,
+      page_id: scan.page_id,
+      screenshot_light: scan.screenshot_light,
+      screenshot_dark: scan.screenshot_dark,
+    })) || []
 
   return (
     <div className="container py-16">
@@ -72,10 +86,10 @@ export default async function ScansPage() {
           </div>
         </div>
 
-        {user && data && data.length > 0 && (
+        {user && scans && scans.length > 0 && (
           <div className="pt-16">
             <h2 className="text-2xl font-bold mb-8">Recent Scans</h2>
-            <ScanIndex scans={data} />
+            <ScanIndex scans={transformedScans} />
           </div>
         )}
       </div>
