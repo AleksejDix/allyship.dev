@@ -79,3 +79,10 @@ Icons
 
 - Use lucide icons
 - Always add aria-hidden to all icons
+
+
+Prisma
+- Never make migration which will delete data in supabase
+- Be very careful with migrations and always make sure they are reversible
+- Never delete production database
+

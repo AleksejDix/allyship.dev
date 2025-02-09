@@ -20,15 +20,17 @@ model User {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Scan {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  url        String
-  results    Json?
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  status     String?   @default("pending")
-  user_id    String    @db.Uuid
-  page_id    String    @db.Uuid
-  user       User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  page       Page      @relation(fields: [page_id], references: [id], onDelete: Cascade)
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url              String
+  metrics          Json?
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  status           String?   @default("pending")
+  user_id          String    @db.Uuid
+  page_id          String    @db.Uuid
+  screenshot_light String?
+  screenshot_dark  String?
+  user             User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  page             Page      @relation(fields: [page_id], references: [id], onDelete: Cascade)
 }
 
 model Space {
