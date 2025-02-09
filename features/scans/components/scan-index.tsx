@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Scan } from "@prisma/client"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -39,23 +40,16 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-type Scan = {
-  id: string
-  url: string
-  status: "pending" | "processing" | "completed" | "failed"
-  created_at: string
-}
-
 export const columns: ColumnDef<Scan>[] = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllRowsSelected() ||
+          (table.getIsSomeRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
@@ -79,7 +73,7 @@ export const columns: ColumnDef<Scan>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Page
-          <ArrowUpDown />
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },
@@ -89,6 +83,10 @@ export const columns: ColumnDef<Scan>[] = [
       </div>
     ),
     size: 1000,
+    filterFn: (row, id, value) => {
+      const cellValue = row.getValue(id)?.toString() || ""
+      return cellValue.toLowerCase().includes(value.toLowerCase())
+    },
   },
   {
     accessorKey: "status",
@@ -174,10 +172,10 @@ export function ScanIndex({ scans }: { scans: Scan[] }) {
     <div className="">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter domains..."
-          value={(table.getColumn("domain")?.getFilterValue() as string) ?? ""}
+          placeholder="Search by URL..."
+          value={(table.getColumn("url")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("domain")?.setFilterValue(event.target.value)
+            table.getColumn("url")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

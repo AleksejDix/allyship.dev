@@ -83,7 +83,7 @@ const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "red", "pink"]
 
 export function Issues() {
   return (
-    <div className="container max-w-screen-xl mx-auto py-16">
+    <div className="container  mx-auto py-16">
       <div className="grid md:grid-cols-3 gap-8">
         <Card className="col-span-2">
           <CardHeader></CardHeader>

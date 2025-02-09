@@ -3,6 +3,7 @@ Typescript:
 
 UI:
   - Never update components/ui directory
+  - Never try to use toast. Always show inline notifications
   - Use TailwindCSS for styling
   - Use shadcn/ui for components
   - Use react-hook-form for form handling

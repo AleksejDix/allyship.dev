@@ -28,13 +28,20 @@ type FieldProps = {
 export function Field(props: FieldProps) {
   const form = useFormContext()
 
+  const isHidden = props.type === "hidden"
+
   return (
     <FormField
       control={form.control}
       name={props.name}
       render={(context) => (
         <FormItem className={cn("space-y-2", props.className)}>
-          <FormLabel className="flex items-center justify-between min-h-4">
+          <FormLabel
+            className={cn(
+              "flex items-center justify-between min-h-4",
+              isHidden && "sr-only"
+            )}
+          >
             <span className="inline-flex gap-1">
               <span>{props.label}</span>
               {props.required && (

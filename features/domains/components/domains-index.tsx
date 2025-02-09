@@ -29,7 +29,10 @@ export function DomainsIndex({ spaceId, domains }: DomainsIndexProps) {
           {domains.map((domain) => (
             <TableRow key={domain.id}>
               <TableCell>
-                <Link className="block" href={`/${spaceId}/${domain.id}`}>
+                <Link
+                  className="block"
+                  href={`/spaces/${spaceId}/${domain.id}`}
+                >
                   {domain.name}
                 </Link>
               </TableCell>
