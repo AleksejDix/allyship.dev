@@ -30,13 +30,6 @@ Deno.serve(async (req) => {
       })
     }
 
-    // get body from request
-    console.log({ url, id })
-
-    // Browsercat configuration (active)
-    console.log(
-      `wss://api.browsercat.com/connect?apiKey=${Deno.env.get("BROWSERCAT_API_KEY")}`
-    )
     const browser = await puppeteer.connect({
       browserWSEndpoint: `wss://api.browsercat.com/connect?apiKey=${Deno.env.get("BROWSERCAT_API_KEY")}`,
     })
@@ -66,8 +59,6 @@ Deno.serve(async (req) => {
       // Take screenshot
       const screenshot = await page.screenshot({
         type: "png",
-        fullPage: true,
-        quality: 80,
       })
 
       // Run axe tests
