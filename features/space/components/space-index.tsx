@@ -1,65 +1,23 @@
-"use client"
+import Link from "next/link"
+import type { Space } from "@prisma/client"
 
-import { createSpace } from "@/features/space/actions"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { Card, CardHeader } from "@/components/ui/card"
 
-import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-
-const formSchema = z.object({
-  name: z.string().min(1, "Workspace name is required"),
-})
-
-type FormData = z.infer<typeof formSchema>
-
-export function WorkspaceCreate() {
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-    },
-  })
-
-  const onSubmit = async (data: FormData) => {
-    await createSpace(data) // Pass the form data to the server action
-  }
-
+export function SpaceIndex({ spaces }: { spaces: Space[] }) {
   return (
-    <Form {...form}>
-      <form
-        noValidate
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
-      >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                Workspace Name <span aria-hidden="true">*</span>
-              </FormLabel>
-              <FormControl>
-                <Input type="text" {...field} autoComplete="organization" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full">
-          Create
-        </Button>
-      </form>
-    </Form>
+    <div className="grid gap-4 mt-8">
+      {spaces.map((space) => (
+        <Card key={space.id} className="transition-colors hover:bg-accent">
+          <CardHeader>
+            <Link
+              href={`/${space.id}`}
+              className="text-lg font-medium transition-colors hover:text-muted-foreground"
+            >
+              {space.name}
+            </Link>
+          </CardHeader>
+        </Card>
+      ))}
+    </div>
   )
 }
