@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { create } from "@/features/scans/actions"
 import { scanJobSchema, type ScanJobSchema } from "@/features/scans/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -22,7 +23,16 @@ import {
 import { Form } from "@/components/ui/form"
 import { Field } from "@/components/forms/field"
 
-export function ScanJobCreate() {
+type ScanJobCreateProps = {
+  pageId?: string
+  variant?: "marketing" | "admin"
+}
+
+export function ScanJobCreate({
+  pageId,
+  variant = "marketing",
+}: ScanJobCreateProps) {
+  const router = useRouter()
   const complianceBadges = [
     { id: "wcag20", label: "WCAG 2.0" },
     { id: "wcag21", label: "WCAG 2.1" },
@@ -36,6 +46,7 @@ export function ScanJobCreate() {
     resolver: zodResolver(scanJobSchema),
     defaultValues: {
       url: "",
+      ...(pageId && { page_id: pageId }),
     },
   })
 
@@ -69,6 +80,7 @@ export function ScanJobCreate() {
       })
     } else if (data?.success) {
       form.reset()
+      router.push(`/scans/${data.data?.id}`)
     }
   }
 
@@ -76,9 +88,15 @@ export function ScanJobCreate() {
     <div>
       <Card>
         <CardHeader>
-          <CardTitle>Web Accessibility Scanner</CardTitle>
+          <CardTitle>
+            {variant === "marketing"
+              ? "Web Accessibility Scanner"
+              : "Run Accessibility Scan"}
+          </CardTitle>
           <CardDescription>
-            Accessibility is required by law. Scan your website for compliance.{" "}
+            {variant === "marketing"
+              ? "Check your website for accessibility compliance and get detailed reports."
+              : "Run a new accessibility scan for this page."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,7 +116,7 @@ export function ScanJobCreate() {
                     className="md:mt-6 md:min-w-24 w-full md:w-auto"
                     disabled={isPending}
                   >
-                    {isPending ? "Scanning..." : "Scan"}
+                    {isPending ? "Scanning..." : "Scan Now"}
                   </Button>
                 </div>
 
@@ -136,14 +154,16 @@ export function ScanJobCreate() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex flex-wrap gap-2">
-          {complianceBadges.map((badge) => (
-            <Badge key={badge.id} variant="secondary">
-              <CheckIcon size={16} className="mr-1" />
-              <span>{badge.label}</span>
-            </Badge>
-          ))}
-        </CardFooter>
+        {variant === "marketing" && (
+          <CardFooter className="flex flex-wrap gap-2">
+            {complianceBadges.map((badge) => (
+              <Badge key={badge.id} variant="secondary">
+                <CheckIcon size={16} className="mr-1" aria-hidden="true" />
+                <span>{badge.label}</span>
+              </Badge>
+            ))}
+          </CardFooter>
+        )}
       </Card>
     </div>
   )
