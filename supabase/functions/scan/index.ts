@@ -12,10 +12,13 @@ import { AxePuppeteer } from "npm:@axe-core/puppeteer"
 Deno.serve(async (req) => {
   try {
     const { url, id } = await req.json()
+    console.log(`[START] Processing scan for URL: ${url}, ID: ${id}`)
+
     const supabase = createClient(
       Deno.env.get("NEXT_PUBLIC_SUPABASE_URL"),
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
     )
+    console.log("[SETUP] Supabase client created")
 
     const authHeader = req.headers.get("Authorization")!
     console.log({ authHeader })
@@ -30,9 +33,11 @@ Deno.serve(async (req) => {
       })
     }
 
+    console.log("[BROWSER] Connecting to browsercat")
     const browser = await puppeteer.connect({
       browserWSEndpoint: `wss://api.browsercat.com/connect?apiKey=${Deno.env.get("BROWSERCAT_API_KEY")}`,
     })
+    console.log("[BROWSER] Connected successfully")
 
     // Browserless.io configuration (alternative)
     // console.log(`wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`)
@@ -42,6 +47,9 @@ Deno.serve(async (req) => {
 
     // Function to capture screenshot and run axe tests in specific mode
     async function captureAndTest(page: puppeteer.Page, isDarkMode: boolean) {
+      const mode = isDarkMode ? "dark" : "light"
+      console.log(`[${mode.toUpperCase()}] Starting capture and test`)
+
       await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 2 })
 
       if (isDarkMode) {
@@ -54,14 +62,17 @@ Deno.serve(async (req) => {
         ])
       }
 
+      console.log(`[${mode.toUpperCase()}] Navigating to URL`)
       await page.goto(url, { waitUntil: "networkidle0" })
+      console.log(`[${mode.toUpperCase()}] Page loaded`)
 
-      // Take screenshot
+      console.log(`[${mode.toUpperCase()}] Taking screenshot`)
       const screenshot = await page.screenshot({
         type: "png",
       })
+      console.log(`[${mode.toUpperCase()}] Screenshot captured`)
 
-      // Run axe tests
+      console.log(`[${mode.toUpperCase()}] Running accessibility tests`)
       const results = await new AxePuppeteer(page)
         .withTags(["wcag22aa", "best-practice"])
         .withRules([
@@ -110,9 +121,12 @@ Deno.serve(async (req) => {
           "svg-img-alt",
         ])
         .analyze()
+      console.log(`[${mode.toUpperCase()}] Accessibility tests completed`)
 
-      // Upload screenshot
       const screenshotFileName = `${id}/${isDarkMode ? "dark" : "light"}.png`
+      console.log(
+        `[${mode.toUpperCase()}] Uploading screenshot: ${screenshotFileName}`
+      )
       const { error: screenshotError } = await supabase.storage
         .from("screenshots")
         .upload(screenshotFileName, screenshot, {
@@ -154,6 +168,7 @@ Deno.serve(async (req) => {
         throw new Error("Failed to create signed URLs")
       }
 
+      console.log(`[${mode.toUpperCase()}] Processing completed`)
       return {
         screenshot: signedScreenshotUrl,
         results,
@@ -161,13 +176,18 @@ Deno.serve(async (req) => {
       }
     }
 
+    console.log("[SCAN] Creating new page")
     const page = await browser.newPage()
 
-    // Capture both modes
+    console.log("[SCAN] Starting light mode capture")
     const lightMode = await captureAndTest(page, false)
-    const darkMode = await captureAndTest(page, true)
+    console.log("[SCAN] Light mode capture completed")
 
-    // Update scan record with results
+    console.log("[SCAN] Starting dark mode capture")
+    const darkMode = await captureAndTest(page, true)
+    console.log("[SCAN] Dark mode capture completed")
+
+    console.log("[DATABASE] Updating scan record")
     const { error: updateError } = await supabase
       .from("Scan")
       .update({
@@ -218,9 +238,12 @@ Deno.serve(async (req) => {
       .eq("id", id)
 
     if (updateError) throw updateError
+    console.log("[DATABASE] Scan record updated successfully")
 
     await browser.close()
+    console.log("[BROWSER] Browser closed")
 
+    console.log("[COMPLETE] Scan completed successfully")
     return new Response(
       JSON.stringify({
         success: true,
@@ -272,7 +295,7 @@ Deno.serve(async (req) => {
       { headers: { "Content-Type": "application/json" } }
     )
   } catch (e) {
-    console.error(e)
+    console.error("[ERROR]", e)
     return new Response(
       JSON.stringify({
         success: false,
