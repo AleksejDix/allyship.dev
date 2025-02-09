@@ -30,6 +30,7 @@ Next.js
 - Use react-hook-form for form handling
 - Use shadcn/ui for components
 - Use tailwindcss for styling
+- IF components require client interaction, create a client component but never turn pages into client components
 
 Web Accessibility:
 
