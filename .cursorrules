@@ -8,6 +8,8 @@ Purpose of the software
 Typescript:
 
 - Use strong typing for all variables and functions and react components
+- Never use enums
+- Never use interfaces
 
 UI:
 
@@ -43,6 +45,12 @@ Feature and file structure:
 - All new pages should go in the app directory
 - All new components should go in the features/components directory
 
+// Rule: Always follow this structure for scan-related components
+features/scans/
+├── actions.ts // Server actions for scanning
+├── components/ // UI components
+├── schema.ts // Zod validation schemas
+
 Forms and Validation
 
 - Reuse schemas in a common folder
@@ -50,6 +58,22 @@ Forms and Validation
 - Use react-hook-form for form handling
 - Use schadn or https://originui.com/ for components
 - Make sure all components are accessible
+
+// Always follow this pattern for error responses
+return {
+success: false,
+error: {
+message: "Human readable message",
+status: 400, // HTTP status code
+code: "error_code_snake_case"
+}
+}
+
+// Always follow this pattern for success responses
+return {
+success: true,
+data: result
+}
 
 Icons
 
