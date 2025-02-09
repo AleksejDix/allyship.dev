@@ -80,52 +80,11 @@ Deno.serve(async (req) => {
 
       console.log(`[${mode.toUpperCase()}] Running accessibility tests`)
       const results = await new AxePuppeteer(page)
-        .withTags(["wcag22aa", "best-practice"])
-        .withRules([
-          "accesskeys",
-          "aria-allowed-role",
-          "aria-conditional-attr",
-          "aria-deprecated-role",
-          "aria-dialog-name",
-          "aria-prohibited-attr",
-          "aria-treeitem-name",
-          "aria-text",
-          "empty-heading",
-          "heading-order",
-          "html-xml-lang-mismatch",
-          "identical-links-same-purpose",
-          "image-redundant-alt",
-          "input-button-name",
-          "label-content-name-mismatch",
-          "landmark-one-main",
-          "link-in-text-block",
-          "meta-viewport",
-          "select-name",
-          "skip-link",
-          "tabindex",
-          "table-duplicate-name",
-          "table-fake-caption",
-          "target-size",
-          "td-has-header",
-        ])
-        .disableRules([
-          "area-alt",
-          "aria-braille-equivalent",
-          "aria-roledescription",
-          "audio-caption",
-          "blink",
-          "duplicate-id",
-          "frame-focusable-content",
-          "frame-title-unique",
-          "marquee",
-          "nested-interactive",
-          "no-autoplay-audio",
-          "role-img-alt",
-          "scrollable-region-focusable",
-          "server-side-image-map",
-          "summary-name",
-          "svg-img-alt",
-        ])
+        .withTags(["wcag21aa", "wcag21a", "best-practice", "ACT"])
+        .configure({
+          reporter: "v2",
+          resultTypes: ["violations", "incomplete", "inapplicable", "passes"],
+        })
         .analyze()
       console.log(`[${mode.toUpperCase()}] Accessibility tests completed`)
 
