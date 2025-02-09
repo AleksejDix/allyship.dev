@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { IssueDistribution } from "@/features/scans/components/issue-distribution"
-import { Passes } from "@/features/scans/components/passes"
-// import { TestEngine } from "@/features/scans/components/test-engine"
-import { AlertCircleIcon, AlertTriangleIcon, CheckIcon } from "lucide-react"
+import {
+  AlertCircleIcon,
+  AlertTriangleIcon,
+  CheckIcon,
+  MoonIcon,
+  SunIcon,
+} from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
@@ -14,8 +16,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PageHeader } from "@/components/page-header"
 
-export function ScanShow({ serverProps }: { serverProps: any }) {
+type Scan = {
+  id: string
+  url: string
+  status: "pending" | "completed" | "failed"
+  metrics: {
+    light: {
+      violations_count: number
+      passes_count: number
+      incomplete_count: number
+      inapplicable_count: number
+      critical_issues: number
+      serious_issues: number
+      moderate_issues: number
+      minor_issues: number
+      results_url: string
+    }
+    dark: {
+      violations_count: number
+      passes_count: number
+      incomplete_count: number
+      inapplicable_count: number
+      critical_issues: number
+      serious_issues: number
+      moderate_issues: number
+      minor_issues: number
+      results_url: string
+    }
+  }
+  screenshot_light?: string
+  screenshot_dark?: string
+}
+
+export function ScanShow({ serverProps }: { serverProps: Scan }) {
   const [scan, setScan] = useState(serverProps)
+  const [activeMode, setActiveMode] = useState<"light" | "dark">("light")
 
   const supabase = createClient()
 
@@ -28,7 +63,7 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
         (payload) => {
           console.log("payload", payload)
           if (payload.new.id === scan.id) {
-            setScan(payload.new)
+            setScan(payload.new as Scan)
           }
         }
       )
@@ -93,8 +128,6 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
                   <div className="absolute animate-hide-right top-0 left-[1px] bottom-0 w-8 bg-gradient-to-l from-transparent to-green-500/20" />
                   <div className="absolute animate-hide-left opacity-0 top-0 right-[1px] bottom-0 w-8 bg-gradient-to-r from-transparent to-green-500/20" />
                 </div>
-                {/* Glowing line */}
-                {/* Right gradient glow */}
               </div>
             </div>
             <div className="h-24 w-4/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
@@ -106,37 +139,77 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
     )
   }
 
-  return (
-    scan.status === "completed" && (
-      <div className="container py-8 ">
-        {/* <pre>{JSON.stringify(scan, null, 2)}</pre> */}
-        {scan.results && scan.status === "completed" && (
-          <div className="space-y-8">
-            <PageHeader heading={scan.url} />
+  const currentMetrics = scan.metrics[activeMode]
 
-            <div className="grid lg:grid-cols-3 gap-4">
+  return (
+    <div className="container py-8">
+      {scan.status === "completed" && scan.metrics && (
+        <div className="space-y-8">
+          <PageHeader heading={scan.url} />
+
+          <div className="grid lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Screenshot</CardTitle>
+                  <CardTitle>Screenshots</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  {scan.screenshot && (
-                    <Image
-                      src={scan.screenshot}
-                      alt={`Screenshot of ${scan.url}`}
-                      width={800}
-                      height={600}
-                      className="rounded-lg object-cover w-full"
-                    />
-                  )}
+                <CardContent className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <SunIcon className="w-4 h-4" />
+                      <h3 className="text-sm font-medium">Light Mode</h3>
+                    </div>
+                    {scan.screenshot_light && (
+                      <Image
+                        src={scan.screenshot_light}
+                        alt={`Light mode screenshot of ${scan.url}`}
+                        width={800}
+                        height={600}
+                        className="rounded-lg object-cover w-full border border-border"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <MoonIcon className="w-4 h-4" />
+                      <h3 className="text-sm font-medium">Dark Mode</h3>
+                    </div>
+                    {scan.screenshot_dark && (
+                      <Image
+                        src={scan.screenshot_dark}
+                        alt={`Dark mode screenshot of ${scan.url}`}
+                        width={800}
+                        height={600}
+                        className="rounded-lg object-cover w-full border border-border"
+                      />
+                    )}
+                  </div>
                 </CardContent>
               </Card>
+            </div>
 
-              <IssueDistribution results={scan.results} />
-
+            <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Scan Statistics</CardTitle>
+                  <CardTitle className="flex justify-between items-center">
+                    Accessibility Results
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActiveMode("light")}
+                        className={`p-2 rounded-md ${activeMode === "light" ? "bg-muted" : ""}`}
+                        aria-label="Show light mode results"
+                      >
+                        <SunIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setActiveMode("dark")}
+                        className={`p-2 rounded-md ${activeMode === "dark" ? "bg-muted" : ""}`}
+                        aria-label="Show dark mode results"
+                      >
+                        <MoonIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
@@ -145,17 +218,17 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
                         Total Issues
                       </p>
                       <p className="text-2xl font-bold">
-                        {scan.results.violations.length +
-                          scan.results.incomplete.length}
+                        {currentMetrics.violations_count +
+                          currentMetrics.incomplete_count}
                       </p>
                     </div>
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Pass Rate</p>
                       <p className="text-2xl font-bold">
                         {Math.round(
-                          (scan.results.passes.length /
-                            (scan.results.passes.length +
-                              scan.results.violations.length)) *
+                          (currentMetrics.passes_count /
+                            (currentMetrics.passes_count +
+                              currentMetrics.violations_count)) *
                             100
                         )}
                         %
@@ -163,78 +236,201 @@ export function ScanShow({ serverProps }: { serverProps: any }) {
                     </div>
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
+                        Critical Issues
+                      </p>
+                      <p className="text-2xl font-bold text-destructive">
+                        {currentMetrics.critical_issues}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
                         Total Passes
                       </p>
-                      <p className="text-2xl font-bold">
-                        {scan.results.passes.length}
+                      <p className="text-2xl font-bold text-green-500">
+                        {currentMetrics.passes_count}
                       </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Issue Severity ({activeMode} mode)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Critical</span>
+                        <span className="font-medium">
+                          {currentMetrics.critical_issues}
+                        </span>
+                      </div>
+                      <div className="bg-muted rounded-full h-2">
+                        <div
+                          className="bg-destructive rounded-full h-2"
+                          style={{
+                            width: `${(currentMetrics.critical_issues / currentMetrics.violations_count) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Serious</span>
+                        <span className="font-medium">
+                          {currentMetrics.serious_issues}
+                        </span>
+                      </div>
+                      <div className="bg-muted rounded-full h-2">
+                        <div
+                          className="bg-orange-500 rounded-full h-2"
+                          style={{
+                            width: `${(currentMetrics.serious_issues / currentMetrics.violations_count) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Moderate</span>
+                        <span className="font-medium">
+                          {currentMetrics.moderate_issues}
+                        </span>
+                      </div>
+                      <div className="bg-muted rounded-full h-2">
+                        <div
+                          className="bg-yellow-500 rounded-full h-2"
+                          style={{
+                            width: `${(currentMetrics.moderate_issues / currentMetrics.violations_count) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Minor</span>
+                        <span className="font-medium">
+                          {currentMetrics.minor_issues}
+                        </span>
+                      </div>
+                      <div className="bg-muted rounded-full h-2">
+                        <div
+                          className="bg-blue-500 rounded-full h-2"
+                          style={{
+                            width: `${(currentMetrics.minor_issues / currentMetrics.violations_count) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-
-            <Tabs defaultValue="violations">
-              <TabsList>
-                <TabsTrigger
-                  className="flex-inline gap-2 text-destructive-foreground"
-                  value="violations"
-                >
-                  <AlertCircleIcon className="w-4 h-4" />
-                  Violations
-                  <Badge variant="secondary">
-                    {scan.results.violations.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger className="flex-inline gap-2" value="passes">
-                  <CheckIcon className="w-4 h-4" />
-                  Passes
-                  <Badge variant="secondary">
-                    {scan.results.passes.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger className="flex-inline gap-2" value="incomplete">
-                  <AlertCircleIcon className="w-4 h-4" />
-                  Incomplete
-                  <Badge variant="secondary">
-                    {scan.results.incomplete.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger className="flex-inline gap-2" value="inapplicable">
-                  <AlertTriangleIcon className="w-4 h-4" />
-                  Inapplicable
-                  <Badge variant="secondary">
-                    {scan.results.inapplicable.length}
-                  </Badge>
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="violations">
-                <Passes passes={scan.results.violations} />
-              </TabsContent>
-              <TabsContent value="passes">
-                <Passes passes={scan.results.passes} />
-              </TabsContent>
-              <TabsContent value="incomplete">
-                <Passes passes={scan.results.incomplete} />
-              </TabsContent>
-              <TabsContent value="inapplicable">
-                <Passes passes={scan.results.inapplicable} />
-              </TabsContent>
-            </Tabs>
-
-            {scan.status === "completed" && (
-              <div className="space-y-4">
-                {/* <pre>{JSON.stringify(Object.keys(scan.results), null, 2)}</pre> */}
-
-                {/* <TestEngine testEngine={scan.results.testEngine} /> */}
-              </div>
-            )}
-            {scan.status === "failed" && (
-              <p>Error: Something went wrong during the scan.</p>
-            )}
           </div>
-        )}
-      </div>
-    )
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Results ({activeMode} mode)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="violations">
+                <TabsList>
+                  <TabsTrigger
+                    className="flex-inline gap-2 text-destructive-foreground"
+                    value="violations"
+                  >
+                    <AlertCircleIcon className="w-4 h-4" />
+                    Violations
+                    <Badge variant="secondary">
+                      {currentMetrics.violations_count}
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger className="flex-inline gap-2" value="passes">
+                    <CheckIcon className="w-4 h-4" />
+                    Passes
+                    <Badge variant="secondary">
+                      {currentMetrics.passes_count}
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger className="flex-inline gap-2" value="incomplete">
+                    <AlertCircleIcon className="w-4 h-4" />
+                    Incomplete
+                    <Badge variant="secondary">
+                      {currentMetrics.incomplete_count}
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    className="flex-inline gap-2"
+                    value="inapplicable"
+                  >
+                    <AlertTriangleIcon className="w-4 h-4" />
+                    Inapplicable
+                    <Badge variant="secondary">
+                      {currentMetrics.inapplicable_count}
+                    </Badge>
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="violations">
+                  <div className="mt-4">
+                    <a
+                      href={currentMetrics.results_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:underline"
+                    >
+                      View detailed results
+                    </a>
+                  </div>
+                </TabsContent>
+                <TabsContent value="passes">
+                  <div className="mt-4">
+                    <a
+                      href={currentMetrics.results_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:underline"
+                    >
+                      View detailed results
+                    </a>
+                  </div>
+                </TabsContent>
+                <TabsContent value="incomplete">
+                  <div className="mt-4">
+                    <a
+                      href={currentMetrics.results_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:underline"
+                    >
+                      View detailed results
+                    </a>
+                  </div>
+                </TabsContent>
+                <TabsContent value="inapplicable">
+                  <div className="mt-4">
+                    <a
+                      href={currentMetrics.results_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:underline"
+                    >
+                      View detailed results
+                    </a>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {scan.status === "failed" && (
+        <div className="p-4 rounded-md bg-destructive/10 text-destructive">
+          <p>Error: Something went wrong during the scan.</p>
+        </div>
+      )}
+    </div>
   )
 }

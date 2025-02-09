@@ -11,10 +11,12 @@ import { AxePuppeteer } from "npm:@axe-core/puppeteer"
 
 Deno.serve(async (req) => {
   try {
+    const { url, id } = await req.json()
     const supabase = createClient(
       Deno.env.get("NEXT_PUBLIC_SUPABASE_URL"),
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
     )
+
     const authHeader = req.headers.get("Authorization")!
     console.log({ authHeader })
     const token = authHeader.replace("Bearer ", "")
@@ -29,111 +31,271 @@ Deno.serve(async (req) => {
     }
 
     // get body from request
-    const { url, id } = await req.json()
-
     console.log({ url, id })
 
-    // curl --request POST 'http://localhost:54321/functions/v1/scan' \
-    // --header 'Authorization: Bearer XXXX' \
-    // --header 'Content-Type: application/json' \
-    // --data '{ "url":"https://bubba.com.ua", id: "c6f0aa8b-3aeb-4fab-8a10-d382123bd169" }'
-
-    // console.log(`wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`)
-
-    // const browser = await puppeteer.connect({
-    //   browserWSEndpoint: `wss://chrome.browserless.io?token=${Deno.env.get(
-    //     'PUPPETEER_BROWSERLESS_IO_KEY'
-    //   )}`,
-    // })
-
-    // console.log(`wss://api.browsercat.com/connect?apiKey=${Deno.env.get('BROWSERCAT_API_KEY')}`)
-
+    // Browsercat configuration (active)
+    console.log(
+      `wss://api.browsercat.com/connect?apiKey=${Deno.env.get("BROWSERCAT_API_KEY")}`
+    )
     const browser = await puppeteer.connect({
       browserWSEndpoint: `wss://api.browsercat.com/connect?apiKey=${Deno.env.get("BROWSERCAT_API_KEY")}`,
     })
 
+    // Browserless.io configuration (alternative)
+    // console.log(`wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`)
+    // const browser = await puppeteer.connect({
+    //   browserWSEndpoint: `wss://chrome.browserless.io?token=${Deno.env.get('PUPPETEER_BROWSERLESS_IO_KEY')}`,
+    // })
+
+    // Function to capture screenshot and run axe tests in specific mode
+    async function captureAndTest(page: puppeteer.Page, isDarkMode: boolean) {
+      await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 2 })
+
+      if (isDarkMode) {
+        await page.emulateMediaFeatures([
+          { name: "prefers-color-scheme", value: "dark" },
+        ])
+      } else {
+        await page.emulateMediaFeatures([
+          { name: "prefers-color-scheme", value: "light" },
+        ])
+      }
+
+      await page.goto(url, { waitUntil: "networkidle0" })
+
+      // Take screenshot
+      const screenshot = await page.screenshot({
+        type: "png",
+        fullPage: true,
+        quality: 80,
+      })
+
+      // Run axe tests
+      const results = await new AxePuppeteer(page)
+        .withTags(["wcag22aa", "best-practice"])
+        .withRules([
+          "accesskeys",
+          "aria-allowed-role",
+          "aria-conditional-attr",
+          "aria-deprecated-role",
+          "aria-dialog-name",
+          "aria-prohibited-attr",
+          "aria-treeitem-name",
+          "aria-text",
+          "empty-heading",
+          "heading-order",
+          "html-xml-lang-mismatch",
+          "identical-links-same-purpose",
+          "image-redundant-alt",
+          "input-button-name",
+          "label-content-name-mismatch",
+          "landmark-one-main",
+          "link-in-text-block",
+          "meta-viewport",
+          "select-name",
+          "skip-link",
+          "tabindex",
+          "table-duplicate-name",
+          "table-fake-caption",
+          "target-size",
+          "td-has-header",
+        ])
+        .disableRules([
+          "area-alt",
+          "aria-braille-equivalent",
+          "aria-roledescription",
+          "audio-caption",
+          "blink",
+          "duplicate-id",
+          "frame-focusable-content",
+          "frame-title-unique",
+          "marquee",
+          "nested-interactive",
+          "no-autoplay-audio",
+          "role-img-alt",
+          "scrollable-region-focusable",
+          "server-side-image-map",
+          "summary-name",
+          "svg-img-alt",
+        ])
+        .analyze()
+
+      // Upload screenshot
+      const screenshotFileName = `${id}/${isDarkMode ? "dark" : "light"}.png`
+      const { error: screenshotError } = await supabase.storage
+        .from("screenshots")
+        .upload(screenshotFileName, screenshot, {
+          contentType: "image/png",
+          upsert: true,
+        })
+
+      if (screenshotError) throw screenshotError
+
+      // Upload test results as JSON
+      const resultsFileName = `${id}/${isDarkMode ? "dark" : "light"}.json`
+      const { error: resultsError } = await supabase.storage
+        .from("test-results")
+        .upload(resultsFileName, JSON.stringify(results, null, 2), {
+          contentType: "application/json",
+          upsert: true,
+        })
+
+      if (resultsError) throw resultsError
+
+      // Get signed URLs that expire in 24 hours
+      const screenshotUrl = supabase.storage
+        .from("screenshots")
+        .createSignedUrl(screenshotFileName, 60 * 60 * 24)
+        .then(({ data }) => data?.signedUrl)
+
+      const resultsUrl = supabase.storage
+        .from("test-results")
+        .createSignedUrl(resultsFileName, 60 * 60 * 24)
+        .then(({ data }) => data?.signedUrl)
+
+      // Wait for both signed URLs
+      const [signedScreenshotUrl, signedResultsUrl] = await Promise.all([
+        screenshotUrl,
+        resultsUrl,
+      ])
+
+      if (!signedScreenshotUrl || !signedResultsUrl) {
+        throw new Error("Failed to create signed URLs")
+      }
+
+      return {
+        screenshot: signedScreenshotUrl,
+        results,
+        resultsUrl: signedResultsUrl,
+      }
+    }
+
     const page = await browser.newPage()
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 }) // Wait until network is idle
 
-    await page.waitForFunction(() => document.readyState === "complete")
+    // Capture both modes
+    const lightMode = await captureAndTest(page, false)
+    const darkMode = await captureAndTest(page, true)
 
-    // https://www.deque.com/axe/core-documentation/api-documentation/#axe-core-tags
-    const results = await new AxePuppeteer(page)
-      .withTags(["wcag22aa", "best-practice"])
-      .withRules([
-        "accesskeys",
-        "aria-allowed-role",
-        "aria-conditional-attr",
-        "aria-deprecated-role",
-        "aria-dialog-name",
-        "aria-prohibited-attr",
-        "aria-treeitem-name",
-        "aria-text",
-        "empty-heading",
-        "heading-order",
-        "html-xml-lang-mismatch",
-        "identical-links-same-purpose",
-        "image-redundant-alt",
-        "input-button-name",
-        "label-content-name-mismatch",
-        "landmark-one-main",
-        "link-in-text-block",
-        "meta-viewport",
-        "select-name",
-        "skip-link",
-        "tabindex",
-        "table-duplicate-name",
-        "table-fake-caption",
-        "target-size",
-        "td-has-header",
-      ])
-      .disableRules([
-        "area-alt",
-        "aria-braille-equivalent",
-        "aria-roledescription",
-        "audio-caption",
-        "blink",
-        "duplicate-id",
-        "frame-focusable-content",
-        "frame-title-unique",
-        "marquee",
-        "nested-interactive",
-        "no-autoplay-audio",
-        "role-img-alt",
-        "scrollable-region-focusable",
-        "server-side-image-map",
-        "summary-name",
-        "svg-img-alt",
-      ])
-      .analyze()
-    console.log("results", results)
-    const { data: scanData, error: scanError } = await supabase
+    // Update scan record with results
+    const { error: updateError } = await supabase
       .from("Scan")
       .update({
-        results: results,
+        screenshot_light: lightMode.screenshot,
+        screenshot_dark: darkMode.screenshot,
+        metrics: {
+          light: {
+            violations_count: lightMode.results.violations.length,
+            passes_count: lightMode.results.passes.length,
+            incomplete_count: lightMode.results.incomplete.length,
+            inapplicable_count: lightMode.results.inapplicable.length,
+            critical_issues: lightMode.results.violations.filter(
+              (v) => v.impact === "critical"
+            ).length,
+            serious_issues: lightMode.results.violations.filter(
+              (v) => v.impact === "serious"
+            ).length,
+            moderate_issues: lightMode.results.violations.filter(
+              (v) => v.impact === "moderate"
+            ).length,
+            minor_issues: lightMode.results.violations.filter(
+              (v) => v.impact === "minor"
+            ).length,
+            results_url: lightMode.resultsUrl,
+          },
+          dark: {
+            violations_count: darkMode.results.violations.length,
+            passes_count: darkMode.results.passes.length,
+            incomplete_count: darkMode.results.incomplete.length,
+            inapplicable_count: darkMode.results.inapplicable.length,
+            critical_issues: darkMode.results.violations.filter(
+              (v) => v.impact === "critical"
+            ).length,
+            serious_issues: darkMode.results.violations.filter(
+              (v) => v.impact === "serious"
+            ).length,
+            moderate_issues: darkMode.results.violations.filter(
+              (v) => v.impact === "moderate"
+            ).length,
+            minor_issues: darkMode.results.violations.filter(
+              (v) => v.impact === "minor"
+            ).length,
+            results_url: darkMode.resultsUrl,
+          },
+        },
         status: "completed",
       })
       .eq("id", id)
 
-    console.log("supabase_call", { data: scanData, error: scanError })
+    if (updateError) throw updateError
 
-    if (scanError) {
-      console.error(scanError)
-      return new Response(JSON.stringify({ error: scanError.message }), {
-        headers: { "Content-Type": "application/json" },
-        status: 500,
-      })
-    }
+    await browser.close()
 
-    return new Response(JSON.stringify(scanData), {
-      headers: { "Content-Type": "application/json" },
-    })
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          screenshot_light: lightMode.screenshot,
+          screenshot_dark: darkMode.screenshot,
+          metrics: {
+            light: {
+              violations_count: lightMode.results.violations.length,
+              passes_count: lightMode.results.passes.length,
+              incomplete_count: lightMode.results.incomplete.length,
+              inapplicable_count: lightMode.results.inapplicable.length,
+              critical_issues: lightMode.results.violations.filter(
+                (v) => v.impact === "critical"
+              ).length,
+              serious_issues: lightMode.results.violations.filter(
+                (v) => v.impact === "serious"
+              ).length,
+              moderate_issues: lightMode.results.violations.filter(
+                (v) => v.impact === "moderate"
+              ).length,
+              minor_issues: lightMode.results.violations.filter(
+                (v) => v.impact === "minor"
+              ).length,
+              results_url: lightMode.resultsUrl,
+            },
+            dark: {
+              violations_count: darkMode.results.violations.length,
+              passes_count: darkMode.results.passes.length,
+              incomplete_count: darkMode.results.incomplete.length,
+              inapplicable_count: darkMode.results.inapplicable.length,
+              critical_issues: darkMode.results.violations.filter(
+                (v) => v.impact === "critical"
+              ).length,
+              serious_issues: darkMode.results.violations.filter(
+                (v) => v.impact === "serious"
+              ).length,
+              moderate_issues: darkMode.results.violations.filter(
+                (v) => v.impact === "moderate"
+              ).length,
+              minor_issues: darkMode.results.violations.filter(
+                (v) => v.impact === "minor"
+              ).length,
+              results_url: darkMode.resultsUrl,
+            },
+          },
+        },
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    )
   } catch (e) {
     console.error(e)
-    return new Response(JSON.stringify({ error: e.message }), {
-      headers: { "Content-Type": "application/json" },
-      status: 500,
-    })
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: {
+          message: e.message,
+          status: 500,
+          code: "screenshot_error",
+        },
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 500,
+      }
+    )
   }
 })
 /* To invoke locally:
