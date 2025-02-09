@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       const mode = isDarkMode ? "dark" : "light"
       console.log(`[${mode.toUpperCase()}] Starting capture and test`)
 
-      await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 2 })
+      await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 })
 
       if (isDarkMode) {
         await page.emulateMediaFeatures([
@@ -69,6 +69,12 @@ Deno.serve(async (req) => {
       console.log(`[${mode.toUpperCase()}] Taking screenshot`)
       const screenshot = await page.screenshot({
         type: "png",
+        clip: {
+          x: 0,
+          y: 0,
+          width: 1440,
+          height: 900,
+        },
       })
       console.log(`[${mode.toUpperCase()}] Screenshot captured`)
 
