@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       const mode = isDarkMode ? "dark" : "light"
       console.log(`[${mode.toUpperCase()}] Starting capture and test`)
 
-      await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 })
+      await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 })
 
       if (isDarkMode) {
         await page.emulateMediaFeatures([
