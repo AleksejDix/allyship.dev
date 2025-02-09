@@ -56,11 +56,7 @@ export async function getSpaces() {
     throw new Error("Failed to get user")
   }
 
-  const spaces = await prisma.space.findMany({
-    where: {
-      user_id: user.id,
-    },
-  })
+  const spaces = await prisma.space.findMany()
   return { spaces }
 }
 
