@@ -83,7 +83,7 @@ export const ScanProcess = () => {
   const [activeStep, setActiveStep] = useState(0)
 
   return (
-    <div className="container max-w-screen-xl mx-auto py-16">
+    <div className="container  mx-auto py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Left Side: Interactive Mockup */}
 

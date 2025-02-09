@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
 type LayoutProps = {
@@ -9,34 +10,31 @@ export default async function Layout({ params, children }: LayoutProps) {
   const { space_id } = await params
 
   return (
-    <div className="container">
-      <nav>
-        <ul className="flex -mx-2">
-          <li>
-            <RouterLink className="inline-block p-2" href={`/${space_id}`}>
-              Domains
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink
-              className="inline-block p-2"
-              href={`/${space_id}/members`}
-            >
-              Members
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink
-              className="inline-block p-2"
-              href={`/${space_id}/settings`}
-            >
-              Settings
-            </RouterLink>
-          </li>
-        </ul>
+    <>
+      <nav className="border-b border-border">
+        <div className="container">
+          <ul className="flex items-center gap-1 py-2">
+            <li>
+              <Button variant="ghost" asChild>
+                <RouterLink exact={true} href={`/spaces/${space_id}`}>
+                  Domains
+                </RouterLink>
+              </Button>
+            </li>
+            <li>
+              <Button variant="ghost" asChild>
+                <RouterLink href={`/spaces/${space_id}/settings`}>
+                  Settings
+                </RouterLink>
+              </Button>
+            </li>
+          </ul>
+        </div>
       </nav>
 
-      {children}
-    </div>
+      <div tabIndex={-1} aria-label="Space Content">
+        {children}
+      </div>
+    </>
   )
 }

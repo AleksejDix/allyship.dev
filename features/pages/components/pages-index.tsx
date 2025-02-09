@@ -1,5 +1,6 @@
-import { Page } from "@prisma/client"
+import { Domain, Page } from "@prisma/client"
 
+import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -10,33 +11,43 @@ import {
 } from "@/components/ui/table"
 import { RouterLink } from "@/components/RouterLink"
 
-type PagesIndexProps = {
-  page_id: string
-  pages: Page[]
+type PageWithDomain = Page & {
+  domain: Domain
 }
 
-export function PagesIndex({ page_id, pages }: PagesIndexProps) {
-  return (
-    <div className="rounded border border-border overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Pages</TableHead>
-          </TableRow>
-        </TableHeader>
+type Props = {
+  pages: PageWithDomain[]
+  domainId: string
+  spaceId: string
+}
 
-        <TableBody>
-          {pages.map((page) => (
-            <TableRow key={page.id}>
-              <TableCell>
-                <RouterLink href={`/spaces/${page_id}/pages/${page.id}`}>
-                  View: {page.id}
-                </RouterLink>
-              </TableCell>
+export function PagesIndex({ pages, domainId, spaceId }: Props) {
+  return (
+    <div className="container">
+      <div className="rounded border border-border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Pages</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+
+          <TableBody>
+            {pages.map((page) => (
+              <TableRow key={page.id}>
+                <TableCell>
+                  <RouterLink
+                    href={`/spaces/${spaceId}/${domainId}/pages/${page.id}`}
+                  >
+                    <Badge variant="outline">{page.domain.name}</Badge>
+                    <Badge variant="outline">{page.name}</Badge>
+                  </RouterLink>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

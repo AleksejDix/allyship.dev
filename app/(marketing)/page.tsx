@@ -51,7 +51,7 @@ const Page = () => (
     <Issues />
     <Services />
 
-    <div className="container max-w-screen-xl space-y-8">
+    <div className="container  space-y-8">
       <div className="space-y-4 md:text-center ">
         <h2 className="text-3xl font-bold md:text-5xl max-w-2xl font-display text-pretty text-center mx-auto">
           Get Started with Allyship

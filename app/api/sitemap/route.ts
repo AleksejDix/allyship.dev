@@ -16,9 +16,10 @@ async function fetchHtml(url: string): Promise<string> {
 async function crawlWebsite(
   rootUrl: string,
   currentUrl: string,
-  sitemap: Set<string> = new Set()
+  sitemap: Set<string> = new Set(),
+  depth: number = 0
 ): Promise<string[]> {
-  if (crawledUrls.has(currentUrl)) return Array.from(sitemap)
+  if (crawledUrls.has(currentUrl) || depth > 1) return Array.from(sitemap)
   crawledUrls.add(currentUrl)
 
   try {
@@ -34,7 +35,10 @@ async function crawlWebsite(
 
         if (absoluteUrl.startsWith(rootUrl) && !crawledUrls.has(absoluteUrl)) {
           sitemap.add(absoluteUrl)
-          await crawlWebsite(rootUrl, absoluteUrl, sitemap)
+          // Only crawl deeper if we're at depth 0
+          if (depth === 0) {
+            await crawlWebsite(rootUrl, absoluteUrl, sitemap, depth + 1)
+          }
         }
       } catch {
         // Ignore invalid URLs
@@ -51,6 +55,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Extract URL from query parameters
   const { searchParams } = new URL(request.url)
   const rootUrl = searchParams.get("url")
+
+  console.log("sf", { rootUrl })
 
   if (!rootUrl || !/^https?:\/\//.test(rootUrl)) {
     return NextResponse.json(

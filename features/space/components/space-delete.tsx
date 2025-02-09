@@ -7,15 +7,15 @@ import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Form } from "@/components/ui/form"
+import { Field } from "@/components/forms/field"
 
 const formSchema = z
   .object({
@@ -53,63 +53,44 @@ export function SpaceDelete(props: SpaceDeleteProps) {
   }
 
   return (
-    <div className="border border-destructive/50 rounded-lg p-4 space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-destructive">
-          Delete Workspace
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          This action cannot be undone. This will permanently delete the{" "}
-          <strong>{props.space.name}</strong> workspace.
-        </p>
-      </div>
+    <Form {...form}>
+      <form
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+      >
+        <Card className="border-destructive/50">
+          <CardHeader>
+            <CardTitle>Delete Space</CardTitle>
+            <CardDescription>
+              Permanently remove your team and all of its contents from the
+              Allyship platform. This action is not reversible — please continue
+              with caution.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Field
+              name="name"
+              label="Space Name"
+              type="hidden"
+              autoComplete="organization"
+            />
 
-      <Form {...form}>
-        <form
-          noValidate
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-destructive">
-                  Space Name <span aria-hidden="true">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input type="hidden" {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="confirmName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-destructive">Space Name:</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    {...field}
-                    className="border-destructive/50 focus-visible:ring-destructive"
-                  />
-                </FormControl>
-                <FormDescription>
-                  Please type the workspace name to confirm
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" variant="destructive" className="w-full">
-            I understand the consequences, delete this workspace
-          </Button>
-        </form>
-      </Form>
-    </div>
+            <Field
+              name="confirmName"
+              label="Space Name"
+              type="text"
+              autoComplete="organization"
+              description="Please type the Space name to delete"
+            />
+          </CardContent>
+          <CardFooter className="flex items-center justify-end py-4 border-t border-destructive/50 bg-destructive/5">
+            <Button type="submit" size="sm" variant="destructive">
+              Delete
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   )
 }

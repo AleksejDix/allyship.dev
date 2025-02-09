@@ -15,7 +15,6 @@ export default async function SpaceMembersPage({ params }: SpacePageProps) {
 
   return (
     <div>
-      <h1>Members</h1>
       <MembershipList />
     </div>
   )
