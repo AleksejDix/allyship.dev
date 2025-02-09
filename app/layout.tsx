@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     },
   ],
   creator: "Aleksej Dix",
+  verification: {
+    google: "CJ2S8w3O_t5l-lKb0is1Cp4IxOHfiuboMfPM_hmFrYo",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
