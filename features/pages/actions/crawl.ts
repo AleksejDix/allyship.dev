@@ -26,19 +26,29 @@ export const crawl = createServerAction()
       const data = await response.json()
       const urls = data.sitemap
 
-      // Create pages for each URL
+      // Get existing pages for this domain
+      const existingPages = await prisma.page.findMany({
+        where: {
+          domain_id: input.domain_id,
+        },
+        select: {
+          name: true,
+        },
+      })
+      const existingPathnames = new Set(existingPages.map((p) => p.name))
+
+      // Filter out URLs that already exist as pages
+      const newUrls = urls.filter((url: string) => {
+        const urlObj = new URL(url)
+        return !existingPathnames.has(urlObj.pathname)
+      })
+
+      // Create only new pages
       const createdPages = await Promise.all(
-        urls.map(async (url: string) => {
+        newUrls.map(async (url: string) => {
           const urlObj = new URL(url)
-          return prisma.page.upsert({
-            where: {
-              domain_id_name: {
-                domain_id: input.domain_id,
-                name: urlObj.pathname,
-              },
-            },
-            update: {},
-            create: {
+          return prisma.page.create({
+            data: {
               name: urlObj.pathname,
               domain_id: input.domain_id,
             },
@@ -49,6 +59,11 @@ export const crawl = createServerAction()
       return {
         success: true,
         data: createdPages,
+        stats: {
+          total: urls.length,
+          new: createdPages.length,
+          existing: urls.length - createdPages.length,
+        },
       }
     } catch (error) {
       console.error("Error crawling:", error)

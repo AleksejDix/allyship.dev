@@ -1,5 +1,4 @@
-import { AddPageDialog } from "@/features/pages/components/add-page-dialog"
-import { CrawlButton } from "@/features/pages/components/crawl-button"
+import { PagesHeader } from "@/features/pages/components/pages-header"
 import { PagesIndex } from "@/features/pages/components/pages-index"
 
 import { prisma } from "@/lib/prisma"
@@ -36,19 +35,7 @@ export default async function DomainsPage({ params }: Props) {
   return (
     <>
       <div className="container">
-        <div className="flex items-center justify-between py-6">
-          <div>
-            <h1 className="text-3xl">Pages</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <CrawlButton domain={domain} />
-            <AddPageDialog
-              spaceId={space_id}
-              domainId={domain_id}
-              domain={domain}
-            />
-          </div>
-        </div>
+        <PagesHeader domain={domain} spaceId={space_id} domainId={domain_id} />
       </div>
       <PagesIndex spaceId={space_id} domainId={domain_id} pages={pages} />
     </>
