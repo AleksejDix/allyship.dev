@@ -12,9 +12,28 @@ type CategoryType = {
 }
 
 const categories: CategoryType = {
-  Accessibility: ["a11y", "WAI", "WAI-ARIA", "WCAG"],
+  Accessibility: [
+    "a11y",
+    "WAI",
+    "WAI-ARIA",
+    "WCAG",
+    "ARIA",
+    "Screen Reader",
+    "Alt Text",
+    "Semantic HTML",
+    "Keyboard Navigation",
+    "Focus Management",
+    "Color Contrast",
+  ],
   Development: ["CI", "CD", "API"],
-  Quality: ["QA", "QC", "Code Coverage", "Regression Testing"],
+  Testing: [
+    "QA",
+    "QC",
+    "Code Coverage",
+    "Regression Testing",
+    "E2E",
+    "Unit Testing",
+  ],
   Internationalization: ["l10n"],
 } as const
 
