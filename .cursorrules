@@ -1,15 +1,50 @@
 Typescript:
- - Use strong typing for all variables and functions and react components
+
+- Use strong typing for all variables and functions and react components
 
 UI:
-  - Never update components/ui directory
-  - Never try to use toast. Always show inline notifications
-  - Use TailwindCSS for styling
-  - Use shadcn/ui for components
-  - Use react-hook-form for form handling
-  - Use rsa for server actions
-  - Use zod for validation
+
+- Never update components/ui directory
+- Never try to use toast. Always show inline notifications
+- Use TailwindCSS for styling
+- Use design inspiration from vercel dashboard and platform
 
 Database:
-  - Use supabase for database
 
+- Use supabase for database
+
+Next.js
+
+- Use app router with loaders suspence templates error boundaries and layouts
+- Use next.js server actions for all actions
+- Use next.js server components for all components
+- Use rsa for server actions
+- Use zod for validation
+- Use react-hook-form for form handling
+- Use shadcn/ui for components
+- Use tailwindcss for styling
+
+Web Accessibility:
+
+- Use aria-labels for all components
+- Make sure all forms are validated in the backend and in the frontend and server errors are announced to the user
+
+Feature and file structure:
+
+- All new features should go in the features directory
+- All new pages should go in the app directory
+- All new components should go in the features/components directory
+
+Forms and Validation
+
+- Reuse schemas in a common folder
+- Use zod for validation
+- Use react-hook-form for form handling
+- Use schadn or https://originui.com/ for components
+- Make sure all components are accessible
+
+
+Icons
+
+- Use lucide icons
+- Always add aria-hidden to all icons

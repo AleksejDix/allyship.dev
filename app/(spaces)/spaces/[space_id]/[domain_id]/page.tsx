@@ -1,15 +1,15 @@
+import { AddPageDialog } from "@/features/pages/components/add-page-dialog"
 import { CrawlButton } from "@/features/pages/components/crawl-button"
 import { PagesIndex } from "@/features/pages/components/pages-index"
 
 import { prisma } from "@/lib/prisma"
-import { Button } from "@/components/ui/button"
 
 type Props = {
   params: { domain_id: string; space_id: string }
 }
 
 export default async function DomainsPage({ params }: Props) {
-  const { domain_id, space_id } = await params
+  const { domain_id, space_id } = params
 
   const domain = await prisma.domain.findUnique({
     where: {
@@ -42,7 +42,11 @@ export default async function DomainsPage({ params }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <CrawlButton domain={domain} />
-            <Button>Add Page</Button>
+            <AddPageDialog
+              spaceId={space_id}
+              domainId={domain_id}
+              domain={domain}
+            />
           </div>
         </div>
       </div>
