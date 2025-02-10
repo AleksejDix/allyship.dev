@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { createSpace } from "@/features/space/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -29,6 +30,7 @@ type FormData = z.infer<typeof formSchema>
 
 export function SpaceCreate() {
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,7 +63,10 @@ export function SpaceCreate() {
 
       if (response && !response.success) {
         setError(response.error?.message ?? "An unexpected error occurred")
+        return
       }
+
+      router.refresh()
     } catch {
       setError("An unexpected error occurred. Please try again.")
     }

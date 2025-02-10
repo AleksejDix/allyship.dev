@@ -47,3 +47,72 @@ export const create = createServerAction()
 
     return { success: true, data: page }
   })
+
+const addPageUrlSchema = z.object({
+  url: z.string().url(),
+})
+
+type AddPageUrlInput = z.infer<typeof addPageUrlSchema>
+
+export async function createPageFromUrl(
+  spaceId: string,
+  domainId: string,
+  input: AddPageUrlInput
+) {
+  try {
+    const validatedData = addPageUrlSchema.parse(input)
+    const url = new URL(validatedData.url)
+
+    // Check if page already exists
+    const existingPage = await prisma.page.findFirst({
+      where: {
+        domain_id: domainId,
+        url: validatedData.url,
+      },
+    })
+
+    if (existingPage) {
+      return {
+        success: false,
+        error: {
+          message: "A page with this URL already exists",
+          status: 400,
+          code: "page_url_exists",
+        },
+      }
+    }
+
+    const page = await prisma.page.create({
+      data: {
+        name: url.pathname === "/" ? "Homepage" : url.pathname,
+        url: validatedData.url,
+        domain_id: domainId,
+      },
+    })
+
+    return {
+      success: true,
+      data: page,
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: {
+          message: "Invalid URL format",
+          status: 400,
+          code: "invalid_url_format",
+        },
+      }
+    }
+
+    return {
+      success: false,
+      error: {
+        message: "Failed to create page",
+        status: 500,
+        code: "create_page_error",
+      },
+    }
+  }
+}

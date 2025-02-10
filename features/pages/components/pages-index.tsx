@@ -336,9 +336,9 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
         <Input
-          placeholder="Search by path..."
+          placeholder="Filter pages..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)

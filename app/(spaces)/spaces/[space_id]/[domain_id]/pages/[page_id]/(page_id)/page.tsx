@@ -2,9 +2,12 @@
 
 import { PageHeader } from "@/features/domain/components/page-header"
 import { ThemeAwareScreenshots } from "@/features/domain/components/theme-aware-screenshots"
+import { create } from "@/features/scans/actions"
 import { ScanIndex } from "@/features/scans/components/scan-index"
+import { Scan } from "lucide-react"
 
 import { prisma } from "@/lib/prisma"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 type Params = {
@@ -42,7 +45,19 @@ export default async function Page({ params }: { params: Params }) {
       <PageHeader
         title={`${page.domain.name}${page.name}`}
         description={`Manage page for ${page.name}`}
-      />
+      >
+        <form
+          action={async () => {
+            "use server"
+            await create({ url: `https://${page.domain.name}${page.name}` })
+          }}
+        >
+          <Button type="submit">
+            <Scan aria-hidden="true" />
+            New Scan
+          </Button>
+        </form>
+      </PageHeader>
 
       <div className="container py-6 space-y-6">
         <Card>
