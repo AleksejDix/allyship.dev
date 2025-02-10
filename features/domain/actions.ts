@@ -7,7 +7,7 @@ import { createServerAction } from "zsa"
 import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
 
-import { mobileSettingsSchema, themeSettingsSchema } from "./schema"
+import { themeSettingsSchema } from "./schema"
 
 const deleteDomainSchema = z.object({
   domainId: z.string(),

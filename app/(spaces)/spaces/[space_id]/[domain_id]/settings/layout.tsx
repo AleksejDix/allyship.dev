@@ -1,3 +1,7 @@
+import { DomainNavigation } from "@/features/domain/components/domain-navigation"
+import { PageHeader } from "@/features/domain/components/page-header"
+
+import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
@@ -9,18 +13,30 @@ type LayoutProps = {
 export default async function Layout({ children, params }: LayoutProps) {
   const { space_id, domain_id } = await params
 
-  return (
-    <div className="container">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold">Settings</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your domain settings and configuration
-            </p>
-          </div>
-        </div>
+  const domain = await prisma.domain.findUnique({
+    where: {
+      id: domain_id,
+    },
+  })
 
+  if (!domain) {
+    throw new Error("Domain not found")
+  }
+
+  return (
+    <>
+      <DomainNavigation
+        domain={domain}
+        space_id={space_id}
+        domain_id={domain_id}
+      />
+
+      <PageHeader
+        title="Settings"
+        description={`Manage settings and configuration for ${domain.name}`}
+      />
+
+      <div className="container  py-6">
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="lg:w-1/5">
             <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
@@ -41,9 +57,9 @@ export default async function Layout({ children, params }: LayoutProps) {
               </Button>
             </nav>
           </aside>
-          <div className="flex-1 ">{children}</div>
+          <div className="flex-1">{children}</div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
