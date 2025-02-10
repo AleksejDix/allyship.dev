@@ -96,7 +96,7 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
-        <CardTitle>Preview</CardTitle>
+        <CardTitle>Website Preview</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="light" className="space-y-6">

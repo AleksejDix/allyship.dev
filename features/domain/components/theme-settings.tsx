@@ -33,15 +33,15 @@ export function ThemeSettings({ domain, spaceId }: ThemeSettingsProps) {
   const form = useForm({
     resolver: zodResolver(
       z.object({
-        theme: z.enum(["light", "dark", "both"]),
+        theme: z.enum(["LIGHT", "DARK", "BOTH"]),
       })
     ),
     defaultValues: {
-      theme: domain.theme as "light" | "dark" | "both",
+      theme: domain.theme as "LIGHT" | "DARK" | "BOTH",
     },
   })
 
-  const onSubmit = async (data: { theme: "light" | "dark" | "both" }) => {
+  const onSubmit = async (data: { theme: "LIGHT" | "DARK" | "BOTH" }) => {
     await updateThemeSettings({
       theme: data.theme,
       domainId: domain.id,
@@ -74,7 +74,7 @@ export function ThemeSettings({ domain, spaceId }: ThemeSettingsProps) {
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <RadioGroupItem value="light" />
+                          <RadioGroupItem value="LIGHT" />
                         </FormControl>
                         <FormLabel className="font-normal">
                           Light Only
@@ -82,13 +82,13 @@ export function ThemeSettings({ domain, spaceId }: ThemeSettingsProps) {
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <RadioGroupItem value="dark" />
+                          <RadioGroupItem value="DARK" />
                         </FormControl>
                         <FormLabel className="font-normal">Dark Only</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <RadioGroupItem value="both" />
+                          <RadioGroupItem value="BOTH" />
                         </FormControl>
                         <FormLabel className="font-normal">
                           Both Modes

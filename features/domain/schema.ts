@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const themeSettingsSchema = z.object({
-  theme: z.enum(["light", "dark", "both"]),
+  theme: z.enum(["LIGHT", "DARK", "BOTH"]),
   domainId: z.string(),
   spaceId: z.string(),
 })

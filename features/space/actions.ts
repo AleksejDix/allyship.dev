@@ -1,12 +1,23 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { Space } from "@prisma/client"
 import { createServerAction } from "zsa"
 
 import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
 
 import { spaceSchema } from "./schema"
+
+type ActionResponse = {
+  success: boolean
+  data?: Space
+  error?: {
+    message: string
+    status: number
+    code: string
+  }
+}
 
 export const createSpace = createServerAction()
   .input(spaceSchema)
@@ -89,10 +100,9 @@ export async function getSpaces() {
   const supabase = await createClient()
   const {
     data: { user },
-    error,
   } = await supabase.auth.getUser()
 
-  if (error || !user) {
+  if (!user) {
     throw new Error("Failed to get user")
   }
 
