@@ -94,8 +94,8 @@ export function AddPageDialog({ spaceId, domainId, domain }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
+        <Button size="sm" variant="secondary">
+          <Plus aria-hidden="true" />
           Add Page
         </Button>
       </DialogTrigger>

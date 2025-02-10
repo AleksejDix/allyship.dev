@@ -1,88 +1,383 @@
-Purpose of the software
+# Additional Project Guidelines
 
-- Make it easy for people to scan their websites for accessibility compliance
-- Make it easy for people to manage their websites and pages
-- Make it easy for people to share their websites with their team
-- Make it easy for people to track the accessibility of their websites
+## State Management
 
-Typescript:
+### Server State
 
-- Use strong typing for all variables and functions and react components
-- Never use enums
-- Never use interfaces
+- Use React Server Components for initial state
+- Implement optimistic updates for better UX
+- Structure server actions:
 
-UI:
-
-- Never update components/ui directory
-- Never try to use toast. Always show inline notifications
-- Use TailwindCSS for styling
-- Use design inspiration from vercel dashboard and platform
-
-Database:
-
-- Use supabase for database
-
-Next.js
-
-- Use app router with loaders suspence templates error boundaries and layouts
-- Use next.js server actions for all actions
-- Use next.js server components for all components
-- Use rsa for server actions
-- Use zod for validation
-- Use react-hook-form for form handling
-- Use shadcn/ui for components
-- Use tailwindcss for styling
-- IF components require client interaction, create a client component but never turn pages into client components
-
-Web Accessibility:
-
-- Use aria-labels for all components
-- Make sure all forms are validated in the backend and in the frontend and server errors are announced to the user
-
-Feature and file structure:
-
-- All new features should go in the features directory
-- All new pages should go in the app directory
-- All new components should go in the features/components directory
-
-// Rule: Always follow this structure for scan-related components
-features/scans/
-├── actions.ts // Server actions for scanning
-├── components/ // UI components
-├── schema.ts // Zod validation schemas
-
-Forms and Validation
-
-- Reuse schemas in a common folder
-- Use zod for validation
-- Use react-hook-form for form handling
-- Use schadn or https://originui.com/ for components
-- Make sure all components are accessible
-
-// Always follow this pattern for error responses
-return {
-success: false,
-error: {
-message: "Human readable message",
-status: 400, // HTTP status code
-code: "error_code_snake_case"
+```typescript
+// Example server action structure
+export async function updateScanStatus(scanId: string, status: ScanStatus) {
+  try {
+    // 1. Validate input
+    // 2. Check permissions
+    // 3. Perform action
+    // 4. Return response
+    return {
+      success: true,
+      data: updatedScan,
+    }
+  } catch (error) {
+    return handleServerError(error)
+  }
 }
+```
+
+### Client State
+
+- Use `useState` for simple component state
+- Use `useReducer` for complex component state
+- Implement proper loading states
+- Handle error states gracefully
+
+## API Response Handling
+
+### Error Handling Utility
+
+```typescript
+// features/common/utils/error-handling.ts
+export function handleServerError(error: unknown): ServerResponse<never> {
+  if (error instanceof ZodError) {
+    return {
+      success: false,
+      error: {
+        message: "Validation failed",
+        status: 400,
+        code: "validation_failed",
+        details: error.flatten(),
+      },
+    }
+  }
+
+  if (error instanceof DatabaseError) {
+    return {
+      success: false,
+      error: {
+        message: "Database operation failed",
+        status: 500,
+        code: "database_error",
+      },
+    }
+  }
+
+  // Default error response
+  return {
+    success: false,
+    error: {
+      message: "An unexpected error occurred",
+      status: 500,
+      code: "internal_server_error",
+    },
+  }
+}
+```
+
+## Loading States
+
+### Loading Components
+
+```typescript
+// features/common/components/loading-states.tsx
+export function TableSkeleton() {
+  return (
+    <div role="status" aria-label="Loading content">
+      {/* Skeleton implementation */}
+    </div>
+  )
 }
 
-// Always follow this pattern for success responses
-return {
-success: true,
-data: result
+export function CardSkeleton() {
+  return (
+    <div role="status" aria-label="Loading content">
+      {/* Skeleton implementation */}
+    </div>
+  )
+}
+```
+
+## Form Patterns
+
+### Form Structure
+
+```typescript
+// features/[feature]/components/form.tsx
+export function DataEntryForm() {
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      // Default values
+    }
+  })
+
+  return (
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      aria-label="Data entry form"
+      className="space-y-4"
+    >
+      <div role="alert" aria-live="polite">
+        {form.formState.errors.root?.message}
+      </div>
+
+      {/* Form fields */}
+    </form>
+  )
+}
+```
+
+## Data Fetching Patterns
+
+### Server Component Data Fetching
+
+```typescript
+// features/[feature]/components/data-display.tsx
+export async function DataDisplay() {
+  const data = await fetchData()
+
+  if (!data) {
+    return <EmptyState />
+  }
+
+  return (
+    <div>
+      {/* Data display implementation */}
+    </div>
+  )
+}
+```
+
+## Accessibility Patterns
+
+### Interactive Components
+
+```typescript
+// features/common/components/interactive-element.tsx
+export function InteractiveElement({
+  label,
+  onAction,
+  disabled
+}: Props) {
+  return (
+    <button
+      onClick={onAction}
+      disabled={disabled}
+      aria-label={label}
+      className={cn(
+        "interactive-base",
+        disabled && "opacity-50 cursor-not-allowed"
+      )}
+    >
+      {/* Component content */}
+    </button>
+  )
+}
+```
+
+## Error Boundaries
+
+### Feature Error Boundary
+
+```typescript
+// features/[feature]/components/error-boundary.tsx
+export function FeatureErrorBoundary({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <ErrorBoundary
+      fallback={
+        <div role="alert" className="error-container">
+          <h2>Something went wrong</h2>
+          <p>Please try again later or contact support if the problem persists.</p>
+        </div>
+      }
+    >
+      {children}
+    </ErrorBoundary>
+  )
+}
+```
+
+## Monitoring & Logging
+
+### Error Logging
+
+```typescript
+// features/common/utils/logging.ts
+export function logError(error: unknown, context: Record<string, unknown>) {
+  // Log to monitoring service
+  console.error({
+    timestamp: new Date().toISOString(),
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    ...context,
+  })
+}
+```
+
+## Performance Optimization
+
+### Image Handling
+
+```typescript
+// features/common/components/optimized-image.tsx
+export function OptimizedImage({
+  src,
+  alt,
+  width,
+  height
+}: ImageProps) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading="lazy"
+      className="object-cover"
+      placeholder="blur"
+      blurDataURL="data:image/jpeg;base64,..."
+    />
+  )
+}
+```
+
+## Security Guidelines
+
+### Input Sanitization
+
+```typescript
+// features/common/utils/security.ts
+export function sanitizeUserInput(input: string): string {
+  // Remove potentially dangerous HTML
+  return input.replace(/<[^>]*>?/gm, "")
 }
 
-Icons
+export function validateFileType(file: File, allowedTypes: string[]): boolean {
+  return allowedTypes.includes(file.type)
+}
+```
 
-- Use lucide icons
-- Always add aria-hidden to all icons
+## Testing Patterns
 
+### Component Testing
 
-Prisma
-- Never make migration which will delete data in supabase
-- Be very careful with migrations and always make sure they are reversible
-- Never delete production database
+```typescript
+// features/[feature]/__tests__/component.test.tsx
+describe('Component', () => {
+  it('renders successfully', () => {
+    render(<Component />)
 
+    expect(screen.getByRole('button')).toBeInTheDocument()
+  })
+
+  it('handles user interaction', async () => {
+    render(<Component />)
+
+    await userEvent.click(screen.getByRole('button'))
+
+    expect(screen.getByText('Success')).toBeInTheDocument()
+  })
+})
+```
+
+## Documentation Standards
+
+### Component Documentation
+
+````typescript
+// features/[feature]/components/component.tsx
+/**
+ * @component ComponentName
+ * @description Brief description of the component's purpose
+ *
+ * @example
+ * ```tsx
+ * <ComponentName
+ *   prop1="value"
+ *   prop2={123}
+ * />
+ * ```
+ */
+````
+
+## Git Workflow
+
+### Commit Message Format
+
+```
+type(scope): subject
+
+body
+
+footer
+```
+
+Types:
+
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation changes
+- style: Code style changes
+- refactor: Code refactoring
+- test: Adding tests
+- chore: Maintenance tasks
+
+## Deployment Checklist
+
+1. Run all tests
+2. Check accessibility compliance
+3. Verify performance metrics
+4. Review security measures
+5. Validate database migrations
+6. Check error monitoring setup
+7. Review API documentation
+8. Verify environment variables
+
+### Standard Verbs
+
+Always map operations to these fundamental CRUD verbs:
+
+- create
+- read/get/fetch
+- update
+- delete
+
+Examples of mapping "special" operations to standard verbs:
+
+```typescript
+// Instead of publishAction:
+export async function statusUpdateAction(
+  id: string,
+  status: "published" | "draft"
+) {}
+
+// Instead of archiveAction:
+export async function statusUpdateAction(
+  id: string,
+  status: "archived" | "active"
+) {}
+
+// Instead of approveAction:
+export async function statusUpdateAction(
+  id: string,
+  status: "approved" | "pending"
+) {}
+```
+
+❌ Avoid creating "special" verbs:
+
+```typescript
+export async function publishAction() // Don't do this
+export async function approveAction() // Don't do this
+```
+
+✅ Always map to CRUD:
+
+```typescript
+export async function statusUpdateAction() // Do this instead
+```
