@@ -3,9 +3,8 @@
 import Image from "next/image"
 import type { DomainWithRelations } from "@/features/domain/types"
 import type { Page as PrismaPage } from "@prisma/client"
-import { AlertTriangle, CheckCircle2, Circle, Moon, Sun } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,8 +25,26 @@ function ThemeModeContent({
   const passRate = total > 0 ? Math.round((totalPasses / total) * 100) : 0
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-8 md:grid-cols-[3fr_5fr]">
+      {screenshot ? (
+        <div className="relative aspect-[1440/900] w-full overflow-hidden rounded-lg border border-border bg-muted">
+          <Image
+            src={screenshot}
+            alt={`${mode} mode screenshot of ${domain.name}`}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+      ) : (
+        <div className="flex aspect-[1440/900] w-full items-center justify-center rounded-lg border border-border bg-muted">
+          <p className="text-sm text-muted-foreground">
+            No screenshot available
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">Pass Rate</CardTitle>
@@ -48,17 +65,6 @@ function ThemeModeContent({
           </CardContent>
         </Card>
       </div>
-
-      {screenshot && (
-        <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
-          <Image
-            src={screenshot}
-            alt={`${mode} mode screenshot of ${domain.name}`}
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
     </div>
   )
 }
@@ -87,118 +93,41 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
     return { totalViolations, totalPasses }
   }
 
-  const totalPages = domain._count.pages
-  const totalScans = latestScans.length
-  const pagesWithIssues = domain.pages.filter(
-    (page) =>
-      (page.scans[0]?.metrics?.light?.violations_count ?? 0) > 0 ||
-      (page.scans[0]?.metrics?.dark?.violations_count ?? 0) > 0
-  ).length
-
-  // Get the latest scan date
-  const latestScanDate = latestScans.length
-    ? Math.max(...latestScans.map((scan) => scan.created_at?.getTime() ?? 0))
-    : null
-
   return (
-    <div className="container space-y-8">
-      {/* Domain Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pages</CardTitle>
-            <Circle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalPages}</div>
-            <p className="text-xs text-muted-foreground">
-              Pages being monitored
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Scans</CardTitle>
-            <Circle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalScans}</div>
-            <p className="text-xs text-muted-foreground">
-              Accessibility scans run
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pages with Issues
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pagesWithIssues}</div>
-            <p className="text-xs text-muted-foreground">
-              Pages needing attention
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Theme-aware Results */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Accessibility Results</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="light">
-            <TabsList>
-              <TabsTrigger value="light" className="flex items-center gap-2">
-                <Sun className="h-4 w-4" />
-                Light Mode
-              </TabsTrigger>
-              <TabsTrigger value="dark" className="flex items-center gap-2">
-                <Moon className="h-4 w-4" />
-                Dark Mode
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="light" className="space-y-4">
-              <ThemeModeContent
-                mode="light"
-                metrics={calculateMetrics("light")}
-                screenshot={rootPage?.scans[0]?.screenshot_light}
-                domain={domain}
-              />
-            </TabsContent>
-            <TabsContent value="dark" className="space-y-4">
-              <ThemeModeContent
-                mode="dark"
-                metrics={calculateMetrics("dark")}
-                screenshot={rootPage?.scans[0]?.screenshot_dark}
-                domain={domain}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Latest Scan Alert */}
-      {latestScanDate ? (
-        <Alert>
-          <CheckCircle2 className="h-4 w-4" />
-          <AlertDescription>
-            Last scan completed {new Date(latestScanDate).toLocaleDateString()}.
-            Found issues in {pagesWithIssues} pages.
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            No scans have been run yet. Run a scan to get accessibility
-            insights.
-          </AlertDescription>
-        </Alert>
-      )}
-    </div>
+    <Card className="border-none shadow-none">
+      <CardHeader>
+        <CardTitle>Preview</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="light" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="light" className="flex items-center gap-2">
+              <Sun className="h-4 w-4" aria-hidden="true" />
+              Light Mode
+            </TabsTrigger>
+            <TabsTrigger value="dark" className="flex items-center gap-2">
+              <Moon className="h-4 w-4" aria-hidden="true" />
+              Dark Mode
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="light">
+            <ThemeModeContent
+              mode="light"
+              metrics={calculateMetrics("light")}
+              screenshot={rootPage?.scans[0]?.screenshot_light}
+              domain={domain}
+            />
+          </TabsContent>
+          <TabsContent value="dark">
+            <ThemeModeContent
+              mode="dark"
+              metrics={calculateMetrics("dark")}
+              screenshot={rootPage?.scans[0]?.screenshot_dark}
+              domain={domain}
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   )
 }

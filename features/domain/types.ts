@@ -1,4 +1,10 @@
-import { Domain, Page as PrismaPage, Scan as PrismaScan } from "@prisma/client"
+import {
+  Domain,
+  Page as PrismaPage,
+  Scan as PrismaScan,
+  Space,
+  User,
+} from "@prisma/client"
 
 type ScanMetrics = {
   light: {
@@ -26,6 +32,9 @@ export type DomainWithRelations = Domain & {
     pages: number
   }
   pages: DomainPage[]
+  space: Space & {
+    user: Pick<User, "id" | "first_name" | "last_name">
+  }
 }
 
 export type PageWithRelations = PrismaPage & {
