@@ -4,8 +4,14 @@ import Image from "next/image"
 import type { DomainWithRelations } from "@/features/domain/types"
 import type { Page as PrismaPage } from "@prisma/client"
 import { Moon, Sun } from "lucide-react"
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -14,15 +20,35 @@ function ThemeModeContent({
   metrics,
   screenshot,
   domain,
+  errorTrend,
 }: {
   mode: "light" | "dark"
   metrics: { totalViolations: number; totalPasses: number }
   screenshot?: string | null
   domain: DomainWithRelations
+  errorTrend: number[]
 }) {
   const { totalViolations, totalPasses } = metrics
   const total = totalPasses + totalViolations
   const passRate = total > 0 ? Math.round((totalPasses / total) * 100) : 0
+
+  // Transform error trend data for the chart
+  const chartData = errorTrend.map((value, index) => ({
+    date: `Scan ${index + 1}`,
+    violations: value,
+    incomplete: Math.round(value * 0.3), // This is temporary - replace with actual incomplete data
+  }))
+
+  const chartConfig = {
+    violations: {
+      label: "Violations",
+      color: mode === "light" ? "#ef4444" : "#f87171",
+    },
+    incomplete: {
+      label: "Incomplete",
+      color: mode === "light" ? "#f59e0b" : "#fbbf24",
+    },
+  }
 
   return (
     <div className="grid gap-8 md:grid-cols-[3fr_5fr]">
@@ -64,6 +90,84 @@ function ThemeModeContent({
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Error Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[200px]">
+              <ChartContainer config={chartConfig} className="h-full w-full">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient
+                      id="fillViolations"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={mode === "light" ? "#ef4444" : "#f87171"}
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={mode === "light" ? "#ef4444" : "#f87171"}
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                    <linearGradient
+                      id="fillIncomplete"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={mode === "light" ? "#f59e0b" : "#fbbf24"}
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={mode === "light" ? "#f59e0b" : "#fbbf24"}
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    minTickGap={32}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="dot" />}
+                  />
+                  <Area
+                    dataKey="violations"
+                    type="natural"
+                    fill="url(#fillViolations)"
+                    stroke={mode === "light" ? "#ef4444" : "#f87171"}
+                  />
+                  <Area
+                    dataKey="incomplete"
+                    type="natural"
+                    fill="url(#fillIncomplete)"
+                    stroke={mode === "light" ? "#f59e0b" : "#fbbf24"}
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Last {errorTrend.length} scans
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
@@ -90,7 +194,21 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
       (sum: number, scan) => sum + (scan.metrics?.[mode]?.passes_count ?? 0),
       0
     )
-    return { totalViolations, totalPasses }
+
+    // Calculate error trend from all pages' scans
+    const errorTrend = domain.pages
+      .flatMap((page) =>
+        page.scans
+          .slice(0, 100) // Get last 10 scans
+          .reverse() // Most recent first
+          .map((scan) => scan.metrics?.[mode]?.violations_count ?? 0)
+      )
+      .reduce((acc, curr, i) => {
+        acc[i] = (acc[i] || 0) + curr
+        return acc
+      }, [] as number[])
+
+    return { totalViolations, totalPasses, errorTrend }
   }
 
   return (
@@ -117,6 +235,7 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
                 metrics={calculateMetrics("light")}
                 screenshot={rootPage?.scans[0]?.screenshot_light}
                 domain={domain}
+                errorTrend={calculateMetrics("light").errorTrend}
               />
             </TabsContent>
             <TabsContent value="dark">
@@ -125,6 +244,7 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
                 metrics={calculateMetrics("dark")}
                 screenshot={rootPage?.scans[0]?.screenshot_dark}
                 domain={domain}
+                errorTrend={calculateMetrics("dark").errorTrend}
               />
             </TabsContent>
           </Tabs>
