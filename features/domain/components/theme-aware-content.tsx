@@ -94,40 +94,42 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
   }
 
   return (
-    <Card className="border-none shadow-none">
-      <CardHeader>
-        <CardTitle>Website Preview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="light" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="light" className="flex items-center gap-2">
-              <Sun className="h-4 w-4" aria-hidden="true" />
-              Light Mode
-            </TabsTrigger>
-            <TabsTrigger value="dark" className="flex items-center gap-2">
-              <Moon className="h-4 w-4" aria-hidden="true" />
-              Dark Mode
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="light">
-            <ThemeModeContent
-              mode="light"
-              metrics={calculateMetrics("light")}
-              screenshot={rootPage?.scans[0]?.screenshot_light}
-              domain={domain}
-            />
-          </TabsContent>
-          <TabsContent value="dark">
-            <ThemeModeContent
-              mode="dark"
-              metrics={calculateMetrics("dark")}
-              screenshot={rootPage?.scans[0]?.screenshot_dark}
-              domain={domain}
-            />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Website Preview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="light" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="light" className="flex items-center gap-2">
+                <Sun className="h-4 w-4" aria-hidden="true" />
+                Light Mode
+              </TabsTrigger>
+              <TabsTrigger value="dark" className="flex items-center gap-2">
+                <Moon className="h-4 w-4" aria-hidden="true" />
+                Dark Mode
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="light">
+              <ThemeModeContent
+                mode="light"
+                metrics={calculateMetrics("light")}
+                screenshot={rootPage?.scans[0]?.screenshot_light}
+                domain={domain}
+              />
+            </TabsContent>
+            <TabsContent value="dark">
+              <ThemeModeContent
+                mode="dark"
+                metrics={calculateMetrics("dark")}
+                screenshot={rootPage?.scans[0]?.screenshot_dark}
+                domain={domain}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </>
   )
 }

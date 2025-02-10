@@ -1,6 +1,7 @@
 // import { Domain } from "@prisma/client"
 
 import { PageHeader } from "@/features/domain/components/page-header"
+import { ThemeAwareScreenshots } from "@/features/domain/components/theme-aware-screenshots"
 import { ScanIndex } from "@/features/scans/components/scan-index"
 
 import { prisma } from "@/lib/prisma"
@@ -21,13 +22,20 @@ export default async function Page({ params }: { params: Params }) {
     },
     include: {
       domain: true,
-      scans: true,
+      scans: {
+        orderBy: {
+          created_at: "desc",
+        },
+        take: 10,
+      },
     },
   })
 
   if (!page) {
     throw new Error("Page not found")
   }
+
+  const latestScan = page.scans[0]
 
   return (
     <>
@@ -43,10 +51,20 @@ export default async function Page({ params }: { params: Params }) {
               {/* Preview Section */}
               <div className="p-6">
                 <div className="rounded overflow-hidden border border-border">
-                  {/* Replace with your actual preview image */}
-                  <div className="aspect-video bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground">Page Preview</span>
-                  </div>
+                  {latestScan?.screenshot_light ||
+                  latestScan?.screenshot_dark ? (
+                    <ThemeAwareScreenshots
+                      lightScreenshot={latestScan.screenshot_light || ""}
+                      darkScreenshot={latestScan.screenshot_dark || ""}
+                      alt={`Latest scan of ${page.name}`}
+                    />
+                  ) : (
+                    <div className="aspect-video bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground">
+                        No scan preview available
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
