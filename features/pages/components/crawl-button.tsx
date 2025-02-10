@@ -32,6 +32,7 @@ export function CrawlButton({ domain, onCrawlComplete }: CrawlButtonProps) {
       })
 
       if (error) {
+        console.log(error)
         onCrawlComplete?.({
           type: "error",
           message: "Failed to crawl website",

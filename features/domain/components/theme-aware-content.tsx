@@ -20,24 +20,44 @@ function ThemeModeContent({
   metrics,
   screenshot,
   domain,
-  errorTrend,
 }: {
   mode: "light" | "dark"
   metrics: { totalViolations: number; totalPasses: number }
   screenshot?: string | null
   domain: DomainWithRelations
-  errorTrend: number[]
 }) {
   const { totalViolations, totalPasses } = metrics
   const total = totalPasses + totalViolations
   const passRate = total > 0 ? Math.round((totalPasses / total) * 100) : 0
 
-  // Transform error trend data for the chart
-  const chartData = errorTrend.map((value, index) => ({
-    date: `Scan ${index + 1}`,
-    violations: value,
-    incomplete: Math.round(value * 0.3), // This is temporary - replace with actual incomplete data
+  // Aggregate all scans from all pages
+  const allScans = domain.pages
+    .flatMap((page) => page.scans)
+    .filter(
+      (
+        scan
+      ): scan is NonNullable<typeof scan> & {
+        metrics: NonNullable<(typeof scan)["metrics"]>
+        created_at: NonNullable<(typeof scan)["created_at"]>
+      } => {
+        return Boolean(scan?.metrics && scan.created_at)
+      }
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+
+  // Create chart data from scans
+  const chartData = allScans.map((scan) => ({
+    date: new Date(scan.created_at).getTime(), // Convert to timestamp for proper axis handling
+    violations: scan.metrics[mode]?.violations_count || 0,
+    // For incomplete, we'll use 30% of violations as a placeholder
+    incomplete: Math.round((scan.metrics[mode]?.violations_count || 0) * 0.3),
   }))
+
+  console.log("All Scans:", allScans) // Debug log
+  console.log("Chart Data:", chartData) // Debug log
 
   const chartConfig = {
     violations: {
@@ -97,7 +117,10 @@ function ThemeModeContent({
           <CardContent>
             <div className="h-[200px]">
               <ChartContainer config={chartConfig} className="h-full w-full">
-                <AreaChart data={chartData}>
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                >
                   <defs>
                     <linearGradient
                       id="fillViolations"
@@ -109,12 +132,12 @@ function ThemeModeContent({
                       <stop
                         offset="5%"
                         stopColor={mode === "light" ? "#ef4444" : "#f87171"}
-                        stopOpacity={0.8}
+                        stopOpacity={0.2}
                       />
                       <stop
                         offset="95%"
                         stopColor={mode === "light" ? "#ef4444" : "#f87171"}
-                        stopOpacity={0.1}
+                        stopOpacity={0.05}
                       />
                     </linearGradient>
                     <linearGradient
@@ -127,45 +150,67 @@ function ThemeModeContent({
                       <stop
                         offset="5%"
                         stopColor={mode === "light" ? "#f59e0b" : "#fbbf24"}
-                        stopOpacity={0.8}
+                        stopOpacity={0.2}
                       />
                       <stop
                         offset="95%"
                         stopColor={mode === "light" ? "#f59e0b" : "#fbbf24"}
-                        stopOpacity={0.1}
+                        stopOpacity={0.05}
                       />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={true}
+                    vertical={false}
+                    stroke={mode === "light" ? "#e5e7eb" : "#374151"}
+                  />
                   <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    minTickGap={32}
+                    minTickGap={60}
+                    type="number"
+                    domain={["dataMin", "dataMax"]}
+                    scale="time"
+                    tickFormatter={(timestamp) => {
+                      const date = new Date(timestamp)
+                      const hours = date.getHours().toString().padStart(2, "0")
+                      const minutes = date
+                        .getMinutes()
+                        .toString()
+                        .padStart(2, "0")
+                      return `${hours}:${minutes}`
+                    }}
+                    stroke={mode === "light" ? "#6b7280" : "#9ca3af"}
                   />
                   <ChartTooltip
-                    cursor={false}
+                    cursor={{
+                      stroke: mode === "light" ? "#e5e7eb" : "#374151",
+                      strokeWidth: 1,
+                      strokeDasharray: "4 4",
+                    }}
                     content={<ChartTooltipContent indicator="dot" />}
                   />
                   <Area
                     dataKey="violations"
-                    type="natural"
+                    type="monotone"
+                    strokeWidth={2}
                     fill="url(#fillViolations)"
                     stroke={mode === "light" ? "#ef4444" : "#f87171"}
                   />
                   <Area
                     dataKey="incomplete"
-                    type="natural"
+                    type="monotone"
+                    strokeWidth={2}
                     fill="url(#fillIncomplete)"
                     stroke={mode === "light" ? "#f59e0b" : "#fbbf24"}
                   />
                 </AreaChart>
               </ChartContainer>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Last {errorTrend.length} scans
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">Scan history</p>
           </CardContent>
         </Card>
       </div>
@@ -235,7 +280,6 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
                 metrics={calculateMetrics("light")}
                 screenshot={rootPage?.scans[0]?.screenshot_light}
                 domain={domain}
-                errorTrend={calculateMetrics("light").errorTrend}
               />
             </TabsContent>
             <TabsContent value="dark">
@@ -244,7 +288,6 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
                 metrics={calculateMetrics("dark")}
                 screenshot={rootPage?.scans[0]?.screenshot_dark}
                 domain={domain}
-                errorTrend={calculateMetrics("dark").errorTrend}
               />
             </TabsContent>
           </Tabs>
