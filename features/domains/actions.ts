@@ -8,6 +8,9 @@ import { prisma } from "@/lib/prisma"
 export async function getDomainsBySpaceId(spaceId: string) {
   return prisma.domain.findMany({
     where: { space_id: spaceId },
+    orderBy: {
+      name: "asc",
+    },
   })
 }
 
