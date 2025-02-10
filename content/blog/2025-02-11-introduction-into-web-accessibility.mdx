@@ -1,0 +1,169 @@
+---
+title: "Introduction to Web Accessibility"
+description: "Learn the fundamentals of web accessibility, why it matters, and how to make your website more accessible."
+date: "2025-02-10"
+authors:
+  - denys-severin
+---
+
+# Introduction to Web Accessibility
+
+> "Web accessibility isn't just about disabled users being able to access your website — it's about everyone being able to access your website." - Trenton Moss
+
+This powerful statement tells a fundamental truth about web accessibility that many developers and designers overlook. Let's explore why accessibility is truly universal by diving into the basics.
+
+## What Is Web Accessibility?
+
+Web accessibility (or abbreviation **a11y**) is the practice of designing and developing websites that are usable by everyone, including people with disabilities. 
+
+## Why Is Accessibility Important?
+
+When we design for accessibility, we're actually designing for all possible situations in which users might access our content:
+
+- blind or visually impaired user using a screen reader due to visual impairment
+- A user with temporary limited mobility using keyboard navigation
+- A person in a noisy environment reading captions
+- Someone with slow internet connection requiring optimized images
+- A user accessing content on a small mobile screen
+
+## Why Accessibility is a Necessity, Not an Option!
+
+1. **Inclusivity** – Around 15% of the global population has some form of disability. Making the web accessible means ensuring that no one is left behind.
+2. **Legal Compliance** – Many countries, including the EU (European Accessibility Act) and the US (ADA, Section 508), require businesses to meet accessibility standards.
+3. **Better User Experience** – Accessible design often leads to better usability for all users, including those without disabilities.
+4. **SEO Benefits** – Search engines favor accessible websites, as they tend to have better structure and semantic content.
+
+## Key Web Accessibility Standards
+
+The most widely recognized standard for web accessibility is the **Web Content Accessibility Guidelines (WCAG)**. WCAG is based on four key principles:
+
+- **Perceivable** – Information should be presented in ways that users can perceive (e.g., adding alt text for images).
+- **Operable** – Users must be able to navigate the site using different input methods (keyboard, screen readers, etc.).
+- **Understandable** – Content should be clear and predictable.
+- **Robust** – Websites should work with various assistive technologies.
+
+## Common Accessibility Issues & Fixes
+
+### 1. Missing Alternative Text (Alt Text) for Images or Adding Indescriptible Alternative Text
+**Problem:** Screen readers cannot interpret images without alt text, and indescriptible alt text (e.g., `alt="image"`) does not help users understand the content.
+
+**Fix:** Always include meaningful `alt` attributes for images. If the image is purely decorative, use an empty `alt` attribute (`alt=""`) to signal that it should be ignored by screen readers.
+
+```html
+<!-- Bad Example-->
+<img src="image.jpg" alt="image" /> <!-- Indescriptible alt text -->
+
+<!-- Another Bad Example -->
+<img src="image.jpg" /> <!-- Missing alt attribute entirely -->
+
+<!-- Good Example-->
+<img src="image.jpg" alt="A person using a laptop" />
+
+<!-- Good for decorative images -->
+<img src="image.jpg" alt="" />
+```
+
+### 2. Poor Keyboard Navigation
+**Problem:** Users relying on keyboards (not mice) cannot navigate your site.
+
+**Fix:** Ensure all interactive elements (buttons, links, forms) are accessible via `Tab` and `Enter` keys.
+
+```html
+<!-- Bad Example-->
+<button>Submit</button> <!-- Button not focusable by keyboard if no tabindex is set -->
+<a href="#">Link</a> <!-- Link is not focusable if not in the normal tab order -->
+
+<!-- Good Example-->
+<button tabindex="0">Submit</button> <!-- Button is focusable and keyboard-navigable -->
+<a href="#" tabindex="0">Link</a> <!-- Link is focusable and keyboard-navigable -->
+```
+
+### 3. Insufficient Color Contrast
+**Problem:** Low contrast makes text hard to read for visually impaired users.
+
+**Fix:** Use tools like [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) to ensure a minimum contrast ratio of **4.5:1** for normal text.
+
+```html
+<!-- Bad Example -->
+<p style="color: #ccc; background-color: #eee;">This text has low contrast and is hard to read.</p>
+
+<!-- Good Example -->
+<p style="color: #000; background-color: #fff;">This text has good contrast and is easy to read.</p>
+```
+
+### 4. Missing ARIA Attributes
+**Problem:** Dynamic content (modals, dropdowns) may not be detected by screen readers.
+
+**Fix:** Use ARIA roles and attributes correctly.
+```html
+<!-- Bad Example -->
+<button>Open Menu</button> <!-- No ARIA attributes to indicate menu state -->
+
+<!-- Good Example -->
+<button aria-expanded="false" aria-controls="menu">Open Menu</button>
+```
+
+### 5. Improper Use of Heading Structure
+**Problem:** Skipping heading levels (e.g., jumping from `<h1>` to `<h3>`) or using headings for styling rather than structure can make content difficult to navigate for screen readers.
+
+**Fix:** Use a logical heading order (`<h1>` → `<h2>` → `<h3>`), and avoid using headings just for visual styling.
+
+```html
+<!-- Bad Example -->
+<h1>Main Title</h1>
+<h3>Smaller Section</h3> <!-- Skipping heading level from <h1> to <h3> -->
+
+<!-- Good Example -->
+<h1>Main Title</h1>
+<h2>Subheading</h2>
+<h3>Smaller Section</h3>
+```
+
+## 6. Non-Descriptive Link Text
+
+**Problem:** Generic link text like "Click here" or "Read more" does not provide context for screen reader users.
+
+**Fix:** Use meaningful, descriptive link text.
+
+```html
+<!-- Bad Example -->
+<a href="report.pdf">Click here</a>
+
+<!-- Good Example -->
+<a href="report.pdf">Download the accessibility report (PDF)</a>
+```
+
+## 7. Lack of Form Accessibility
+
+**Problem:** Forms without proper labels and associations are hard to use for assistive technologies.
+
+**Fix:** Use `<label>` elements and associate them with inputs using `for` or `aria-labelledby`.
+
+```html
+<!-- Bad Example-->
+<input type="email" id="email" name="email" required /> <!-- Missing label -->
+
+<!-- Good Example -->
+<label for="email">Email:</label>
+<input type="email" id="email" name="email" required />
+```
+
+For radio buttons and checkboxes, wrap them with `<fieldset>` and `<legend>`.
+
+```html
+<!-- Bad Example-->
+<input type="radio" name="color" value="red"> Red
+<input type="radio" name="color" value="blue"> Blue
+
+<!-- Good Example-->
+<fieldset>
+  <legend>Choose your favorite color:</legend>
+  <label><input type="radio" name="color" value="red"> Red</label>
+  <label><input type="radio" name="color" value="blue"> Blue</label>
+</fieldset>
+
+## Conclusion
+
+As you've read in this article, We are just at the tip of the iceberg. There is so much more to learn when it comes to web accessibility. By continuously improving and expanding your knowledge, you can make a significant impact in creating an inclusive web experience for everyone.
+
+ 
