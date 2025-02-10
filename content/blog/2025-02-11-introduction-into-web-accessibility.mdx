@@ -44,7 +44,7 @@ The most widely recognized standard for web accessibility is the **Web Content A
 
 ## Common Accessibility Issues & Fixes
 
-### 1. Missing Alternative Text (Alt Text) for Images or Adding Indescriptible Alternative Text
+### Missing Alternative Text (Alt Text) for Images or Adding Indescriptible Alternative Text
 **Problem:** Screen readers cannot interpret images without alt text, and indescriptible alt text (e.g., `alt="image"`) does not help users understand the content.
 
 **Fix:** Always include meaningful `alt` attributes for images. If the image is purely decorative, use an empty `alt` attribute (`alt=""`) to signal that it should be ignored by screen readers.
@@ -63,22 +63,7 @@ The most widely recognized standard for web accessibility is the **Web Content A
 <img src="image.jpg" alt="" />
 ```
 
-### 2. Poor Keyboard Navigation
-**Problem:** Users relying on keyboards (not mice) cannot navigate your site.
-
-**Fix:** Ensure all interactive elements (buttons, links, forms) are accessible via `Tab` and `Enter` keys.
-
-```html
-<!-- Bad Example-->
-<button>Submit</button> <!-- Button not focusable by keyboard if no tabindex is set -->
-<a href="#">Link</a> <!-- Link is not focusable if not in the normal tab order -->
-
-<!-- Good Example-->
-<button tabindex="0">Submit</button> <!-- Button is focusable and keyboard-navigable -->
-<a href="#" tabindex="0">Link</a> <!-- Link is focusable and keyboard-navigable -->
-```
-
-### 3. Insufficient Color Contrast
+### Insufficient Color Contrast
 **Problem:** Low contrast makes text hard to read for visually impaired users.
 
 **Fix:** Use tools like [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) to ensure a minimum contrast ratio of **4.5:1** for normal text.
@@ -91,7 +76,7 @@ The most widely recognized standard for web accessibility is the **Web Content A
 <p style="color: #000; background-color: #fff;">This text has good contrast and is easy to read.</p>
 ```
 
-### 4. Missing ARIA Attributes
+### Missing ARIA Attributes
 **Problem:** Dynamic content (modals, dropdowns) may not be detected by screen readers.
 
 **Fix:** Use ARIA roles and attributes correctly.
@@ -103,7 +88,7 @@ The most widely recognized standard for web accessibility is the **Web Content A
 <button aria-expanded="false" aria-controls="menu">Open Menu</button>
 ```
 
-### 5. Improper Use of Heading Structure
+### Improper Use of Heading Structure
 **Problem:** Skipping heading levels (e.g., jumping from `<h1>` to `<h3>`) or using headings for styling rather than structure can make content difficult to navigate for screen readers.
 
 **Fix:** Use a logical heading order (`<h1>` → `<h2>` → `<h3>`), and avoid using headings just for visual styling.
@@ -119,7 +104,7 @@ The most widely recognized standard for web accessibility is the **Web Content A
 <h3>Smaller Section</h3>
 ```
 
-## 6. Non-Descriptive Link Text
+## Non-Descriptive Link Text
 
 **Problem:** Generic link text like "Click here" or "Read more" does not provide context for screen reader users.
 
@@ -133,7 +118,7 @@ The most widely recognized standard for web accessibility is the **Web Content A
 <a href="report.pdf">Download the accessibility report (PDF)</a>
 ```
 
-## 7. Lack of Form Accessibility
+## Lack of Form Accessibility
 
 **Problem:** Forms without proper labels and associations are hard to use for assistive technologies.
 
@@ -161,6 +146,7 @@ For radio buttons and checkboxes, wrap them with `<fieldset>` and `<legend>`.
   <label><input type="radio" name="color" value="red"> Red</label>
   <label><input type="radio" name="color" value="blue"> Blue</label>
 </fieldset>
+```
 
 ## Conclusion
 
