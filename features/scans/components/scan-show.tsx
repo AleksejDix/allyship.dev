@@ -16,55 +16,66 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PageHeader } from "@/components/page-header"
 
+type ScanMetrics = {
+  violations_count: number
+  passes_count: number
+  incomplete_count: number
+  inapplicable_count: number
+  critical_issues: number
+  serious_issues: number
+  moderate_issues: number
+  minor_issues: number
+  results_url: string
+}
+
 type Scan = {
   id: string
   url: string
   status: "pending" | "completed" | "failed"
-  metrics: {
-    light: {
-      violations_count: number
-      passes_count: number
-      incomplete_count: number
-      inapplicable_count: number
-      critical_issues: number
-      serious_issues: number
-      moderate_issues: number
-      minor_issues: number
-      results_url: string
-    }
-    dark: {
-      violations_count: number
-      passes_count: number
-      incomplete_count: number
-      inapplicable_count: number
-      critical_issues: number
-      serious_issues: number
-      moderate_issues: number
-      minor_issues: number
-      results_url: string
-    }
-  }
-  screenshot_light?: string
-  screenshot_dark?: string
+  created_at: string | null
+  user_id: string
+  page_id: string
+  screenshot_light?: string | null
+  screenshot_dark?: string | null
+  metrics?: {
+    light: ScanMetrics
+    dark: ScanMetrics
+  } | null
 }
 
 export function ScanShow({ serverProps }: { serverProps: Scan }) {
   const [scan, setScan] = useState(serverProps)
   const [activeMode, setActiveMode] = useState<"light" | "dark">("light")
+  const [progress, setProgress] = useState<{
+    hasScreenshots: boolean
+    hasMetrics: boolean
+  }>({
+    hasScreenshots:
+      !!serverProps.screenshot_light && !!serverProps.screenshot_dark,
+    hasMetrics: !!serverProps.metrics,
+  })
 
   const supabase = createClient()
 
   useEffect(() => {
     const channel = supabase
-      .channel("Scan")
+      .channel(`scan:${scan.id}`)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "Scan" },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "Scan",
+          filter: `id=eq.${scan.id}`,
+        },
         (payload) => {
-          console.log("payload", payload)
-          if (payload.new.id === scan.id) {
-            setScan(payload.new as Scan)
-          }
+          const newScan = payload.new as Scan
+          setScan(newScan)
+          setProgress({
+            hasScreenshots:
+              !!newScan.screenshot_light && !!newScan.screenshot_dark,
+            hasMetrics: !!newScan.metrics,
+          })
         }
       )
       .subscribe()
@@ -72,68 +83,124 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  })
+  }, [scan.id])
 
   if (scan.status === "pending") {
     return (
-      <div>
-        <div
-          aria-hidden="true"
-          className="w-full h-full bg-card rounded-md border border-border"
-        >
-          {/* Browser Chrome */}
-          <div className="bg-muted border-b border-border">
-            {/* Title bar */}
-            <div className="px-4 py-2 flex items-center gap-2">
-              {/* Traffic light buttons */}
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-              </div>
-              {/* URL Bar */}
-              <div className="flex-1 bg-background rounded-md px-3 py-1 text-xs text-muted-foreground flex items-center gap-2 ml-4">
-                <svg
-                  className="w-3 h-3"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
+      <div className="container py-8">
+        <div className="space-y-8">
+          <PageHeader heading={scan.url} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Scanning in Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-muted-foreground">
+                    We are currently scanning your website for accessibility
+                    issues. This process typically takes 1-2 minutes.
+                  </p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${progress.hasScreenshots ? "bg-green-500" : "bg-muted"}`}
+                      />
+                      <span className="text-sm">Capturing screenshots</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${progress.hasMetrics ? "bg-green-500" : "bg-muted"}`}
+                      />
+                      <span className="text-sm">
+                        Running accessibility tests
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  aria-hidden="true"
+                  className="w-full h-full bg-card rounded-md border border-border"
                 >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                </svg>
-                example.com
-              </div>
-            </div>
+                  {/* Browser Chrome */}
+                  <div className="bg-muted border-b border-border">
+                    {/* Title bar */}
+                    <div className="px-4 py-2 flex items-center gap-2">
+                      {/* Traffic light buttons */}
+                      <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                      </div>
+                      {/* URL Bar */}
+                      <div className="flex-1 bg-background rounded-md px-3 py-1 text-xs text-muted-foreground flex items-center gap-2 ml-4">
+                        <svg
+                          className="w-3 h-3"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                        </svg>
+                        example.com
+                      </div>
+                    </div>
 
-            {/* Tab bar */}
-            <div className="px-4 flex items-center gap-2">
-              <div className="bg-background rounded-t-lg px-4 py-1 text-xs border-t border-x border-border flex items-center gap-2">
-                <span>example.com</span>
-                <div className="w-4 h-4 rounded-full hover:bg-muted flex items-center justify-center">
-                  ×
+                    {/* Tab bar */}
+                    <div className="px-4 flex items-center gap-2">
+                      <div className="bg-background rounded-t-lg px-4 py-1 text-xs border-t border-x border-border flex items-center gap-2">
+                        <span>example.com</span>
+                        <div className="w-4 h-4 rounded-full hover:bg-muted flex items-center justify-center">
+                          ×
+                        </div>
+                      </div>
+                      <div className="w-5 h-5 rounded-md hover:bg-muted flex items-center justify-center text-xs">
+                        +
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Page Content */}
+                  <div className="p-4 space-y-3 relative overflow-hidden aspect-video w-full">
+                    {/* Scanning container */}
+                    <div>
+                      <div className="absolute inset-0 animate-scan animate-duration-[5s]">
+                        {/* Left gradient glow */}
+                        <div className="absolute top-0 left-0 bottom-0 w-[1px] h-full bg-green-500">
+                          <div className="absolute animate-hide-right top-0 left-[1px] bottom-0 w-8 bg-gradient-to-l from-transparent to-green-500/20" />
+                          <div className="absolute animate-hide-left opacity-0 top-0 right-[1px] bottom-0 w-8 bg-gradient-to-r from-transparent to-green-500/20" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-24 w-4/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
+                    <div className="h-12 w-3/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
+                    <div className="h-32 w-2/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
+                  </div>
                 </div>
               </div>
-              <div className="w-5 h-5 rounded-md hover:bg-muted flex items-center justify-center text-xs">
-                +
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 
-          {/* Page Content */}
-          <div className="p-4 space-y-3 relative overflow-hidden aspect-video w-full">
-            {/* Scanning container */}
-            <div>
-              <div className="absolute inset-0 animate-scan animate-duration-[5s]">
-                {/* Left gradient glow */}
-                <div className="absolute top-0 left-0 bottom-0 w-[1px] h-full bg-green-500">
-                  <div className="absolute animate-hide-right top-0 left-[1px] bottom-0 w-8 bg-gradient-to-l from-transparent to-green-500/20" />
-                  <div className="absolute animate-hide-left opacity-0 top-0 right-[1px] bottom-0 w-8 bg-gradient-to-r from-transparent to-green-500/20" />
-                </div>
-              </div>
-            </div>
-            <div className="h-24 w-4/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
-            <div className="h-12 w-3/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
-            <div className="h-32 w-2/5 rounded-md bg-muted-foreground/30 dark:bg-muted-foreground/30 animate-pulse" />
-          </div>
+  // Early return if no metrics available
+  if (!scan.metrics) {
+    return (
+      <div className="container py-8">
+        <div className="space-y-8">
+          <PageHeader heading={scan.url} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Processing Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                The scan is complete, but we're still processing the results.
+                Please wait a moment...
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     )
@@ -143,7 +210,7 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
 
   return (
     <div className="container py-8">
-      {scan.status === "completed" && scan.metrics && (
+      {scan.status === "completed" && (
         <div className="space-y-8">
           <PageHeader heading={scan.url} />
 

@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { create } from "@/features/scans/actions"
 import { scanJobSchema, type ScanJobSchema } from "@/features/scans/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -32,7 +31,6 @@ export function ScanJobCreate({
   pageId,
   variant = "marketing",
 }: ScanJobCreateProps) {
-  const router = useRouter()
   const complianceBadges = [
     { id: "wcag20", label: "WCAG 2.0" },
     { id: "wcag21", label: "WCAG 2.1" },
@@ -80,7 +78,6 @@ export function ScanJobCreate({
       })
     } else if (data?.success) {
       form.reset()
-      router.push(`/scans/${data.data?.id}`)
     }
   }
 

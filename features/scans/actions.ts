@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
@@ -127,11 +128,17 @@ export const create = createServerAction()
       }
     }
 
-    await supabase.functions.invoke("scan", {
+    // Fire and forget the scan function
+    supabase.functions.invoke("scan", {
       body: { url, id: scan.id },
     })
 
     revalidatePath("/", "layout")
+
+    // Redirect immediately after scan creation
+    redirect(`/scans/${scan.id}`)
+
+    // This return is only for TypeScript - the redirect will prevent this from executing
     return {
       success: true,
       data: {
