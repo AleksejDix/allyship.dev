@@ -83,10 +83,12 @@ function ThemeModeContent({
           />
         </div>
       ) : (
-        <div className="flex aspect-[1440/900] w-full items-center justify-center rounded-lg border border-border bg-muted">
-          <p className="text-sm text-muted-foreground">
-            No screenshot available
-          </p>
+        <div>
+          <div className="flex aspect-[1440/900]  items-center justify-center rounded-lg border border-border bg-muted">
+            <p className="text-sm text-muted-foreground">
+              No screenshot available
+            </p>
+          </div>
         </div>
       )}
 
