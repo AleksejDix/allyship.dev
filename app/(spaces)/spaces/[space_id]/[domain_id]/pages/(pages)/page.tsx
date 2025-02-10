@@ -29,6 +29,12 @@ export default async function PagesPage({ params }: Props) {
     },
     include: {
       domain: true,
+      scans: {
+        orderBy: {
+          created_at: "desc",
+        },
+        take: 1,
+      },
     },
     orderBy: {
       name: "asc",

@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { deletePage } from "@/features/pages/actions/delete-page"
-import { Domain, Page } from "@prisma/client"
+import { Domain, Page, Scan } from "@prisma/client"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -39,8 +40,28 @@ function formatDate(date: Date | null) {
   }).format(date)
 }
 
+type ScanMetrics = {
+  violations_count: number
+  passes_count: number
+  incomplete_count: number
+  inapplicable_count: number
+  critical_issues: number
+  serious_issues: number
+  moderate_issues: number
+  minor_issues: number
+  status?: number
+}
+
+type ScanWithMetrics = Scan & {
+  metrics: {
+    light?: ScanMetrics
+    dark?: ScanMetrics
+  } | null
+}
+
 type PageWithDomain = Page & {
   domain: Domain
+  scans: ScanWithMetrics[]
 }
 
 type Props = {
@@ -134,6 +155,41 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
   const columns = React.useMemo<ColumnDef<PageWithDomain>[]>(
     () => [
       {
+        id: "screenshot",
+        size: 120,
+        cell: ({ row }) => {
+          const page = row.original
+          const lastScan = page.scans[0]
+          const screenshot =
+            lastScan?.screenshot_light || lastScan?.screenshot_dark
+
+          if (!screenshot) {
+            return (
+              <div className="py-2 px-1">
+                <div className="rounded-md bg-muted flex items-center justify-center">
+                  <span className="aspect-[1280/800] flex items-center text-xs text-muted-foreground">
+                    No screenshot
+                  </span>
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div className="py-2 px-1">
+              <div className="relative aspect-[1280/800] w-full overflow-hidden rounded-md border border-border">
+                <Image
+                  src={screenshot}
+                  alt={`Screenshot of ${page.name}`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          )
+        },
+      },
+      {
         accessorKey: "name",
         header: ({ column }) => {
           return (
@@ -150,36 +206,97 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
         },
         cell: ({ row }) => {
           const page = row.original
+          const lastScan = page.scans[0]
+          const is404 =
+            lastScan?.metrics?.light?.status === 404 ||
+            lastScan?.metrics?.dark?.status === 404
+
           return (
             <RouterLink
               href={`/spaces/${spaceId}/${domainId}/pages/${page.id}`}
-              className="block hover:bg-muted/50 rounded-md transition-colors"
+              className="block hover:bg-muted/50 rounded-md transition-colors py-2"
             >
-              <div className="flex flex-col gap-1.5 py-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-background">
-                    {page.domain.name}
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className="bg-background text-[10px] px-2 py-0.5"
+                >
+                  {page.domain.name}
+                </Badge>
+                <span className="text-sm text-muted-foreground">/</span>
+                <span className="text-sm text-muted-foreground">
+                  {page.name.replace(/^\//, "")}
+                </span>
+                {is404 && (
+                  <Badge variant="destructive" className="text-[10px]">
+                    404
                   </Badge>
-                  <span className="text-sm text-muted-foreground">/</span>
-                  <span className="text-sm font-medium text-foreground">
-                    {page.name.replace(/^\//, "")}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
-                    <span>Ready</span>
-                  </div>
-                  <span>•</span>
-                  <span>Created {formatDate(page.created_at)}</span>
-                </div>
+                )}
               </div>
             </RouterLink>
           )
         },
-        filterFn: (row, id, value) => {
-          const cellValue = row.getValue(id)?.toString() || ""
-          return cellValue.toLowerCase().includes(value.toLowerCase())
+      },
+      {
+        id: "scan_metrics",
+        header: "Last Scan",
+        cell: ({ row }) => {
+          const page = row.original
+          const lastScan = page.scans[0]
+
+          if (!lastScan?.metrics) {
+            return (
+              <div className="text-sm text-muted-foreground py-2">
+                No scan data
+              </div>
+            )
+          }
+
+          const metrics = lastScan.metrics.light || lastScan.metrics.dark
+          if (!metrics) {
+            return (
+              <div className="text-sm text-muted-foreground py-2">
+                No scan data
+              </div>
+            )
+          }
+
+          const totalIssues =
+            metrics.violations_count + metrics.incomplete_count
+
+          return (
+            <div className="flex items-center gap-2 py-2">
+              <Badge
+                variant={totalIssues > 0 ? "destructive" : "secondary"}
+                className="text-[10px] px-2 py-0.5"
+              >
+                {totalIssues} issues
+              </Badge>
+              {metrics.critical_issues > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="text-[10px] px-2 py-0.5"
+                >
+                  {metrics.critical_issues} critical
+                </Badge>
+              )}
+              <span className="text-xs text-muted-foreground">
+                {formatDate(lastScan.created_at)}
+              </span>
+            </div>
+          )
+        },
+      },
+      {
+        id: "dates",
+        header: "Created",
+        cell: ({ row }) => {
+          const page = row.original
+          return (
+            <div className="text-sm text-muted-foreground py-2">
+              {formatDate(page.created_at)}
+            </div>
+          )
         },
       },
       {
@@ -187,12 +304,14 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
         cell: ({ row }) => {
           const page = row.original
           return (
-            <DeletePageButton
-              pageId={page.id}
-              spaceId={spaceId}
-              domainId={domainId}
-              onSuccess={() => handleDeleteSuccess(page.id)}
-            />
+            <div className="py-2">
+              <DeletePageButton
+                pageId={page.id}
+                spaceId={spaceId}
+                domainId={domainId}
+                onSuccess={() => handleDeleteSuccess(page.id)}
+              />
+            </div>
           )
         },
       },
@@ -216,7 +335,7 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
   })
 
   return (
-    <>
+    <div className="space-y-4">
       <div className="flex items-center gap-4">
         <Input
           placeholder="Search by path..."
@@ -234,7 +353,11 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    style={{ width: header.getSize() }}
+                    className="text-xs uppercase"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -251,7 +374,7 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-0">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -262,7 +385,10 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
               ))
             ) : (
               <TableRow>
-                <TableCell className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No pages found.
                 </TableCell>
               </TableRow>
@@ -294,6 +420,6 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   )
 }
