@@ -1,4 +1,4 @@
-import { DomainDelete } from "@/features/domain/components/domain-delete"
+import { ThemeSettings } from "@/features/domain/components/theme-settings"
 
 import { prisma } from "@/lib/prisma"
 
@@ -6,8 +6,8 @@ type Props = {
   params: { space_id: string; domain_id: string }
 }
 
-export default async function SettingsPage({ params }: Props) {
-  const { space_id, domain_id } = await params
+export default async function AdvancedSettingsPage({ params }: Props) {
+  const { space_id, domain_id } = params
 
   const domain = await prisma.domain.findUnique({
     where: {
@@ -16,6 +16,7 @@ export default async function SettingsPage({ params }: Props) {
     select: {
       id: true,
       name: true,
+      theme: true,
     },
   })
 
@@ -26,13 +27,12 @@ export default async function SettingsPage({ params }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium">Domain Settings</h2>
+        <h2 className="text-lg font-medium">Advanced Settings</h2>
         <p className="text-sm text-muted-foreground">
-          Manage your domain configuration and settings
+          Configure advanced settings for your domain
         </p>
       </div>
-
-      <DomainDelete domain={domain} spaceId={space_id} />
+      <ThemeSettings domain={domain} spaceId={space_id} />
     </div>
   )
 }

@@ -44,11 +44,12 @@ model Space {
 }
 
 model Domain {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  space_id   String    @db.Uuid
-  space      Space     @relation(fields: [space_id], references: [id], onDelete: Cascade)
+  created_at DateTime?   @default(now()) @db.Timestamptz(6)
+  space_id   String      @db.Uuid
+  theme      DomainTheme @default(BOTH)
+  space      Space       @relation(fields: [space_id], references: [id], onDelete: Cascade)
   pages      Page[]
 
   @@unique([space_id, name])
@@ -96,4 +97,10 @@ enum SubStatus {
 enum MembershipRole {
   OWNER
   MEMBER
+}
+
+enum DomainTheme {
+  LIGHT
+  DARK
+  BOTH
 }

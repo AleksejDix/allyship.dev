@@ -33,6 +33,15 @@ export default async function Layout({ params, children }: LayoutProps) {
                 </RouterLink>
               </Button>
             </li>
+            <li>
+              <Button variant="ghost" asChild>
+                <RouterLink
+                  href={`/spaces/${space_id}/${domain_id}/pages/${page_id}/settings`}
+                >
+                  Settings
+                </RouterLink>
+              </Button>
+            </li>
           </ul>
         </div>
       </nav>
