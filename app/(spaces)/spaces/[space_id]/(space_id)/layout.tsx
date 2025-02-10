@@ -10,7 +10,7 @@ export default async function Layout({ params, children }: LayoutProps) {
   const { space_id } = await params
 
   return (
-    <>
+    <div className="border-blue-500 border-2">
       <nav className="border-b border-border">
         <div className="container">
           <ul className="flex items-center gap-1 py-2">
@@ -35,6 +35,6 @@ export default async function Layout({ params, children }: LayoutProps) {
       <div tabIndex={-1} aria-label="Space Content">
         {children}
       </div>
-    </>
+    </div>
   )
 }

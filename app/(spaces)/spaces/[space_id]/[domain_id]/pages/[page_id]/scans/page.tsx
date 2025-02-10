@@ -1,16 +1,37 @@
+import { PageHeader } from "@/features/domain/components/page-header"
+import { PageNavigation } from "@/features/pages/components/page-navigation"
 import { ScanJobCreate } from "@/features/scans/components/scan-create"
 import { ScanIndex } from "@/features/scans/components/scan-index"
 
+import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
-import { PageHeader } from "@/components/page-header"
 
 type Props = {
   params: { space_id: string; domain_id: string; page_id: string }
 }
 
 export default async function ScansPage({ params }: Props) {
-  const { page_id } = params
+  const { page_id, space_id, domain_id } = params
   const supabase = await createClient()
+
+  const page = await prisma.page.findUnique({
+    where: {
+      id: page_id,
+    },
+    select: {
+      id: true,
+      name: true,
+      domain: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  })
+
+  if (!page) {
+    throw new Error("Page not found")
+  }
 
   const { data: scans } = await supabase
     .from("Scan")
@@ -33,12 +54,21 @@ export default async function ScansPage({ params }: Props) {
     })) || []
 
   return (
-    <div className="container py-8">
-      <PageHeader heading="Page Scans" />
-      <div className="space-y-8">
-        <ScanJobCreate pageId={page_id} variant="admin" />
-        <ScanIndex scans={transformedScans} />
+    <>
+      <PageNavigation
+        space_id={space_id}
+        domain_id={domain_id}
+        page_id={page_id}
+      />
+
+      <PageHeader title="Scans" description={`Manage scans for ${page.name}`} />
+
+      <div className="space-y-6 py-6">
+        <div className="container space-y-6">
+          <ScanJobCreate pageId={page_id} variant="admin" />
+          <ScanIndex scans={transformedScans} />
+        </div>
       </div>
-    </div>
+    </>
   )
 }

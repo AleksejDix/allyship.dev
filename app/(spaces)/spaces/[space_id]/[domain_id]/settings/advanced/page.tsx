@@ -26,12 +26,6 @@ export default async function AdvancedSettingsPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-medium">Advanced Settings</h2>
-        <p className="text-sm text-muted-foreground">
-          Configure advanced settings for your domain
-        </p>
-      </div>
       <ThemeSettings domain={domain} spaceId={space_id} />
     </div>
   )

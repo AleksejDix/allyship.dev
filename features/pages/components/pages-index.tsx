@@ -216,7 +216,7 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
   })
 
   return (
-    <div className="container space-y-4">
+    <>
       <div className="flex items-center gap-4">
         <Input
           placeholder="Search by path..."
@@ -294,6 +294,6 @@ export function PagesIndex({ pages: initialPages, domainId, spaceId }: Props) {
           </Button>
         </div>
       </div>
-    </div>
+    </>
   )
 }

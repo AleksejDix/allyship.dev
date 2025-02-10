@@ -25,13 +25,6 @@ export default async function SettingsPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-medium">Domain Settings</h2>
-        <p className="text-sm text-muted-foreground">
-          Manage your domain configuration and settings
-        </p>
-      </div>
-
       <DomainDelete domain={domain} spaceId={space_id} />
     </div>
   )

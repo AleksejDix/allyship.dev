@@ -1,0 +1,60 @@
+import { ArrowLeft } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { RouterLink } from "@/components/RouterLink"
+
+type Props = {
+  space_id: string
+  domain_id: string
+  page_id: string
+}
+
+export function PageNavigation({ space_id, domain_id, page_id }: Props) {
+  return (
+    <nav className="border-b border-border">
+      <div className="container">
+        <ul className="flex items-center gap-1 py-2">
+          <li>
+            <Button variant="ghost" asChild>
+              <RouterLink
+                exact={true}
+                href={`/spaces/${space_id}/${domain_id}/pages`}
+              >
+                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+              </RouterLink>
+            </Button>
+          </li>
+          <li>
+            <Button variant="ghost" asChild>
+              <RouterLink
+                exact={true}
+                href={`/spaces/${space_id}/${domain_id}/pages/${page_id}`}
+              >
+                Page
+              </RouterLink>
+            </Button>
+          </li>
+          <li>
+            <Button variant="ghost" asChild>
+              <RouterLink
+                href={`/spaces/${space_id}/${domain_id}/pages/${page_id}/scans`}
+              >
+                Scans
+              </RouterLink>
+            </Button>
+          </li>
+          <li>
+            <Button variant="ghost" asChild>
+              <RouterLink
+                href={`/spaces/${space_id}/${domain_id}/pages/${page_id}/settings`}
+              >
+                Settings
+              </RouterLink>
+            </Button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  )
+}
