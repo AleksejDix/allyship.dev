@@ -523,6 +523,12 @@ const user = await prisma.user.findFirst()  // Don't do this
 const schema = z.object({  // Don't do this
   name: z.string().refine(value => value === page.name)  // page is undefined!
 })
+
+// 6. Never use getSession() for client-side auth checks
+const { data: { session } } = await supabase.auth.getSession() // Don't do this
+if (!session) {
+  throw new Error("Please sign in")
+}
 ```
 
 ✅ Correct Patterns:
@@ -557,6 +563,20 @@ function Component({ page }) {
     name: z.string().refine(value => value === page.name)  // page is in scope
   })
 }
+
+// 6. Use getUser() for client-side auth checks
+const { data: { user }, error: userError } = await supabase.auth.getUser()
+if (userError || !user) {
+  throw new Error("Please sign in")
+}
+
+// For real-time auth state changes, use onAuthStateChange
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Handle auth state changes
+  })
+  return () => subscription.unsubscribe()
+}, [])
 ```
 
 ### Maintaining a Knowledge Base
@@ -588,3 +608,55 @@ Before implementing new features:
 - Remove unused props from components
 
 Examples of dead code to remove:
+
+````
+
+## Authentication Guidelines
+
+### Use Native Supabase Auth
+
+❌ Never use @supabase/auth-helpers-nextjs:
+
+```typescript
+// Don't do this
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+const supabase = createClientComponentClient()
+````
+
+✅ Use native Supabase auth instead:
+
+```typescript
+// Do this
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+```
+
+## Icon Usage Guidelines
+
+### Use Lucide Icons
+
+❌ Never use Heroicons:
+
+```typescript
+// Don't do this
+import { LockClosedIcon } from "@heroicons/react/24/outline"
+```
+
+✅ Use Lucide icons instead:
+
+```typescript
+// Do this
+import { Lock } from "lucide-react"
+```
+
+Rationale:
+
+- Consistent icon design system
+- Better TypeScript support
+- Smaller bundle size
+- More frequent updates
+- Better accessibility defaults

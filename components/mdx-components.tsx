@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 import { Callout } from "@/components/callout"
 import { MdxCard } from "@/components/mdx-card"
 
+// add eslint ignore
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const components: Record<string, React.ComponentType<any>> = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
@@ -179,6 +181,8 @@ export function Mdx({ code }: MdxProps) {
 
   return (
     <div className="mdx">
+      {/* eslint-disable-next-line */}
+      {/* @ts-ignore */}
       <Component className="w-full overflow-x-hidden" components={components} />
     </div>
   )
