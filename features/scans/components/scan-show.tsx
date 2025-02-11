@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
+import { notFound } from "next/navigation"
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -51,13 +52,15 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
     hasMetrics: boolean
   }>({
     hasScreenshots:
-      !!serverProps.screenshot_light && !!serverProps.screenshot_dark,
-    hasMetrics: !!serverProps.metrics,
+      !!serverProps?.screenshot_light && !!serverProps?.screenshot_dark,
+    hasMetrics: !!serverProps?.metrics,
   })
 
   const supabase = createClient()
 
   useEffect(() => {
+    console.log("scan", scan)
+    if (!scan) return
     const channel = supabase
       .channel(`scan:${scan.id}`)
       .on(
@@ -83,7 +86,11 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [scan.id])
+  })
+
+  if (!scan) {
+    return notFound()
+  }
 
   if (scan.status === "pending") {
     return (
