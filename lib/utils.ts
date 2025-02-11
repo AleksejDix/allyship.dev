@@ -152,3 +152,15 @@ export const getErrorRedirect = (
     disableButton,
     arbitraryParams
   )
+
+export function normalizeDomainName(url: string): string {
+  try {
+    // Handle cases where protocol is missing
+    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
+    const { hostname } = new URL(urlWithProtocol)
+    // Remove www. prefix if present
+    return hostname.replace(/^www\./, "")
+  } catch (error) {
+    return url
+  }
+}

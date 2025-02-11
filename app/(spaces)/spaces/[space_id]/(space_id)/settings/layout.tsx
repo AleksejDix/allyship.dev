@@ -1,3 +1,5 @@
+import { PageHeader } from "@/features/domain/components/page-header"
+
 import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
@@ -10,12 +12,11 @@ export default async function Layout({ params, children }: Props) {
   const { space_id } = await params
 
   return (
-    <div className="">
-      <div className="py-6 container">
-        <div>
-          <h1 className="text-3xl">Space Settings</h1>
-        </div>
-      </div>
+    <>
+      <PageHeader
+        title="Space Settings"
+        description="Manage your space settings and configuration."
+      />
       <div className="container">
         <div className="grid md:grid-cols-4 gap-8">
           <nav className="flex flex-col gap-[2px]">
@@ -35,12 +36,12 @@ export default async function Layout({ params, children }: Props) {
           <main
             tabIndex={0}
             aria-label="General Settings"
-            className="md:col-span-3"
+            className="md:col-span-3 py-6"
           >
             {children}
           </main>
         </div>
       </div>
-    </div>
+    </>
   )
 }
