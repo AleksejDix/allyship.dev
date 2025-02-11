@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { notFound } from "next/navigation"
+import type { Database } from "@/database.types"
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -17,32 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PageHeader } from "@/components/page-header"
 
-type ScanMetrics = {
-  violations_count: number
-  passes_count: number
-  incomplete_count: number
-  inapplicable_count: number
-  critical_issues: number
-  serious_issues: number
-  moderate_issues: number
-  minor_issues: number
-  results_url: string
-}
-
-type Scan = {
-  id: string
-  url: string
-  status: "pending" | "completed" | "failed"
-  created_at: string | null
-  user_id: string
-  page_id: string
-  screenshot_light?: string | null
-  screenshot_dark?: string | null
-  metrics?: {
-    light: ScanMetrics
-    dark: ScanMetrics
-  } | null
-}
+type Scan = Database["public"]["Tables"]["Scan"]["Row"]
 
 export function ScanShow({ serverProps }: { serverProps: Scan }) {
   const [scan, setScan] = useState(serverProps)
