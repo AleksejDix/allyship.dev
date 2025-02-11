@@ -1,5 +1,7 @@
 import Link from "next/link"
 import type { Database } from "@/database.types"
+import { CreateSpaceDialog } from "@/features/space/components/create-space-dialog"
+import { Plus } from "lucide-react"
 
 import {
   Card,
@@ -15,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { EmptyState } from "@/components/empty"
 
 type SpaceWithDomains = Database["public"]["Tables"]["Space"]["Row"] & {
   domains: Database["public"]["Tables"]["Domain"]["Row"][]
@@ -23,6 +26,18 @@ type SpaceWithDomains = Database["public"]["Tables"]["Space"]["Row"] & {
 
 export function SpaceIndex({ spaces }: { spaces: SpaceWithDomains[] }) {
   const FREE_TIER_LIMIT = 1
+
+  if (!spaces.length) {
+    return (
+      <EmptyState
+        icon={Plus}
+        title="No spaces found"
+        description="Get started by creating your first space. You can create multiple spaces to manage different projects."
+      >
+        <CreateSpaceDialog />
+      </EmptyState>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
