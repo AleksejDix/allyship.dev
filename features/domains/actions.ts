@@ -4,6 +4,7 @@ import { z } from "zod"
 import { createServerAction } from "zsa"
 
 import { prisma } from "@/lib/prisma"
+import { normalizeDomainName } from "@/lib/utils"
 
 export async function getDomainsBySpaceId(spaceId: string) {
   return prisma.domain.findMany({
@@ -22,10 +23,12 @@ export const create = createServerAction()
     })
   )
   .handler(async ({ input }) => {
+    const normalizedDomainName = normalizeDomainName(input.name)
+
     // Check if domain already exists
     const existingDomain = await prisma.domain.findFirst({
       where: {
-        name: input.name,
+        name: normalizedDomainName,
         space_id: input.space_id,
       },
     })
@@ -43,7 +46,7 @@ export const create = createServerAction()
 
     const domain = await prisma.domain.create({
       data: {
-        name: input.name,
+        name: normalizedDomainName,
         space_id: input.space_id,
       },
     })
