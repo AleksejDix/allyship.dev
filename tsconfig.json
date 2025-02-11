@@ -33,5 +33,5 @@
     "**/*.d.ts",
     ".contentlayer/generated"
   ],
-  "exclude": ["node_modules", "supabase"]
+  "exclude": ["node_modules", "supabase", "components/ui/*"]
 }
