@@ -2,7 +2,6 @@
 
 import Image from "next/image"
 import type { DomainWithRelations } from "@/features/domain/types"
-import type { Page as PrismaPage } from "@prisma/client"
 import { Moon, Sun } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
@@ -56,9 +55,6 @@ function ThemeModeContent({
     incomplete: Math.round((scan.metrics[mode]?.violations_count || 0) * 0.3),
   }))
 
-  console.log("All Scans:", allScans) // Debug log
-  console.log("Chart Data:", chartData) // Debug log
-
   const chartConfig = {
     violations: {
       label: "Violations",
@@ -84,7 +80,7 @@ function ThemeModeContent({
         </div>
       ) : (
         <div>
-          <div className="flex aspect-[1440/900]  items-center justify-center rounded-lg border border-border bg-muted">
+          <div className="flex aspect-[1440/900] items-center justify-center rounded-lg border border-border bg-muted">
             <p className="text-sm text-muted-foreground">
               No screenshot available
             </p>
@@ -221,10 +217,14 @@ function ThemeModeContent({
 }
 
 export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
-  // Find the root page (usually "/" or shortest path)
-  const rootPage = domain.pages
-    .sort((a: PrismaPage, b: PrismaPage) => a.name.length - b.name.length)
-    .find((page) => page.scans.length > 0)
+  // Get the latest scan with screenshots
+  const latestScan = domain.pages
+    .flatMap((page) => page.scans)
+    .filter((scan) => scan.status === "completed")
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0]
 
   // Calculate domain-wide metrics by aggregating all latest scans
   const latestScans = domain.pages
@@ -242,20 +242,7 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
       0
     )
 
-    // Calculate error trend from all pages' scans
-    const errorTrend = domain.pages
-      .flatMap((page) =>
-        page.scans
-          .slice(0, 100) // Get last 10 scans
-          .reverse() // Most recent first
-          .map((scan) => scan.metrics?.[mode]?.violations_count ?? 0)
-      )
-      .reduce((acc, curr, i) => {
-        acc[i] = (acc[i] || 0) + curr
-        return acc
-      }, [] as number[])
-
-    return { totalViolations, totalPasses, errorTrend }
+    return { totalViolations, totalPasses }
   }
 
   return (
@@ -280,7 +267,7 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
               <ThemeModeContent
                 mode="light"
                 metrics={calculateMetrics("light")}
-                screenshot={rootPage?.scans[0]?.screenshot_light}
+                screenshot={latestScan?.screenshot_light}
                 domain={domain}
               />
             </TabsContent>
@@ -288,7 +275,7 @@ export function ThemeAwareContent({ domain }: { domain: DomainWithRelations }) {
               <ThemeModeContent
                 mode="dark"
                 metrics={calculateMetrics("dark")}
-                screenshot={rootPage?.scans[0]?.screenshot_dark}
+                screenshot={latestScan?.screenshot_dark}
                 domain={domain}
               />
             </TabsContent>

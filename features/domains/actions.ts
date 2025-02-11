@@ -4,6 +4,7 @@ import { z } from "zod"
 import { createServerAction } from "zsa"
 
 import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 import { normalizeDomainName } from "@/lib/utils"
 
 export async function getDomainsBySpaceId(spaceId: string) {
@@ -53,3 +54,46 @@ export const create = createServerAction()
 
     return { success: true, data: domain }
   })
+
+export async function getDomainsWithLatestScreenshots(spaceId: string) {
+  const supabase = await createClient()
+
+  const { data: domains } = await supabase
+    .from("Domain")
+    .select(
+      `
+      *,
+      pages:Page (
+        scans:Scan (
+          screenshot_light,
+          screenshot_dark,
+          created_at,
+          status
+        )
+      )
+    `
+    )
+    .eq("space_id", spaceId)
+    .order("name", { ascending: true })
+
+  // Process to get latest screenshot for each domain
+  return domains?.map((domain) => {
+    const allScans = domain.pages.flatMap((page) => page.scans)
+    const latestScan = allScans
+      .filter((scan) => scan.status === "completed")
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )[0]
+
+    return {
+      ...domain,
+      latestScreenshots: latestScan
+        ? {
+            light: latestScan.screenshot_light,
+            dark: latestScan.screenshot_dark,
+          }
+        : null,
+    }
+  })
+}

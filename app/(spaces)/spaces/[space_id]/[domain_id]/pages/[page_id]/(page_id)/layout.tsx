@@ -1,6 +1,6 @@
 import { PageNavigation } from "@/features/pages/components/page-navigation"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 
 type LayoutProps = {
   params: { domain_id: string; space_id: string; page_id: string }
@@ -9,15 +9,18 @@ type LayoutProps = {
 
 export default async function Layout({ params, children }: LayoutProps) {
   const { domain_id, space_id, page_id } = params
+  const supabase = await createClient()
 
-  const page = await prisma.page.findUnique({
-    where: {
-      id: page_id,
-    },
-    include: {
-      domain: true,
-    },
-  })
+  const { data: page } = await supabase
+    .from("Page")
+    .select(
+      `
+      *,
+      domain:Domain (*)
+    `
+    )
+    .eq("id", page_id)
+    .single()
 
   if (!page) {
     throw new Error("Page not found")

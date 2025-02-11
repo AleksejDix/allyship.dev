@@ -1,10 +1,12 @@
+import Image from "next/image"
+import Link from "next/link"
 import { PageHeader } from "@/features/domain/components/page-header"
-import { getDomainsBySpaceId } from "@/features/domains/actions"
+import { getDomainsWithLatestScreenshots } from "@/features/domains/actions"
 import { DomainsCreate } from "@/features/domains/components/domains-create"
-import { DomainsIndex } from "@/features/domains/components/domains-index"
 import { Globe, Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Card, CardHeader } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -21,8 +23,7 @@ type DomainsPageProps = {
 
 export default async function DomainsPage({ params }: DomainsPageProps) {
   const { space_id } = await params
-
-  const domains = await getDomainsBySpaceId(space_id)
+  const domains = await getDomainsWithLatestScreenshots(space_id)
 
   return (
     <div className="space-y-6">
@@ -51,8 +52,40 @@ export default async function DomainsPage({ params }: DomainsPageProps) {
       </PageHeader>
 
       <div className="container">
-        {domains.length > 0 ? (
-          <DomainsIndex spaceId={space_id} domains={domains} />
+        {domains && domains.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {domains.map((domain) => (
+              <Link
+                key={domain.id}
+                href={`/spaces/${space_id}/${domain.id}`}
+                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg hover:no-underline"
+              >
+                <Card className="overflow-hidden h-full transition-colors hover:bg-muted/50">
+                  <div className="aspect-video relative bg-muted">
+                    {domain.latestScreenshots ? (
+                      <Image
+                        src={
+                          domain.latestScreenshots.light ||
+                          domain.latestScreenshots.dark ||
+                          ""
+                        }
+                        alt={`Screenshot of ${domain.name}`}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Globe className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <CardHeader>
+                    <h3 className="font-medium truncate">{domain.name}</h3>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
         ) : (
           <EmptyState
             icon={Globe}

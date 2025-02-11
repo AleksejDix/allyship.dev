@@ -16,12 +16,9 @@ export function PageNavigation({ space_id, domain_id, page_id }: Props) {
         <ul className="flex items-center gap-1 py-2">
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink
-                exact={true}
-                href={`/spaces/${space_id}/${domain_id}/pages`}
-              >
-                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                <span className="sr-only">Pages</span>
+              <RouterLink exact={true} href={`/spaces/${space_id}`}>
+                <ArrowLeft aria-hidden="true" />
+                <span className="sr-only">Space</span>
               </RouterLink>
             </Button>
           </li>
@@ -38,6 +35,7 @@ export function PageNavigation({ space_id, domain_id, page_id }: Props) {
           <li>
             <Button variant="ghost" asChild>
               <RouterLink
+                exact={true}
                 href={`/spaces/${space_id}/${domain_id}/pages/${page_id}/scans`}
               >
                 Scans

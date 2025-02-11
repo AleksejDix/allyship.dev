@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Domain } from "@prisma/client"
+import type { Database } from "@/database.types"
 import { Loader2 } from "lucide-react"
 import { useServerAction } from "zsa-react"
 
@@ -10,60 +10,72 @@ import { Button } from "@/components/ui/button"
 
 import { crawl } from "../actions/crawl"
 
-interface CrawlButtonProps {
-  domain: Domain
+type DbDomain = Database["public"]["Tables"]["Domain"]["Row"]
+
+type Props = {
+  domain: DbDomain
   onCrawlComplete?: (result: {
     type: "success" | "error"
     message: string
   }) => void
 }
 
-export function CrawlButton({ domain, onCrawlComplete }: CrawlButtonProps) {
+export function CrawlButton({ domain, onCrawlComplete }: Props) {
   const router = useRouter()
   const { execute, isPending } = useServerAction(crawl)
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string>()
 
   const handleCrawl = async () => {
-    setIsLoading(true)
-    try {
-      const [result, error] = await execute({
-        domain_id: domain.id,
-        url: `https://${domain.name}`,
+    setError(undefined)
+
+    const [result, error] = await execute({
+      domain_id: domain.id,
+      url: `https://${domain.name}`,
+    })
+
+    if (error) {
+      setError(error.message)
+      onCrawlComplete?.({
+        type: "error",
+        message: error.message,
       })
-
-      if (error) {
-        console.log(error)
-        onCrawlComplete?.({
-          type: "error",
-          message: "Failed to crawl website",
-        })
-        return
-      }
-
-      if (result?.success && result.stats) {
-        onCrawlComplete?.({
-          type: "success",
-          message: `Found ${result.stats.total} pages (${result.stats.new} new, ${result.stats.existing} existing)`,
-        })
-        // Refresh the page to show updated timestamps
-        router.refresh()
-      }
-    } finally {
-      setIsLoading(false)
+      return
     }
+
+    if (!result?.success) {
+      setError("Failed to crawl site")
+      onCrawlComplete?.({
+        type: "error",
+        message: "Failed to crawl site",
+      })
+      return
+    }
+
+    router.refresh()
+    onCrawlComplete?.({
+      type: "success",
+      message: "Site crawled successfully",
+    })
   }
 
   return (
     <Button
-      size="sm"
       variant="outline"
+      size="sm"
       onClick={handleCrawl}
-      disabled={isLoading || isPending}
+      disabled={isPending}
     >
-      {(isLoading || isPending) && (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+      {isPending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Crawling...
+        </>
+      ) : (
+        "Crawl Site"
       )}
-      Crawl
+      {error && (
+        <div className="text-xs text-destructive absolute mt-8">{error}</div>
+      )}
     </Button>
   )
 }
