@@ -29,9 +29,10 @@ type FormValues = z.infer<typeof formSchema>
 
 interface DomainsCreateProps {
   spaceId: string
+  onSuccess?: () => void
 }
 
-export function DomainsCreate({ spaceId }: DomainsCreateProps) {
+export function DomainsCreate({ spaceId, onSuccess }: DomainsCreateProps) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,6 +67,7 @@ export function DomainsCreate({ spaceId }: DomainsCreateProps) {
       })
     } else if (data?.success) {
       form.reset()
+      onSuccess?.()
     }
   }
 
