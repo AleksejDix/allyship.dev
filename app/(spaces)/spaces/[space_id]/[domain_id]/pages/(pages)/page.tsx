@@ -1,9 +1,10 @@
+import type { Database } from "@/database.types"
 import { PageHeader } from "@/features/domain/components/page-header"
 import { AddPageDialog } from "@/features/pages/components/add-page-dialog"
 import { CrawlButton } from "@/features/pages/components/crawl-button"
 import { PagesIndex } from "@/features/pages/components/pages-index"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 
 type Props = {
   params: { domain_id: string; space_id: string }
@@ -11,34 +12,39 @@ type Props = {
 
 export default async function PagesPage({ params }: Props) {
   const { domain_id, space_id } = params
+  const supabase = await createClient()
 
-  const domain = await prisma.domain.findUnique({
-    where: {
-      id: domain_id,
-    },
-  })
+  const { data: domain } = (await supabase
+    .from("Domain")
+    .select()
+    .eq("id", domain_id)
+    .single()) as { data: Database["public"]["Tables"]["Domain"]["Row"] | null }
 
   if (!domain) {
     throw new Error("Domain not found")
   }
 
-  const pages = await prisma.page.findMany({
-    where: {
-      domain_id: domain_id,
-    },
-    include: {
-      domain: true,
-      scans: {
-        orderBy: {
-          created_at: "desc",
-        },
-        take: 1,
-      },
-    },
-    orderBy: {
-      name: "asc",
-    },
-  })
+  const { data: pages } = await supabase
+    .from("Page")
+    .select(
+      `
+      *,
+      domain:Domain (*),
+      scans:Scan (
+        id,
+        created_at,
+        status,
+        metrics,
+        screenshot_light,
+        screenshot_dark,
+        url,
+        user_id,
+        page_id
+      )
+    `
+    )
+    .eq("domain_id", domain_id)
+    .order("name")
 
   return (
     <div className="space-y-6">
@@ -54,7 +60,11 @@ export default async function PagesPage({ params }: Props) {
       </PageHeader>
 
       <div className="container space-y-6">
-        <PagesIndex spaceId={space_id} domainId={domain_id} pages={pages} />
+        <PagesIndex
+          spaceId={space_id}
+          domainId={domain_id}
+          pages={pages || []}
+        />
       </div>
     </div>
   )
