@@ -67,7 +67,7 @@ export async function createPageFromUrl(
     const existingPage = await prisma.page.findFirst({
       where: {
         domain_id: domainId,
-        url: validatedData.url,
+        name: validatedData.url,
       },
     })
 
@@ -85,7 +85,6 @@ export async function createPageFromUrl(
     const page = await prisma.page.create({
       data: {
         name: url.pathname === "/" ? "Homepage" : url.pathname,
-        url: validatedData.url,
         domain_id: domainId,
       },
     })
