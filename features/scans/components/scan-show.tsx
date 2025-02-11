@@ -18,6 +18,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PageHeader } from "@/components/page-header"
 
+type MetricsData = {
+  violations_count: number
+  passes_count: number
+  incomplete_count: number
+  inapplicable_count: number
+  critical_issues: number
+  serious_issues: number
+  moderate_issues: number
+  minor_issues: number
+  results_url: string
+}
+
 type Scan = Database["public"]["Tables"]["Scan"]["Row"]
 
 export function ScanShow({ serverProps }: { serverProps: Scan }) {
@@ -179,8 +191,8 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                The scan is complete, but we're still processing the results.
-                Please wait a moment...
+                The scan is complete, but we&apos;re still processing the
+                results. Please wait a moment...
               </p>
             </CardContent>
           </Card>
@@ -189,7 +201,29 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
     )
   }
 
-  const currentMetrics = scan.metrics[activeMode]
+  const currentMetrics = (
+    scan.metrics as Record<"light" | "dark", MetricsData>
+  )?.[activeMode]
+
+  if (!currentMetrics) {
+    return (
+      <div className="container py-8">
+        <div className="space-y-8">
+          <PageHeader heading={scan.url} />
+          <Card>
+            <CardHeader>
+              <CardTitle>No Results Available</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                No results are available for {activeMode} mode.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container py-8">

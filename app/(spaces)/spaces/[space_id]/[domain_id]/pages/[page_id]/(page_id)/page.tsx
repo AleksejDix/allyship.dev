@@ -1,6 +1,5 @@
 // import { Domain } from "@prisma/client"
 
-import type { Database } from "@/database.types"
 import { PageHeader } from "@/features/domain/components/page-header"
 import { ThemeAwareScreenshots } from "@/features/domain/components/theme-aware-screenshots"
 import { create } from "@/features/scans/actions"
@@ -47,7 +46,13 @@ export default async function Page({ params }: { params: Params }) {
     return null
   }
 
-  const latestScan = page.scans[0]
+  // Transform the scans data to match the expected type
+  const transformedScans = page.scans.map((scan) => ({
+    ...scan,
+    created_at: scan.created_at ? new Date(scan.created_at) : null,
+  }))
+
+  const latestScan = transformedScans[0]
 
   return (
     <>
@@ -151,7 +156,7 @@ export default async function Page({ params }: { params: Params }) {
         </Card>
 
         <div className="mt-6">
-          <ScanIndex scans={page.scans} />
+          <ScanIndex scans={transformedScans} />
         </div>
       </div>
     </>

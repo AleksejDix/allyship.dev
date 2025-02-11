@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button"
 
 import { crawl } from "../actions/crawl"
 
-type DbDomain = Database["public"]["Tables"]["Domain"]["Row"]
+type Domain = Database["public"]["Tables"]["Domain"]["Row"]
 
 type Props = {
-  domain: DbDomain
+  domain: Domain
   onCrawlComplete?: (result: {
     type: "success" | "error"
     message: string

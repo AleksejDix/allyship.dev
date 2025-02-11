@@ -1,13 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Domain } from "@prisma/client"
+import type { Database } from "@/database.types"
 import { AlertTriangle, CheckCircle2 } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 import { AddPageDialog } from "./add-page-dialog"
 import { CrawlButton } from "./crawl-button"
+
+type Domain = Database["public"]["Tables"]["Domain"]["Row"]
 
 interface PagesHeaderProps {
   domain: Domain
