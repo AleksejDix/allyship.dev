@@ -44,21 +44,21 @@ export type Database = {
       }
       Domain: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           name: string
           space_id: string
           theme: Database["public"]["Enums"]["DomainTheme"]
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           name: string
           space_id: string
           theme?: Database["public"]["Enums"]["DomainTheme"]
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           name?: string
           space_id?: string
@@ -150,35 +150,35 @@ export type Database = {
       }
       Scan: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           metrics: Json | null
           page_id: string
           screenshot_dark: string | null
           screenshot_light: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["ScanStatus"]
           url: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           metrics?: Json | null
           page_id: string
           screenshot_dark?: string | null
           screenshot_light?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["ScanStatus"]
           url: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           metrics?: Json | null
           page_id?: string
           screenshot_dark?: string | null
           screenshot_light?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["ScanStatus"]
           url?: string
           user_id?: string
         }
@@ -257,6 +257,7 @@ export type Database = {
       DomainTheme: "LIGHT" | "DARK" | "BOTH"
       MembershipRole: "OWNER" | "MEMBER"
       MembershipStatus: "PENDING" | "ACTIVE" | "DECLINED"
+      ScanStatus: "pending" | "completed" | "failed" | "queued"
       SubStatus: "ACTIVE" | "PAST_DUE" | "CANCELED"
     }
     CompositeTypes: {
