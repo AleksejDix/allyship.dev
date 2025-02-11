@@ -5,9 +5,6 @@ import { SpaceIndex } from "@/features/space/components/space-index"
 
 export default async function Page() {
   const { spaces } = await getSpaces()
-  if (!spaces) {
-    return <div>No spaces found</div>
-  }
 
   return (
     <div className="space-y-6">
@@ -19,7 +16,7 @@ export default async function Page() {
       </PageHeader>
 
       <div className="container">
-        <SpaceIndex spaces={spaces} />
+        <SpaceIndex spaces={spaces || []} />
       </div>
     </div>
   )

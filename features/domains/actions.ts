@@ -1,5 +1,7 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
@@ -52,10 +54,24 @@ export const create = createServerAction()
       },
     })
 
+    // Revalidate the domains list
+    revalidatePath(`/spaces/${input.space_id}`)
+
     return { success: true, data: domain }
   })
 
-export async function getDomainsWithLatestScreenshots(spaceId: string) {
+export type DomainWithScreenshots = {
+  id: string
+  name: string
+  latestScreenshots: {
+    light: string | null
+    dark: string | null
+  } | null
+}
+
+export async function getDomainsWithLatestScreenshots(
+  spaceId: string
+): Promise<DomainWithScreenshots[]> {
   const supabase = await createClient()
 
   const { data: domains } = await supabase
@@ -77,23 +93,55 @@ export async function getDomainsWithLatestScreenshots(spaceId: string) {
     .order("name", { ascending: true })
 
   // Process to get latest screenshot for each domain
-  return domains?.map((domain) => {
-    const allScans = domain.pages.flatMap((page) => page.scans)
-    const latestScan = allScans
-      .filter((scan) => scan.status === "completed")
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )[0]
+  return (
+    domains?.map((domain) => {
+      const allScans = domain.pages.flatMap((page) => page.scans)
+      const latestScan = allScans
+        .filter((scan) => scan.status === "completed")
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0]
 
-    return {
-      ...domain,
-      latestScreenshots: latestScan
-        ? {
-            light: latestScan.screenshot_light,
-            dark: latestScan.screenshot_dark,
-          }
-        : null,
-    }
-  })
+      return {
+        id: domain.id,
+        name: domain.name,
+        latestScreenshots: latestScan
+          ? {
+              light: latestScan.screenshot_light,
+              dark: latestScan.screenshot_dark,
+            }
+          : null,
+      }
+    }) ?? []
+  )
 }
+
+export const deleteDomain = createServerAction()
+  .input(
+    z.object({
+      domainId: z.string(),
+      spaceId: z.string(),
+    })
+  )
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+
+    const { error } = await supabase
+      .from("Domain")
+      .delete()
+      .eq("id", input.domainId)
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to delete domain",
+          code: "DELETE_FAILED",
+        },
+      }
+    }
+
+    revalidatePath(`/spaces/${input.spaceId}`)
+    redirect(`/spaces/${input.spaceId}`)
+  })

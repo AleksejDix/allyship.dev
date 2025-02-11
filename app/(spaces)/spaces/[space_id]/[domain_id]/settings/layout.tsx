@@ -1,38 +1,39 @@
-import { DomainNavigation } from "@/features/domain/components/domain-navigation"
+import { DomainIdNavigation } from "@/features/domain/components/domain-id-navigation"
 import { PageHeader } from "@/features/domain/components/page-header"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
 type LayoutProps = {
+  params: { domain_id: string; space_id: string }
   children: React.ReactNode
-  params: { space_id: string; domain_id: string }
 }
 
-export default async function Layout({ children, params }: LayoutProps) {
-  const { space_id, domain_id } = await params
+export default async function Layout({ params, children }: LayoutProps) {
+  const { domain_id, space_id } = params
+  const supabase = await createClient()
 
-  const domain = await prisma.domain.findUnique({
-    where: {
-      id: domain_id,
-    },
-  })
+  const { data: domain } = await supabase
+    .from("Domain")
+    .select()
+    .eq("id", domain_id)
+    .single()
 
   if (!domain) {
-    throw new Error("Domain not found")
+    return null
   }
 
   return (
     <>
-      <DomainNavigation space_id={space_id} domain_id={domain_id} />
+      <DomainIdNavigation space_id={space_id} domain_id={domain_id} />
 
       <PageHeader
         title="Settings"
         description={`Manage settings and configuration for ${domain.name}`}
       />
 
-      <div className="container  py-6">
+      <div className="container py-6">
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="lg:w-1/5">
             <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
