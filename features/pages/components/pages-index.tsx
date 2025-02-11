@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import type { Database } from "@/database.types"
 import { deletePage } from "@/features/pages/actions/delete-page"
+import { formatDate } from "@/utils/date-formatting"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -18,6 +19,17 @@ import {
 } from "@tanstack/react-table"
 import { ArrowUpDown, Trash2 } from "lucide-react"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,35 +42,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { RouterLink } from "@/components/RouterLink"
-
-// Helper function to format dates consistently
-function formatDate(date: Date | null) {
-  if (!date) return "N/A"
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(date)
-}
-
-type ScanMetrics = {
-  violations_count: number
-  passes_count: number
-  incomplete_count: number
-  inapplicable_count: number
-  critical_issues: number
-  serious_issues: number
-  moderate_issues: number
-  minor_issues: number
-  status?: number
-}
-
-type ScanWithMetrics = Scan & {
-  metrics: {
-    light?: ScanMetrics
-    dark?: ScanMetrics
-  } | null
-}
 
 type DbDomain = Database["public"]["Tables"]["Domain"]["Row"]
 type DbPage = Database["public"]["Tables"]["Page"]["Row"]
@@ -171,9 +154,7 @@ export function PagesIndex({ pages, spaceId, domainId }: Props) {
       header: "Created",
       cell: ({ row }) => {
         const page = row.original
-        return page.created_at
-          ? new Date(page.created_at).toLocaleDateString()
-          : "Unknown"
+        return formatDate(page.created_at)
       },
     },
     {
@@ -182,14 +163,6 @@ export function PagesIndex({ pages, spaceId, domainId }: Props) {
         const page = row.original
 
         async function handleDelete() {
-          if (
-            !confirm(
-              "Are you sure you want to delete this page? This action cannot be undone."
-            )
-          ) {
-            return
-          }
-
           const response = await deletePage({
             pageId: page.id,
             spaceId,
@@ -202,14 +175,29 @@ export function PagesIndex({ pages, spaceId, domainId }: Props) {
         }
 
         return (
-          <Button
-            variant="ghost"
-            className="h-8 w-8 p-0"
-            onClick={handleDelete}
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Delete page</span>
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete page</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Page</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this page? This action cannot
+                  be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )
       },
     },
