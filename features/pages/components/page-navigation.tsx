@@ -21,7 +21,7 @@ export function PageNavigation({ space_id, domain_id, page_id }: Props) {
                 href={`/spaces/${space_id}/${domain_id}/pages`}
               >
                 <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                <span className="sr-only">Back</span>
+                <span className="sr-only">Pages</span>
               </RouterLink>
             </Button>
           </li>
