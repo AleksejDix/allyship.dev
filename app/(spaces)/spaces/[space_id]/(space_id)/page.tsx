@@ -27,8 +27,8 @@ export default async function DomainsPage({ params }: DomainsPageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Space Domains"
-        description="Manage domains in your space"
+        title="Space"
+        description="A space to manage your projects and domains"
       >
         <Dialog>
           <DialogTrigger asChild>

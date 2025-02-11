@@ -14,13 +14,13 @@ export default async function Layout({ params, children }: Props) {
   return (
     <>
       <PageHeader
-        title="Space Settings"
+        title="Space"
         description="Manage your space settings and configuration."
       />
-      <div className="container">
+      <div className="container py-6">
         <div className="grid md:grid-cols-4 gap-8">
           <nav className="flex flex-col gap-[2px]">
-            <span className="sr-only">Space Settings</span>
+            <span className="sr-only">Space</span>
             <Button variant="ghost" className="justify-start" asChild>
               <RouterLink exact={true} href={`/spaces/${space_id}/settings/`}>
                 General
@@ -34,9 +34,9 @@ export default async function Layout({ params, children }: Props) {
           </nav>
 
           <main
-            tabIndex={0}
-            aria-label="General Settings"
-            className="md:col-span-3 py-6"
+            tabIndex={-1}
+            aria-label="Space Settings"
+            className="md:col-span-3"
           >
             {children}
           </main>
