@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 
     if (user) {
       // Upsert the user into the database (optional step)
-      const { error: upsertError } = await supabase.from("users").upsert(
+      const { error: upsertError } = await supabase.from("User").upsert(
         {
           id: user.id,
           email: user.email,
