@@ -576,3 +576,15 @@ Before implementing new features:
 3. Follow established solutions
 4. Use type-safe alternatives
 5. Add new learnings to documentation
+
+## Code Cleanliness
+
+### Dead Code Removal
+
+- Remove unused types, interfaces, and imports
+- Delete commented-out code that's been replaced
+- Remove unused functions and variables
+- Clean up unused CSS classes
+- Remove unused props from components
+
+Examples of dead code to remove:
