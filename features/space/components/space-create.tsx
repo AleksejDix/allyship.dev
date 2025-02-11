@@ -28,7 +28,11 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-export function SpaceCreate() {
+interface SpaceCreateProps {
+  onSuccess?: () => void
+}
+
+export function SpaceCreate({ onSuccess }: SpaceCreateProps) {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const form = useForm<FormData>({
@@ -67,6 +71,7 @@ export function SpaceCreate() {
       }
 
       router.refresh()
+      onSuccess?.()
     } catch {
       setError("An unexpected error occurred. Please try again.")
     }
