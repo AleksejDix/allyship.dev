@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { Space } from "@prisma/client"
+import { PostgrestError } from "@supabase/supabase-js"
 import { createServerAction } from "zsa"
 
 import { prisma } from "@/lib/prisma"
@@ -100,13 +101,18 @@ export async function getSpaces() {
   const supabase = await createClient()
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (error || !user) {
     throw new Error("Failed to get user")
   }
 
-  const spaces = await prisma.space.findMany()
+  const { data: spaces } = await supabase
+    .from("Space")
+    .select(`*, domains:Domain(*), owner:User(*)`)
+    .order("created_at", { ascending: false })
+
   return { spaces }
 }
 

@@ -16,6 +16,9 @@ import {
 
 export default async function Page() {
   const { spaces } = await getSpaces()
+  if (!spaces) {
+    return <div>No spaces found</div>
+  }
 
   return (
     <div className="space-y-6">

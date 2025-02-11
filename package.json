@@ -10,7 +10,8 @@
     "preview": "next build && next start",
     "test:e2e": "npx playwright test --reporter=list",
     "test:e2e:headless": "npx playwright test --headed",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:types": "npx supabase gen types typescript --project-id jzicfoncnrqfymqszmxp --schema public > database.types.ts"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.10.1",
