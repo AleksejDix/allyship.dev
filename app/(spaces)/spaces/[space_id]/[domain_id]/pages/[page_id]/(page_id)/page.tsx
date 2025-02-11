@@ -1,12 +1,13 @@
 // import { Domain } from "@prisma/client"
 
+import type { Database } from "@/database.types"
 import { PageHeader } from "@/features/domain/components/page-header"
 import { ThemeAwareScreenshots } from "@/features/domain/components/theme-aware-screenshots"
 import { create } from "@/features/scans/actions"
 import { ScanIndex } from "@/features/scans/components/scan-index"
 import { Scan } from "lucide-react"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -18,21 +19,29 @@ type Params = {
 
 export default async function Page({ params }: { params: Params }) {
   const { page_id } = params
+  const supabase = await createClient()
 
-  const page = await prisma.page.findUnique({
-    where: {
-      id: page_id,
-    },
-    include: {
-      domain: true,
-      scans: {
-        orderBy: {
-          created_at: "desc",
-        },
-        take: 10,
-      },
-    },
-  })
+  const { data: page } = await supabase
+    .from("Page")
+    .select(
+      `
+      *,
+      domain:Domain (*),
+      scans:Scan (
+        id,
+        created_at,
+        status,
+        metrics,
+        screenshot_light,
+        screenshot_dark,
+        url,
+        user_id,
+        page_id
+      )
+    `
+    )
+    .eq("id", page_id)
+    .single()
 
   if (!page) {
     throw new Error("Page not found")
@@ -53,7 +62,7 @@ export default async function Page({ params }: { params: Params }) {
           }}
         >
           <Button type="submit">
-            <Scan aria-hidden="true" />
+            <Scan aria-hidden="true" className="mr-2 h-4 w-4" />
             New Scan
           </Button>
         </form>

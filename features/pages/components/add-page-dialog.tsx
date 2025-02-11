@@ -1,12 +1,11 @@
 "use client"
 
-import * as React from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
+import type { Database } from "@/database.types"
 import { addPage } from "@/features/pages/actions/add-page"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { useServerAction } from "zsa-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,84 +17,54 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
-const formSchema = z.object({
-  url: z.string().url("Please enter a valid URL"),
-})
+type DbDomain = Database["public"]["Tables"]["Domain"]["Row"]
 
 type Props = {
   spaceId: string
   domainId: string
-  domain: { name: string }
+  domain: DbDomain
 }
 
 export function AddPageDialog({ spaceId, domainId, domain }: Props) {
-  const [open, setOpen] = React.useState(false)
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [url, setUrl] = useState("")
+  const { execute, isPending } = useServerAction(addPage)
+  const [error, setError] = useState<string>()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      url: `https://${domain.name}/`,
-    },
-  })
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(undefined)
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("🚀 Starting form submission with values:", values)
-    setIsSubmitting(true)
+    const [result, error] = await execute({
+      url,
+      spaceId,
+      domainId,
+    })
 
-    try {
-      console.log("📤 Calling addPage server action...")
-      const [result, error] = await addPage({
-        url: values.url,
-        spaceId,
-        domainId,
-      })
-
-      console.log("📥 Server action response:", { result, error })
-
-      if (error) {
-        console.log("❌ Server action error:", error)
-        form.setError("url", { message: error.message })
-        return
-      }
-
-      if (!result?.success) {
-        console.log("❌ Server action failed without error")
-        form.setError("url", {
-          message: result?.error?.message || "Failed to add page",
-        })
-        return
-      }
-
-      console.log("✅ Page added successfully:", result.data)
-      setOpen(false)
-      router.refresh()
-    } catch (error) {
-      console.error("❌ Unexpected error:", error)
-      form.setError("url", {
-        message: error instanceof Error ? error.message : "Failed to add page",
-      })
-    } finally {
-      setIsSubmitting(false)
+    if (error) {
+      setError(error.message)
+      return
     }
+
+    if (!result?.success) {
+      setError("Failed to create page")
+      return
+    }
+
+    setOpen(false)
+    setUrl("")
+    router.refresh()
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="secondary">
-          <Plus aria-hidden="true" />
+        <Button size="sm">
+          <Plus className="mr-2 h-4 w-4" />
           Add Page
         </Button>
       </DialogTrigger>
@@ -103,44 +72,28 @@ export function AddPageDialog({ spaceId, domainId, domain }: Props) {
         <DialogHeader>
           <DialogTitle>Add Page</DialogTitle>
           <DialogDescription>
-            Enter the URL of the page you want to add to {domain.name}. The URL
-            must start with https://{domain.name}
+            Add a new page to scan for accessibility issues.
           </DialogDescription>
         </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={`https://${domain.name}/page`}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Adding..." : "Add Page"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder={`https://${domain.name}/about`}
+              />
+              {error && <p className="text-sm text-destructive">{error}</p>}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Adding..." : "Add Page"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

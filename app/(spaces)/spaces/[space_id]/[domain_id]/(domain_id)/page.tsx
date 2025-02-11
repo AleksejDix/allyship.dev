@@ -3,7 +3,7 @@ import { ThemeAwareContent } from "@/features/domain/components/theme-aware-cont
 import type { DomainWithRelations } from "@/features/domain/types"
 import { ExternalLink } from "lucide-react"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
@@ -13,51 +13,49 @@ type Props = {
 
 export default async function DomainsPage({ params }: Props) {
   const { domain_id } = params
+  const supabase = await createClient()
 
-  const domain = (await prisma.domain.findUnique({
-    where: {
-      id: domain_id,
-    },
-    include: {
-      _count: {
-        select: {
-          pages: true,
-        },
-      },
-      pages: {
-        include: {
-          scans: {
-            where: {
-              status: "completed",
-            },
-            orderBy: {
-              created_at: "desc",
-            },
-            take: 1,
-            select: {
-              id: true,
-              created_at: true,
-              status: true,
-              metrics: true,
-              screenshot_light: true,
-              screenshot_dark: true,
-            },
-          },
-        },
-      },
-      space: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-            },
-          },
-        },
-      },
-    },
-  })) as DomainWithRelations
+  const { data: domain } = (await supabase
+    .from("Domain")
+    .select(
+      `
+      id,
+      name,
+      created_at,
+      space_id,
+      theme,
+      pages:Page (
+        id,
+        name,
+        created_at,
+        domain_id,
+        scans:Scan (
+          id,
+          created_at,
+          status,
+          metrics,
+          screenshot_light,
+          screenshot_dark,
+          url,
+          user_id,
+          page_id
+        )
+      ),
+      space:Space (
+        id,
+        name,
+        created_at,
+        user_id,
+        user:User (
+          id,
+          first_name,
+          last_name
+        )
+      )
+    `
+    )
+    .eq("id", domain_id)
+    .single()) as { data: DomainWithRelations | null }
 
   if (!domain) {
     throw new Error("Domain not found")
@@ -66,10 +64,11 @@ export default async function DomainsPage({ params }: Props) {
   // Get the latest scan date
   const latestScan = domain.pages
     .flatMap((page) => page.scans)
-    .sort((a, b) => {
-      if (!a.created_at || !b.created_at) return 0
-      return b.created_at.getTime() - a.created_at.getTime()
-    })[0]
+    .filter((scan) => scan.status === "completed")
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0]
 
   const userName = [domain.space.user.first_name, domain.space.user.last_name]
     .filter(Boolean)
@@ -84,7 +83,7 @@ export default async function DomainsPage({ params }: Props) {
         <div className="flex items-center gap-4">
           {latestScan && (
             <Badge variant="outline">
-              Last scan {latestScan.created_at?.toLocaleDateString()}
+              Last scan {new Date(latestScan.created_at).toLocaleDateString()}
             </Badge>
           )}
           <Button variant="outline" size="sm" asChild>
