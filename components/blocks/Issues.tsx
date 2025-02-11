@@ -15,32 +15,32 @@ const chartData = [
   {
     issue: "Contrast",
     percent: 80,
-    fill: "var(--color-low-contrast)",
+    fill: "#0088FE",
   },
   {
     issue: "Images",
     percent: 55,
-    fill: "var(--color-missing-alt)",
+    fill: "#00C49F",
   },
   {
     issue: "Links",
     percent: 48,
-    fill: "var(--color-empty-links)",
+    fill: "#FFBB28",
   },
   {
     issue: "Labels",
     percent: 44,
-    fill: "var(--color-form-labels)",
+    fill: "#FF8042",
   },
   {
     issue: "Buttons",
     percent: 28,
-    fill: "var(--color-form-labels)",
+    fill: "red",
   },
   {
     issue: "Language",
     percent: 17,
-    fill: "var(--color-form-labels)",
+    fill: "pink",
   },
 ]
 
