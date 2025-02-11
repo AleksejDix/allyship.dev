@@ -44,7 +44,7 @@ export default async function Page({ params }: { params: Params }) {
     .single()
 
   if (!page) {
-    throw new Error("Page not found")
+    return null
   }
 
   const latestScan = page.scans[0]
