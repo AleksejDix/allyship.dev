@@ -27,18 +27,18 @@ export default async function BlogPage() {
       <Separator className="my-4" />
 
       <div className="mt-12 max-w-prose">
-        <ul className="space-y-4">
+        <ul className="space-y-6">
           {posts.map((post) => (
             <li key={post._id}>
               <Link href={post.slug} className="block">
-                <div className="gap-4 justify-between">
-                  <h2 className="text-lg font-medium text-foreground ">
+                <div className="p-4 border border-border rounded-lg bg-background transition-colors hover:bg-accent">
+                  <h2 className="text-lg font-medium text-foreground">
                     {post.title}
                   </h2>
                   {post.date && (
                     <time
                       dateTime={post.date}
-                      className="text-sm text-muted-foreground tabular-nums whitespace-nowrap"
+                      className="text-sm text-muted-foreground block mt-1"
                     >
                       {formatDate(post.date)}
                     </time>

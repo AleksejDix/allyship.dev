@@ -66,7 +66,7 @@ export function Services() {
               <div key={service.name} className="relative pl-16">
                 <div className="font-semibold">
                   <div className="absolute left-0 top-0 flex w-9 h-9 items-center justify-center rounded-lg bg-blue-500/15 text-blue-500 border-foreground">
-                    <service.icon aria-hidden="true" size={16} />
+                    <service.icon aria-hidden="true" size={17} />
                   </div>
                   {service.name}
                 </div>
