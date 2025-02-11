@@ -25,11 +25,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 
   return (
     <>
-      <DomainNavigation
-        domain={domain}
-        space_id={space_id}
-        domain_id={domain_id}
-      />
+      <DomainNavigation space_id={space_id} domain_id={domain_id} />
 
       <PageHeader
         title="Settings"

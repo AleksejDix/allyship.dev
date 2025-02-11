@@ -33,13 +33,7 @@ export default async function Layout({ params, children }: Props) {
             </Button>
           </nav>
 
-          <main
-            tabIndex={-1}
-            aria-label="Space Settings"
-            className="md:col-span-3"
-          >
-            {children}
-          </main>
+          <div className="md:col-span-3">{children}</div>
         </div>
       </div>
     </>
