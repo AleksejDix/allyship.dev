@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import { PageHeader } from "@/features/domain/components/page-header"
 import { getSpaces } from "@/features/space/actions"
 import { SpaceCreate } from "@/features/space/components/space-create"
 import { SpaceIndex } from "@/features/space/components/space-index"
@@ -17,11 +18,11 @@ export default async function Page() {
   const { spaces } = await getSpaces()
 
   return (
-    <div className="container mx-auto">
-      <div className="flex items-center justify-between py-6">
-        <div>
-          <h1 className="text-2xl font-bold">Spaces</h1>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Spaces"
+        description="Manage your spaces and their accessibility settings."
+      >
         <Dialog>
           <DialogTrigger asChild>
             <Button>Create Space</Button>
@@ -39,8 +40,11 @@ export default async function Page() {
             </Suspense>
           </DialogContent>
         </Dialog>
+      </PageHeader>
+
+      <div className="container">
+        <SpaceIndex spaces={spaces} />
       </div>
-      <SpaceIndex spaces={spaces} />
     </div>
   )
 }
