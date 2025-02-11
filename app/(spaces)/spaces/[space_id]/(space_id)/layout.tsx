@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button"
-import { RouterLink } from "@/components/RouterLink"
+import { SpaceNavigation } from "@/features/spaces/components/space-navigation"
 
 type LayoutProps = {
   params: { space_id: string }
@@ -11,30 +10,8 @@ export default async function Layout({ params, children }: LayoutProps) {
 
   return (
     <>
-      <nav className="border-b border-border">
-        <div className="container">
-          <ul className="flex items-center gap-1 py-2">
-            <li>
-              <Button variant="ghost" asChild>
-                <RouterLink exact={true} href={`/spaces/${space_id}`}>
-                  Domains
-                </RouterLink>
-              </Button>
-            </li>
-            <li>
-              <Button variant="ghost" asChild>
-                <RouterLink href={`/spaces/${space_id}/settings`}>
-                  Settings
-                </RouterLink>
-              </Button>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <div tabIndex={-1} aria-label="Space Content">
-        {children}
-      </div>
+      <SpaceNavigation space_id={space_id} />
+      {children}
     </>
   )
 }
