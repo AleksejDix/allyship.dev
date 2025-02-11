@@ -381,3 +381,78 @@ export async function approveAction() // Don't do this
 ```typescript
 export async function statusUpdateAction() // Do this instead
 ```
+
+## Database Access Patterns
+
+### Use Supabase Instead of Prisma
+
+Always use Supabase queries instead of Prisma to leverage Row Level Security (RLS):
+
+❌ Avoid Prisma queries:
+
+```typescript
+// Don't do this
+const space = await prisma.space.findFirst({
+  where: { id: spaceId },
+})
+```
+
+✅ Use Supabase queries instead:
+
+```typescript
+// Do this
+const { data: space } = await supabase
+  .from("Space")
+  .select()
+  .match({ id: spaceId })
+  .single()
+```
+
+Key benefits of using Supabase:
+
+- Built-in Row Level Security (RLS)
+- Automatic policy enforcement
+- Better security at the database level
+- Consistent access control
+
+Example of refactoring from Prisma to Supabase:
+
+```typescript
+// Before (Prisma)
+const domains = await prisma.domain.findMany({
+  where: { space_id: spaceId },
+  orderBy: { name: "asc" },
+  include: { pages: true },
+})
+
+// After (Supabase)
+const { data: domains } = await supabase
+  .from("Domain")
+  .select(
+    `
+    *,
+    pages:Page(*)
+  `
+  )
+  .match({ space_id: spaceId })
+  .order("name")
+```
+
+For reference, I can see this pattern needs to be applied in several places in the codebase:
+
+```typescript:features/space/actions.ts
+startLine: 67
+endLine: 72
+```
+
+```typescript:features/domains/actions.ts
+startLine: 10
+endLine: 15
+```
+
+```typescript:features/membership/actions.ts
+startLine: 9
+endLine: 15
+```
+
+These should all be refactored to use Supabase queries to properly leverage RLS policies.
