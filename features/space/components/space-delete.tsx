@@ -1,9 +1,11 @@
 "use client"
 
-import { deleteSpace } from "@/features/space/actions" // You'll need to create this action
+import { useRouter } from "next/navigation"
+import { deleteSpace } from "@/features/space/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useServerAction } from "zsa-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -39,6 +41,7 @@ interface SpaceDeleteProps {
 }
 
 export function SpaceDelete(props: SpaceDeleteProps) {
+  const router = useRouter()
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     context: { spaceName: props.space.name },
@@ -48,8 +51,30 @@ export function SpaceDelete(props: SpaceDeleteProps) {
     },
   })
 
+  const { execute, isPending } = useServerAction(deleteSpace)
+
   const onSubmit = async () => {
-    await deleteSpace(props.space.id)
+    const [result, error] = await execute({ id: props.space.id })
+
+    if (error) {
+      form.setError("root", {
+        type: "server",
+        message: error.message,
+      })
+      return
+    }
+
+    if (!result?.success) {
+      form.setError("root", {
+        type: "server",
+        message: "Failed to delete workspace",
+      })
+      return
+    }
+
+    if (result.redirect) {
+      router.push(result.redirect)
+    }
   }
 
   return (
@@ -83,10 +108,20 @@ export function SpaceDelete(props: SpaceDeleteProps) {
               autoComplete="organization"
               description="Please type the Space name to delete"
             />
+            {form.formState.errors.root && (
+              <div className="text-sm text-destructive mt-2" role="alert">
+                {form.formState.errors.root.message}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex items-center justify-end py-4 border-t border-destructive/50 bg-destructive/5">
-            <Button type="submit" size="sm" variant="destructive">
-              Delete
+            <Button
+              type="submit"
+              size="sm"
+              variant="destructive"
+              disabled={isPending}
+            >
+              {isPending ? "Deleting..." : "Delete"}
             </Button>
           </CardFooter>
         </Card>

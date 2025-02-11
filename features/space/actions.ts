@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { Space } from "@prisma/client"
 import { PostgrestError } from "@supabase/supabase-js"
+import { z } from "zod"
 import { createServerAction } from "zsa"
 
 import { prisma } from "@/lib/prisma"
@@ -133,9 +134,62 @@ export async function updateSpace(
 }
 
 // Delete a space
-export async function deleteSpace(id: string) {
-  const space = await prisma.space.delete({
-    where: { id },
+export const deleteSpace = createServerAction()
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return {
+        success: false,
+        error: {
+          message: "You must be logged in to delete a workspace",
+          status: 401,
+          code: "unauthorized",
+        },
+      }
+    }
+
+    // Verify user has access to this space
+    const space = await prisma.space.findFirst({
+      where: {
+        id: input.id,
+        user_id: user.id,
+      },
+    })
+
+    if (!space) {
+      return {
+        success: false,
+        error: {
+          message: "Space not found",
+          status: 404,
+          code: "not_found",
+        },
+      }
+    }
+
+    try {
+      await prisma.space.delete({
+        where: { id: input.id },
+      })
+
+      revalidatePath("/spaces")
+      return {
+        success: true,
+        redirect: "/spaces",
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to delete workspace",
+          status: 500,
+          code: "delete_space_failed",
+        },
+      }
+    }
   })
-  return { space }
-}
