@@ -456,3 +456,123 @@ endLine: 15
 ```
 
 These should all be refactored to use Supabase queries to properly leverage RLS policies.
+
+## Form Submit Buttons
+
+### Never Disable Submit Buttons
+
+❌ Don't disable submit buttons:
+
+```typescript
+<Button type="submit" disabled={isPending || !form.isValid}>
+  Submit
+</Button>
+```
+
+✅ Always keep submit buttons enabled:
+
+```typescript
+<Button type="submit">
+  {isPending ? "Submitting..." : "Submit"}
+</Button>
+```
+
+Rationale:
+
+- Disabling submit buttons hides form validation errors from users
+- Users should be able to attempt submission and see validation feedback
+- Let the form's validation handle invalid states
+- Show loading states through button text/spinner instead
+- Better accessibility as screen readers can interact with the button
+- More consistent user experience across the application
+
+### Form Validation Feedback
+
+Instead of preventing submission:
+
+1. Let users submit the form
+2. Show validation errors inline
+3. Use aria-live regions for error announcements
+4. Provide clear feedback on what needs to be fixed
+5. Maintain interactive state for better UX
+
+## Learning From Failures
+
+### Document Common Mistakes
+
+Keep track of mistakes and their solutions to maintain consistency and prevent repetition:
+
+❌ Common Mistakes to Avoid:
+
+```typescript
+// 1. Never disable submit buttons
+<Button type="submit" disabled={isPending}>  // Don't do this
+
+// 2. Never use client-side redirects in server components
+redirect('/some-path')  // Don't do this in server components
+
+// 3. Never use Prisma directly (use Supabase)
+const user = await prisma.user.findFirst()  // Don't do this
+
+// 4. Never handle forms without proper validation
+<form onSubmit={handleSubmit}>  // Don't do this without validation
+  <input />
+</form>
+
+// 5. Never define Zod schemas outside component scope if they need props
+const schema = z.object({  // Don't do this
+  name: z.string().refine(value => value === page.name)  // page is undefined!
+})
+```
+
+✅ Correct Patterns:
+
+```typescript
+// 1. Keep submit buttons enabled with loading state
+<Button type="submit">
+  {isPending ? "Submitting..." : "Submit"}
+</Button>
+
+// 2. Use server actions for redirects
+export async function deleteAction() {
+  // ... delete logic
+  revalidatePath()
+  redirect()
+}
+
+// 3. Use Supabase with RLS
+const { data: user } = await supabase
+  .from("User")
+  .select()
+  .single()
+
+// 4. Always use form validation
+const form = useForm({
+  resolver: zodResolver(schema)
+})
+
+// 5. Define dynamic schemas inside component scope
+function Component({ page }) {
+  const schema = z.object({
+    name: z.string().refine(value => value === page.name)  // page is in scope
+  })
+}
+```
+
+### Maintaining a Knowledge Base
+
+1. Document each encountered issue
+2. Add the solution to the codebase guidelines
+3. Share learnings with the team
+4. Update component patterns
+5. Review and refactor similar instances
+
+### Error Prevention Checklist
+
+Before implementing new features:
+
+1. Check for similar patterns in the codebase
+2. Review documented mistakes
+3. Follow established solutions
+4. Use type-safe alternatives
+5. Add new learnings to documentation

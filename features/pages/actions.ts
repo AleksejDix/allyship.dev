@@ -1,9 +1,12 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
 import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 
 export async function getPagesByDomainId(domain_id: string) {
   return prisma.page.findMany({
@@ -115,3 +118,33 @@ export async function createPageFromUrl(
     }
   }
 }
+
+export const deletePage = createServerAction()
+  .input(
+    z.object({
+      pageId: z.string(),
+      spaceId: z.string(),
+      domainId: z.string(),
+    })
+  )
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+
+    const { error } = await supabase
+      .from("Page")
+      .delete()
+      .eq("id", input.pageId)
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to delete page",
+          code: "DELETE_FAILED",
+        },
+      }
+    }
+
+    revalidatePath(`/spaces/${input.spaceId}/${input.domainId}/pages`)
+    redirect(`/spaces/${input.spaceId}/${input.domainId}/pages`)
+  })

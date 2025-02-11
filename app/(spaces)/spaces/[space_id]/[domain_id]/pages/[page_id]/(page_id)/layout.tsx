@@ -23,7 +23,7 @@ export default async function Layout({ params, children }: LayoutProps) {
     .single()
 
   if (!page) {
-    throw new Error("Page not found")
+    return null
   }
 
   return (
@@ -33,7 +33,6 @@ export default async function Layout({ params, children }: LayoutProps) {
         domain_id={domain_id}
         page_id={page_id}
       />
-
       {children}
     </>
   )
