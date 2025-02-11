@@ -63,7 +63,7 @@ export const crawl = createServerAction()
         data: createdPages,
         stats,
       }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: {
