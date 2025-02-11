@@ -1,35 +1,26 @@
-// Create and inject the editor wrapper
-function createEditorWrapper() {
-  // Save original body content
-  const originalContent = document.body.innerHTML
+// Initialize content script
+console.log("AllyStudio content script loaded")
 
-  // Create wrapper elements
-  const editorWrapper = document.createElement("div")
-  editorWrapper.id = "ally-studio-wrapper"
-
-  // Create toolbar
-  const toolbar = document.createElement("div")
-  toolbar.id = "ally-studio-toolbar"
-
-  // Create content container
-  const contentContainer = document.createElement("div")
-  contentContainer.id = "ally-studio-content"
-  contentContainer.innerHTML = originalContent
-
-  // Add elements to wrapper
-  editorWrapper.appendChild(toolbar)
-  editorWrapper.appendChild(contentContainer)
-
-  // Replace body content with our wrapper
-  document.body.innerHTML = ""
-  document.body.appendChild(editorWrapper)
-}
+// Keep track of overlay instance
+let overlayInstance = null
 
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "activateEditor") {
-    createEditorWrapper()
-    sendResponse({ success: true })
+  if (request.action === "initializeOverlay") {
+    try {
+      // Remove existing overlay if it exists
+      if (overlayInstance) {
+        overlayInstance.cleanup()
+      }
+
+      // Create new overlay instance
+      overlayInstance = new AccessibilityOverlay()
+      overlayInstance.initialize()
+      sendResponse({ success: true })
+    } catch (error) {
+      console.error("Failed to initialize overlay:", error)
+      sendResponse({ success: false, error: error.message })
+    }
   }
   return true
 })
@@ -68,7 +59,6 @@ const styles = `
   .main-content {
     position: relative;
     background: transparent;
-    padding: 16px;
     overflow: hidden;
   }
 
@@ -76,7 +66,6 @@ const styles = `
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: 8px;
     background: transparent;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
   }
@@ -122,10 +111,10 @@ const styles = `
 
   .highlight-container {
     position: absolute;
-    top: 16px;  /* Match iframe padding */
-    left: 16px; /* Match iframe padding */
-    right: 16px;
-    bottom: 16px;
+    top: 0;  /* Match iframe padding */
+    left: 0; /* Match iframe padding */
+    right: 0;
+    bottom: 0;
     pointer-events: none;
     z-index: 1000;
     border-radius: 8px; /* Match iframe border-radius */
@@ -153,36 +142,6 @@ const styles = `
 const styleSheet = document.createElement("style")
 styleSheet.textContent = styles
 document.head.appendChild(styleSheet)
-
-// Initialize content script
-console.log("AllyStudio content script loaded")
-
-// Keep track of overlay instance
-let overlayInstance = null
-
-// Listen for messages from the extension
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Message received:", request.action)
-
-  if (request.action === "initializeOverlay") {
-    try {
-      // Remove existing overlay if it exists
-      if (overlayInstance) {
-        overlayInstance.cleanup()
-      }
-
-      // Create new overlay instance
-      overlayInstance = new AccessibilityOverlay()
-      overlayInstance.initialize()
-
-      sendResponse({ success: true })
-    } catch (error) {
-      console.error("Failed to initialize overlay:", error)
-      sendResponse({ success: false, error: error.message })
-    }
-    return true
-  }
-})
 
 // AllyStudio Content Script
 class AccessibilityOverlay {
@@ -240,7 +199,6 @@ class AccessibilityOverlay {
       .main-content {
         position: relative;
         background: transparent;
-        padding: 16px;
         overflow: hidden;
       }
 
@@ -248,7 +206,6 @@ class AccessibilityOverlay {
         width: 100%;
         height: 100%;
         border: none;
-        border-radius: 8px;
         background: transparent;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
       }
@@ -294,10 +251,10 @@ class AccessibilityOverlay {
 
       .highlight-container {
         position: absolute;
-        top: 16px;  /* Match iframe padding */
-        left: 16px; /* Match iframe padding */
-        right: 16px;
-        bottom: 16px;
+        top: 0;  /* Match iframe padding */
+        left: 0; /* Match iframe padding */
+        right: 0;
+        bottom: 0;
         pointer-events: none;
         z-index: 1000;
         border-radius: 8px; /* Match iframe border-radius */
