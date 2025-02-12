@@ -21,7 +21,7 @@ export default async function GlossaryPage() {
           heading="Glossary"
           description="Learn the language of web accessibility and development."
         />
-        <Separator className="my-8" />
+        <Separator className="mt-6 mb-8" />
         <GlossarySearch terms={terms} />
       </div>
     </div>
