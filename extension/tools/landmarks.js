@@ -1,13 +1,30 @@
+export interface HighlightOptions {
+  borderColor: string;
+  backgroundColor: string;
+  label: string;
+}
+
+export interface LandmarkResult {
+  count: number;
+  elements: Array<{
+    tag: string;
+    role: string | null;
+  }>;
+}
+
 export class LandmarksTool {
-  constructor(iframeDoc, highlighter) {
-    this.iframeDoc = iframeDoc
-    this.highlighter = highlighter
+  private iframeDoc: Document;
+  private highlighter: any; // Replace with proper Highlighter type when available
+
+  constructor(iframeDoc: Document, highlighter: any) {
+    this.iframeDoc = iframeDoc;
+    this.highlighter = highlighter;
   }
 
-  run() {
+  run(): LandmarkResult {
     if (!this.iframeDoc) {
-      console.warn("Iframe document not available")
-      return
+      console.warn("Iframe document not available");
+      return { count: 0, elements: [] };
     }
 
     // Find all landmark regions
@@ -26,10 +43,10 @@ export class LandmarksTool {
         'div[role="banner"]',
         'div[role="contentinfo"]',
       ].join(",")
-    )
+    );
 
     // Highlight each landmark
-    landmarks.forEach((landmark) => {
+    landmarks.forEach((landmark: Element) => {
       this.highlighter.highlight(landmark, {
         borderColor: "#3b82f6",
         backgroundColor: "rgba(59, 130, 246, 0.1)",
@@ -38,19 +55,19 @@ export class LandmarksTool {
           (landmark.getAttribute("role")
             ? ` [${landmark.getAttribute("role")}]`
             : ""),
-      })
-    })
+      });
+    });
 
     return {
       count: landmarks.length,
-      elements: Array.from(landmarks).map((landmark) => ({
+      elements: Array.from(landmarks).map((landmark: Element) => ({
         tag: landmark.tagName.toLowerCase(),
         role: landmark.getAttribute("role"),
       })),
-    }
+    };
   }
 
-  getResultsHTML(results) {
+  getResultsHTML(results: LandmarkResult): string {
     return `
       <div class="tool-results">
         <h3 style="margin: 0 0 8px 0; font-size: 16px;">Landmarks Found (${results.count})</h3>

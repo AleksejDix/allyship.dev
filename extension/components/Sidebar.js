@@ -8,9 +8,12 @@ export class Sidebar {
   addToolGroup(name, title) {
     const group = document.createElement("div")
     group.className = "tool-group"
-    group.innerHTML = `<div class="tool-group-title">${title}</div>`
+    group.innerHTML = `
+      <div class="tool-group-title">${title}</div>
+      <div class="tool-group-content"></div>
+    `
     this.element.appendChild(group)
-    this.toolGroups.set(name, group)
+    this.toolGroups.set(name, group.querySelector(".tool-group-content"))
     return group
   }
 
@@ -21,11 +24,12 @@ export class Sidebar {
     const button = document.createElement("button")
     button.className = "tool-btn"
     button.dataset.tool = id
+    button.dataset.tooltip = label
     button.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         ${icon}
       </svg>
-      ${label}
+      <span>${label}</span>
     `
     button.addEventListener("click", onClick)
     group.appendChild(button)
@@ -40,5 +44,41 @@ export class Sidebar {
     const div = document.createElement("div")
     div.innerHTML = content
     this.element.appendChild(div)
+  }
+
+  showResults(title, content) {
+    const resultsGroup =
+      this.toolGroups.get("results") || this.addToolGroup("results", "Results")
+    const resultsContent = resultsGroup.querySelector(".tool-group-content")
+    if (resultsContent) {
+      resultsContent.innerHTML = `
+        <div class="results-header">
+          <h3 class="text-sm font-medium">${title}</h3>
+        </div>
+        <div class="results-content">
+          ${content}
+        </div>
+      `
+    }
+  }
+
+  showError(message, details = []) {
+    this.showResults(
+      "Error",
+      `
+      <div class="error-message text-red-500">
+        ${message}
+        ${
+          details.length > 0
+            ? `
+          <ul class="error-details mt-2 text-sm">
+            ${details.map((detail) => `<li>${detail}</li>`).join("")}
+          </ul>
+        `
+            : ""
+        }
+      </div>
+    `
+    )
   }
 }
