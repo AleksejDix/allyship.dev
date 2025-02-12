@@ -11,9 +11,21 @@ class AllyStudioOverlay extends HTMLElement {
     // Create shadow root for style isolation
     this.attachShadow({ mode: "open" })
 
+    // Initialize state
+    this.tools = new Map()
+    this.activeTools = new Set()
+    this.styles = {
+      base: baseStyles,
+      highlights: highlightStyles,
+      tools: toolStyles,
+    }
+
     // Create styles
     const style = document.createElement("style")
     style.textContent = `
+      ${baseStyles}
+      ${toolStyles}
+
       :host {
         position: fixed;
         top: 0;
@@ -115,6 +127,52 @@ class AllyStudioOverlay extends HTMLElement {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
       }
 
+      .tool-group {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tool-group:last-child {
+        border-bottom: none;
+      }
+
+      .tool-group-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+
+      .tool-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .tool-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .tool-btn.active {
+        background: #3b82f6;
+      }
+
+      .tool-btn svg {
+        width: 16px;
+        height: 16px;
+        opacity: 0.8;
+      }
+
       @keyframes pulse {
         0% { opacity: 0.6; }
         50% { opacity: 1; }
@@ -132,10 +190,8 @@ class AllyStudioOverlay extends HTMLElement {
           <span style="font-weight: 600">Allyship.dev</span>
         </div>
         <div class="menu">
-          <div class="menu-item">File</div>
-          <div class="menu-item">Edit</div>
-          <div class="menu-item">View</div>
           <div class="menu-item">Tools</div>
+          <div class="menu-item">Settings</div>
           <div class="menu-item">Help</div>
         </div>
       </div>
@@ -152,8 +208,19 @@ class AllyStudioOverlay extends HTMLElement {
 
     // Store references
     this.iframe = this.shadowRoot.querySelector("#ally-studio-iframe")
-    this.leftSidebar = this.shadowRoot.querySelector(".sidebar.left")
-    this.rightSidebar = this.shadowRoot.querySelector(".sidebar.right")
+    this.leftSidebar = new Sidebar("left")
+    this.rightSidebar = new Sidebar("right")
+
+    // Add sidebars to layout
+    this.shadowRoot
+      .querySelector(".sidebar.left")
+      .appendChild(this.leftSidebar.element)
+    this.shadowRoot
+      .querySelector(".sidebar.right")
+      .appendChild(this.rightSidebar.element)
+
+    // Initialize tools
+    this.initializeTools()
   }
 
   connectedCallback() {
