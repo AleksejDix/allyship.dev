@@ -113,7 +113,7 @@ export const Footer = () => {
           </div>
           <div className="mt-24 flex flex-col justify-between gap-4 border-t border-border pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
             <p>© 2024 Allyship. All rights reserved.</p>
-            <ul className="flex gap-4">
+            <ul className="flex gap-4 items-center">
               <li>
                 <ThemeToggle />
               </li>

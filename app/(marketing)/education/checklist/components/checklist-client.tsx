@@ -118,20 +118,20 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
           : ""}
       </div>
 
-      <div className="space-y-8" role="list">
+      <div className="space-y-8   rounded-sm text-gray-300" role="list">
         {filteredItems.map((section) => (
           <section
             key={section.title}
-            className="space-y-4"
+            className=" rounded-2xl "
             aria-labelledby={`section-${section.title}`}
           >
             <h2
               id={`section-${section.title}`}
-              className="text-2xl font-semibold"
+              className="text-2xl font-semibold text-white mb-2"
             >
               {section.title}
             </h2>
-            <ul className="space-y-2" role="list">
+            <ul className="space-y-3 mt-3" role="list">
               {section.items.map((item) => (
                 <ChecklistItem
                   key={item.index}
@@ -163,7 +163,10 @@ function ChecklistItem({
   isChecked,
 }: ChecklistItemProps) {
   return (
-    <li className="flex items-start justify-between gap-3" role="listitem">
+    <li
+      className="flex items-center space-x-4 p-3 rounded-lg transition-colors bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-300"
+      role="listitem"
+    >
       <Label htmlFor={`switch-${index}`} className="flex-1 cursor-pointer">
         {label}
       </Label>
