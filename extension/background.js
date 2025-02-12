@@ -50,30 +50,24 @@ chrome.webRequest.onHeadersReceived.addListener(
   ]
 )
 
-// Listen for extension button click
+// Listen for extension icon click
 chrome.action.onClicked.addListener(async (tab) => {
-  try {
-    // Check if we can access the tab
-    if (!tab.url.startsWith("chrome://") && !tab.url.startsWith("edge://")) {
-      // Inject content script
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ["content.js"],
-      })
+  // Open the side panel
+  await chrome.sidePanel.open({ windowId: tab.windowId })
 
-      // Send message to content script
-      await chrome.tabs.sendMessage(tab.id, { action: "initializeOverlay" })
-    }
+  try {
+    // Inject the content script
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ["content.js"],
+    })
+
+    // Send message to initialize overlay
+    await chrome.tabs.sendMessage(tab.id, { action: "initializeOverlay" })
   } catch (error) {
     console.error("Failed to initialize overlay:", error)
   }
 })
-
-// Function to be injected
-function initializeAccessibilityOverlay() {
-  // Send message to content script to initialize overlay
-  chrome.runtime.sendMessage({ action: "initializeOverlay" })
-}
 
 // Listen for messages from popup or content script
 chrome.runtime.onMessage.addListener((request) => {

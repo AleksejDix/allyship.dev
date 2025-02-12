@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AllyStudio Panel</title>
+    <link rel="stylesheet" href="styles/sidepanel.css" />
+  </head>
+  <body>
+    <div class="panel-container">
+      <header class="panel-header">
+        <h1>AllyStudio</h1>
+      </header>
+
+      <div class="tools-section">
+        <h2>Audit Tools</h2>
+        <div class="tool-buttons">
+          <button id="startAudit" class="tool-btn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+              ></path>
+              <path
+                d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z"
+              ></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            Run Accessibility Audit
+          </button>
+          <button id="showLandmarks" class="tool-btn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <path d="M9 9h6v6H9z"></path>
+            </svg>
+            Show Landmarks
+          </button>
+          <button id="checkContrast" class="tool-btn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 2v20"></path>
+            </svg>
+            Check Contrast
+          </button>
+        </div>
+      </div>
+
+      <div class="results-section">
+        <h2>Results</h2>
+        <div id="resultsContainer" class="results-container">
+          Select a tool to begin analysis
+        </div>
+      </div>
+    </div>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
