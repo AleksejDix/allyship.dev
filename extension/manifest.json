@@ -1,44 +1,43 @@
 {
   "manifest_version": 3,
   "name": "AllyStudio",
-  "version": "1.0",
   "description": "Visual accessibility inspector and editor",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "tabs",
-    "webRequest",
-    "webRequestBlocking"
-  ],
-  "host_permissions": ["<all_urls>"],
+  "version": "1.0",
   "action": {
     "default_icon": {
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "webRequest",
+    "webRequestBlocking"
+  ],
   "icons": {
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "type": "module"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "lib/overlay.js",
-        "lib/highlighter.js",
-        "components/Sidebar.js",
-        "tools/landmarks.js",
-        "styles/main.js"
-      ],
+      "resources": ["components/*.js", "tools/*.js", "icons/*"],
       "matches": ["<all_urls>"]
     }
   ]
