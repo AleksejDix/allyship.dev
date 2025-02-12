@@ -38,7 +38,7 @@ export default async function BlogPage() {
                   {post.date && (
                     <time
                       dateTime={post.date}
-                      className="text-sm text-muted-foreground block mt-1"
+                      className="text-sm text-muted-foreground block mt-1 tabular-nums whitespace-nowrap"
                     >
                       {formatDate(post.date)}
                     </time>

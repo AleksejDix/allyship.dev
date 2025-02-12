@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useTheme } from "next-themes"
 import Confetti from "react-confetti"
 import { useForm } from "react-hook-form"
 
@@ -18,7 +17,6 @@ interface ChecklistClientProps {
 }
 
 export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
-  const { theme } = useTheme()
   const [checkedItems, setCheckedItems] = useState<number[]>([])
   const [allChecked, setAllChecked] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -141,7 +139,6 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
                   label={item.label}
                   onChange={handleCheckboxChange}
                   isChecked={checkedItems.includes(item.index)}
-                  theme={theme}
                 />
               ))}
             </ul>
@@ -157,7 +154,6 @@ interface ChecklistItemProps {
   index: number
   onChange: (index: number) => void
   isChecked: boolean
-  theme?: string
 }
 
 function ChecklistItem({
@@ -165,12 +161,10 @@ function ChecklistItem({
   index,
   onChange,
   isChecked,
-  theme,
 }: ChecklistItemProps) {
   return (
     <li
-      className={`flex items-center space-x-4 p-3 rounded-lg  transition-colors
-    ${theme === "dark" ? "bg-gray-800 text-gray-300" : "bg-gray-200 text-gray-900"}`}
+      className="flex items-center space-x-4 p-3 rounded-lg transition-colors bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-300"
       role="listitem"
     >
       <Label htmlFor={`switch-${index}`} className="flex-1 cursor-pointer">
