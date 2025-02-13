@@ -796,3 +796,106 @@ Common icon usage patterns:
   <ExternalLink aria-hidden="true" className="w-4 h-4" />
 </a>
 ```
+
+## Blog Listing Patterns
+
+### Article List Structure
+
+❌ Avoid over-complicating with unnecessary ARIA:
+
+```typescript
+// Don't do this
+<section aria-labelledby="blog-list-title">
+  <h2 id="blog-list-title" className="sr-only">Blog posts</h2>
+  <ul>
+    <li>
+      <article role="region" aria-label="Blog post">  // Don't elevate to region
+        <Link aria-labelledby="post-title post-date"> // Unnecessary aria
+          <span id="post-title">{title}</span>
+          <time id="post-date">{date}</time>
+        </Link>
+      </article>
+    </li>
+  </ul>
+</section>
+```
+
+✅ Use semantic HTML with proper heading structure:
+
+```typescript
+<main>
+  <ul>
+    <li>
+      <article> // Simple semantic grouping
+        <Link href={`/blog/${slug}`}>
+          <time dateTime={date}>{formattedDate}</time>
+          <h2>{title}</h2> // Navigable via headings menu
+        </Link>
+      </article>
+    </li>
+  </ul>
+</main>
+```
+
+Rationale:
+
+- Articles should not be elevated to landmarks/regions unless they are primary content areas
+- Use native heading elements (h2) instead of ARIA labeling for navigation
+- Keep landmark menu clean and focused on major page sections
+- Rely on semantic HTML over ARIA when possible
+- Allow navigation via:
+  1. Headings menu (h2 titles)
+  2. List structure
+  3. Main landmark
+
+### Blog Post Navigation
+
+Key navigation patterns to support:
+
+1. Keyboard navigation through list items
+2. Screen reader list announcement
+3. Heading-based navigation to individual posts
+4. Single main landmark containing all posts
+
+Example with proper focus management:
+
+```typescript
+<main>
+  <ul className="space-y-4">
+    {posts.map((post) => (
+      <li key={post.slug}>
+        <article>
+          <Link
+            href={`/blog/${post.slug}`}
+            className={cn(
+              "grid grid-cols-4 p-2 rounded-md",
+              "transition-colors duration-200",
+              "hover:bg-muted hover:shadow-sm",
+              "focus-visible:outline-none focus-visible:ring-2",
+              "focus-visible:ring-ring focus-visible:ring-offset-2",
+              "focus-visible:bg-muted focus-visible:shadow-sm"
+            )}
+          >
+            <time dateTime={post.date} className="...">
+              {formatDate(post.date)}
+            </time>
+            <div className="col-span-12 md:col-span-3">
+              <h2 className="text-base font-normal">
+                {post.title}
+              </h2>
+            </div>
+          </Link>
+        </article>
+      </li>
+    ))}
+  </ul>
+</main>
+```
+
+Benefits:
+
+- Clean document outline
+- Efficient navigation for screen reader users
+- Proper semantic structure
+- Minimal ARIA usage
+- Clear visual and keyboard focus indicators
