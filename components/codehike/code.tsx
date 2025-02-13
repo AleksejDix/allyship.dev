@@ -32,7 +32,7 @@ export async function Code({ codeblock }: { codeblock: RawCode }) {
     <div className="relative my-4">
       <div className="rounded-lg border border-border overflow-hidden">
         {/* Title bar */}
-        <div className="relative bg-muted border-b border-border px-4 py-2 flex items-center gap-2">
+        <div className="relative bg-muted border-b border-border px-4 py-2 h-8 flex items-center gap-2">
           {/* Traffic light buttons */}
           <div className="flex gap-1.5 absolute left-0 px-2">
             <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -46,14 +46,15 @@ export async function Code({ codeblock }: { codeblock: RawCode }) {
           </div>
 
           <div className="w-16" />
+
+          <div className="absolute top-0.5 right-0.5">
+            <CopyButton text={highlighted.code} />
+          </div>
         </div>
 
         {/* Code content */}
         <div className="overflow-auto py-4 relative">
           <Pre code={highlighted} handlers={handlers} />
-          <div className="absolute top-3 right-3">
-            <CopyButton text={highlighted.code} />
-          </div>
         </div>
       </div>
     </div>
