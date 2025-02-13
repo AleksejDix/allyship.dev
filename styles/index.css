@@ -96,7 +96,6 @@ body {
   }
 }
 
-
 .logo {
   --base: 16;
   --base-width: calc(var(--base) * 1px);
@@ -104,16 +103,14 @@ body {
   width: calc(var(--base-width) * 1.7);
   margin: 0 auto;
   grid-template-columns: 1fr 1fr;
-  --c1: theme('colors.violet.500');
-  --c2: theme('colors.red.500');
-  --c3: theme('colors.orange.500');
-  --c4: theme('colors.yellow.500');
-  --c5: theme('colors.green.500');
-  --c6: theme('colors.blue.500');
-  --c7: theme('colors.indigo.500');
+  --c1: theme("colors.violet.500");
+  --c2: theme("colors.red.500");
+  --c3: theme("colors.orange.500");
+  --c4: theme("colors.yellow.500");
+  --c5: theme("colors.green.500");
+  --c6: theme("colors.blue.500");
+  --c7: theme("colors.indigo.500");
 }
-
-
 
 .circle {
   width: calc(var(--base) * 1px);
@@ -122,11 +119,12 @@ body {
 }
 
 .offset-y {
-  transform: translate3d(-29.30%, 0, 0) rotate(-45deg);
+  transform: translate3d(-29.3%, 0, 0) rotate(-45deg);
 }
 
 .g-1 {
-  background: conic-gradient(from 180deg at 50% 50%,
+  background: conic-gradient(
+    from 180deg at 50% 50%,
     var(--c1) 0,
     var(--c2) 90deg,
     var(--c3) 180deg,
@@ -136,15 +134,14 @@ body {
 }
 
 .g-2 {
-  background: conic-gradient(from 0deg at 50% 50%,
+  background: conic-gradient(
+    from 0deg at 50% 50%,
     var(--c7) 0,
     var(--c6) 90deg,
     var(--c5) 180deg,
     var(--c4) 270deg
   );
 }
-
-
 
 a {
   color: inherit;
@@ -156,28 +153,27 @@ a:not(.button):hover {
 }
 
 a:not(.button):focus {
-  outline: 2px solid theme('colors.blue.500');
+  outline: 2px solid theme("colors.blue.500");
   outline-offset: 2px;
 }
 
 a:not(.button):visited {
-  color: theme('colors.blue.700');
+  color: theme("colors.blue.700");
 }
 
 .dark a:not(.button):visited {
-  color: theme('colors.blue.400');
+  color: theme("colors.blue.400");
 }
 
 a:not(.button)[aria-current="page"] {
-  color: theme('colors.orange.700');
+  color: theme("colors.orange.700");
   text-decoration: underline;
   font-weight: 700;
 }
 
 .dark a:not(.button)[aria-current="page"] {
-  color: theme('colors.orange.400');
+  color: theme("colors.orange.400");
 }
-
 
 a.button[aria-current="page"] {
   @apply bg-accent text-accent-foreground;
@@ -187,7 +183,12 @@ a.button[aria-current="page"] {
   position: absolute;
   width: 50%;
   height: 600px;
-  background: conic-gradient(from 90deg, hsl(var(--glow)), hsl(var(--background)), hsl(var(--background)));
+  background: conic-gradient(
+    from 90deg,
+    hsl(var(--glow)),
+    hsl(var(--background)),
+    hsl(var(--background))
+  );
 }
 
 .gradient-left {

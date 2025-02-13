@@ -1,15 +1,14 @@
+import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { MDXRemote } from "next-mdx-remote/rsc"
 
+import { env } from "@/env.mjs"
+import { siteConfig } from "@/config/site"
+import { getAllPageSlugs, getPageBySlug } from "@/lib/mdx"
+import { absoluteUrl } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { components } from "@/components/mdx-components"
 import { PageHeader } from "@/components/page-header"
-import { getAllPageSlugs, getPageBySlug } from "@/lib/mdx"
-
-import { Metadata } from "next"
-import { env } from "@/env.mjs"
-import { siteConfig } from "@/config/site"
-import { absoluteUrl } from "@/lib/utils"
 
 interface PageProps {
   params: {
