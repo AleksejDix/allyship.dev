@@ -75,6 +75,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
+  const ogUrl = new URL("/api/og", process.env.NEXT_PUBLIC_APP_URL)
+  ogUrl.searchParams.set("title", post.title)
+  if (post.description) {
+    ogUrl.searchParams.set("description", post.description)
+  }
+
   return (
     <article className="container max-w-3xl py-6 lg:py-12">
       <div className="space-y-6">
