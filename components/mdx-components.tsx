@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Code } from "@/components/code"
 
 const MarkComponent = ({
   children,
@@ -219,24 +220,6 @@ export const components = {
       {...props}
     />
   ),
-  pre: ({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
-    <pre
-      className={cn(
-        "mb-4 mt-6 overflow-x-auto rounded-lg border border-border p-4",
-        className
-      )}
-      {...props}
-    />
-  ),
-  code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
-    <code
-      className={cn(
-        "relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm",
-        className
-      )}
-      {...props}
-    />
-  ),
   figure: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <figure
       className={cn("relative overflow-auto my-6 w-full", className)}
@@ -246,6 +229,7 @@ export const components = {
   Image,
   Link,
   mark: MarkComponent,
+  Code,
   strong: ({
     className,
     children,
