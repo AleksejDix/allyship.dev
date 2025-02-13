@@ -24,26 +24,34 @@ export async function GET(request: Request) {
             backgroundColor: "black",
             padding: "48px",
             position: "relative",
+            backgroundImage: "linear-gradient(to bottom, #264059, black)",
           }}
         >
           <div tw="flex flex-col w-full relative">
             <h1 tw="text-6xl font-bold tracking-tight text-white text-left mb-4">
-              {title}
+              📢 {title}
             </h1>
             {description && (
               <p tw="text-4xl text-gray-300 text-left">{description}</p>
             )}
-            <p tw="text-2xl text-gray-300 text-left">
-              <div tw="flex space-x-2">
-                <div tw="bg-red-500 w-10 h-10 mr-2 rounded-full"></div>
-                <div tw="bg-red-500 w-10 h-10 mr-2 rounded-full"></div>
-                <div tw="bg-red-500 w-10 h-10 mr-2 rounded-full"></div>
-                <div tw="bg-red-500 w-10 h-10 mr-2 rounded-full"></div>
-                <div tw="bg-green-500 w-10 h-10 mr-2 rounded-full"></div>
-                <div tw="bg-green-500 w-10 h-10 mr-2 rounded-full"></div>
-                <div tw="bg-green-500 w-10 h-10 rounded-full"></div>
-              </div>
-            </p>
+          </div>
+          <div
+            style={{
+              left: 48,
+              bottom: 48,
+              position: "absolute",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 48,
+                color: "white",
+              }}
+            >
+              allyship.dev
+            </span>
           </div>
         </div>
       ),
