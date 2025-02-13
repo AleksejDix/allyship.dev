@@ -1,14 +1,42 @@
 import * as React from "react"
+import { useId } from "react"
 import Image from "next/image"
-import { useMDXComponent } from "next-contentlayer2/hooks"
+import Link from "next/link"
+import { ExternalLink } from "lucide-react"
+import { MDXRemote } from "next-mdx-remote/rsc"
+import remarkGfm from "remark-gfm"
 
 import { cn } from "@/lib/utils"
-import { Callout } from "@/components/callout"
-import { MdxCard } from "@/components/mdx-card"
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
+const MarkComponent = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) => (
+  <span
+    className={cn(
+      "bg-yellow-100 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 rounded-sm px-1 py-0.5 font-medium",
+      className
+    )}
+  >
+    {children}
+  </span>
+)
 
 // add eslint ignore
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const components: Record<string, React.ComponentType<any>> = {
+export const components = {
   h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
       className={cn(
@@ -65,13 +93,41 @@ const components: Record<string, React.ComponentType<any>> = {
   ),
   a: ({
     className,
+    href,
+    children,
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a
-      className={cn("font-medium underline underline-offset-4", className)}
-      {...props}
-    />
-  ),
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+    const isExternal = href?.startsWith("http")
+    const id = useId()
+
+    return (
+      <a
+        className={cn(
+          "font-medium underline underline-offset-4 inline-flex items-center gap-1",
+          className
+        )}
+        href={href}
+        {...props}
+        {...(isExternal
+          ? {
+              target: "_blank",
+              rel: "noopener noreferrer",
+              "aria-labelledby": `${id}-link-label`,
+            }
+          : {})}
+      >
+        {children}
+        {isExternal && (
+          <>
+            <ExternalLink aria-hidden="true" size={16} />
+            <span id={`${id}-link-label`} className="sr-only">
+              {children} (opens in new window)
+            </span>
+          </>
+        )}
+      </a>
+    )
+  },
   p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p
       className={cn("leading-7 [&:not(:first-child)]:mt-6", className)}
@@ -115,13 +171,27 @@ const components: Record<string, React.ComponentType<any>> = {
     <hr className="my-4 md:my-8 bg-border border-b border-border" {...props} />
   ),
   table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-    <div className="my-6 w-full overflow-y-auto">
-      <table className={cn("w-full", className)} {...props} />
+    <div className="my-6 -mr-8">
+      <div className="w-full overflow-x-auto border border-border rounded-lg">
+        <Table className={cn("w-full] ", className)} {...props} />
+      </div>
     </div>
   ),
+  thead: ({
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLTableSectionElement>) => (
+    <TableHeader className={cn("bg-muted/50", className)} {...props} />
+  ),
+  tbody: ({
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLTableSectionElement>) => (
+    <TableBody className={cn(className)} {...props} />
+  ),
   tr: ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
-    <tr
-      className={cn("m-0 border-t p-0 even:bg-muted", className)}
+    <TableRow
+      className={cn("border-b transition-colors hover:bg-muted/50", className)}
       {...props}
     />
   ),
@@ -129,9 +199,9 @@ const components: Record<string, React.ComponentType<any>> = {
     className,
     ...props
   }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
-    <th
+    <TableHead
       className={cn(
-        "border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
+        "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&[align=center]]:text-center [&[align=right]]:text-right w-fit min-w-min max-w-[300px] whitespace-normal",
         className
       )}
       {...props}
@@ -141,9 +211,9 @@ const components: Record<string, React.ComponentType<any>> = {
     className,
     ...props
   }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
-    <td
+    <TableCell
       className={cn(
-        "border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
+        "p-4 align-middle [&[align=center]]:text-center [&[align=right]]:text-right w-fit  min-w-min max-w-[300px] whitespace-normal",
         className
       )}
       {...props}
@@ -152,14 +222,20 @@ const components: Record<string, React.ComponentType<any>> = {
   pre: ({ className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
       className={cn(
-        "mb-4 mt-6 min-w-full overflow-x-auto rounded-lg border border-border bg-black p-4",
+        "mb-4 mt-6 overflow-x-auto rounded-lg border border-border p-4",
         className
       )}
       {...props}
     />
   ),
   code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
-    <code className={cn("font-mono", className)} {...props} />
+    <code
+      className={cn(
+        "relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm",
+        className
+      )}
+      {...props}
+    />
   ),
   figure: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <figure
@@ -168,22 +244,55 @@ const components: Record<string, React.ComponentType<any>> = {
     />
   ),
   Image,
-  Callout,
-  Card: MdxCard,
+  Link,
+  mark: MarkComponent,
+  strong: ({
+    className,
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLElement>) => {
+    // Check if the content is a number (for fines/amounts)
+    const isAmount =
+      typeof children === "string" &&
+      /^[€$¥£]?\d+[,.]?\d*[MK]?\s*(CHF|EUR)?$/.test(children)
+
+    return (
+      <strong
+        className={cn(
+          "font-semibold",
+          isAmount &&
+            "bg-red-100 dark:bg-red-900 text-red-900 dark:text-red-100 rounded-sm px-1 py-0.5",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </strong>
+    )
+  },
 }
 
-interface MdxProps {
-  code: string
+interface MDXProps {
+  source: string
 }
 
-export function Mdx({ code }: MdxProps) {
-  const Component = useMDXComponent(code)
-
+export function MDXContent({ source }: MDXProps) {
   return (
-    <div className="mdx">
-      {/* eslint-disable-next-line */}
-      {/* @ts-ignore */}
-      <Component className="w-full overflow-x-hidden" components={components} />
+    <div className="mdx max-w-none">
+      <MDXRemote
+        source={source}
+        components={components}
+        options={{
+          mdxOptions: {
+            remarkPlugins: [remarkGfm],
+            format: "mdx",
+          },
+        }}
+      />
     </div>
   )
+}
+
+export function useMDXComponents() {
+  return components
 }

@@ -5,8 +5,6 @@ import { allTerms } from "contentlayer/generated"
 import { Separator } from "@/components/ui/separator"
 import { PageHeader } from "@/components/page-header"
 
-import "@/styles/mdx.css"
-
 export default async function GlossaryPage() {
   const terms = allTerms
 

@@ -1,6 +1,6 @@
 import createMDX from "@next/mdx"
-import { recmaCodeHike, remarkCodeHike } from "codehike/mdx"
-import { withContentlayer } from "next-contentlayer2"
+import remarkGfm from 'remark-gfm'
+
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -17,18 +17,14 @@ const nextConfig = {
   },
 }
 
-/** @type {import('codehike/mdx').CodeHikeConfig} */
-const chConfig = {
-  components: { code: "Code" },
-}
-
 const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
-    rehypePlugins: [[remarkCodeHike, chConfig]],
-    recmaPlugins: [[recmaCodeHike, chConfig]],
-    jsx: true,
+    remarkPlugins: [[remarkGfm, { singleTilde: false }]],
+    rehypePlugins: [],
+    // This is required for `MDXRemote` to work
+    providerImportSource: "@mdx-js/react",
   },
 })
 
-export default withContentlayer(withMDX(nextConfig))
+export default withMDX(nextConfig)
