@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Code } from "@/components/code"
+import { Code } from "@/components/codehike/code"
 
 const MarkComponent = ({
   children,
