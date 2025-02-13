@@ -9,8 +9,7 @@ import {
 } from "codehike/utils/token-transitions"
 
 const MAX_TRANSITION_DURATION = 900 // milliseconds
-
-export class SmoothPre extends React.Component<CustomPreProps> {
+export class PreWithRef extends React.Component<CustomPreProps> {
   ref: React.RefObject<HTMLPreElement>
   constructor(props: CustomPreProps) {
     super(props)

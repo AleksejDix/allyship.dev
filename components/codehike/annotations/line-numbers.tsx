@@ -5,12 +5,15 @@ export const lineNumbers: AnnotationHandler = {
   Line: (props) => {
     const width = props.totalLines.toString().length + 1
     return (
-      <div className="...">
-        <span className="..." style={{ minWidth: `${width}ch` }}>
+      <>
+        <span
+          style={{ minWidth: `${width}ch` }}
+          className="text-right opacity-50 select-none"
+        >
           {props.lineNumber}
         </span>
-        <InnerLine merge={props} className="..." />
-      </div>
+        <InnerLine merge={props} />
+      </>
     )
   },
 }
