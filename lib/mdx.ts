@@ -72,18 +72,21 @@ export function getAllPageSlugs() {
   function traverse(dir: string, parentPath: string[] = []) {
     const files = fs.readdirSync(dir)
 
-    files.forEach(file => {
+    files.forEach((file) => {
       const filePath = path.join(dir, file)
       const relativePath = [...parentPath, file]
       const stat = fs.statSync(filePath)
 
       if (stat.isDirectory()) {
         traverse(filePath, relativePath)
-      } else if (file.endsWith('.mdx')) {
+      } else if (file.endsWith(".mdx")) {
         pages.push({
           params: {
-            slug: relativePath.join('/').replace(/\.mdx$/, '').split('/')
-          }
+            slug: relativePath
+              .join("/")
+              .replace(/\.mdx$/, "")
+              .split("/"),
+          },
         })
       }
     })
@@ -112,7 +115,7 @@ export function getPostBySlug(slug: string): Post {
     date: data.date,
     authors,
     tags: data.tags || [],
-    published: data.published !== false
+    published: data.published !== false,
   }
 }
 
@@ -123,10 +126,12 @@ export function getPageBySlug(slug: string): Page | null {
     const { data, content } = matter(fileContents)
 
     // Get author data if authors are specified
-    const authors = data.authors ? data.authors.map((authorSlug: string) => {
-      const authorData = getAuthorData(authorSlug)
-      return authorData || { name: authorSlug }
-    }) : undefined
+    const authors = data.authors
+      ? data.authors.map((authorSlug: string) => {
+          const authorData = getAuthorData(authorSlug)
+          return authorData || { name: authorSlug }
+        })
+      : undefined
 
     return {
       slug,

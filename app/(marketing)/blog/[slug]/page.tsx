@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { remarkCodeHike } from "codehike/mdx"
 import { format } from "date-fns"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import remarkGfm from "remark-gfm"
@@ -8,6 +9,21 @@ import { siteConfig } from "@/config/site"
 import { getAllPostSlugs, getPostBySlug } from "@/lib/mdx"
 import { AuthorCard } from "@/components/author-card"
 import { components } from "@/components/mdx-components"
+
+/** @type {import('codehike/mdx').CodeHikeConfig} */
+const chConfig = {
+  // optional (see code docs):
+  components: { code: "Code" },
+  theme: "github-light",
+  lineNumbers: true,
+  showCopyButton: true,
+  skipLanguages: [],
+  autoImport: false,
+  // if you can't use RSC:
+  // syntaxHighlighting: {
+  //   theme: "github-dark",
+  // },
+}
 
 interface BlogPostPageProps {
   params: {
@@ -114,8 +130,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         components={components}
         options={{
           mdxOptions: {
-            remarkPlugins: [remarkGfm],
             format: "mdx",
+            remarkPlugins: [
+              [remarkGfm, { singleTilde: false }],
+              [remarkCodeHike, chConfig],
+            ],
           },
         }}
       />
