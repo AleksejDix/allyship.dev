@@ -176,6 +176,72 @@ export function InteractiveElement({
 }
 ```
 
+### Prefer aria-labelledby over aria-label
+
+❌ Avoid using aria-label:
+
+```typescript
+// Don't do this
+<button
+  aria-label="Close menu"
+  onClick={onClose}
+>
+  <Icon />
+</button>
+```
+
+✅ Use aria-labelledby instead:
+
+```typescript
+// Do this
+<button
+  aria-labelledby="menu-close-text"
+  onClick={onClose}
+>
+  <span id="menu-close-text" className="sr-only">Close menu</span>
+  <Icon aria-hidden="true" />
+</button>
+```
+
+Rationale:
+
+- aria-label content cannot be translated by browser translation tools
+- aria-labelledby references visible text that can be translated
+- Maintains accessibility across different languages
+- Better support for user language preferences
+- More maintainable when supporting multiple languages
+
+Example with dynamic content:
+
+```typescript
+<button
+  aria-labelledby={`${id}-button-label`}
+  onClick={onAction}
+>
+  <span id={`${id}-button-label`} className="sr-only">
+    {`Open ${name}'s profile`}
+  </span>
+  <Icon aria-hidden="true" />
+</button>
+```
+
+For links that open in new windows:
+
+```typescript
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-labelledby={`${id}-link-label`}
+>
+  {children}
+  <span id={`${id}-link-label`} className="sr-only">
+    {children} (opens in new window)
+  </span>
+  <ExternalLink aria-hidden="true" size={16} />
+</a>
+```
+
 ## Error Boundaries
 
 ### Feature Error Boundary
@@ -609,8 +675,6 @@ Before implementing new features:
 
 Examples of dead code to remove:
 
-````
-
 ## Authentication Guidelines
 
 ### Use Native Supabase Auth
@@ -620,8 +684,9 @@ Examples of dead code to remove:
 ```typescript
 // Don't do this
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+
 const supabase = createClientComponentClient()
-````
+```
 
 ✅ Use native Supabase auth instead:
 
@@ -660,3 +725,74 @@ Rationale:
 - Smaller bundle size
 - More frequent updates
 - Better accessibility defaults
+
+## Icon Accessibility
+
+### Always Hide Decorative Icons
+
+❌ Avoid exposing icons to screen readers:
+
+```typescript
+// Don't do this
+<button onClick={onClose}>
+  <Icon />
+  Close menu
+</button>
+
+// Don't do this - icon will be announced by screen readers
+<MenuIcon className="w-4 h-4" />
+```
+
+✅ Use aria-hidden="true" for icons:
+
+```typescript
+// Do this
+<button onClick={onClose}>
+  <Icon aria-hidden="true" />
+  Close menu
+</button>
+
+// Do this for standalone icons that have accessible labels
+<button aria-labelledby="menu-label">
+  <MenuIcon aria-hidden="true" className="w-4 h-4" />
+  <span id="menu-label" className="sr-only">Open menu</span>
+</button>
+```
+
+Rationale:
+
+- Icons are typically decorative and shouldn't be announced by screen readers
+- Prevents duplicate or confusing announcements when icons accompany text
+- Improves the screen reader experience by reducing noise
+- Ensures focus on meaningful content
+- Follows WCAG best practices for decorative elements
+
+Common icon usage patterns:
+
+```typescript
+// With text
+<button className="flex items-center gap-2">
+  <StarIcon aria-hidden="true" className="w-4 h-4" />
+  Add to favorites
+</button>
+
+// Standalone with label
+<button aria-labelledby="search-label">
+  <SearchIcon aria-hidden="true" className="w-4 h-4" />
+  <span id="search-label" className="sr-only">Search</span>
+</button>
+
+// In links that open in new window
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-labelledby={`${id}-link-label`}
+>
+  {children}
+  <span id={`${id}-link-label`} className="sr-only">
+    {children} (opens in new window)
+  </span>
+  <ExternalLink aria-hidden="true" className="w-4 h-4" />
+</a>
+```

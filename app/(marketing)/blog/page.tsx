@@ -1,18 +1,18 @@
 import Link from "next/link"
-import { allPosts } from "contentlayer/generated"
 import { compareDesc } from "date-fns"
 
 import { formatDate } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { PageHeader } from "@/components/page-header"
+import { getAllPosts } from "@/lib/mdx"
 
 export const metadata = {
   title: "Blog",
 }
 
 export default async function BlogPage() {
-  const posts = allPosts
-    .filter((post) => post.published)
+  const posts = getAllPosts()
+    .filter((post) => post.published !== false)
     .sort((a, b) => {
       return compareDesc(new Date(a.date), new Date(b.date))
     })
@@ -29,10 +29,10 @@ export default async function BlogPage() {
       <div className="mt-12 max-w-prose">
         <ul className="space-y-4">
           {posts.map((post) => (
-            <li key={post._id}>
-              <Link href={post.slug} className="block">
+            <li key={post.slug}>
+              <Link href={`/blog/${post.slug}`} className="block">
                 <div className="gap-4 justify-between">
-                  <h2 className="text-lg font-medium text-foreground ">
+                  <h2 className="text-lg font-medium text-foreground">
                     {post.title}
                   </h2>
                   {post.date && (
@@ -51,4 +51,4 @@ export default async function BlogPage() {
       </div>
     </div>
   )
-}
+} 
