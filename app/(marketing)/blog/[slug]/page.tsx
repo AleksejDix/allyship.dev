@@ -24,7 +24,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const ogUrl = new URL(`${siteConfig.url}/api/og`)
+  const ogUrl = new URL("/api/og", process.env.NEXT_PUBLIC_APP_URL)
   ogUrl.searchParams.set("title", post.title)
   if (post.description) {
     ogUrl.searchParams.set("description", post.description)
@@ -77,24 +77,29 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <article className="container max-w-3xl py-6 lg:py-12">
-      <div className="space-y-4">
-        <h1 className="inline-block text-4xl font-bold lg:text-5xl">
-          {post.title}
-        </h1>
-        {post.description && (
-          <p className="text-xl text-muted-foreground">{post.description}</p>
-        )}
-        <div className="flex flex-col space-y-4">
-          <time dateTime={post.date} className="text-sm text-muted-foreground">
-            {format(new Date(post.date), "LLLL d, yyyy")}
-          </time>
-          {post.authors?.length ? (
-            <div className="">
-              {post.authors.map((author) => (
-                <AuthorCard key={author.name} author={author} />
-              ))}
-            </div>
-          ) : null}
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h1 className="inline-block text-4xl font-bold lg:text-5xl">
+            {post.title}
+          </h1>
+          {post.description && (
+            <p className="text-xl text-muted-foreground">{post.description}</p>
+          )}
+          <div className="flex flex-col space-y-4">
+            <time
+              dateTime={post.date}
+              className="text-sm text-muted-foreground"
+            >
+              {format(new Date(post.date), "LLLL d, yyyy")}
+            </time>
+            {post.authors?.length ? (
+              <div className="">
+                {post.authors.map((author) => (
+                  <AuthorCard key={author.name} author={author} />
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
       <hr className="my-8" />
