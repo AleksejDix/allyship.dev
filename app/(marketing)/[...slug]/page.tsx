@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation"
-import { allPages } from "contentlayer/generated"
-import { Separator } from "@/components/ui/separator"
-import { Mdx } from "@/components/mdx-components"
-import { PageHeader } from "@/components/page-header"
+import { MDXRemote } from "next-mdx-remote/rsc"
 
-import "@/styles/mdx.css"
+import { Separator } from "@/components/ui/separator"
+import { components } from "@/components/mdx-components"
+import { PageHeader } from "@/components/page-header"
+import { getAllPageSlugs, getPageBySlug } from "@/lib/mdx"
 
 import { Metadata } from "next"
-
 import { env } from "@/env.mjs"
 import { siteConfig } from "@/config/site"
 import { absoluteUrl } from "@/lib/utils"
@@ -20,7 +19,7 @@ interface PageProps {
 
 function getPageFromParams(params: PageProps["params"]) {
   const slug = params?.slug?.join("/")
-  const page = allPages.find((page) => page.slugAsParams === slug)
+  const page = getPageBySlug(slug)
 
   if (!page) {
     return null
@@ -72,13 +71,11 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams(): Promise<PageProps["params"][]> {
-  return allPages.map((page) => ({
-    slug: page.slugAsParams.split("/"),
-  }))
+  const slugs = getAllPageSlugs()
+  return slugs.map(({ params }) => params)
 }
 
-export default async function PagePage(props: PageProps) {
-  const params = await props.params
+export default async function PagePage({ params }: PageProps) {
   const page = await getPageFromParams(params)
 
   if (!page) {
@@ -88,11 +85,9 @@ export default async function PagePage(props: PageProps) {
   return (
     <div>
       <article className="container py-8">
-        <PageHeader heading={page.title} description={page.description}/>
+        <PageHeader heading={page.title} description={page.description} />
         <Separator className="my-4" />
-        <div className="max-w-[65ch]">
-          <Mdx code={page.body.code} />
-        </div>
+        <MDXRemote source={page.content} components={components} />
       </article>
     </div>
   )
