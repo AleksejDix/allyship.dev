@@ -20,7 +20,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: {
     default: `${siteConfig.name} | Accessibility & QA Services`,
-    template: `%s | ${siteConfig.name} }`,
+    template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   authors: [
