@@ -1,0 +1,116 @@
+export const metadata = {
+  title: 'Landmarks and WAI-ARIA: Enhancing Web Accessibility and Navigation',
+  description: 'Learn how landmarks and WAI-ARIA roles improve web accessibility, simplify navigation for assistive technologies, and boost SEO. Discover best practices for building user-friendly, accessible websites.',
+}
+
+<article>
+
+# Landmarks and WAI-ARIA: A Guide to Web Accessibility
+
+Imagine you’re at an airport. It’s crowded, bustling, and you’re trying to find your gate, baggage claim, or maybe even the nearest coffee shop. If the airport is well-organized, there will be clear signs directing you to exactly where you need to go. That’s exactly what **landmarks** do for websites—they help users find their way around efficiently.
+
+Now, picture an airport where some signs are missing or unclear. That’s when **WAI-ARIA** steps in. It’s like having additional signs or digital guides to fill in the gaps, ensuring no one gets lost, no matter how busy things are.
+
+Together, landmarks and WAI-ARIA create a seamless, accessible navigation experience for everyone.
+
+---
+
+## What Are Landmarks?
+
+Landmarks are like the signs in an airport terminal. They define key areas, so assistive technologies and users can easily identify where to go.
+
+For example:
+- **`<header>`**: Think of this as the main entrance sign—it often contains the airport logo and key navigation info.
+- **`<nav>`**: The directory or map that shows you all the gates and facilities.
+- **`<main>`**: The terminal where the action happens—the flights, the shops, and the lounges.
+- **`<aside>`**: Extra details like flight promotions or lounge information.
+- **`<footer>`**: The exit signs with information on ground transportation or customer service.
+- **`<form>`**: The kiosks where you check-in or provide feedback.
+
+---
+
+## Why Are Landmarks Important?
+
+Let’s go back to the airport analogy. Imagine if there were no signs to guide you. You’d be wandering aimlessly, missing flights, or waiting at the wrong gate. That’s what navigating a poorly structured website feels like for users with disabilities.
+
+Landmarks fix that by:
+1. **Improving Navigation**: Assistive technologies like screen readers allow users to skip directly to specific sections (like jumping to “Gate 5”).
+2. **Providing Context**: Each landmark acts like a sign, letting users know what section they’re in and what to expect.
+3. **Boosting SEO**: Just as clear signage helps airport operations, landmarks improve your site’s structure for search engines.
+
+---
+
+## When HTML Isn’t Enough: Enter WAI-ARIA
+
+Sometimes, the default signs aren’t enough. Maybe you’ve created a custom gate directory using `<div>`s instead of native HTML. This is where **WAI-ARIA** (Web Accessibility Initiative – Accessible Rich Internet Applications) comes in. It’s like adding extra signs, or even personal assistants, to ensure everyone finds their way.
+
+### Key WAI-ARIA Roles for Landmarks
+
+- **`role="banner"`**: Your `<header>` but explicitly labeled.
+- **`role="navigation"`**: For when your site navigation isn’t built with `<nav>`.
+- **`role="main"`**: Indicates the main terminal—where the core content is.
+- **`role="complementary"`**: Used for side details, like additional services or promotions.
+- **`role="contentinfo"`**: Marks the footer as the last stop.
+
+### When to Use WAI-ARIA
+1. **Custom Components**: Got a fancy flight tracker built with `<div>`s? ARIA roles make it accessible.
+2. **Fallbacks for HTML**: When browser support for HTML5 is limited, ARIA steps in as a safety net.
+
+---
+
+## Best Practices for Landmarks and WAI-ARIA
+
+To create an accessible “airport” on the web, follow these best practices:
+1. **Use HTML First**: Default HTML elements like `<main>` and `<header>` are your first choice.
+2. **Avoid ARIA Overload**: Don’t add roles unnecessarily—clear signage is better than redundant ones.
+3. **Validate Your Implementation**: Use tools like [axe](https://www.deque.com/axe/) to ensure everything is correctly applied.
+4. **Stick to One `<main>`**: Just like each terminal has one central directory, your page should have one `<main>` element.
+5. **Test with Screen Readers**: Use tools like NVDA or VoiceOver to experience the navigation like a user with disabilities.
+
+---
+
+## Landmarks + WAI-ARIA = Smooth Navigation
+
+Landmarks and WAI-ARIA work together to ensure every user gets a clear and accessible path. Think of landmarks as the signs in the terminal, while WAI-ARIA adds extra guidance for custom or tricky areas. Together, they ensure no one gets lost.
+
+Here’s an example:
+
+```html
+<header role="banner">
+  <h1>Airport Web</h1>
+</header>
+
+<nav role="navigation">
+  <ul>
+    <li><a href="#flights">Flights</a></li>
+    <li><a href="#services">Services</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <h2>Welcome to Terminal 1</h2>
+  <p>Your journey to accessible navigation starts here.</p>
+</main>
+
+<aside role="complementary">
+  <p>Promotions for duty-free shops go here.</p>
+</aside>
+
+<footer role="contentinfo">
+  <p>&copy; 2025 Airport Web. All rights reserved.</p>
+</footer>
+```
+
+
+## Final Thoughts
+Web accessibility is about creating a space where everyone feels confident navigating—just like a well-organized airport. By combining landmarks and WAI-ARIA, you’re ensuring no one misses their “gate,” and the journey through your website is smooth and inclusive.
+
+Or, as Richard Feynman might put it:
+
+> “If you want to truly understand something, make it simple.”
+
+That’s exactly what landmarks and WAI-ARIA are all about—making navigation simple and accessible for everyone.
+
+</article>
+
+%toc%
