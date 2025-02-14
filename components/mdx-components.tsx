@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,

@@ -1,4 +1,3 @@
-import { Block, CodeBlock, parseProps } from "codehike/blocks"
 import { highlight, Pre, RawCode } from "codehike/code"
 
 import { callout } from "@/components/codehike/annotations/callout"
@@ -10,10 +9,6 @@ import { mark } from "@/components/codehike/annotations/mark"
 import { tokenTransitions } from "@/components/codehike/annotations/token-transitions"
 import { CopyButton } from "@/components/codehike/ui/copy-button"
 import { CodeIcon } from "@/components/codehike/ui/icons"
-
-const Schema = Block.extend({
-  codeBlock: CodeBlock,
-})
 
 export async function Code({ codeblock }: { codeblock: RawCode }) {
   const highlighted = await highlight(codeblock, "github-dark")
@@ -29,12 +24,12 @@ export async function Code({ codeblock }: { codeblock: RawCode }) {
   ]
 
   return (
-    <div className="relative my-4">
+    <div className="relative my-4 ">
       <div className="rounded-lg border border-border overflow-hidden">
         {/* Title bar */}
-        <div className="relative bg-muted border-b border-border px-4 py-2 h-8 flex items-center gap-2">
+        <div className="relative bg-muted border-b border-border px-4 py-2 h-[36px] flex items-center gap-2">
           {/* Traffic light buttons */}
-          <div className="flex gap-1.5 absolute left-0 px-2">
+          <div className="flex gap-1.5 absolute left-0 px-3">
             <div className="w-3 h-3 rounded-full bg-red-500" />
             <div className="w-3 h-3 rounded-full bg-yellow-500" />
             <div className="w-3 h-3 rounded-full bg-green-500" />
