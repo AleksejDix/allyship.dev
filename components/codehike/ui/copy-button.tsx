@@ -12,7 +12,7 @@ export function CopyButton({ text }: { text: string; className?: string }) {
     <Button
       variant="secondary"
       size="icon"
-      className="h-7 w-7"
+      className="h-8 w-8"
       onClick={() => {
         navigator.clipboard.writeText(text)
         setCopied(true)
