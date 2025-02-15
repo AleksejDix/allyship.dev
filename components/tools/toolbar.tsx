@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from "react"
 import {
   Check,
+  Crosshair,
   FormInput,
   GripHorizontal,
   Image,
   Info,
   Keyboard,
+  Layout,
   LayoutTemplate,
   MousePointer2,
   Palette,
@@ -28,6 +30,7 @@ import {
 
 import { checkAriaRoles } from "./tools/aria-roles"
 import { checkColorContrast } from "./tools/color-contrast"
+import { checkCursorRules } from "./tools/cursor-rule"
 import { checkFocusOrder } from "./tools/focus-order"
 import { checkFormLabels } from "./tools/form-labels"
 import { checkHeadings } from "./tools/heading-structure"
@@ -106,6 +109,13 @@ const TOOLS = {
     description: "Check image accessibility",
     run: checkImageAlt,
   },
+  cursor: {
+    id: "cursor",
+    name: "Cursor Rules",
+    icon: <Crosshair className="h-4 w-4" />,
+    description: "Check cursor rules",
+    run: checkCursorRules,
+  },
 } as const
 
 const TOOL_GROUPS: ToolGroup[] = [
@@ -133,6 +143,11 @@ const TOOL_GROUPS: ToolGroup[] = [
     id: "images",
     label: "Images",
     tools: [TOOLS.images],
+  },
+  {
+    id: "cursor",
+    label: "Cursor Rules",
+    tools: [TOOLS.cursor],
   },
 ] as const
 

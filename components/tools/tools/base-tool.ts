@@ -29,16 +29,17 @@ export abstract class BaseTool {
   protected startObserving() {
     if (this.observer) return
 
+    const selector = this.getSelector()
+    if (!selector) return // Don't observe if no selector is provided
+
     this.observer = new MutationObserver((mutations) => {
       let shouldRerun = false
 
       for (const mutation of mutations) {
-        // Check for new nodes that match our elements
         if (mutation.type === "childList") {
           const addedNodes = Array.from(mutation.addedNodes)
           const removedNodes = Array.from(mutation.removedNodes)
 
-          // Check if any added or removed nodes match our selector or are parents of matching elements
           const hasRelevantChanges = [...addedNodes, ...removedNodes].some(
             (node) => {
               if (node instanceof HTMLElement) {
@@ -47,7 +48,7 @@ export abstract class BaseTool {
                   return true
                 }
                 // Check if the node contains any matching elements
-                return node.querySelector(this.getSelector()) !== null
+                return node.querySelector(selector) !== null
               }
               return false
             }
@@ -78,21 +79,8 @@ export abstract class BaseTool {
     }
   }
 
-  // Helper method to get the selector for the tool's elements
-  protected getSelector(): string {
-    const elements = this.getElements()
-    if (elements instanceof NodeList) {
-      // Extract the selector from querySelectorAll
-      const key = Object.keys(elements).find(
-        (key) =>
-          key.startsWith("__reactFiber$") || key.startsWith("__reactProps$")
-      )
-      if (key) {
-        return elements[key as any].selector
-      }
-    }
-    return "" // Fallback empty selector
-  }
+  // Abstract method that each tool must implement to provide its selector
+  abstract getSelector(): string
 
   protected revalidate() {
     // Clean up existing validations
