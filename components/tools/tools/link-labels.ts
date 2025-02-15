@@ -125,19 +125,6 @@ export class LinkLabelsTool extends BaseTool {
       .join("")
     return `${tag}${id}${classes}`
   }
-
-  private logAxeIssue(issue: AxeIssue) {
-    console.group(
-      `%cAxe Issue: ${issue.id}`,
-      "color: #d93251; font-weight: bold;"
-    )
-    console.log("Impact:", issue.impact)
-    console.log("Description:", issue.description)
-    console.log("Help:", issue.help)
-    console.log("Help URL:", issue.helpUrl)
-    console.log("Nodes:", issue.nodes)
-    console.groupEnd()
-  }
 }
 
 // Export a singleton instance

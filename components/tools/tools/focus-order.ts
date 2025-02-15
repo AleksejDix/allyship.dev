@@ -2,7 +2,7 @@ import { ToolResult } from "./base-tool"
 
 let isActive = false
 const markers = new Set<HTMLElement>()
-const lines = new Set<HTMLElement>()
+const lines = new Set<SVGSVGElement>()
 let counter = 1
 let lastElement: HTMLElement | null = null
 
