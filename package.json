@@ -61,6 +61,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "codehike": "^1.0.4",
+    "colord": "^2.9.3",
     "date-fns": "^4.1.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.473.0",

@@ -11,6 +11,7 @@ import {
   Keyboard,
   Layout,
   LayoutTemplate,
+  Link,
   MousePointer2,
   Palette,
   Settings,
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { checkAriaRoles } from "./tools/aria-roles"
+import { ToolResult } from "./tools/base-tool"
 import { checkColorContrast } from "./tools/color-contrast"
 import { checkCursorRules } from "./tools/cursor-rule"
 import { checkFocusOrder } from "./tools/focus-order"
@@ -37,6 +39,7 @@ import { checkHeadings } from "./tools/heading-structure"
 import { checkImageAlt } from "./tools/image-alt"
 import { checkKeyboardShortcuts } from "./tools/keyboard-shortcuts"
 import { checkLandmarks } from "./tools/landmarks"
+import { checkLinkLabels } from "./tools/link-labels"
 
 interface Tool {
   id: string
@@ -97,7 +100,7 @@ const TOOLS = {
   },
   contrast: {
     id: "contrast",
-    name: "Contrast",
+    name: "Color Contrast",
     icon: <Palette className="h-4 w-4" />,
     description: "Check color contrast",
     run: checkColorContrast,
@@ -116,6 +119,13 @@ const TOOLS = {
     description: "Check cursor rules",
     run: checkCursorRules,
   },
+  linkLabels: {
+    id: "linkLabels",
+    name: "Link Labels",
+    icon: <Link className="h-4 w-4" />,
+    description: "Check for consistent link labels",
+    run: checkLinkLabels,
+  },
 } as const
 
 const TOOL_GROUPS: ToolGroup[] = [
@@ -127,27 +137,22 @@ const TOOL_GROUPS: ToolGroup[] = [
   {
     id: "interaction",
     label: "Interaction Tools",
-    tools: [TOOLS.focus, TOOLS.keyboard],
+    tools: [TOOLS.focus, TOOLS.keyboard, TOOLS.cursor],
   },
   {
-    id: "labels",
-    label: "Labels",
+    id: "forms",
+    label: "Form Tools",
     tools: [TOOLS.labels],
   },
   {
-    id: "contrast",
-    label: "Contrast",
-    tools: [TOOLS.contrast],
+    id: "visual",
+    label: "Visual Tools",
+    tools: [TOOLS.contrast, TOOLS.images],
   },
   {
-    id: "images",
-    label: "Images",
-    tools: [TOOLS.images],
-  },
-  {
-    id: "cursor",
-    label: "Cursor Rules",
-    tools: [TOOLS.cursor],
+    id: "links",
+    label: "Link Tools",
+    tools: [TOOLS.linkLabels],
   },
 ] as const
 
