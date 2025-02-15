@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { siteConfig } from "@/config/site"
 
 import "@/styles/index.css"
+import "@/styles/allystudio-toolbar.css"
 
 import { Outfit } from "next/font/google"
 import { RouterLinkProvider } from "@/providers/RouterLinkContext"
