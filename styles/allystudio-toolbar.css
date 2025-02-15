@@ -1,0 +1,45 @@
+[data-ally-state="valid"] {
+  outline: 2px solid #00bcd4; /* Accessible cyan color */
+  outline-offset: -2px;
+  position: relative;
+  background: rgba(
+    0,
+    188,
+    212,
+    0.08
+  ); /* Slightly reduced opacity for better visibility */
+}
+
+[data-ally-state="error"] {
+  outline: 2px solid #ff3d00; /* A more accessible red */
+  outline-offset: -2px;
+  position: relative;
+  background: rgba(255, 61, 0, 0.1); /* Light red background with 10% opacity */
+  mix-blend-mode: difference;
+}
+
+[data-ally-state][data-ally-label]::before {
+  content: attr(data-ally-label);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  color: white;
+  padding: 2px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}
+
+[data-ally-state="valid"][data-ally-label]::before {
+  background: #00bcd4;
+}
+
+[data-ally-state="error"][data-ally-label]::before {
+  background: #ff3d00;
+}
