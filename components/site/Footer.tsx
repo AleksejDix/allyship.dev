@@ -63,6 +63,11 @@ const sections = [
   },
 ]
 
+// Add a helper function to check if a URL is external
+const isExternalUrl = (url: string) => {
+  return url.startsWith("http") || url.startsWith("https")
+}
+
 export const Footer = () => {
   return (
     <footer aria-labelledby="footer-heading">
@@ -99,7 +104,24 @@ export const Footer = () => {
                       className="font-medium hover:text-primary"
                     >
                       {link.href ? (
-                        <RouterLink href={link.href}>{link.name}</RouterLink>
+                        isExternalUrl(link.href) ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-labelledby={`external-link-${sectionIdx}-${linkIdx}`}
+                          >
+                            {link.name}
+                            <span
+                              id={`external-link-${sectionIdx}-${linkIdx}`}
+                              className="sr-only"
+                            >
+                              {link.name} (opens in new window)
+                            </span>
+                          </a>
+                        ) : (
+                          <RouterLink href={link.href}>{link.name}</RouterLink>
+                        )
                       ) : (
                         <a aria-disabled="true" className="cursor-not-allowed">
                           {link.name} <Badge variant="outline">Soon</Badge>

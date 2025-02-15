@@ -13,9 +13,6 @@ export default {
     container: {
       center: true,
       padding: "1rem",
-      screens: {
-        "2xl": "1280px",
-      },
     },
     extend: {
       fontFamily: {

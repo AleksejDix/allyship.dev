@@ -274,3 +274,7 @@ a.button[aria-current="page"] {
 #articleToc ul:first-child {
   padding-inline: 0;
 }
+
+.prose {
+  max-width: 100%;
+}
