@@ -72,9 +72,7 @@ export function UserLoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="mx-auto">
-        <RouterLink href="/">
-          <Logo />
-        </RouterLink>
+        <Logo />
       </div>
       <Card>
         <CardHeader>
@@ -90,7 +88,6 @@ export function UserLoginForm({
         <CardContent>
           <Form {...form}>
             <form
-
               onSubmit={form.handleSubmit(onSubmit)}
               aria-labelledby="login-form"
               noValidate
