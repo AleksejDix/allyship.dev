@@ -1,87 +1,130 @@
-import { ToolResult } from "./base-tool"
+import { BaseTool } from "./base-tool"
 
-let isActive = false
-const originalStyles = new WeakMap<
-  HTMLElement,
-  {
-    outline: string
-  }
->()
-const addedElements = new Set<HTMLElement>()
+export class ImageAltTool extends BaseTool {
+  private hasIssues = false
 
-function applyImageAltCheck() {
-  const images = document.querySelectorAll<HTMLImageElement>("img")
-  let issues: string[] = []
-
-  images.forEach((img) => {
-    const hasAlt = img.hasAttribute("alt")
-    const altText = img.getAttribute("alt")
-    const isDecorative = altText === ""
-
-    originalStyles.set(img, {
-      outline: img.style.outline || "",
-    })
-
-    if (!hasAlt) {
-      img.style.outline = "3px solid red"
-      issues.push("Missing alt attribute")
-    } else if (isDecorative) {
-      img.style.outline = "3px solid blue"
-    } else {
-      img.style.outline = "3px solid green"
-    }
-
-    // Add visual indicator
-    const label = document.createElement("div")
-    label.style.cssText = `
-      position: absolute;
-      background: ${hasAlt ? (isDecorative ? "blue" : "green") : "red"};
-      color: white;
-      padding: 4px;
-      font-size: 12px;
-      z-index: 10000;
+  getSelector(): string {
+    return `
+      img,
+      [role="img"],
+      area[href],
+      input[type="image"],
+      svg:not([aria-hidden="true"])
     `
-    label.textContent = hasAlt
-      ? isDecorative
-        ? "Decorative"
-        : altText || ""
-      : "Missing alt"
+      .trim()
+      .replace(/\s+/g, " ")
+  }
 
-    if (img.parentNode instanceof HTMLElement) {
-      img.parentNode.style.position = "relative"
-      img.parentNode.appendChild(label)
-      addedElements.add(label)
+  getElements(): NodeListOf<HTMLElement> {
+    return document.querySelectorAll<HTMLElement>(this.getSelector())
+  }
+
+  validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
+    // Reset state at start of validation
+    if (el === this.getElements()[0]) {
+      this.hasIssues = false
+      this.logInfo(
+        "Image Alt Text Check Started",
+        "Checking image descriptions..."
+      )
     }
-  })
 
-  if (issues.length > 0) {
-    console.warn("Image Alt Text Issues:", issues)
+    const altText = this.getAltText(el)
+    const isDecorative = this.isDecorativeImage(el)
+    const isValid = isDecorative || Boolean(altText)
+
+    if (!isValid) {
+      this.hasIssues = true
+      this.logAxeIssue({
+        id: "image-alt",
+        impact: "critical",
+        description: "Images must have alternate text",
+        help: "Add alt text or mark as decorative",
+        helpUrl: "https://dequeuniversity.com/rules/axe/4.6/image-alt",
+        nodes: [
+          {
+            html: el.outerHTML,
+            target: [this.getElementSelector(el)],
+            failureSummary: "Image has no alt text or aria-label",
+          },
+        ],
+      })
+    }
+
+    // Show alt text or decorative status in highlight
+    const label = isDecorative ? "Decorative" : altText || "Missing alt text"
+    this.highlightElement(el, isValid, label)
+
+    // If this is the last element and no issues were found, log success
+    if (
+      el === this.getElements()[this.getElements().length - 1] &&
+      !this.hasIssues
+    ) {
+      this.logSuccess(
+        "Image Alt Text Check Passed",
+        "All images have descriptions",
+        "Decorative images properly marked",
+        "Alt text is meaningful"
+      )
+    }
+
+    return {
+      isValid,
+      message: isValid
+        ? undefined
+        : `Missing alt text for ${this.getElementSelector(el)}`,
+    }
+  }
+
+  private getAltText(el: HTMLElement): string {
+    // Check alt attribute
+    if (el instanceof HTMLImageElement || el instanceof HTMLInputElement) {
+      const alt = el.getAttribute("alt")
+      if (alt !== null) return alt
+    }
+
+    // Check aria-label
+    const ariaLabel = el.getAttribute("aria-label")
+    if (ariaLabel) return ariaLabel
+
+    // Check aria-labelledby
+    const labelledBy = el.getAttribute("aria-labelledby")
+    if (labelledBy) {
+      return labelledBy
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent?.trim())
+        .filter(Boolean)
+        .join(" ")
+    }
+
+    // Check SVG title
+    if (el instanceof SVGElement) {
+      const title = el.querySelector("title")
+      if (title) return title.textContent?.trim() || ""
+    }
+
+    return ""
+  }
+
+  private isDecorativeImage(el: HTMLElement): boolean {
+    return (
+      el.getAttribute("role") === "presentation" ||
+      el.getAttribute("aria-hidden") === "true" ||
+      (el instanceof HTMLImageElement && el.alt === "")
+    )
+  }
+
+  private getElementSelector(el: HTMLElement): string {
+    const tag = el.tagName.toLowerCase()
+    const id = el.id ? `#${el.id}` : ""
+    const classes = Array.from(el.classList)
+      .map((c) => `.${c}`)
+      .join("")
+    return `${tag}${id}${classes}`
   }
 }
 
-function cleanupImageAltCheck() {
-  const images = document.querySelectorAll<HTMLImageElement>("img")
-  images.forEach((img) => {
-    const styles = originalStyles.get(img)
-    if (styles) {
-      img.style.outline = styles.outline
-    }
-  })
-
-  addedElements.forEach((element) => element.remove())
-  addedElements.clear()
-}
-
-export function checkImageAlt(mode: "apply" | "cleanup" = "apply"): ToolResult {
-  if (mode === "cleanup") {
-    cleanupImageAltCheck()
-    isActive = false
-    console.log("Image alt check disabled")
-    return { success: true }
-  } else {
-    applyImageAltCheck()
-    isActive = true
-    console.log("Image alt check enabled")
-    return { success: true }
-  }
-}
+// Export a singleton instance
+const imageAltTool = new ImageAltTool()
+export const checkImageAlt = (mode: "apply" | "cleanup" = "apply") =>
+  imageAltTool.run(mode)
