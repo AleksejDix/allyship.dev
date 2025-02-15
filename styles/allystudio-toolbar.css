@@ -1,6 +1,6 @@
 [data-ally-state="valid"] {
   outline: 2px solid #00bcd4; /* Accessible cyan color */
-  outline-offset: -2px;
+  outline-offset: 2px;
   position: relative;
   background: rgba(
     0,
@@ -12,17 +12,16 @@
 
 [data-ally-state="error"] {
   outline: 2px solid #ff3d00; /* A more accessible red */
-  outline-offset: -2px;
+  outline-offset: 2px;
   position: relative;
   background: rgba(255, 61, 0, 0.1); /* Light red background with 10% opacity */
-  mix-blend-mode: difference;
 }
 
 [data-ally-state][data-ally-label]::before {
   content: attr(data-ally-label);
   position: absolute;
-  bottom: 100%;
-  left: 0;
+  bottom: calc(100% + 2px);
+  left: -4px;
   color: white;
   padding: 2px 12px;
   font-size: 12px;
@@ -42,4 +41,30 @@
 
 [data-ally-state="error"][data-ally-label]::before {
   background: #ff3d00;
+}
+
+/* Grid layout transitions */
+.accessibility-toolbar {
+  transition: width 0.3s ease-in-out;
+}
+
+.accessibility-toolbar.expanded {
+  width: 480px;
+}
+
+/* Grid button styles */
+.tool-grid-button {
+  @apply flex h-auto flex-col items-center gap-1 p-2 text-center;
+}
+
+.tool-grid-button:hover {
+  @apply bg-accent;
+}
+
+.tool-grid-button.active {
+  @apply bg-primary text-primary-foreground;
+}
+
+.tool-grid-button .tool-name {
+  @apply text-xs font-medium;
 }
