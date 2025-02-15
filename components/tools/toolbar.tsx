@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react"
 import {
+  BookOpen,
   Check,
   Contrast,
   Crosshair,
+  ExternalLink,
   FormInput,
   GripHorizontal,
   Image,
@@ -29,10 +31,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { checkAbbreviations } from "./tools/abbreviations"
 import { checkAriaRoles } from "./tools/aria-roles"
 import { ToolResult } from "./tools/base-tool"
 import { checkColorContrast } from "./tools/color-contrast"
 import { checkCursorRules } from "./tools/cursor-rule"
+import { checkExternalLinks } from "./tools/external-links"
 import { checkFocusOrder } from "./tools/focus-order"
 import { checkFormLabels } from "./tools/form-labels"
 import { checkHeadings } from "./tools/heading-structure"
@@ -62,7 +66,8 @@ const TOOLS = {
     id: "headings",
     name: "Headings",
     icon: <Type className="h-4 w-4" />,
-    description: "Check heading structure",
+    description: "Check heading structure and hierarchy",
+    wcagCriteria: ["1.3.1", "2.4.6"],
     run: checkHeadings,
   },
   landmarks: {
@@ -70,6 +75,7 @@ const TOOLS = {
     name: "Landmarks",
     icon: <LayoutTemplate className="h-4 w-4" />,
     description: "Validate page landmarks and regions",
+    wcagCriteria: ["1.3.1", "2.4.1"],
     run: checkLandmarks,
   },
   aria: {
@@ -82,8 +88,9 @@ const TOOLS = {
   focus: {
     id: "focus",
     name: "Focus Order",
-    icon: <MousePointer2 className="h-4 w-4" />,
+    icon: <Crosshair className="h-4 w-4" />,
     description: "Track keyboard focus order",
+    wcagCriteria: ["2.4.3", "2.4.7"],
     run: checkFocusOrder,
   },
   keyboard: {
@@ -100,11 +107,12 @@ const TOOLS = {
     description: "Check keyboard shortcuts and access",
     run: checkKeyboardShortcuts,
   },
-  labels: {
-    id: "labels",
+  formLabels: {
+    id: "formLabels",
     name: "Form Labels",
     icon: <FormInput className="h-4 w-4" />,
-    description: "Validate form controls",
+    description: "Check form control labels and instructions",
+    wcagCriteria: ["1.3.1", "3.3.2", "4.1.2"],
     run: checkFormLabels,
   },
   contrast: {
@@ -149,37 +157,52 @@ const TOOLS = {
     description: "Check image alt text",
     run: checkImageAlt,
   },
+  readableText: {
+    id: "readableText",
+    name: "Readable Text",
+    icon: <BookOpen className="h-4 w-4" />,
+    description: "Ensure text is readable and understandable",
+    wcagCriteria: ["3.1.5"],
+  },
+  externalLinks: {
+    id: "externalLinks",
+    name: "External Links",
+    icon: <ExternalLink className="h-4 w-4" />,
+    description: "Check external links for new window warnings",
+    wcagCriteria: ["3.2.5"],
+    run: checkExternalLinks,
+  },
 } as const
 
 const TOOL_GROUPS = [
   {
     id: "structure",
-    label: "Structure Tools",
+    label: "Structure",
     tools: [TOOLS.headings, TOOLS.landmarks, TOOLS.aria],
   },
   {
     id: "interaction",
-    label: "Interaction Tools",
-    tools: [TOOLS.focus, TOOLS.keyboard, TOOLS.shortcuts, TOOLS.cursor],
+    label: "Interaction",
+    tools: [TOOLS.focus, TOOLS.keyboard, TOOLS.shortcuts],
   },
   {
     id: "forms",
-    label: "Form Tools",
-    tools: [TOOLS.labels],
+    label: "Forms",
+    tools: [TOOLS.formLabels],
   },
   {
     id: "visual",
-    label: "Visual Tools",
-    tools: [TOOLS.contrast, TOOLS.imageAlt],
+    label: "Design",
+    tools: [TOOLS.contrast, TOOLS.imageAlt, TOOLS.cursor],
   },
   {
     id: "links",
-    label: "Link Tools",
-    tools: [TOOLS.linkLabels],
+    label: "Links",
+    tools: [TOOLS.linkLabels, TOOLS.externalLinks],
   },
   {
     id: "content",
-    label: "Content Tools",
+    label: "Language",
     tools: [TOOLS.language],
   },
 ] as const
