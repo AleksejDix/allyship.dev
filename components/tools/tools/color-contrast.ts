@@ -39,64 +39,31 @@ export class ColorContrastTool extends BaseTool {
 
   validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
     const style = window.getComputedStyle(el)
-    const textColor = style.color
-    const bgColor = this.getBackgroundColor(el)
+    const textColor = this.getEffectiveColor(el)
+    const backgroundColor = this.getEffectiveBackgroundColor(el)
 
-    // Skip if element or its text is hidden
-    if (
-      style.display === "none" ||
-      style.visibility === "hidden" ||
-      style.opacity === "0" ||
-      !el.textContent?.trim()
-    ) {
-      return { isValid: true }
-    }
+    // Calculate contrast ratio using relative luminance
+    const textLuminance = this.getLuminance(textColor)
+    const bgLuminance = this.getLuminance(backgroundColor)
 
+    const contrast =
+      (Math.max(textLuminance, bgLuminance) + 0.05) /
+      (Math.min(textLuminance, bgLuminance) + 0.05)
+
+    // Get text size for WCAG level
     const fontSize = parseFloat(style.fontSize)
     const fontWeight = style.fontWeight
     const isLargeText =
-      fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= "700")
+      fontSize >= 18 ||
+      (fontSize >= 14 && ["bold", "700", "800", "900"].includes(fontWeight))
 
-    // Calculate contrast using relative luminance
-    const textLuminance = this.getLuminance(textColor)
-    const bgLuminance = this.getLuminance(bgColor)
+    const requiredContrast = isLargeText ? 3 : 4.5
+    const isValid = contrast >= requiredContrast
 
-    // Use the formula: (L1 + 0.05) / (L2 + 0.05)
-    // where L1 is the lighter of the two luminances
-    const contrast =
-      textLuminance > bgLuminance
-        ? (textLuminance + 0.05) / (bgLuminance + 0.05)
-        : (bgLuminance + 0.05) / (textLuminance + 0.05)
+    // Create label with actual contrast ratio
+    const label = `${contrast.toFixed(2)}:1 ${isValid ? "(Pass)" : "(Fail)"}`
 
-    const requiredRatio = isLargeText ? 3 : 4.5
-    const isValid = contrast >= requiredRatio
-
-    if (!isValid) {
-      this.logAxeIssue({
-        id: "color-contrast",
-        impact: "serious",
-        description: "Elements must have sufficient color contrast",
-        help: `Contrast ratio should be at least ${requiredRatio}:1`,
-        helpUrl: "https://dequeuniversity.com/rules/axe/4.6/color-contrast",
-        nodes: [
-          {
-            html: el.outerHTML,
-            target: [this.getElementSelector(el)],
-            failureSummary:
-              `Fix any of the following:\n` +
-              `Element has insufficient color contrast of ${contrast.toFixed(2)} ` +
-              `(foreground color: ${textColor}, background color: ${bgColor}, ` +
-              `required ratio: ${requiredRatio}:1)`,
-          },
-        ],
-      })
-    }
-
-    this.highlightElement(
-      el,
-      isValid,
-      `${contrast.toFixed(2)}:1 ${isLargeText ? "(large)" : ""}`
-    )
+    this.highlightElement(el, isValid, label)
 
     return {
       isValid,
@@ -106,23 +73,60 @@ export class ColorContrastTool extends BaseTool {
     }
   }
 
-  private getBackgroundColor(el: HTMLElement): string {
-    const bgColors = this.getBackgroundColors(el)
+  private getEffectiveColor(el: HTMLElement): string {
+    let colorObj = colord(window.getComputedStyle(el).color)
+    let currentEl: HTMLElement | null = el
 
-    if (!bgColors.length) {
-      return "rgb(255, 255, 255)"
+    // Handle opacity inheritance
+    while (currentEl && currentEl !== document.body) {
+      const style = window.getComputedStyle(currentEl)
+      const opacity = parseFloat(style.opacity)
+      if (opacity < 1) {
+        colorObj = colorObj.alpha(colorObj.alpha() * opacity)
+      }
+      currentEl = currentEl.parentElement
     }
 
-    if (bgColors.length === 1) {
-      return bgColors[0]
+    return colorObj.toRgbString()
+  }
+
+  private getEffectiveBackgroundColor(el: HTMLElement): string {
+    let currentEl: HTMLElement | null = el
+    let bgColor = "transparent"
+    let parentBgColor = "transparent"
+
+    // Find closest parent with background
+    let parent = el.parentElement
+    while (parent) {
+      const style = window.getComputedStyle(parent)
+      if (
+        style.backgroundColor !== "rgba(0, 0, 0, 0)" &&
+        style.backgroundColor !== "transparent"
+      ) {
+        parentBgColor = style.backgroundColor
+        break
+      }
+      parent = parent.parentElement
     }
 
-    // Now mix will work correctly
-    return bgColors.reduce((prev, curr) => {
-      const prevColor = colord(prev)
-      const currColor = colord(curr)
-      return prevColor.mix(currColor).toRgbString()
-    })
+    // Check element itself
+    const style = window.getComputedStyle(el)
+    if (
+      style.backgroundColor !== "rgba(0, 0, 0, 0)" &&
+      style.backgroundColor !== "transparent"
+    ) {
+      bgColor = style.backgroundColor
+    } else {
+      bgColor = parentBgColor
+    }
+
+    // Fallback to theme colors if needed
+    if (bgColor === "transparent") {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      bgColor = isDark ? "rgb(24, 24, 27)" : "rgb(255, 255, 255)"
+    }
+
+    return bgColor
   }
 
   private getBackgroundColors(el: HTMLElement): string[] {
@@ -207,7 +211,7 @@ export class ColorContrastTool extends BaseTool {
   private getLuminance(color: string): number {
     const rgb = colord(color).toRgb()
 
-    // Convert to relative luminance using sRGB
+    // Convert to relative luminance using WCAG formula
     const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((c) => {
       const sRGB = c / 255
       return sRGB <= 0.03928
