@@ -135,6 +135,13 @@ const TOOLS = {
     description: "Check HTML language attributes",
     run: checkLanguage,
   },
+  imageAlt: {
+    id: "imageAlt",
+    name: "Image Alt",
+    icon: <Image className="h-4 w-4" />,
+    description: "Check image alt text",
+    run: checkImageAlt,
+  },
 } as const
 
 const TOOL_GROUPS: ToolGroup[] = [
@@ -166,7 +173,7 @@ const TOOL_GROUPS: ToolGroup[] = [
   {
     id: "content",
     label: "Content Tools",
-    tools: [TOOLS.language],
+    tools: [TOOLS.language, TOOLS.imageAlt],
   },
 ] as const
 
