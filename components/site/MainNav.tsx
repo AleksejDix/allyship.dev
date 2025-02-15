@@ -17,74 +17,76 @@ import { UserMenu } from "@/components/auth/UserMenu"
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
 
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Blog",
-    href: "/blog",
-    description:
-      "A blog about accessibility, quality assurance, and automated testing.",
+const MENU_SETTINGS = {
+  products: {
+    label: "Products",
+    items: [
+      {
+        title: "Automated Accessibility Scanning",
+        href: "/products/automated-accessibility-scanning",
+        description: "Scan your website for accessibility issues",
+      },
+      {
+        title: "Manual Accessibility Audits",
+        href: "/products/manual-accessibility-audit",
+        description: "A manual accessibility audit of your website",
+      },
+      {
+        title: "Field Labels Bookmarklet",
+        href: "/products/field-label-bookmarklet",
+        description: "A bookmarklet to help you check form field labels",
+      },
+      {
+        title: "Focus Bookmarklet",
+        href: "/products/focus-bookmarklet",
+        description: "A bookmarklet to help you understand tab order",
+      },
+      {
+        title: "Heading Order Bookmarklet",
+        href: "/products/heading-order-bookmarklet",
+        description: "A bookmarklet to help you understand heading order",
+      },
+      {
+        title: "Focus Styles Bookmarklet",
+        href: "/products/focus-styles-bookmarklet",
+        description: "A bookmarklet to help you check focus indicators",
+      },
+    ],
   },
-  {
-    title: "Glossary",
-    href: "/glossary",
-    description:
-      "A glossary of accessibility terms and definitions for the web.",
+  education: {
+    label: "Education",
+    items: [
+      {
+        title: "Blog",
+        href: "/blog",
+        description:
+          "A blog about accessibility, quality assurance, and automated testing.",
+      },
+      {
+        title: "Glossary",
+        href: "/glossary",
+        description:
+          "A glossary of accessibility terms and definitions for the web.",
+      },
+      {
+        title: "Accessibility Standards Matrix",
+        href: "/education/accessibility-standards-matrix",
+        description:
+          "Compare accessibility criteria between different standards and guidelines.",
+      },
+      {
+        title: "Accessibility Checklist",
+        href: "/education/checklist",
+        description: "A checklist of accessibility criteria",
+      },
+      {
+        title: "Accessibility Training",
+        href: "/education/courses",
+        description: "A training program for accessibility",
+      },
+    ],
   },
-  {
-    title: "Accessibility Standards Matrix",
-    href: "/education/accessibility-standards-matrix",
-    description:
-      "Compare accessibility criteria between different standards and guidelines.",
-  },
-  {
-    title: "Accessibility Checklist",
-    href: "/education/checklist",
-    description: "A checklist of accessibility criteria",
-  },
-  {
-    title: "Accessibility Training",
-    href: "/education/courses",
-    description: "A training program for accessibility",
-  },
-  // {
-  //   title: "Accessibility Resources",
-  //   href: "/education/resources",
-  //   description: "A list of resources for accessibility",
-  // },
-]
-
-const products = [
-  {
-    title: "Automated Accessibility Scanning",
-    href: "/products/automated-accessibility-scanning",
-    description: "Scan your website for accessibility issues",
-  },
-  {
-    title: "Manual Accessibility Audits",
-    href: "/products/manual-accessibility-audit",
-    description: "A manual accessibility audit of your website",
-  },
-  {
-    title: "Field Labels Bookmarklet",
-    href: "/products/field-label-bookmarklet",
-    description: "A bookmarklet to help you check form field labels",
-  },
-  {
-    title: "Focus Bookmarklet",
-    href: "/products/focus-bookmarklet",
-    description: "A bookmarklet to help you understand tab order",
-  },
-  {
-    title: "Heading Order Bookmarklet",
-    href: "/products/heading-order-bookmarklet",
-    description: "A bookmarklet to help you understand heading order",
-  },
-  {
-    title: "Focus Styles Bookmarklet",
-    href: "/products/focus-styles-bookmarklet",
-    description: "A bookmarklet to help you check focus indicators",
-  },
-]
+} as const
 
 export function MainNav() {
   return (
@@ -93,38 +95,27 @@ export function MainNav() {
         <Logo />
         <NavigationMenu className="hidden md:block">
           <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {products.map((component) => (
-                    <ListItem
-                      key={component.title}
-                      title={component.title}
-                      href={component.href}
-                    >
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Education</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {components.map((component) => (
-                    <ListItem
-                      key={component.title}
-                      title={component.title}
-                      href={component.href}
-                    >
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+            {Object.entries(MENU_SETTINGS).map(([key, menu]) => {
+              if (key === "mobile") return null
+              return (
+                <NavigationMenuItem key={key}>
+                  <NavigationMenuTrigger>{menu.label}</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                      {menu.items.map((item) => (
+                        <ListItem
+                          key={item.title}
+                          title={item.title}
+                          href={item.href}
+                        >
+                          {item.description}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              )
+            })}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
@@ -135,40 +126,32 @@ export function MainNav() {
         {/* Mobile Menu */}
         <div className="md:hidden">
           <Sheet>
-            <Button variant="ghost" size="icon" asChild>
+            <Button
+              variant="secondary"
+              className="rounded-full"
+              size="icon"
+              asChild
+            >
               <SheetTrigger aria-label="Toggle menu">
                 <Menu aria-hidden="true" className="w-6 h-6" />
               </SheetTrigger>
             </Button>
             <SheetContent>
               <div className="flex flex-col gap-4 mt-8">
-                <RouterLink
-                  href="/services"
-                  className="font-medium hover:text-primary"
-                >
-                  Services
-                </RouterLink>
-
-                <RouterLink
-                  href="/blog"
-                  className="font-medium hover:text-primary"
-                >
-                  Blog
-                </RouterLink>
-
-                <RouterLink
-                  href="/education/courses"
-                  className="font-medium hover:text-primary"
-                >
-                  Courses
-                </RouterLink>
-
-                <RouterLink
-                  href="/education/checklist"
-                  className="font-medium hover:text-primary"
-                >
-                  Checklist
-                </RouterLink>
+                {Object.entries(MENU_SETTINGS).map(([key, menu]) => (
+                  <div key={key} className="flex flex-col gap-2">
+                    <div className="font-medium text-lg">{menu.label}</div>
+                    {menu.items.map((item) => (
+                      <RouterLink
+                        key={item.href}
+                        href={item.href}
+                        className="text-muted-foreground hover:text-primary"
+                      >
+                        {item.title}
+                      </RouterLink>
+                    ))}
+                  </div>
+                ))}
               </div>
             </SheetContent>
           </Sheet>
@@ -188,7 +171,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ring-offset-background  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             className
           )}
           {...props}
