@@ -2,19 +2,12 @@
   outline: 2px solid #00bcd4; /* Accessible cyan color */
   outline-offset: 2px;
   position: relative;
-  background: rgba(
-    0,
-    188,
-    212,
-    0.08
-  ); /* Slightly reduced opacity for better visibility */
 }
 
 [data-ally-state="error"] {
   outline: 2px solid #ff3d00; /* A more accessible red */
   outline-offset: 2px;
   position: relative;
-  background: rgba(255, 61, 0, 0.1); /* Light red background with 10% opacity */
 }
 
 [data-ally-state][data-ally-label]::before {

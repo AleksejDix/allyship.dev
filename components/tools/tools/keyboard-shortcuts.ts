@@ -1,164 +1,140 @@
-import { ToolResult } from "./base-tool"
+/**
+ * Keyboard Shortcuts Validation Tool
+ *
+ * This tool checks for conflicting keyboard shortcuts across the page by analyzing:
+ * - HTML accesskey attributes
+ * - Custom data-hotkey attributes
+ * - Elements with role="menuitem"
+ *
+ * Features:
+ * - Detects duplicate shortcuts that could cause conflicts
+ * - Validates both native accesskey and custom hotkey implementations
+ * - Provides visual highlighting of shortcuts in the UI
+ * - Reports conflicts through the axe-core format
+ * - Tracks and displays all keyboard shortcuts used on the page
+ *
+ * Usage:
+ * ```ts
+ * // Run the check
+ * checkKeyboardShortcuts()
+ *
+ * // Clean up highlights
+ * checkKeyboardShortcuts('cleanup')
+ * ```
+ *
+ * Example conflicts it catches:
+ * - Multiple elements using the same accesskey
+ * - Overlapping accesskey and data-hotkey values
+ * - Duplicate shortcuts in menu items
+ */
 
-let isActive = false
-const originalStyles = new WeakMap<
-  HTMLElement,
-  {
-    outline: string
+import { BaseTool } from "./base-tool"
+
+export class KeyboardShortcutsTool extends BaseTool {
+  private hasIssues = false
+  private shortcuts = new Map<string, HTMLElement[]>()
+
+  getSelector(): string {
+    return `
+      [accesskey],
+      [role="menuitem"],
+      button[data-hotkey],
+      a[data-hotkey]
+    `
+      .trim()
+      .replace(/\s+/g, " ")
   }
->()
-const addedElements = new Set<HTMLElement>()
 
-function applyKeyboardShortcutsCheck() {
-  // Check for elements with accesskey attribute
-  const elementsWithAccessKey =
-    document.querySelectorAll<HTMLElement>("[accesskey]")
-  const shortcuts = new Map<string, HTMLElement[]>()
-  let issues: string[] = []
+  getElements(): NodeListOf<HTMLElement> {
+    return document.querySelectorAll<HTMLElement>(this.getSelector())
+  }
 
-  // Collect all shortcuts
-  elementsWithAccessKey.forEach((el) => {
-    const key = el.getAttribute("accesskey")?.toLowerCase()
-    if (key) {
-      if (!shortcuts.has(key)) {
-        shortcuts.set(key, [])
-      }
-      shortcuts.get(key)?.push(el)
+  validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
+    // Reset state and shortcuts at start of validation
+    if (el === this.getElements()[0]) {
+      this.hasIssues = false
+      this.shortcuts.clear()
+      this.logInfo(
+        "Keyboard Shortcuts Check Started",
+        "Checking for conflicting shortcuts..."
+      )
     }
-  })
 
-  // Check for conflicts and add visual indicators
-  shortcuts.forEach((elements, key) => {
-    const hasConflict = elements.length > 1
+    // Get shortcut key
+    const accessKey = el.getAttribute("accesskey")?.toLowerCase()
+    const hotkey = el.getAttribute("data-hotkey")?.toLowerCase()
+    const key = accessKey || hotkey
 
-    elements.forEach((el) => {
-      originalStyles.set(el, {
-        outline: el.style.outline || "",
-      })
+    if (!key) {
+      return { isValid: true }
+    }
 
-      el.style.outline = hasConflict ? "3px solid red" : "3px solid green"
+    // Track shortcuts
+    if (!this.shortcuts.has(key)) {
+      this.shortcuts.set(key, [])
+    }
+    this.shortcuts.get(key)?.push(el)
 
-      // Add shortcut indicator
-      const badge = document.createElement("div")
-      badge.style.cssText = `
-        position: absolute;
-        top: -20px;
-        left: 0;
-        background: ${hasConflict ? "red" : "green"};
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        z-index: 10000;
-      `
-      badge.textContent = `⌨️ ${key.toUpperCase()}${
-        hasConflict ? " (Conflict)" : ""
-      }`
-
-      const wrapper = document.createElement("div")
-      wrapper.style.position = "relative"
-      el.parentNode?.insertBefore(wrapper, el)
-      wrapper.appendChild(el)
-      wrapper.appendChild(badge)
-
-      addedElements.add(wrapper)
-      addedElements.add(badge)
-    })
+    // Check for conflicts
+    const conflictingElements = this.shortcuts.get(key) || []
+    const hasConflict = conflictingElements.length > 1
 
     if (hasConflict) {
-      issues.push(
-        `Keyboard shortcut conflict: "${key}" is used by ${elements.length} elements`
-      )
-    }
-  })
-
-  // Check for common interactive elements without keyboard access
-  const interactiveElements = document.querySelectorAll<HTMLElement>(
-    'div[onclick], span[onclick], img[onclick], [role="button"], [role="link"]'
-  )
-
-  interactiveElements.forEach((el) => {
-    const hasKeyboardAccess =
-      el.hasAttribute("tabindex") ||
-      el.querySelector("button, a[href], input, select, textarea, [tabindex]")
-
-    if (!hasKeyboardAccess) {
-      originalStyles.set(el, {
-        outline: el.style.outline || "",
+      this.hasIssues = true
+      this.logAxeIssue({
+        id: "accesskey",
+        impact: "serious",
+        description: "Keyboard shortcuts must not conflict",
+        help: "Remove duplicate accesskey or hotkey values",
+        helpUrl: "https://dequeuniversity.com/rules/axe/4.6/accesskey",
+        nodes: [
+          {
+            html: el.outerHTML,
+            target: conflictingElements.map(this.getElementSelector),
+            failureSummary: `Multiple elements share the same shortcut: ${key}`,
+          },
+        ],
       })
+    }
 
-      el.style.outline = "3px solid orange"
+    // Show shortcut in highlight
+    const label = `Shortcut: ${key.toUpperCase()}${
+      hasConflict ? " (Conflict)" : ""
+    }`
+    this.highlightElement(el, !hasConflict, label)
 
-      const badge = document.createElement("div")
-      badge.style.cssText = `
-        position: absolute;
-        top: -20px;
-        left: 0;
-        background: orange;
-        color: black;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        z-index: 10000;
-      `
-      badge.textContent = "No Keyboard Access"
-
-      const wrapper = document.createElement("div")
-      wrapper.style.position = "relative"
-      el.parentNode?.insertBefore(wrapper, el)
-      wrapper.appendChild(el)
-      wrapper.appendChild(badge)
-
-      addedElements.add(wrapper)
-      addedElements.add(badge)
-
-      issues.push(
-        `Interactive element <${el.tagName.toLowerCase()}> has no keyboard access`
+    // Log success if no issues found
+    if (
+      el === this.getElements()[this.getElements().length - 1] &&
+      !this.hasIssues
+    ) {
+      this.logSuccess(
+        "Keyboard Shortcuts Check Passed",
+        "No conflicting shortcuts found",
+        "Shortcuts are properly assigned",
+        `Total shortcuts: ${this.shortcuts.size}`
       )
     }
-  })
 
-  if (issues.length > 0) {
-    console.warn("Keyboard Access Issues:", issues)
+    return {
+      isValid: !hasConflict,
+      message: hasConflict
+        ? `Conflicting shortcut '${key}' on ${this.getElementSelector(el)}`
+        : undefined,
+    }
+  }
+
+  private getElementSelector(el: HTMLElement): string {
+    const tag = el.tagName.toLowerCase()
+    const id = el.id ? `#${el.id}` : ""
+    const classes = Array.from(el.classList)
+      .map((c) => `.${c}`)
+      .join("")
+    return `${tag}${id}${classes}`
   }
 }
 
-function cleanupKeyboardShortcutsCheck() {
-  const elements = document.querySelectorAll<HTMLElement>(
-    "[accesskey], div[onclick], span[onclick], img[onclick], [role='button'], [role='link']"
-  )
-  elements.forEach((el) => {
-    const styles = originalStyles.get(el)
-    if (styles) {
-      el.style.outline = styles.outline
-    }
-  })
-
-  addedElements.forEach((element) => {
-    if (element.tagName === "DIV" && element.style.position === "relative") {
-      const child = element.firstElementChild as HTMLElement
-      if (child) {
-        element.parentNode?.insertBefore(child, element)
-      }
-    }
-    element.remove()
-  })
-
-  addedElements.clear()
-}
-
-export function checkKeyboardShortcuts(
-  mode: "apply" | "cleanup" = "apply"
-): ToolResult {
-  if (mode === "cleanup") {
-    cleanupKeyboardShortcutsCheck()
-    isActive = false
-    console.log("Keyboard shortcuts check disabled")
-    return { success: true }
-  } else {
-    applyKeyboardShortcutsCheck()
-    isActive = true
-    console.log("Keyboard shortcuts check enabled")
-    return { success: true }
-  }
-}
+// Export a singleton instance
+const keyboardShortcutsTool = new KeyboardShortcutsTool()
+export const checkKeyboardShortcuts = (mode: "apply" | "cleanup" = "apply") =>
+  keyboardShortcutsTool.run(mode)
