@@ -328,6 +328,42 @@ export function validateFileType(file: File, allowedTypes: string[]): boolean {
 }
 ```
 
+### Never Use Eval
+
+❌ Avoid using eval for executing code:
+
+```typescript
+// Don't do this
+const code = bookmarklet.replace("javascript:", "")
+eval(code)
+```
+
+✅ Use proper function execution instead:
+
+```typescript
+// Do this
+const executeBookmarklet = new Function(code)
+executeBookmarklet()
+
+// Or better, use proper function calls:
+function runTool(id: string) {
+  switch (id) {
+    case "headings":
+      checkHeadings()
+      break
+    // ...
+  }
+}
+```
+
+Rationale:
+
+- eval is unsafe and can execute malicious code
+- eval makes code harder to debug
+- eval bypasses JavaScript compile-time checks
+- eval can lead to security vulnerabilities
+- eval makes code harder to maintain
+
 ## Testing Patterns
 
 ### Component Testing
