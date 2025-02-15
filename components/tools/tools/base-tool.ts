@@ -1,3 +1,16 @@
+export interface AxeIssue {
+  id: string
+  impact: "minor" | "moderate" | "serious" | "critical"
+  description: string
+  help: string
+  helpUrl: string
+  nodes: {
+    html: string
+    target: string[]
+    failureSummary: string
+  }[]
+}
+
 export interface ToolResult {
   success: boolean
   issues?: string[]
@@ -15,6 +28,7 @@ export abstract class BaseTool {
   protected addedElements: Set<HTMLElement> = new Set()
   private observer: MutationObserver | null = null
   private themeObserver: MediaQueryList | null = null
+  private navigationListener: (() => void) | null = null
 
   private readonly logStyles: LogStyles = {
     info: "color: #3b82f6; font-weight: bold;", // Blue
@@ -79,11 +93,18 @@ export abstract class BaseTool {
       }
     })
 
+    // Observe DOM changes
     this.observer.observe(document.documentElement, {
       childList: true,
       subtree: true,
       attributes: true,
     })
+
+    // Navigation listener
+    this.navigationListener = () => this.revalidate()
+    window.addEventListener("popstate", this.navigationListener)
+    window.addEventListener("pushstate", this.navigationListener)
+    window.addEventListener("replacestate", this.navigationListener)
 
     // Theme Change Observer
     this.themeObserver = window.matchMedia("(prefers-color-scheme: dark)")
@@ -94,6 +115,13 @@ export abstract class BaseTool {
     if (this.observer) {
       this.observer.disconnect()
       this.observer = null
+    }
+
+    if (this.navigationListener) {
+      window.removeEventListener("popstate", this.navigationListener)
+      window.removeEventListener("pushstate", this.navigationListener)
+      window.removeEventListener("replacestate", this.navigationListener)
+      this.navigationListener = null
     }
 
     if (this.themeObserver) {
