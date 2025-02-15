@@ -1,3 +1,5 @@
+import { ToolResult } from "./base-tool"
+
 let isActive = false
 const markers = new Set<HTMLElement>()
 const lines = new Set<HTMLElement>()
@@ -165,14 +167,18 @@ function cleanupFocusOrderCheck() {
   lastElement = null
 }
 
-export function checkFocusOrder() {
-  if (isActive) {
+export function checkFocusOrder(
+  mode: "apply" | "cleanup" = "apply"
+): ToolResult {
+  if (mode === "cleanup") {
     cleanupFocusOrderCheck()
     isActive = false
     console.log("Focus order check disabled")
+    return { success: true }
   } else {
     applyFocusOrderCheck()
     isActive = true
     console.log("Focus order check enabled")
+    return { success: true }
   }
 }

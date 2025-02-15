@@ -1,3 +1,5 @@
+import { ToolResult } from "./base-tool"
+
 let isActive = false
 const originalStyles = new WeakMap<
   HTMLElement,
@@ -103,14 +105,18 @@ function cleanupAriaRolesCheck() {
   addedElements.clear()
 }
 
-export function checkAriaRoles() {
-  if (isActive) {
+export function checkAriaRoles(
+  mode: "apply" | "cleanup" = "apply"
+): ToolResult {
+  if (mode === "cleanup") {
     cleanupAriaRolesCheck()
     isActive = false
     console.log("ARIA roles check disabled")
+    return { success: true }
   } else {
     applyAriaRolesCheck()
     isActive = true
     console.log("ARIA roles check enabled")
+    return { success: true }
   }
 }

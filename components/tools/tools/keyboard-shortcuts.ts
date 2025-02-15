@@ -1,3 +1,5 @@
+import { ToolResult } from "./base-tool"
+
 let isActive = false
 const originalStyles = new WeakMap<
   HTMLElement,
@@ -145,14 +147,18 @@ function cleanupKeyboardShortcutsCheck() {
   addedElements.clear()
 }
 
-export function checkKeyboardShortcuts() {
-  if (isActive) {
+export function checkKeyboardShortcuts(
+  mode: "apply" | "cleanup" = "apply"
+): ToolResult {
+  if (mode === "cleanup") {
     cleanupKeyboardShortcutsCheck()
     isActive = false
     console.log("Keyboard shortcuts check disabled")
+    return { success: true }
   } else {
     applyKeyboardShortcutsCheck()
     isActive = true
     console.log("Keyboard shortcuts check enabled")
+    return { success: true }
   }
 }
