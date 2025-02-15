@@ -3,7 +3,6 @@ import Link from "next/link"
 
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { AltTextGeneratorBlock } from "@/components/blocks/AltTextGenerator"
 import { Faqs } from "@/components/blocks/Faqs"
 import { Issues } from "@/components/blocks/Issues"
 import { ScanProcess } from "@/components/blocks/ScanProcess"
@@ -14,7 +13,6 @@ import { Compliance } from "@/components/charts/Compliance"
 import { Loader } from "@/components/loader"
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
-
 // import { Button } from "@/components/ui/button"
 
 const Page = async () => {
@@ -62,7 +60,7 @@ const Page = async () => {
           </p>
         </div>
       </div>
-      <AltTextGeneratorBlock />
+
       <WebScanner />
       <Stats />
       <ScanProcess />
