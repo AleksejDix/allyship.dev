@@ -14,10 +14,12 @@ interface AxeIssue {
 }
 
 export class HeadingsTool extends BaseTool {
+  getSelector(): string {
+    return "h1, h2, h3, h4, h5, h6, [role='heading']:not([role='presentation'])"
+  }
+
   getElements(): NodeListOf<HTMLElement> {
-    return document.querySelectorAll<HTMLElement>(
-      "h1, h2, h3, h4, h5, h6, [role='heading']:not([role='presentation'])"
-    )
+    return document.querySelectorAll<HTMLElement>(this.getSelector())
   }
 
   validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
