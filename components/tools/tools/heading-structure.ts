@@ -14,6 +14,9 @@ interface AxeIssue {
 }
 
 export class HeadingsTool extends BaseTool {
+  private hasIssues = false
+  private lastValidLevel = 0
+
   getSelector(): string {
     return "h1, h2, h3, h4, h5, h6, [role='heading']:not([role='presentation'])"
   }
@@ -23,6 +26,16 @@ export class HeadingsTool extends BaseTool {
   }
 
   validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
+    // Reset state at start of validation
+    if (el === this.getElements()[0]) {
+      this.hasIssues = false
+      this.lastValidLevel = 0
+      this.logInfo(
+        "Heading Structure Check Started",
+        "Checking heading levels and order..."
+      )
+    }
+
     const level = Number(
       el.tagName.toLowerCase().startsWith("h")
         ? el.tagName.charAt(1)
@@ -33,90 +46,75 @@ export class HeadingsTool extends BaseTool {
     const elements = Array.from(this.getElements())
     const currentIndex = elements.indexOf(el)
 
-    // Find the last valid heading level before this one
-    let lastValidLevel = 0
-    for (let i = 0; i < currentIndex; i++) {
-      const prevEl = elements[i]
-      const prevLevel = Number(
-        prevEl.tagName.toLowerCase().startsWith("h")
-          ? prevEl.tagName.charAt(1)
-          : prevEl.getAttribute("aria-level") || 6
-      )
-      if (prevEl.dataset.allyState === "valid") {
-        lastValidLevel = prevLevel
-      }
-    }
-
-    // Validation rules
-    const isFirstHeadingH1 = currentIndex === 0 && level === 1
-    const isValidSequence =
-      currentIndex === 0 || // First heading
-      level === lastValidLevel || // Same level as last valid
-      level === lastValidLevel + 1 || // One level deeper than last valid
-      level < lastValidLevel // Moving back up is valid
-
-    const content = el.textContent || ""
-    const hasContent = content.trim().length > 0
-
-    const isValid = hasContent && (isFirstHeadingH1 || isValidSequence)
-
-    let message: string | undefined
-    if (!hasContent) {
-      message = "Heading has no content"
-      this.logAxeIssue({
-        id: "empty-heading",
-        impact: "serious",
-        description: "Heading has no content",
-        help: "Headings must have discernible text",
-        helpUrl: "https://dequeuniversity.com/rules/axe/4.6/empty-heading",
-        nodes: [
-          {
-            html: el.outerHTML,
-            target: [`${el.tagName.toLowerCase()}[role="heading"]`],
-            failureSummary: "Fix any of the following: Heading has no content",
-          },
-        ],
-      })
-    } else if (currentIndex === 0 && !isFirstHeadingH1) {
-      message = "First heading must be H1"
+    // First heading should be h1
+    if (currentIndex === 0 && level !== 1) {
+      this.hasIssues = true
       this.logAxeIssue({
         id: "page-has-heading-one",
-        impact: "moderate",
-        description: "Page must have a level-one heading",
-        help: "Page should begin with an h1 heading",
+        impact: "serious",
+        description: "Page must start with a level-one heading",
+        help: "First heading on the page should be an <h1>",
         helpUrl:
           "https://dequeuniversity.com/rules/axe/4.6/page-has-heading-one",
         nodes: [
           {
             html: el.outerHTML,
             target: [`${el.tagName.toLowerCase()}[role="heading"]`],
-            failureSummary:
-              "Fix any of the following: First heading on the page is not h1",
+            failureSummary: "First heading on the page is not h1",
           },
         ],
       })
-    } else if (!isValidSequence) {
-      message = `Invalid heading level sequence: H${lastValidLevel} to H${level}`
+      this.highlightElement(el, false, `H${level} (Should be H1)`)
+      return {
+        isValid: false,
+        message: "First heading must be H1",
+      }
+    }
+
+    // Check for valid heading level sequence
+    const isValidSequence = level <= this.lastValidLevel + 1
+    const isValid = currentIndex === 0 ? level === 1 : isValidSequence
+
+    if (!isValid) {
+      this.hasIssues = true
       this.logAxeIssue({
         id: "heading-order",
         impact: "moderate",
         description: "Heading levels should only increase by one",
-        help: "Heading levels should not be skipped",
+        help: `Heading level should be ${this.lastValidLevel + 1} instead of ${level}`,
         helpUrl: "https://dequeuniversity.com/rules/axe/4.6/heading-order",
         nodes: [
           {
             html: el.outerHTML,
             target: [`${el.tagName.toLowerCase()}[role="heading"]`],
-            failureSummary: `Fix any of the following: Heading level should be ${lastValidLevel + 1} instead of ${level}`,
+            failureSummary: `Invalid heading sequence: H${this.lastValidLevel} to H${level}`,
           },
         ],
       })
+    } else {
+      this.lastValidLevel = level
     }
 
-    const label = `H${level}`
-    this.highlightElement(el, isValid, label)
+    // If this is the last element and no issues were found, log success
+    if (
+      el === this.getElements()[this.getElements().length - 1] &&
+      !this.hasIssues
+    ) {
+      this.logSuccess(
+        "Heading Structure Check Passed",
+        "First heading is H1",
+        "Heading levels increase by one",
+        "All headings follow correct sequence"
+      )
+    }
 
-    return { isValid, message }
+    this.highlightElement(el, isValid, `H${level}`)
+    return {
+      isValid,
+      message: isValid
+        ? undefined
+        : `Invalid heading sequence: H${this.lastValidLevel} to H${level}`,
+    }
   }
 
   private logAxeIssue(issue: AxeIssue) {

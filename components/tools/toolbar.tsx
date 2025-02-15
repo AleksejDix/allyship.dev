@@ -9,6 +9,7 @@ import {
   Image,
   Info,
   Keyboard,
+  Languages,
   Layout,
   LayoutTemplate,
   Link,
@@ -39,6 +40,7 @@ import { checkHeadings } from "./tools/heading-structure"
 import { checkImageAlt } from "./tools/image-alt"
 import { checkKeyboardShortcuts } from "./tools/keyboard-shortcuts"
 import { checkLandmarks } from "./tools/landmarks"
+import { checkLanguage } from "./tools/language-check"
 import { checkLinkLabels } from "./tools/link-labels"
 
 interface Tool {
@@ -126,6 +128,13 @@ const TOOLS = {
     description: "Check for consistent link labels",
     run: checkLinkLabels,
   },
+  language: {
+    id: "language",
+    name: "Language",
+    icon: <Languages className="h-4 w-4" />,
+    description: "Check HTML language attributes",
+    run: checkLanguage,
+  },
 } as const
 
 const TOOL_GROUPS: ToolGroup[] = [
@@ -153,6 +162,11 @@ const TOOL_GROUPS: ToolGroup[] = [
     id: "links",
     label: "Link Tools",
     tools: [TOOLS.linkLabels],
+  },
+  {
+    id: "content",
+    label: "Content Tools",
+    tools: [TOOLS.language],
   },
 ] as const
 

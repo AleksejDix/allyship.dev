@@ -49,7 +49,9 @@ export function SpaceIndex({ spaces }: { spaces: SpaceWithDomains[] }) {
         >
           <Card className="h-full transition-colors hover:bg-muted/50">
             <CardHeader>
-              <CardTitle>{space.name}</CardTitle>
+              <CardTitle>
+                <h2>{space.name}</h2>
+              </CardTitle>
               <CardDescription>owner: {space.owner.first_name}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
