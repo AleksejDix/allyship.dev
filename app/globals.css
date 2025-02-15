@@ -3,3 +3,9 @@
 @tailwind utilities;
 
 /* Rest of your global styles */
+
+@layer utilities {
+  .dragging {
+    @apply opacity-90 scale-[1.01];
+  }
+}
