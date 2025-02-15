@@ -12,7 +12,7 @@ export const Logo: React.FC<LogoProps> = ({ className, ...props }) => {
     <RouterLink
       href="/"
       aria-label="Allyship.dev"
-      className="!no-underline inline-flex items-center gap-2"
+      className="!no-underline inline-flex items-center gap-2 rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <Loader size={32} />
       <span

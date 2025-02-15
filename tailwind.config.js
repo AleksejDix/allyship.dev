@@ -2,16 +2,19 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-    './content/**/*.{md,mdx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+    "./content/**/*.{md,mdx}",
   ],
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1rem",
+        sm: "2rem",
+      },
       screens: {
         "2xl": "1400px",
       },
@@ -20,26 +23,26 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
-            'table': {
-              borderCollapse: 'collapse',
-              width: '100%',
+            table: {
+              borderCollapse: "collapse",
+              width: "100%",
             },
-            'thead': {
-              borderBottom: '2px solid var(--tw-prose-th-borders)',
+            thead: {
+              borderBottom: "2px solid var(--tw-prose-th-borders)",
             },
-            'th': {
-              verticalAlign: 'bottom',
-              padding: '.5rem',
-              fontWeight: '600',
+            th: {
+              verticalAlign: "bottom",
+              padding: ".5rem",
+              fontWeight: "600",
             },
-            'td': {
-              verticalAlign: 'top',
-              padding: '.5rem',
+            td: {
+              verticalAlign: "top",
+              padding: ".5rem",
             },
-            'tr': {
-              borderBottom: '1px solid var(--tw-prose-td-borders)',
+            tr: {
+              borderBottom: "1px solid var(--tw-prose-td-borders)",
             },
-            maxWidth: 'none',
+            maxWidth: "none",
           },
         },
       },
@@ -99,8 +102,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require("tailwindcss-animate"),
-    require("@tailwindcss/typography"),
-  ],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 }
