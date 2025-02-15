@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge"
 import ThemeToggle from "@/components/ThemeToggle"
-import { AccessibilityToolbar } from "@/components/tools/toolbar"
 
 import { RouterLink } from "../RouterLink"
 import { Logo } from "./Logo"
@@ -114,8 +113,6 @@ export const Footer = () => {
           </div>
           <div className="mt-24 flex flex-col justify-between gap-4 border-t border-border pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
             <p>© 2024 Allyship. All rights reserved.</p>
-
-            <AccessibilityToolbar />
 
             <ul className="flex gap-4">
               <li>

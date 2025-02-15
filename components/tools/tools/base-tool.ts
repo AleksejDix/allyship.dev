@@ -3,11 +3,25 @@ export interface ToolResult {
   issues?: string[]
 }
 
+interface LogStyles {
+  info: string
+  success: string
+  warning: string
+  error: string
+}
+
 export abstract class BaseTool {
   protected isActive: boolean = false
   protected addedElements: Set<HTMLElement> = new Set()
   private observer: MutationObserver | null = null
   private themeObserver: MediaQueryList | null = null
+
+  private readonly logStyles: LogStyles = {
+    info: "color: #3b82f6; font-weight: bold;", // Blue
+    success: "color: #059669; font-weight: bold;", // Green
+    warning: "color: #d97706; font-weight: bold;", // Orange
+    error: "color: #d93251; font-weight: bold;", // Red
+  }
 
   abstract getSelector(): string
   abstract getElements(): NodeListOf<HTMLElement> | HTMLElement[]
@@ -156,5 +170,42 @@ export abstract class BaseTool {
 
   run(mode: "apply" | "cleanup" = "apply"): ToolResult {
     return mode === "cleanup" ? this.cleanup() : this.apply()
+  }
+
+  protected logInfo(title: string, ...messages: string[]) {
+    console.group(`%c${title}`, this.logStyles.info)
+    messages.forEach((msg) => console.log(msg))
+    console.groupEnd()
+  }
+
+  protected logSuccess(title: string, ...messages: string[]) {
+    console.group(`%c${title}`, this.logStyles.success)
+    messages.forEach((msg) => console.log("✓", msg))
+    console.groupEnd()
+  }
+
+  protected logWarning(title: string, ...messages: string[]) {
+    console.group(`%c${title}`, this.logStyles.warning)
+    messages.forEach((msg) => console.log("⚠", msg))
+    console.groupEnd()
+  }
+
+  protected logError(title: string, ...messages: string[]) {
+    console.group(`%c${title}`, this.logStyles.error)
+    messages.forEach((msg) => console.log("✕", msg))
+    console.groupEnd()
+  }
+
+  protected logAxeIssue(issue: AxeIssue) {
+    const style =
+      issue.impact === "serious" ? this.logStyles.error : this.logStyles.warning
+
+    console.group(`%cAxe Issue: ${issue.id}`, style)
+    console.log("Impact:", issue.impact)
+    console.log("Description:", issue.description)
+    console.log("Help:", issue.help)
+    console.log("Help URL:", issue.helpUrl)
+    console.log("Nodes:", issue.nodes)
+    console.groupEnd()
   }
 }
