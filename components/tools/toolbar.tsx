@@ -8,15 +8,13 @@ import {
   FormInput,
   GripHorizontal,
   Image,
-  Info,
   Keyboard,
   Languages,
-  Layout,
   LayoutTemplate,
   Link,
   MousePointer2,
-  Palette,
   Settings,
+  SquareAsterisk,
   Type,
 } from "lucide-react"
 
@@ -39,6 +37,7 @@ import { checkFocusOrder } from "./tools/focus-order"
 import { checkFormLabels } from "./tools/form-labels"
 import { checkHeadings } from "./tools/heading-structure"
 import { checkImageAlt } from "./tools/image-alt"
+import { checkKeyboardAccessibility } from "./tools/keyboard-accessibility"
 import { checkKeyboardShortcuts } from "./tools/keyboard-shortcuts"
 import { checkLandmarks } from "./tools/landmarks"
 import { checkLanguage } from "./tools/language-check"
@@ -89,9 +88,16 @@ const TOOLS = {
   },
   keyboard: {
     id: "keyboard",
-    name: "Keyboard",
+    name: "Keyboard Access",
     icon: <Keyboard className="h-4 w-4" />,
-    description: "Check keyboard access",
+    description: "Check keyboard accessibility",
+    run: checkKeyboardAccessibility,
+  },
+  shortcuts: {
+    id: "keyboardShortcuts",
+    name: "Keyboard Shortcuts",
+    icon: <SquareAsterisk className="h-4 w-4" />,
+    description: "Check keyboard shortcuts and access",
     run: checkKeyboardShortcuts,
   },
   labels: {
@@ -143,13 +149,6 @@ const TOOLS = {
     description: "Check image alt text",
     run: checkImageAlt,
   },
-  keyboardShortcuts: {
-    id: "keyboardShortcuts",
-    name: "Keyboard",
-    icon: <Keyboard className="h-4 w-4" />,
-    description: "Check keyboard shortcuts and access",
-    run: checkKeyboardShortcuts,
-  },
 } as const
 
 const TOOL_GROUPS = [
@@ -161,7 +160,7 @@ const TOOL_GROUPS = [
   {
     id: "interaction",
     label: "Interaction Tools",
-    tools: [TOOLS.focus, TOOLS.keyboardShortcuts, TOOLS.cursor],
+    tools: [TOOLS.focus, TOOLS.keyboard, TOOLS.shortcuts, TOOLS.cursor],
   },
   {
     id: "forms",
