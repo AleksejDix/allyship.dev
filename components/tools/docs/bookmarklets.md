@@ -440,3 +440,180 @@ Would you like me to elaborate on any of these new categories or start implement
 - [ ] Reading level analysis
 - [ ] Performance optimization
 - [ ] Analytics integration
+
+# Accessibility Testing Tools
+
+## Implemented Tools
+
+### Structure Tools
+
+- [x] Heading Structure Validator
+
+  - Checks heading order (h1-h6)
+  - Validates first heading is h1
+  - Ensures headings have content
+  - Reports Axe-style issues
+
+- [x] Landmarks Tool
+
+  - Validates landmark regions
+  - Checks for proper labeling
+  - Includes elevated landmarks (section/article with labels)
+  - Reports missing/invalid landmarks
+
+- [x] Cursor Rules
+  - Validates pointer cursor on interactive elements
+  - Checks implicit and explicit roles
+  - Ensures proper cursor feedback
+  - Reports cursor style mismatches
+
+## Next Priority Tools (P0)
+
+### Interaction Tools
+
+- [ ] Focus Order Tracker
+
+  - Track tab order
+  - Highlight focus sequence
+  - Detect keyboard traps
+  - Report focus management issues
+
+- [ ] Keyboard Navigation
+  - Check keyboard access
+  - Validate shortcuts
+  - Test escape handlers
+  - Monitor key events
+
+### Form Tools
+
+- [ ] Form Labels
+  - Check input-label associations
+  - Validate aria-labels
+  - Test required fields
+  - Report missing labels
+
+## Future Tools (P1)
+
+### Visual Tools
+
+- [ ] Color Contrast
+
+  - Text contrast ratios
+  - UI component contrast
+  - Large text handling
+  - WCAG 2.1 compliance
+
+- [ ] Images
+  - Alt text validation
+  - Decorative image checks
+  - Background image detection
+  - SVG accessibility
+
+### ARIA Tools
+
+- [ ] ARIA Roles
+  - Role validation
+  - Required properties
+  - Allowed states
+  - Pattern compliance
+
+## Tool Implementation Guidelines
+
+1. Each tool should:
+
+   - Extend BaseTool
+   - Implement getSelector()
+   - Use Axe issue format
+   - Support DOM observation
+
+2. Required Methods:
+
+   ```typescript
+   abstract class BaseTool {
+     abstract getSelector(): string
+     abstract getElements(): NodeListOf<HTMLElement>
+     abstract validateElement(el: HTMLElement): {
+       isValid: boolean
+       message?: string
+     }
+   }
+   ```
+
+3. Issue Reporting:
+   ```typescript
+   interface AxeIssue {
+     id: string
+     impact: "minor" | "moderate" | "serious" | "critical"
+     description: string
+     help: string
+     helpUrl: string
+     nodes: {
+       html: string
+       target: string[]
+       failureSummary: string
+     }[]
+   }
+   ```
+
+## Contributing New Tools
+
+1. Create tool class:
+
+   ```typescript
+   export class NewTool extends BaseTool {
+     getSelector(): string {
+       return "selector-for-elements-to-check"
+     }
+
+     validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
+       // Implement validation logic
+       return { isValid, message }
+     }
+   }
+   ```
+
+2. Add to toolbar:
+
+   ```typescript
+   const TOOLS = {
+     newTool: {
+       id: "newTool",
+       name: "Tool Name",
+       icon: <Icon className="h-4 w-4" />,
+       description: "Tool description",
+       run: checkNewTool,
+     }
+   }
+   ```
+
+3. Add to tool groups:
+   ```typescript
+   const TOOL_GROUPS = [
+     {
+       id: "groupId",
+       label: "Group Label",
+       tools: [TOOLS.newTool],
+     },
+   ]
+   ```
+
+## Testing Requirements
+
+1. Tool Validation
+
+   - Cross-browser compatibility
+   - Performance impact
+   - Memory management
+   - Error handling
+
+2. Accessibility Requirements
+   - Tools must be keyboard accessible
+   - Clear visual feedback
+   - Screen reader announcements
+   - High contrast support
+
+## Resources
+
+- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [WAI-ARIA Practices](https://www.w3.org/WAI/ARIA/apg/)
+- [Axe Rules](https://dequeuniversity.com/rules/axe/4.6)
