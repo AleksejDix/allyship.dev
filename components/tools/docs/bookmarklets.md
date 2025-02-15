@@ -1,10 +1,169 @@
+# Accessibility Tools Documentation
+
+## Overview
+
+A collection of tools to help check and validate web accessibility. These tools can be used as bookmarklets or integrated into development workflows.
+
+## Core Tools
+
+### Structure Tools
+
+#### Headings Tool
+
+- **Purpose**: Validates heading structure and hierarchy
+- **Checks**:
+  - Proper heading levels (h1-h6)
+  - Sequential ordering
+  - Single h1 per page
+  - Meaningful heading text
+- **Usage**: `checkHeadings()`
+
+#### Landmarks Tool
+
+- **Purpose**: Checks for proper ARIA landmarks
+- **Checks**:
+  - Required landmarks (main, nav, etc.)
+  - Unique landmark roles
+  - Proper nesting
+  - Labeled landmarks
+- **Usage**: `checkLandmarks()`
+
+### Navigation Tools
+
+#### Focus Order Tool
+
+- **Purpose**: Visualizes and validates tab order
+- **Checks**:
+  - Logical tab sequence
+  - Focusable elements
+  - Skip links
+  - Focus management
+- **Usage**: `checkFocusOrder()`
+
+#### Keyboard Shortcuts Tool
+
+- **Purpose**: Checks for keyboard accessibility
+- **Checks**:
+  - Conflicting shortcuts
+  - Access keys
+  - Custom hotkeys
+  - Menu items
+- **Usage**: `checkKeyboardShortcuts()`
+
+### Form Tools
+
+#### Form Labels Tool
+
+- **Purpose**: Validates form control labeling
+- **Checks**:
+  - Explicit labels
+  - Implicit labels
+  - ARIA labels
+  - Label associations
+- **Usage**: `checkFormLabels()`
+
+### Visual Tools
+
+#### Image Alt Tool
+
+- **Purpose**: Checks image descriptions
+- **Checks**:
+  - Alt text presence
+  - Decorative images
+  - ARIA labels
+  - SVG titles
+- **Usage**: `checkImageAlt()`
+
+## Tool Development
+
+### Base Tool Structure
+
+```typescript
+export abstract class BaseTool {
+  abstract getSelector(): string
+  abstract getElements(): NodeListOf<HTMLElement>
+  abstract validateElement(el: HTMLElement): ValidationResult
+}
+```
+
+### Common Features
+
+- Visual highlighting
+- Console logging
+- Issue reporting
+- Cleanup functionality
+- State management
+
 ### Adding New Tools
 
-1. Create bookmarklet implementation
-2. Add to tools array in toolbar
-3. Implement activation handler
-4. Add visual feedback
-5. Document keyboard shortcuts
+1. Create new class extending BaseTool
+2. Implement required methods
+3. Add to toolbar configuration
+4. Include documentation
+5. Add tests
+
+## Usage Examples
+
+### Basic Usage
+
+```typescript
+// Run a tool
+checkHeadings()
+
+// Clean up
+checkHeadings("cleanup")
+```
+
+### Integration
+
+```typescript
+// Add to toolbar
+const TOOLS = {
+  headings: {
+    id: "headings",
+    name: "Headings",
+    icon: <Heading2 />,
+    description: "Check heading structure",
+    run: checkHeadings,
+  },
+}
+```
+
+## Best Practices
+
+### Tool Development
+
+1. Follow consistent patterns
+2. Use meaningful selectors
+3. Provide clear feedback
+4. Handle cleanup properly
+5. Document thoroughly
+
+### Tool Usage
+
+1. Run tools individually
+2. Check console output
+3. Fix issues incrementally
+4. Retest after changes
+5. Document known issues
+
+## Future Development
+
+### Planned Tools
+
+- Document title checker
+- List structure validator
+- Table markup validator
+- Touch target size checker
+- Error message validator
+
+### Feature Roadmap
+
+1. Automated fixes
+2. Issue export
+3. Custom rules
+4. Performance optimization
+5. Testing integration
 
 ## Keyboard Shortcuts
 

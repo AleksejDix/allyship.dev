@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import {
   Check,
+  Contrast,
   Crosshair,
   FormInput,
   GripHorizontal,
@@ -102,9 +103,9 @@ const TOOLS = {
   },
   contrast: {
     id: "contrast",
-    name: "Color Contrast",
-    icon: <Palette className="h-4 w-4" />,
-    description: "Check color contrast",
+    name: "Contrast",
+    icon: <Contrast className="h-4 w-4" />,
+    description: "Check color contrast ratios",
     run: checkColorContrast,
   },
   images: {
@@ -142,9 +143,16 @@ const TOOLS = {
     description: "Check image alt text",
     run: checkImageAlt,
   },
+  keyboardShortcuts: {
+    id: "keyboardShortcuts",
+    name: "Keyboard",
+    icon: <Keyboard className="h-4 w-4" />,
+    description: "Check keyboard shortcuts and access",
+    run: checkKeyboardShortcuts,
+  },
 } as const
 
-const TOOL_GROUPS: ToolGroup[] = [
+const TOOL_GROUPS = [
   {
     id: "structure",
     label: "Structure Tools",
@@ -153,7 +161,7 @@ const TOOL_GROUPS: ToolGroup[] = [
   {
     id: "interaction",
     label: "Interaction Tools",
-    tools: [TOOLS.focus, TOOLS.keyboard, TOOLS.cursor],
+    tools: [TOOLS.focus, TOOLS.keyboardShortcuts, TOOLS.cursor],
   },
   {
     id: "forms",
@@ -163,7 +171,7 @@ const TOOL_GROUPS: ToolGroup[] = [
   {
     id: "visual",
     label: "Visual Tools",
-    tools: [TOOLS.contrast, TOOLS.images],
+    tools: [TOOLS.contrast, TOOLS.imageAlt],
   },
   {
     id: "links",
@@ -173,7 +181,7 @@ const TOOL_GROUPS: ToolGroup[] = [
   {
     id: "content",
     label: "Content Tools",
-    tools: [TOOLS.language, TOOLS.imageAlt],
+    tools: [TOOLS.language],
   },
 ] as const
 
