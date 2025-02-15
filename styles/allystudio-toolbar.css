@@ -15,7 +15,8 @@
   position: absolute;
   bottom: calc(100% + 2px);
   left: -4px;
-  color: white;
+  color: black;
+  background: white;
   padding: 2px 12px;
   font-size: 12px;
   line-height: 1.5;
