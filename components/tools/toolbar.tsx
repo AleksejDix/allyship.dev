@@ -40,175 +40,99 @@ interface Tool {
   name: string
   icon: React.ReactNode
   description: string
-  isActive: boolean
-  run: () => void
-  options?: {
-    // Add tool-specific options here
-    label: string
-    value: string | number | boolean
-    type: "checkbox" | "radio" | "select" | "range"
-  }[]
+  run: (mode: "apply" | "cleanup") => ToolResult
 }
 
-const CORE_TOOLS: Tool[] = [
-  {
+interface ToolGroup {
+  id: string
+  label: string
+  tools: Tool[]
+}
+
+const TOOLS = {
+  headings: {
     id: "headings",
     name: "Headings",
     icon: <Type className="h-4 w-4" />,
-    description: "Check heading order and structure",
-    isActive: false,
+    description: "Check heading structure",
     run: checkHeadings,
   },
-  {
+  landmarks: {
     id: "landmarks",
     name: "Landmarks",
     icon: <LayoutTemplate className="h-4 w-4" />,
     description: "Validate page landmarks and regions",
-    isActive: false,
     run: checkLandmarks,
   },
-  {
+  aria: {
     id: "aria",
     name: "ARIA Roles",
     icon: <Settings className="h-4 w-4" />,
     description: "Validate ARIA usage",
-    isActive: false,
     run: checkAriaRoles,
   },
-  {
+  focus: {
     id: "focus",
     name: "Focus Order",
     icon: <MousePointer2 className="h-4 w-4" />,
     description: "Track keyboard focus order",
-    isActive: false,
     run: checkFocusOrder,
   },
-  {
+  keyboard: {
     id: "keyboard",
     name: "Keyboard",
     icon: <Keyboard className="h-4 w-4" />,
     description: "Check keyboard access",
-    isActive: false,
     run: checkKeyboardShortcuts,
   },
-  {
+  labels: {
     id: "labels",
     name: "Form Labels",
     icon: <FormInput className="h-4 w-4" />,
     description: "Validate form controls",
-    isActive: false,
     run: checkFormLabels,
   },
-  {
+  contrast: {
     id: "contrast",
     name: "Contrast",
     icon: <Palette className="h-4 w-4" />,
     description: "Check color contrast",
-    isActive: false,
     run: checkColorContrast,
   },
-  {
+  images: {
     id: "images",
     name: "Images",
     icon: <Image className="h-4 w-4" />,
     description: "Check image accessibility",
-    isActive: false,
     run: checkImageAlt,
   },
-]
+} as const
 
-interface Position {
-  x: number
-  y: number
-}
-
-// First, let's define tool groups with their variants
-const TOOL_GROUPS = [
+const TOOL_GROUPS: ToolGroup[] = [
   {
     id: "structure",
     label: "Structure Tools",
-    tools: [
-      {
-        id: "headings",
-        name: "Headings",
-        icon: <Type className="h-4 w-4" />,
-        description: "Check heading structure",
-        run: checkHeadings,
-      },
-      {
-        id: "landmarks",
-        name: "Landmarks",
-        icon: <LayoutTemplate className="h-4 w-4" />,
-        description: "Check page regions",
-        run: checkLandmarks,
-      },
-      {
-        id: "aria",
-        name: "ARIA Roles",
-        icon: <Settings className="h-4 w-4" />,
-        description: "Check ARIA usage",
-        run: checkAriaRoles,
-      },
-    ],
+    tools: [TOOLS.headings, TOOLS.landmarks, TOOLS.aria],
   },
   {
     id: "interaction",
     label: "Interaction Tools",
-    tools: [
-      {
-        id: "focus",
-        name: "Focus Order",
-        icon: <MousePointer2 className="h-4 w-4" />,
-        description: "Track focus path",
-        run: checkFocusOrder,
-      },
-      {
-        id: "keyboard",
-        name: "Keyboard Access",
-        icon: <Keyboard className="h-4 w-4" />,
-        description: "Check keyboard support",
-        run: checkKeyboardShortcuts,
-      },
-    ],
+    tools: [TOOLS.focus, TOOLS.keyboard],
   },
   {
     id: "labels",
     label: "Labels",
-    tools: [
-      {
-        id: "labels",
-        name: "Form Labels",
-        icon: <FormInput className="h-4 w-4" />,
-        description: "Validate form controls",
-        run: checkFormLabels,
-      },
-    ],
+    tools: [TOOLS.labels],
   },
   {
     id: "contrast",
     label: "Contrast",
-    tools: [
-      {
-        id: "contrast",
-        name: "Contrast",
-        icon: <Palette className="h-4 w-4" />,
-        description: "Check color contrast",
-        run: checkColorContrast,
-      },
-    ],
+    tools: [TOOLS.contrast],
   },
   {
     id: "images",
     label: "Images",
-    tools: [
-      {
-        id: "images",
-        name: "Images",
-        icon: <Image className="h-4 w-4" />,
-        description: "Check image accessibility",
-        run: checkImageAlt,
-      },
-    ],
+    tools: [TOOLS.images],
   },
 ] as const
 
@@ -289,29 +213,40 @@ export function AccessibilityToolbar() {
   const toggleTool = (groupId: string, toolId: string) => {
     setActiveTools((prev) => {
       const newTools = { ...prev }
+      const isCurrentlyActive = prev[groupId] === toolId
 
-      // If clicking active tool, disable it
-      if (prev[groupId] === toolId) {
-        // Run the tool to disable it
+      if (isCurrentlyActive) {
+        // Disable currently active tool
         const tool = TOOL_GROUPS.find((g) => g.id === groupId)?.tools.find(
           (t) => t.id === toolId
         )
-        if (tool) tool.run()
-        delete newTools[groupId]
+        if (tool) {
+          const result = tool.run("cleanup")
+          if (result.success) {
+            delete newTools[groupId]
+          }
+        }
       } else {
         // Disable previous tool in group if exists
         if (prev[groupId]) {
           const prevTool = TOOL_GROUPS.find(
             (g) => g.id === groupId
           )?.tools.find((t) => t.id === prev[groupId])
-          if (prevTool) prevTool.run()
+          if (prevTool) {
+            prevTool.run("cleanup")
+          }
         }
+
         // Enable new tool
         const tool = TOOL_GROUPS.find((g) => g.id === groupId)?.tools.find(
           (t) => t.id === toolId
         )
-        if (tool) tool.run()
-        newTools[groupId] = toolId
+        if (tool) {
+          const result = tool.run("apply")
+          if (result.success) {
+            newTools[groupId] = toolId
+          }
+        }
       }
 
       return newTools
