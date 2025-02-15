@@ -1,3 +1,5 @@
+import { ToolResult } from "./base-tool"
+
 let isActive = false
 const originalStyles = new WeakMap<
   HTMLElement,
@@ -70,14 +72,16 @@ function cleanupImageAltCheck() {
   addedElements.clear()
 }
 
-export function checkImageAlt() {
-  if (isActive) {
+export function checkImageAlt(mode: "apply" | "cleanup" = "apply"): ToolResult {
+  if (mode === "cleanup") {
     cleanupImageAltCheck()
     isActive = false
     console.log("Image alt check disabled")
+    return { success: true }
   } else {
     applyImageAltCheck()
     isActive = true
     console.log("Image alt check enabled")
+    return { success: true }
   }
 }

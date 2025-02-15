@@ -1,3 +1,5 @@
+import { ToolResult } from "./base-tool"
+
 let isActive = false
 const originalStyles = new WeakMap<
   HTMLElement,
@@ -58,14 +60,18 @@ function cleanupFormLabelsCheck() {
   })
 }
 
-export function checkFormLabels() {
-  if (isActive) {
+export function checkFormLabels(
+  mode: "apply" | "cleanup" = "apply"
+): ToolResult {
+  if (mode === "cleanup") {
     cleanupFormLabelsCheck()
     isActive = false
     console.log("Form labels check disabled")
+    return { success: true }
   } else {
     applyFormLabelsCheck()
     isActive = true
     console.log("Form labels check enabled")
+    return { success: true }
   }
 }
