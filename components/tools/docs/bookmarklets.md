@@ -451,166 +451,136 @@ Would you like me to elaborate on any of these new categories or start implement
 
   - Checks heading order (h1-h6)
   - Validates first heading is h1
-  - Ensures headings have content
   - Reports Axe-style issues
+  - DOM observation support
 
 - [x] Landmarks Tool
 
   - Validates landmark regions
   - Checks for proper labeling
-  - Includes elevated landmarks (section/article with labels)
+  - Includes elevated landmarks
   - Reports missing/invalid landmarks
 
-- [x] Cursor Rules
-  - Validates pointer cursor on interactive elements
-  - Checks implicit and explicit roles
-  - Ensures proper cursor feedback
-  - Reports cursor style mismatches
-
-## Next Priority Tools (P0)
+- [x] ARIA Roles
+  - Validates role usage
+  - Checks role compatibility
+  - Reports invalid combinations
+  - Visual feedback
 
 ### Interaction Tools
 
-- [ ] Focus Order Tracker
+- [x] Focus Order Tracker
 
-  - Track tab order
-  - Highlight focus sequence
-  - Detect keyboard traps
-  - Report focus management issues
+  - Tracks tab sequence
+  - Shows focus path
+  - Animated flow indicators
+  - Dark mode support
 
-- [ ] Keyboard Navigation
-  - Check keyboard access
-  - Validate shortcuts
-  - Test escape handlers
-  - Monitor key events
+- [x] Keyboard Shortcuts
+
+  - Checks accesskey conflicts
+  - Validates keyboard access
+  - Reports missing keyboard support
+  - Interactive element checks
+
+- [x] Cursor Rules
+  - Validates pointer cursor
+  - Checks interactive elements
+  - Reports style mismatches
+  - DOM observation support
 
 ### Form Tools
 
-- [ ] Form Labels
-  - Check input-label associations
-  - Validate aria-labels
-  - Test required fields
-  - Report missing labels
-
-## Future Tools (P1)
+- [x] Form Labels
+  - Validates label associations
+  - Checks for missing labels
+  - Reports unlabeled controls
+  - Visual indicators
 
 ### Visual Tools
 
-- [ ] Color Contrast
+- [x] Color Contrast
 
-  - Text contrast ratios
-  - UI component contrast
-  - Large text handling
-  - WCAG 2.1 compliance
+  - WCAG 2.1 contrast ratios
+  - Handles large text rules
+  - Background color detection
+  - Detailed reporting
 
-- [ ] Images
-  - Alt text validation
-  - Decorative image checks
-  - Background image detection
-  - SVG accessibility
+- [x] Image Alt Text
+  - Checks alt attributes
+  - Identifies decorative images
+  - Reports missing alts
+  - Visual feedback
 
-### ARIA Tools
+### Link Tools
 
-- [ ] ARIA Roles
-  - Role validation
-  - Required properties
-  - Allowed states
-  - Pattern compliance
+- [x] Link Labels
+  - Checks label consistency
+  - Validates same-URL labels
+  - Handles ARIA labels
+  - Reports inconsistencies
 
-## Tool Implementation Guidelines
+## Tool Implementation Guide
 
-1. Each tool should:
+### Base Tool Pattern
 
-   - Extend BaseTool
-   - Implement getSelector()
-   - Use Axe issue format
-   - Support DOM observation
+```typescript
+abstract class BaseTool {
+  abstract getSelector(): string
+  abstract getElements(): NodeListOf<HTMLElement>
+  abstract validateElement(el: HTMLElement): {
+    isValid: boolean
+    message?: string
+  }
+}
+```
 
-2. Required Methods:
+### Issue Reporting
 
-   ```typescript
-   abstract class BaseTool {
-     abstract getSelector(): string
-     abstract getElements(): NodeListOf<HTMLElement>
-     abstract validateElement(el: HTMLElement): {
-       isValid: boolean
-       message?: string
-     }
-   }
-   ```
+```typescript
+interface AxeIssue {
+  id: string
+  impact: "minor" | "moderate" | "serious" | "critical"
+  description: string
+  help: string
+  helpUrl: string
+  nodes: {
+    html: string
+    target: string[]
+    failureSummary: string
+  }[]
+}
+```
 
-3. Issue Reporting:
-   ```typescript
-   interface AxeIssue {
-     id: string
-     impact: "minor" | "moderate" | "serious" | "critical"
-     description: string
-     help: string
-     helpUrl: string
-     nodes: {
-       html: string
-       target: string[]
-       failureSummary: string
-     }[]
-   }
-   ```
+### Adding New Tools
 
-## Contributing New Tools
+1. Extend BaseTool
+2. Implement required methods
+3. Add to toolbar configuration
+4. Include in appropriate tool group
 
-1. Create tool class:
+## Future Enhancements
 
-   ```typescript
-   export class NewTool extends BaseTool {
-     getSelector(): string {
-       return "selector-for-elements-to-check"
-     }
+### High Priority (P0)
 
-     validateElement(el: HTMLElement): { isValid: boolean; message?: string } {
-       // Implement validation logic
-       return { isValid, message }
-     }
-   }
-   ```
+- [ ] Text Spacing Validator
+- [ ] Reading Order Checker
+- [ ] Motion/Animation Control
+- [ ] Language Detection
 
-2. Add to toolbar:
+### Medium Priority (P1)
 
-   ```typescript
-   const TOOLS = {
-     newTool: {
-       id: "newTool",
-       name: "Tool Name",
-       icon: <Icon className="h-4 w-4" />,
-       description: "Tool description",
-       run: checkNewTool,
-     }
-   }
-   ```
+- [ ] PDF Accessibility
+- [ ] Video Captions
+- [ ] Audio Descriptions
+- [ ] Table Structure
 
-3. Add to tool groups:
-   ```typescript
-   const TOOL_GROUPS = [
-     {
-       id: "groupId",
-       label: "Group Label",
-       tools: [TOOLS.newTool],
-     },
-   ]
-   ```
+### Lower Priority (P2)
 
-## Testing Requirements
-
-1. Tool Validation
-
-   - Cross-browser compatibility
-   - Performance impact
-   - Memory management
-   - Error handling
-
-2. Accessibility Requirements
-   - Tools must be keyboard accessible
-   - Clear visual feedback
-   - Screen reader announcements
-   - High contrast support
+- [ ] Custom Rule Creation
+- [ ] Automated Fixes
+- [ ] Bulk Testing
+- [ ] Report Generation
 
 ## Resources
 

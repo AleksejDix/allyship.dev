@@ -7,11 +7,98 @@ export abstract class BaseTool {
   protected isActive: boolean = false
   protected addedElements: Set<HTMLElement> = new Set()
   private observer: MutationObserver | null = null
+  private themeObserver: MediaQueryList | null = null
 
+  abstract getSelector(): string
   abstract getElements(): NodeListOf<HTMLElement> | HTMLElement[]
   abstract validateElement(el: HTMLElement): {
     isValid: boolean
     message?: string
+  }
+
+  protected startObserving() {
+    if (this.observer) return
+
+    const selector = this.getSelector()
+    if (!selector) return
+
+    // DOM Changes Observer
+    this.observer = new MutationObserver((mutations) => {
+      let shouldRerun = false
+
+      for (const mutation of mutations) {
+        // Check for new/removed nodes
+        if (mutation.type === "childList") {
+          const addedNodes = Array.from(mutation.addedNodes)
+          const removedNodes = Array.from(mutation.removedNodes)
+
+          const hasRelevantChanges = [...addedNodes, ...removedNodes].some(
+            (node) => {
+              if (node instanceof HTMLElement) {
+                if (Array.from(this.getElements()).includes(node)) {
+                  return true
+                }
+                return node.querySelector(selector) !== null
+              }
+              return false
+            }
+          )
+
+          if (hasRelevantChanges) {
+            shouldRerun = true
+            break
+          }
+        }
+
+        // Check for attribute changes on HTML element
+        if (
+          mutation.type === "attributes" &&
+          mutation.target instanceof HTMLHtmlElement
+        ) {
+          shouldRerun = true
+          break
+        }
+      }
+
+      if (shouldRerun) {
+        this.revalidate()
+      }
+    })
+
+    this.observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    })
+
+    // Theme Change Observer
+    this.themeObserver = window.matchMedia("(prefers-color-scheme: dark)")
+    this.themeObserver.addEventListener("change", this.handleThemeChange)
+  }
+
+  protected stopObserving() {
+    if (this.observer) {
+      this.observer.disconnect()
+      this.observer = null
+    }
+
+    if (this.themeObserver) {
+      this.themeObserver.removeEventListener("change", this.handleThemeChange)
+      this.themeObserver = null
+    }
+  }
+
+  private handleThemeChange = () => {
+    if (this.isActive) {
+      this.revalidate()
+    }
+  }
+
+  protected revalidate() {
+    // Clean up existing validations
+    this.cleanup()
+    // Rerun validation
+    this.apply()
   }
 
   protected highlightElement(
@@ -24,69 +111,6 @@ export abstract class BaseTool {
     if (label) {
       el.dataset.allyLabel = label
     }
-  }
-
-  protected startObserving() {
-    if (this.observer) return
-
-    const selector = this.getSelector()
-    if (!selector) return // Don't observe if no selector is provided
-
-    this.observer = new MutationObserver((mutations) => {
-      let shouldRerun = false
-
-      for (const mutation of mutations) {
-        if (mutation.type === "childList") {
-          const addedNodes = Array.from(mutation.addedNodes)
-          const removedNodes = Array.from(mutation.removedNodes)
-
-          const hasRelevantChanges = [...addedNodes, ...removedNodes].some(
-            (node) => {
-              if (node instanceof HTMLElement) {
-                // Check if the node itself matches
-                if (Array.from(this.getElements()).includes(node)) {
-                  return true
-                }
-                // Check if the node contains any matching elements
-                return node.querySelector(selector) !== null
-              }
-              return false
-            }
-          )
-
-          if (hasRelevantChanges) {
-            shouldRerun = true
-            break
-          }
-        }
-      }
-
-      if (shouldRerun) {
-        this.revalidate()
-      }
-    })
-
-    this.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
-  }
-
-  protected stopObserving() {
-    if (this.observer) {
-      this.observer.disconnect()
-      this.observer = null
-    }
-  }
-
-  // Abstract method that each tool must implement to provide its selector
-  abstract getSelector(): string
-
-  protected revalidate() {
-    // Clean up existing validations
-    this.cleanup()
-    // Rerun validation
-    this.apply()
   }
 
   apply(): ToolResult {
@@ -109,7 +133,7 @@ export abstract class BaseTool {
     })
 
     this.isActive = true
-    this.startObserving() // Start observing after initial validation
+    this.startObserving()
     return { success: true, issues }
   }
 
@@ -118,7 +142,7 @@ export abstract class BaseTool {
       return { success: false }
     }
 
-    this.stopObserving() // Stop observing when cleaning up
+    this.stopObserving()
 
     this.addedElements.forEach((element) => {
       element.removeAttribute("data-ally-state")
