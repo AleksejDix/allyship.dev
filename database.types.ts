@@ -7,41 +7,33 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
-      _prisma_migrations: {
-        Row: {
-          applied_steps_count: number
-          checksum: string
-          finished_at: string | null
-          id: string
-          logs: string | null
-          migration_name: string
-          rolled_back_at: string | null
-          started_at: string
-        }
-        Insert: {
-          applied_steps_count?: number
-          checksum: string
-          finished_at?: string | null
-          id: string
-          logs?: string | null
-          migration_name: string
-          rolled_back_at?: string | null
-          started_at?: string
-        }
-        Update: {
-          applied_steps_count?: number
-          checksum?: string
-          finished_at?: string | null
-          id?: string
-          logs?: string | null
-          migration_name?: string
-          rolled_back_at?: string | null
-          started_at?: string
-        }
-        Relationships: []
-      }
       Domain: {
         Row: {
           created_at: string
@@ -230,19 +222,94 @@ export type Database = {
       }
       User: {
         Row: {
+          data_retention_period: unknown | null
+          deleted_at: string | null
+          deletion_requested_at: string | null
           first_name: string | null
           id: string
           last_name: string | null
+          status: string
+          updated_at: string | null
         }
         Insert: {
+          data_retention_period?: unknown | null
+          deleted_at?: string | null
+          deletion_requested_at?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
+          status?: string
+          updated_at?: string | null
         }
         Update: {
+          data_retention_period?: unknown | null
+          deleted_at?: string | null
+          deletion_requested_at?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_audit_logs: {
+        Row: {
+          action: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          error: string | null
+          id: string
+          processed_at: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          error?: string | null
+          id?: string
+          processed_at?: string | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          error?: string | null
+          id?: string
+          processed_at?: string | null
+          status?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -251,7 +318,62 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_disabled_accounts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_audit_logs: {
+        Args: {
+          retention_period?: unknown
+        }
+        Returns: number
+      }
+      is_admin: {
+        Args: {
+          jwt?: Json
+        }
+        Returns: boolean
+      }
+      log_user_action: {
+        Args: {
+          user_id: string
+          action: string
+          details?: Json
+          ip_address?: string
+        }
+        Returns: undefined
+      }
+      mask_ip_address: {
+        Args: {
+          ip: string
+        }
+        Returns: string
+      }
+      queue_user_notification: {
+        Args: {
+          user_id: string
+          notification_type: string
+          details?: Json
+        }
+        Returns: string
+      }
+      reactivate_user: {
+        Args: {
+          user_id: string
+          admin_id: string
+          reason?: string
+        }
+        Returns: undefined
+      }
+      request_gdpr_deletion: {
+        Args: {
+          user_id: string
+          requester_id?: string
+          reason?: string
+          admin_override?: boolean
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       DomainTheme: "LIGHT" | "DARK" | "BOTH"

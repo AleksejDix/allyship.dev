@@ -1,6 +1,7 @@
+import { notFound } from "next/navigation"
 import { PageHeader } from "@/features/domain/components/page-header"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 
 type Props = {
   params: { space_id: string; domain_id: string }
@@ -8,19 +9,18 @@ type Props = {
 
 export default async function AuditsPage({ params }: Props) {
   const { domain_id } = params
+  const supabase = await createClient()
 
-  const domain = await prisma.domain.findUnique({
-    where: {
-      id: domain_id,
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  })
+  // Use Supabase query instead of Prisma
+  const { data: domain, error } = await supabase
+    .from("Domain")
+    .select("id, name")
+    .eq("id", domain_id)
+    .single()
 
-  if (!domain) {
-    throw new Error("Domain not found")
+  // Handle not found case
+  if (error || !domain) {
+    notFound()
   }
 
   return (
