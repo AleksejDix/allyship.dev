@@ -14,13 +14,13 @@ export default async function PagesPage({ params }: Props) {
   const { website_id, space_id } = params
   const supabase = await createClient()
 
-  const { data: pages } = await supabase
+  const { data } = await supabase
     .from("Page")
     .select()
     .eq("id", website_id)
     .order("url")
 
-  if (!pages) {
+  if (!data) {
     notFound()
   }
 
@@ -29,12 +29,12 @@ export default async function PagesPage({ params }: Props) {
       <PageHeader title="Pages" description="Manage pages">
         <div className="flex items-center gap-2">
           {/* <CrawlButton website_id={website_id} website_url={website_url} />*/}
-          {/* <AddPageDialog spaceId={space_id} websiteId={website_id} /> */}
+          {/* <AddPageDialog space_id={space_id} website_id={website_id} /> */}
         </div>
       </PageHeader>
 
       <div className="container space-y-6">
-        <PagesIndex space_id={space_id} website_id={website_id} pages={pages} />
+        <PagesIndex space_id={space_id} website_id={website_id} pages={data} />
       </div>
     </div>
   )
