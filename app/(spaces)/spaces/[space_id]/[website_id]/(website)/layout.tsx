@@ -1,4 +1,4 @@
-import { WesbiteNavigation } from "@/features/website/components/website-navigation"
+import { WebsitesNavigation } from "@/features/websites/components/website-navigation"
 
 import { createClient } from "@/lib/supabase/server"
 
@@ -12,7 +12,7 @@ export default async function Layout({ params, children }: LayoutProps) {
   const supabase = await createClient()
 
   const { data: domain } = await supabase
-    .from("Domain")
+    .from("Website")
     .select()
     .eq("id", website_id)
     .single()
@@ -23,7 +23,7 @@ export default async function Layout({ params, children }: LayoutProps) {
 
   return (
     <>
-      <WesbiteNavigation space_id={space_id} website_id={website_id} />
+      <WebsitesNavigation space_id={space_id} website_id={website_id} />
       {children}
     </>
   )

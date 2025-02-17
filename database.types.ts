@@ -75,27 +75,27 @@ export type Database = {
           deleted_at: string | null
           id: string
           is_personal: boolean
+          owner_id: string
           updated_at: string
           url: string
-          user_id: string
         }
         Insert: {
           created_at?: string
           deleted_at?: string | null
           id?: string
           is_personal?: boolean
+          owner_id: string
           updated_at?: string
           url: string
-          user_id: string
         }
         Update: {
           created_at?: string
           deleted_at?: string | null
           id?: string
           is_personal?: boolean
+          owner_id?: string
           updated_at?: string
           url?: string
-          user_id?: string
         }
         Relationships: []
       }

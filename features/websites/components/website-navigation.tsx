@@ -8,7 +8,7 @@ type Props = {
   website_id: string
 }
 
-export function WesbiteNavigation({ space_id, website_id }: Props) {
+export function WebsitesNavigation({ space_id, website_id }: Props) {
   return (
     <nav className="border-b border-border">
       <div className="container">

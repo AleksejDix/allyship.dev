@@ -1,5 +1,3 @@
-import { notFound } from "next/navigation"
-import { getSpace } from "@/features/spaces/actions"
 import { SpaceNavigation } from "@/features/spaces/components/space-navigation"
 
 interface LayoutProps {
@@ -10,12 +8,11 @@ interface LayoutProps {
 }
 
 export default async function Layout({ children, params }: LayoutProps) {
-  const { data } = await getSpace(params.space_id)
-  if (!data) notFound()
+  const { space_id } = await params
 
   return (
     <>
-      <SpaceNavigation space_id={params.space_id} />
+      <SpaceNavigation space_id={space_id} />
       {children}
     </>
   )
