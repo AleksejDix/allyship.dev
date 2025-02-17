@@ -1,29 +1,18 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { Space } from "@prisma/client"
-import { PostgrestError } from "@supabase/supabase-js"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
-import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
-
+import type { Database } from "@/database.types"
+import type { SpaceResponse, SpaceWithRelations } from "./types"
 import { spaceSchema } from "./schema"
 
-type ActionResponse = {
-  success: boolean
-  data?: Space
-  error?: {
-    message: string
-    status: number
-    code: string
-  }
-}
-
+// Create a new space
 export const createSpace = createServerAction()
   .input(spaceSchema)
-  .handler(async ({ input }): Promise<ActionResponse> => {
+  .handler(async ({ input }): Promise<SpaceResponse> => {
     const supabase = await createClient()
     const { name } = input
 
@@ -33,7 +22,6 @@ export const createSpace = createServerAction()
 
     if (!user) {
       return {
-        success: false,
         error: {
           message: "You must be logged in to create a workspace",
           status: 401,
@@ -43,19 +31,15 @@ export const createSpace = createServerAction()
     }
 
     // Check if space with same name exists for this user
-    const existingSpace = await prisma.space.findFirst({
-      where: {
-        name: {
-          equals: name,
-          mode: "insensitive", // Case insensitive comparison
-        },
-        user_id: user.id,
-      },
-    })
+    const { data: existingSpace } = await supabase
+      .from("Space")
+      .select()
+      .eq("created_by", user.id)
+      .ilike("name", name)
+      .single()
 
     if (existingSpace) {
       return {
-        success: false,
         error: {
           message: "A workspace with this name already exists",
           status: 400,
@@ -65,21 +49,21 @@ export const createSpace = createServerAction()
     }
 
     try {
-      const space = await prisma.space.create({
-        data: {
+      const { data: space, error } = await supabase
+        .from("Space")
+        .insert({
           name,
-          user_id: user.id,
-        },
-      })
+          created_by: user.id,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
 
       revalidatePath("/", "layout")
-      return {
-        success: true,
-        data: space,
-      }
+      return { data: space }
     } catch (error) {
       return {
-        success: false,
         error: {
           message: "Failed to create workspace",
           status: 500,
@@ -90,106 +74,56 @@ export const createSpace = createServerAction()
   })
 
 // Get a single space by ID
-export async function getSpace(id: string) {
-  const space = await prisma.space.findUnique({
-    where: { id },
-  })
-  return { space }
-}
-
-// Get all spaces for a user
-export async function getSpaces() {
+export async function getSpace(id: string): Promise<SpaceResponse<SpaceWithRelations>> {
   const supabase = await createClient()
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
 
-  if (error || !user) {
-    throw new Error("Failed to get user")
+  const { data: space, error } = await supabase
+    .from("Space")
+    .select(`
+      *,
+      domains:Domain!space_id(*),
+      owner:User!inner(*),
+      memberships:Membership!space_id(*)
+    `)
+    .eq('id', id)
+    .single()
+
+  if (error) {
+    return {
+      error: {
+        message: "Failed to get space",
+        status: 500,
+        code: "fetch_failed"
+      }
+    }
   }
 
-  const { data: spaces } = await supabase
-    .from("Space")
-    .select(`*, domains:Domain(*), owner:User(*)`)
-    .order("created_at", { ascending: false })
-
-  return { spaces }
+  return { data: space }
 }
 
 // Update a space
 export async function updateSpace(
   id: string,
-  data: {
-    name: string
+  data: Database["public"]["Tables"]["Space"]["Update"]
+): Promise<SpaceResponse> {
+  const supabase = await createClient()
+
+  const { data: space, error } = await supabase
+    .from("Space")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single()
+
+  if (error) {
+    return {
+      error: {
+        message: "Failed to update space",
+        status: 500,
+        code: "update_failed"
+      }
+    }
   }
-) {
-  const space = await prisma.space.update({
-    where: { id },
-    data: {
-      name: data.name,
-    },
-  })
-  return { space }
+
+  return { data: space }
 }
-
-// Delete a space
-export const deleteSpace = createServerAction()
-  .input(z.object({ id: z.string() }))
-  .handler(async ({ input }) => {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return {
-        success: false,
-        error: {
-          message: "You must be logged in to delete a workspace",
-          status: 401,
-          code: "unauthorized",
-        },
-      }
-    }
-
-    // Verify user has access to this space
-    const space = await prisma.space.findFirst({
-      where: {
-        id: input.id,
-        user_id: user.id,
-      },
-    })
-
-    if (!space) {
-      return {
-        success: false,
-        error: {
-          message: "Space not found",
-          status: 404,
-          code: "not_found",
-        },
-      }
-    }
-
-    try {
-      await prisma.space.delete({
-        where: { id: input.id },
-      })
-
-      revalidatePath("/spaces")
-      return {
-        success: true,
-        redirect: "/spaces",
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          message: "Failed to delete workspace",
-          status: 500,
-          code: "delete_space_failed",
-        },
-      }
-    }
-  })
