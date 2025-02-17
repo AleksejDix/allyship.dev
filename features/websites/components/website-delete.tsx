@@ -1,7 +1,8 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { deleteWebsite } from "@/features/website/actions"
+import { Tables } from "@/database.types"
+import { websiteDelete } from "@/features/websites/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -21,41 +22,36 @@ import { Field } from "@/components/forms/field"
 
 const formSchema = z
   .object({
-    name: z.string().min(1, "Domain name is required"),
-    confirmName: z.string(),
+    url: z.string().min(1, "Domain name is required"),
+    confirmUrl: z.string(),
   })
-  .refine((data) => data.name === data.confirmName, {
+  .refine((data) => data.url === data.confirmUrl, {
     message: "Please type the domain name to confirm",
-    path: ["confirmName"],
+    path: ["confirmUrl"],
   })
 
 type FormData = z.infer<typeof formSchema>
 
-type Domain = {
-  id: string
-  name: string
-}
-
 type Props = {
-  domain: Domain
+  website: Tables<"Website">
   spaceId: string
 }
 
-export function DomainDelete({ domain, spaceId }: Props) {
+export function WebsiteDelete({ website, spaceId }: Props) {
   const router = useRouter()
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     values: {
-      name: domain.name,
-      confirmName: "",
+      url: website.url,
+      confirmUrl: "",
     },
   })
 
-  const { execute, isPending } = useServerAction(deleteWebsite)
+  const { execute, isPending } = useServerAction(websiteDelete)
 
   const onSubmit = async () => {
     const [result, error] = await execute({
-      domainId: domain.id,
+      domainId: website.id,
       spaceId: spaceId,
     })
 
@@ -70,7 +66,7 @@ export function DomainDelete({ domain, spaceId }: Props) {
     if (!result?.success) {
       form.setError("root", {
         type: "server",
-        message: "Failed to delete domain",
+        message: "Failed to delete website",
       })
       return
     }
@@ -87,9 +83,9 @@ export function DomainDelete({ domain, spaceId }: Props) {
       >
         <Card className="border-destructive/50">
           <CardHeader>
-            <CardTitle>Delete Domain</CardTitle>
+            <CardTitle>Delete Website</CardTitle>
             <CardDescription>
-              Permanently remove your domain and all of its pages from the
+              Permanently remove your website and all of its pages from the
               platform. This action is not reversible — please continue with
               caution.
             </CardDescription>
@@ -104,10 +100,10 @@ export function DomainDelete({ domain, spaceId }: Props) {
 
             <Field
               name="confirmName"
-              label="Domain Name"
+              label="Website URL"
               type="text"
               autoComplete="off"
-              description="Please type the domain name to delete"
+              description="Please type the website URL to delete"
             />
 
             {form.formState.errors.root && (
@@ -127,7 +123,7 @@ export function DomainDelete({ domain, spaceId }: Props) {
               variant="destructive"
               disabled={isPending}
             >
-              {isPending ? "Deleting..." : "Delete Domain"}
+              {isPending ? "Deleting..." : "Delete"}
             </Button>
           </CardFooter>
         </Card>
