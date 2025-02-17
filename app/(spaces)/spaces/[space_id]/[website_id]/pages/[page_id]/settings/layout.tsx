@@ -1,4 +1,3 @@
-import { PageNavigation } from "@/features/pages/components/page-navigation"
 import { PageHeader } from "@/features/websites/components/page-header"
 
 import { createClient } from "@/lib/supabase/server"
@@ -12,35 +11,10 @@ type LayoutProps = {
 
 export default async function Layout({ params, children }: LayoutProps) {
   const { website_id, space_id, page_id } = params
-  const supabase = await createClient()
-
-  const { data: page } = await supabase
-    .from("Page")
-    .select(
-      `
-      *,
-      domain:Domain (*)
-    `
-    )
-    .eq("id", page_id)
-    .single()
-
-  if (!page) {
-    return null
-  }
 
   return (
     <>
-      <PageNavigation
-        space_id={space_id}
-        website_id={website_id}
-        page_id={page_id}
-      />
-
-      <PageHeader
-        title="Settings"
-        description={`Manage settings and configuration for ${page.name}`}
-      />
+      <PageHeader title="Settings" description={`Manage settings and confi`} />
 
       <div className="container py-6">
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">

@@ -29,6 +29,7 @@ export function PagesNavigation({ page_id, space_id, website_id }: Props) {
           <li>
             <Button variant="ghost" asChild>
               <RouterLink
+                exact={true}
                 href={`/spaces/${space_id}/${website_id}/pages/${page_id}`}
               >
                 Page
