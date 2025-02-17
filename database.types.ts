@@ -75,27 +75,27 @@ export type Database = {
           deleted_at: string | null
           id: string
           is_personal: boolean
+          name: string
           owner_id: string
           updated_at: string
-          url: string
         }
         Insert: {
           created_at?: string
           deleted_at?: string | null
           id?: string
           is_personal?: boolean
+          name: string
           owner_id: string
           updated_at?: string
-          url: string
         }
         Update: {
           created_at?: string
           deleted_at?: string | null
           id?: string
           is_personal?: boolean
+          name?: string
           owner_id?: string
           updated_at?: string
-          url?: string
         }
         Relationships: []
       }
@@ -142,31 +142,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_disabled_accounts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_audit_logs: {
-        Args: {
-          retention_period?: unknown
-        }
-        Returns: number
-      }
-      is_admin: {
-        Args: {
-          jwt?: Json
-        }
-        Returns: boolean
-      }
-      log_user_action: {
-        Args: {
-          user_id: string
-          action: string
-          details?: Json
-          ip_address?: string
-        }
-        Returns: undefined
-      }
       mask_ip_address: {
         Args: {
           ip: string
@@ -181,35 +156,6 @@ export type Database = {
           first_name: string
           last_name: string
         }[]
-      }
-      queue_user_notification: {
-        Args: {
-          user_id: string
-          notification_type: string
-          details?: Json
-        }
-        Returns: string
-      }
-      reactivate_user: {
-        Args: {
-          user_id: string
-          admin_id: string
-          reason?: string
-        }
-        Returns: undefined
-      }
-      request_gdpr_deletion: {
-        Args: {
-          user_id: string
-          requester_id?: string
-          reason?: string
-          admin_override?: boolean
-        }
-        Returns: undefined
-      }
-      verify_active_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
       }
     }
     Enums: {
@@ -318,3 +264,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
