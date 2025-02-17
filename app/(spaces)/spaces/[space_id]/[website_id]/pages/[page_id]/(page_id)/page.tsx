@@ -50,18 +50,15 @@ export default async function Page({ params }: { params: Params }) {
   const websiteUrl = new URL(page.website.url)
   const fullUrl = `${page.website.url}${page.url}`
 
+  async function startScan() {
+    "use server"
+    await create({ url: fullUrl, page_id })
+  }
+
   return (
     <>
       <PageHeader title={page.url} description={`Page details for ${page.url}`}>
-        <form
-          action={async () => {
-            "use server"
-            const [result, error] = await create({ url: fullUrl, page_id })
-            if (error) {
-              throw new Error(error.message)
-            }
-          }}
-        >
+        <form action={startScan}>
           <Button type="submit">
             <ScanIcon aria-hidden="true" className="mr-2 h-4 w-4" />
             New Scan
