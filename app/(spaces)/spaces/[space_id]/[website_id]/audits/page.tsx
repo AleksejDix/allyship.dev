@@ -12,14 +12,14 @@ export default async function AuditsPage({ params }: Props) {
   const supabase = await createClient()
 
   // Use Supabase query instead of Prisma
-  const { data: domain, error } = await supabase
-    .from("Domain")
-    .select("id, name")
+  const { data, error } = await supabase
+    .from("Website")
+    .select()
     .eq("id", website_id)
     .single()
 
   // Handle not found case
-  if (error || !domain) {
+  if (error || !data) {
     notFound()
   }
 
@@ -27,7 +27,7 @@ export default async function AuditsPage({ params }: Props) {
     <div className="space-y-6">
       <PageHeader
         title="Audits"
-        description={`View accessibility audits for ${domain.name}`}
+        description={`View accessibility audits for ${data.url}`}
       />
 
       <div className="container">{/* Audit content will go here */}</div>

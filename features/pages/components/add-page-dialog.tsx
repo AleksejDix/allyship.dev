@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Database } from "@/database.types"
+import type { Tables } from "@/database.types"
 import { addPage } from "@/features/pages/actions/add-page"
 import { Plus } from "lucide-react"
 import { useServerAction } from "zsa-react"
@@ -20,15 +20,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-type DbDomain = Database["public"]["Tables"]["Domain"]["Row"]
-
 type Props = {
   spaceId: string
-  domainId: string
-  domain: DbDomain
+  websiteId: string
+  website: Tables<"Website">
 }
 
-export function AddPageDialog({ spaceId, domainId, domain }: Props) {
+export function AddPageDialog({ spaceId, websiteId, website }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState("")
@@ -42,7 +40,6 @@ export function AddPageDialog({ spaceId, domainId, domain }: Props) {
     const [result, error] = await execute({
       url,
       spaceId,
-      domainId,
     })
 
     if (error) {
@@ -83,7 +80,6 @@ export function AddPageDialog({ spaceId, domainId, domain }: Props) {
                 id="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder={`https://${domain.name}/about`}
               />
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
