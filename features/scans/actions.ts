@@ -5,7 +5,6 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
-import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
 
 import { scanJobSchema } from "./schema"
@@ -30,106 +29,31 @@ export const create = createServerAction()
   .input(scanJobSchema)
   .handler(async ({ input }): Promise<ActionResponse> => {
     const supabase = await createClient()
-    const { url } = input
+    const { url, page_id } = input
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return {
-        success: false,
-        error: {
-          message: "You must be logged in to scan a website",
-          status: 401,
-          code: "unauthorized",
-        },
-      }
-    }
-
-    const websiteUrl = new URL(url)
-
-    const space = await prisma.space.findFirst({
-      where: {
-        user_id: user.id,
-      },
-    })
-
-    if (!space) {
-      return {
-        success: false,
-        error: {
-          message: "You must be in a space to scan a website",
-          status: 401,
-          code: "unauthorized",
-        },
-      }
-    }
-
-    const domain = await prisma.domain.upsert({
-      where: {
-        space_id_name: {
-          space_id: space.id,
-          name: websiteUrl.hostname,
-        },
-      },
-      update: {}, // No updates needed if it exists
-      create: {
-        name: websiteUrl.hostname,
-        space_id: space.id,
-      },
-    })
-
-    if (!domain) {
-      return {
-        success: false,
-        error: {
-          message: "Domain not found",
-          status: 401,
-          code: "unauthorized",
-        },
-      }
-    }
-
-    const page = await prisma.page.upsert({
-      where: {
-        website_id_name: {
-          website_id: domain.id,
-          name: websiteUrl.pathname,
-        },
-      },
-      update: {},
-      create: {
-        website_id: domain.id,
-        name: websiteUrl.pathname,
-      },
-    })
-
-    const scan = await prisma.scan.create({
-      data: {
-        url,
-        user_id: user.id,
+    // Create the scan
+    const { data: scan, error: scanError } = await supabase
+      .from("Scan")
+      .insert({
+        page_id,
         status: "pending",
-        page_id: page.id,
-      },
-      select: {
-        id: true,
-      },
-    })
+      })
+      .select("id")
+      .single()
 
-    if (!scan.id) {
+    if (scanError || !scan) {
       return {
         success: false,
         error: {
-          message: "Something went wrong",
+          message: "Failed to create scan",
           status: 500,
-          code: "unknown_error",
+          code: "create_failed",
         },
       }
     }
 
     // Fire and forget the scan function
-    supabase.functions.invoke("scan", {
+    await supabase.functions.invoke("scan", {
       body: { url, id: scan.id },
     })
 

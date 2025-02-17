@@ -40,8 +40,15 @@ export default async function Page({ params }: { params: Params }) {
     return null
   }
 
+  // Get scans for this page
+  const { data: scans } = await supabase
+    .from("Scan")
+    .select("*")
+    .eq("page_id", page_id)
+    .order("created_at", { ascending: false })
+
   const websiteUrl = new URL(page.website.url)
-  const fullUrl = `${page.url}`
+  const fullUrl = `${page.website.url}${page.url}`
 
   return (
     <>
@@ -49,7 +56,10 @@ export default async function Page({ params }: { params: Params }) {
         <form
           action={async () => {
             "use server"
-            await create({ url: fullUrl })
+            const [result, error] = await create({ url: fullUrl, page_id })
+            if (error) {
+              throw new Error(error.message)
+            }
           }}
         >
           <Button type="submit">
@@ -109,6 +119,45 @@ export default async function Page({ params }: { params: Params }) {
                 <Badge variant="outline">Active</Badge>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Scans</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!scans?.length ? (
+              <p className="text-sm text-muted-foreground">No scans found</p>
+            ) : (
+              <div className="space-y-4">
+                {scans.map((scan) => (
+                  <div
+                    key={scan.id}
+                    className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
+                  >
+                    <div className="space-y-1">
+                      <div className="text-sm">
+                        {new Date(scan.created_at).toLocaleString()}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{scan.status}</Badge>
+                        {scan.metrics && (
+                          <span className="text-sm text-muted-foreground">
+                            {Object.keys(scan.metrics).length} metrics collected
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {(scan.screenshot_light || scan.screenshot_dark) && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Screenshots Available</Badge>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
