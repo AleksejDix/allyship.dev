@@ -60,9 +60,7 @@ export default async function PagesPage({ params }: Props) {
         </div>
       </PageHeader>
 
-      <Suspense fallback={<div className="mt-6">Loading pages...</div>}>
-        <PagesContent params={params} />
-      </Suspense>
+      <PagesContent params={params} />
     </div>
   )
 }
