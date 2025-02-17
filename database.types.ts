@@ -7,50 +7,34 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
-      Domain: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          name: string
-          space_id: string
-          theme: Database["public"]["Enums"]["DomainTheme"]
-          updated_at: string
-          updated_by: string | null
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name: string
-          space_id: string
-          theme?: Database["public"]["Enums"]["DomainTheme"]
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name?: string
-          space_id?: string
-          theme?: Database["public"]["Enums"]["DomainTheme"]
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Domain_space_id_fkey"
-            columns: ["space_id"]
-            isOneToOne: false
-            referencedRelation: "Space"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      memberships: {
+      Memberships: {
         Row: {
           created_at: string
           deleted_at: string | null
@@ -91,8 +75,8 @@ export type Database = {
           deleted_at: string | null
           id: string
           is_personal: boolean
-          name: string
           updated_at: string
+          url: string
           user_id: string
         }
         Insert: {
@@ -100,8 +84,8 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           is_personal?: boolean
-          name: string
           updated_at?: string
+          url: string
           user_id: string
         }
         Update: {
@@ -109,11 +93,49 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           is_personal?: boolean
-          name?: string
           updated_at?: string
+          url?: string
           user_id?: string
         }
         Relationships: []
+      }
+      Website: {
+        Row: {
+          created_at: string
+          id: string
+          space_id: string
+          theme: Database["public"]["Enums"]["DomainTheme"]
+          updated_at: string
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          space_id: string
+          theme?: Database["public"]["Enums"]["DomainTheme"]
+          updated_at?: string
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          space_id?: string
+          theme?: Database["public"]["Enums"]["DomainTheme"]
+          updated_at?: string
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Domain_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "Space"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -296,4 +318,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
