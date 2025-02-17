@@ -203,19 +203,19 @@ export type Database = {
       }
       Page: {
         Row: {
-          created_at: string | null
+          created_at: string
           domain_id: string
           id: string
           name: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           domain_id: string
           id?: string
           name: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           domain_id?: string
           id?: string
           name?: string
@@ -342,34 +342,34 @@ export type Database = {
       }
       User: {
         Row: {
-          data_retention_period: unknown | null
+          data_retention_period: unknown
           deleted_at: string | null
           deletion_requested_at: string | null
           first_name: string | null
           id: string
           last_name: string | null
           status: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          data_retention_period?: unknown | null
+          data_retention_period?: unknown
           deleted_at?: string | null
           deletion_requested_at?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
           status?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          data_retention_period?: unknown | null
+          data_retention_period?: unknown
           deleted_at?: string | null
           deletion_requested_at?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           status?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -379,7 +379,7 @@ export type Database = {
           details: Json | null
           id: string
           ip_address: string | null
-          timestamp: string | null
+          timestamp: string
           user_id: string
         }
         Insert: {
@@ -387,7 +387,7 @@ export type Database = {
           details?: Json | null
           id?: string
           ip_address?: string | null
-          timestamp?: string | null
+          timestamp?: string
           user_id: string
         }
         Update: {
@@ -395,14 +395,14 @@ export type Database = {
           details?: Json | null
           id?: string
           ip_address?: string | null
-          timestamp?: string | null
+          timestamp?: string
           user_id?: string
         }
         Relationships: []
       }
       user_notifications: {
         Row: {
-          created_at: string | null
+          created_at: string
           details: Json | null
           error: string | null
           id: string
@@ -412,7 +412,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           details?: Json | null
           error?: string | null
           id?: string
@@ -422,7 +422,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           details?: Json | null
           error?: string | null
           id?: string

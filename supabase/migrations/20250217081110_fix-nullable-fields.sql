@@ -42,3 +42,25 @@ COMMENT ON TABLE "public"."Page" IS 'Pages within domains with required timestam
 COMMENT ON TABLE "public"."User" IS 'User profiles with required timestamps and retention period';
 COMMENT ON TABLE "public"."user_audit_logs" IS 'Audit logs with required timestamps';
 COMMENT ON TABLE "public"."user_notifications" IS 'User notifications with required timestamps';
+
+--! Previous state
+ALTER TABLE "public"."Page"
+    ALTER COLUMN created_at DROP NOT NULL,
+    ALTER COLUMN created_at DROP DEFAULT;
+
+ALTER TABLE "public"."Space"
+    ALTER COLUMN created_by DROP NOT NULL;
+
+ALTER TABLE "public"."User"
+    ALTER COLUMN data_retention_period DROP NOT NULL,
+    ALTER COLUMN data_retention_period DROP DEFAULT,
+    ALTER COLUMN updated_at DROP NOT NULL,
+    ALTER COLUMN updated_at DROP DEFAULT;
+
+ALTER TABLE "public"."user_audit_logs"
+    ALTER COLUMN timestamp DROP NOT NULL,
+    ALTER COLUMN timestamp DROP DEFAULT;
+
+ALTER TABLE "public"."user_notifications"
+    ALTER COLUMN created_at DROP NOT NULL,
+    ALTER COLUMN created_at DROP DEFAULT;
