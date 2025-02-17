@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { AddPageDialog } from "@/features/pages/components/add-page-dialog"
 import { CrawlButton } from "@/features/pages/components/crawl-button"
@@ -10,17 +11,37 @@ type Props = {
   params: { website_id: string; space_id: string }
 }
 
-export default async function PagesPage({ params }: Props) {
+async function PagesContent({ params }: Props) {
   const { website_id, space_id } = params
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data: pages } = await supabase
     .from("Page")
     .select()
-    .eq("id", website_id)
+    .eq("website_id", website_id)
     .order("url")
 
-  if (!data) {
+  if (!pages) {
+    notFound()
+  }
+
+  return (
+    <div className="container space-y-6">
+      <PagesIndex space_id={space_id} website_id={website_id} pages={pages} />
+    </div>
+  )
+}
+
+export default async function PagesPage({ params }: Props) {
+  const supabase = await createClient()
+
+  const { data: website } = await supabase
+    .from("Website")
+    .select()
+    .eq("id", params.website_id)
+    .single()
+
+  if (!website) {
     notFound()
   }
 
@@ -28,14 +49,21 @@ export default async function PagesPage({ params }: Props) {
     <div className="space-y-6">
       <PageHeader title="Pages" description="Manage pages">
         <div className="flex items-center gap-2">
-          {/* <CrawlButton website_id={website_id} website_url={website_url} />*/}
-          {/* <AddPageDialog space_id={space_id} website_id={website_id} /> */}
+          <CrawlButton
+            website_id={params.website_id}
+            website_url={website.url}
+          />
+          <AddPageDialog
+            spaceId={params.space_id}
+            websiteId={params.website_id}
+            website={website}
+          />
         </div>
       </PageHeader>
 
-      <div className="container space-y-6">
-        <PagesIndex space_id={space_id} website_id={website_id} pages={data} />
-      </div>
+      <Suspense fallback={<div className="mt-6">Loading pages...</div>}>
+        <PagesContent params={params} />
+      </Suspense>
     </div>
   )
 }
