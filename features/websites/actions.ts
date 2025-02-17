@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server"
 import { themeSettingsSchema } from "./schema"
 
 const deleteWebsiteSchema = z.object({
-  domainId: z.string(),
+  websiteId: z.string(),
   spaceId: z.string(),
 })
 
@@ -70,9 +70,10 @@ export const websiteDelete = createServerAction()
     const supabase = await createClient()
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser()
 
-    if (!user) {
+    if (userError || !user) {
       return {
         success: false,
         error: {
@@ -82,32 +83,24 @@ export const websiteDelete = createServerAction()
       }
     }
 
-    const { domainId, spaceId } = input
+    const { websiteId, spaceId } = input
 
-    // Verify user has access to this space
-    const space = await prisma.space.findFirst({
-      where: {
-        id: spaceId,
-        user_id: user.id,
-      },
-    })
+    // Delete the domain - RLS policies will ensure user has access
+    const { data, error: deleteError } = await supabase
+      .from("Website")
+      .delete()
+      .match({ id: websiteId, space_id: spaceId })
 
-    if (!space) {
+
+    if (deleteError) {
       return {
         success: false,
         error: {
-          message: "Space not found",
-          code: "not_found",
+          message: deleteError.message,
+          code: deleteError.code,
         },
       }
     }
-
-    // Delete the domain and all related pages
-    await prisma.domain.delete({
-      where: {
-        id: domainId,
-      },
-    })
 
     // Revalidate the domains list
     revalidatePath(`/spaces/${spaceId}`)
