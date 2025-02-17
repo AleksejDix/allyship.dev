@@ -106,43 +106,31 @@ export type Database = {
       }
       Scan: {
         Row: {
-          id: string
-          page_id: string
-          user_id: string
-          url: string
-          status: "pending" | "completed" | "failed" | "queued"
-          metrics: Json | null
-          screenshot_light: string | null
-          screenshot_dark: string | null
           created_at: string
-          updated_at: string
-          deleted_at: string | null
+          id: string
+          metrics: Json
+          page_id: string
+          screenshot_dark: string | null
+          screenshot_light: string | null
+          status: Database["public"]["Enums"]["ScanStatus"]
         }
         Insert: {
-          id?: string
-          page_id: string
-          user_id: string
-          url: string
-          status?: "pending" | "completed" | "failed" | "queued"
-          metrics?: Json | null
-          screenshot_light?: string | null
-          screenshot_dark?: string | null
           created_at?: string
-          updated_at?: string
-          deleted_at?: string | null
+          id?: string
+          metrics?: Json
+          page_id: string
+          screenshot_dark?: string | null
+          screenshot_light?: string | null
+          status?: Database["public"]["Enums"]["ScanStatus"]
         }
         Update: {
-          id?: string
-          page_id?: string
-          user_id?: string
-          url?: string
-          status?: "pending" | "completed" | "failed" | "queued"
-          metrics?: Json | null
-          screenshot_light?: string | null
-          screenshot_dark?: string | null
           created_at?: string
-          updated_at?: string
-          deleted_at?: string | null
+          id?: string
+          metrics?: Json
+          page_id?: string
+          screenshot_dark?: string | null
+          screenshot_light?: string | null
+          status?: Database["public"]["Enums"]["ScanStatus"]
         }
         Relationships: [
           {
@@ -152,13 +140,6 @@ export type Database = {
             referencedRelation: "Page"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "Scan_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
         ]
       }
       Space: {
