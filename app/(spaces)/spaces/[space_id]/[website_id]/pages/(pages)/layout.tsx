@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { WebsitesNavigation } from "@/features/websites/components/website-navigation"
 
 type LayoutProps = {
@@ -6,12 +7,14 @@ type LayoutProps = {
 }
 
 export default async function Layout({ params, children }: LayoutProps) {
-  const { website_id, space_id } = await params
+  const { website_id, space_id } = params
 
   return (
     <div>
       <WebsitesNavigation space_id={space_id} website_id={website_id} />
-      {children}
+      <Suspense fallback={<div className="mt-6">Loading...</div>}>
+        {children}
+      </Suspense>
     </div>
   )
 }
