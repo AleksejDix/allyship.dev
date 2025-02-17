@@ -48,6 +48,7 @@ export function SpaceCreate({ onSuccess }: SpaceCreateProps) {
     try {
       setError(null)
       const [response, validationError] = await execute(data)
+      console.log(response, validationError)
 
       if (validationError) {
         if (validationError.code === "INPUT_PARSE_ERROR") {

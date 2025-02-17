@@ -11,10 +11,27 @@ import type { Database } from "@/database.types"
 import type { SpaceResponse } from "./types"
 import { spaceSchema } from "./schema"
 
+// First, let's define our response types
+type SuccessResponse<T> = {
+  success: true
+  data: T
+}
+
+type ErrorResponse = {
+  success: false
+  error: {
+    message: string
+    code: string
+    status?: number
+  }
+}
+
+type ActionResponse<T> = SuccessResponse<T> | ErrorResponse
+
 // Create a new space
 export const createSpace = createServerAction()
   .input(spaceSchema)
-  .handler(async ({ input }): Promise<SpaceResponse> => {
+  .handler(async ({ input }) => {
     const supabase = await createClient()
     const { name } = input
 
@@ -24,28 +41,11 @@ export const createSpace = createServerAction()
 
     if (!user) {
       return {
+        success: false,
         error: {
-          message: "You must be logged in to create a workspace",
-          status: 401,
+          message: "Unauthorized",
           code: "unauthorized",
-        },
-      }
-    }
-
-    // Check if space with same name exists for this user
-    const { data: existingSpace } = await supabase
-      .from("Space")
-      .select()
-      .eq("created_by", user.id)
-      .ilike("name", name)
-      .single()
-
-    if (existingSpace) {
-      return {
-        error: {
-          message: "A workspace with this name already exists",
-          status: 400,
-          code: "duplicate_space_name",
+          status: 401,
         },
       }
     }
@@ -55,21 +55,31 @@ export const createSpace = createServerAction()
         .from("Space")
         .insert({
           name,
-          created_by: user.id,
+          user_id: user.id,
         })
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        return {
+          success: false,
+          error: {
+            message: "Failed to create workspace",
+            code: "create_space_failed",
+            status: 500,
+          },
+        }
+      }
 
       revalidatePath("/", "layout")
-      return { data: space }
+      return { success: true, data: space }
     } catch (error) {
       return {
+        success: false,
         error: {
           message: "Failed to create workspace",
-          status: 500,
           code: "create_space_failed",
+          status: 500,
         },
       }
     }
@@ -87,84 +97,78 @@ export async function getSpace(spaceId: string) {
 
   if (error) {
     return {
+      success: false,
       error: {
         message: "Failed to fetch space",
-        status: 500,
         code: "fetch_failed",
+        status: 500,
       },
     }
   }
 
-  return { data }
+  return { success: true, data }
+}
+
+export async function getSpaces() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from("Space").select()
+
+  if (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to fetch spaces",
+        code: "fetch_failed",
+        status: 500,
+      },
+    }
+  }
+  return { success: true, data }
 }
 
 const updateSpaceSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  id: z.string().min(1, "ID is required"),
 })
 
-export async function updateSpace(
-  spaceId: string,
-  data: z.infer<typeof updateSpaceSchema>
-) {
-  try {
-    // Validate input
-    const validated = updateSpaceSchema.parse(data)
+// Create a server action for updating spaces
+export const updateSpaceAction = createServerAction()
+  .input(updateSpaceSchema)
+  .handler(async ({ input }) => {
+    try {
+      const supabase = await createClient()
 
-    // Create Supabase client
-    const supabase = await createClient()
+      // Update the space - RLS will handle permissions
+      const { data: updatedSpace, error: updateError } = await supabase
+        .from("Space")
+        .update({
+          name: input.name,
+        })
+        .eq("id", input.id)
+        .select()
+        .single()
 
-    // Update the space - RLS will handle permissions
-    const { data: updatedSpace, error: updateError } = await supabase
-      .from("Space")
-      .update({
-        name: validated.name,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", spaceId)
-      .select()
-      .single()
+      // Revalidate paths
+      revalidatePath(`/spaces/${input.id}`)
+      revalidatePath(`/spaces/${input.id}/settings`)
+      revalidatePath("/spaces")
 
-    if (updateError) {
-      console.log("Update error:", updateError)
+      return {
+        success: true,
+        data: updatedSpace,
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error)
       return {
         success: false,
         error: {
-          message: updateError.message || "Failed to update space",
-          code: "update_failed",
+          message: "An unexpected error occurred",
+          code: "internal_error",
+          status: 500,
         },
       }
     }
-
-    // Revalidate paths
-    revalidatePath(`/spaces/${spaceId}`)
-    revalidatePath(`/spaces/${spaceId}/settings`)
-    revalidatePath("/spaces")
-
-    return {
-      success: true,
-      data: updatedSpace,
-    }
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: {
-          message: "Invalid input",
-          code: "validation_failed",
-        },
-      }
-    }
-
-    console.error("Unexpected error:", error)
-    return {
-      success: false,
-      error: {
-        message: "An unexpected error occurred",
-        code: "internal_error",
-      },
-    }
-  }
-}
+  })
 
 // Type for the space data to be used across components
 export interface SpaceData {
@@ -176,3 +180,36 @@ export interface SpaceData {
   updated_at: string
   // Add other fields as needed
 }
+
+const deleteSpaceSchema = z.object({
+  id: z.string().min(1, "ID is required"),
+})
+
+
+export const deleteSpaceAction = createServerAction()
+  .input(deleteSpaceSchema)
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+    const { data, error } = await supabase.from("Space").delete().eq("id", input.id)
+
+
+    revalidatePath("/spaces")
+    redirect("/spaces")
+
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to delete space",
+          code: "delete_space_failed",
+          status: 500,
+        },
+      }
+    }
+
+    return {
+      success: true,
+      data,
+    }
+  })

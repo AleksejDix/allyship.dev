@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { deleteSpace } from "@/features/space/actions"
+import { deleteSpaceAction } from "@/features/space/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -51,7 +51,7 @@ export function SpaceDelete(props: SpaceDeleteProps) {
     },
   })
 
-  const { execute, isPending } = useServerAction(deleteSpace)
+  const { execute, isPending } = useServerAction(deleteSpaceAction)
 
   const onSubmit = async () => {
     const [result, error] = await execute({ id: props.space.id })
@@ -70,10 +70,6 @@ export function SpaceDelete(props: SpaceDeleteProps) {
         message: "Failed to delete workspace",
       })
       return
-    }
-
-    if (result.redirect) {
-      router.push(result.redirect)
     }
   }
 
