@@ -6,8 +6,8 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-import { AddPageDialog } from "./add-page-dialog"
 import { CrawlButton } from "./crawl-button"
+import { AddPageDialog } from "./page-create-dialog"
 
 type Domain = Database["public"]["Tables"]["Domain"]["Row"]
 

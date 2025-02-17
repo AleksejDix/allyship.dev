@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import type { Tables } from "@/database.types"
-import { deletePage } from "@/features/pages/actions/delete-page"
+import { deletePage } from "@/features/pages/actions"
 import { formatDate } from "@/utils/date-formatting"
 import { Trash2 } from "lucide-react"
 
