@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 
 const formSchema = z.object({
   name: z.string().url().min(1, "Domain name is required"),
-  domain_id: z.string().min(1, "Domain ID is required"),
+  website_id: z.string().min(1, "Domain ID is required"),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -35,7 +35,7 @@ export function PagesCreate({ domainId }: PagesCreateProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      domain_id: domainId,
+      website_id: domainId,
     },
   })
 

@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       Domain: {
@@ -73,13 +48,6 @@ export type Database = {
             referencedRelation: "Space"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "Domain_space_id_fkey"
-            columns: ["space_id"]
-            isOneToOne: false
-            referencedRelation: "UserSpaceView"
-            referencedColumns: ["id"]
-          },
         ]
       }
       memberships: {
@@ -115,20 +83,6 @@ export type Database = {
             referencedRelation: "Space"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "memberships_space_id_fkey"
-            columns: ["space_id"]
-            isOneToOne: false
-            referencedRelation: "UserSpaceView"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "memberships_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
         ]
       }
       Space: {
@@ -139,6 +93,7 @@ export type Database = {
           is_personal: boolean
           name: string
           updated_at: string
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -147,6 +102,7 @@ export type Database = {
           is_personal?: boolean
           name: string
           updated_at?: string
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -155,72 +111,84 @@ export type Database = {
           is_personal?: boolean
           name?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      User: {
-        Row: {
-          created_at: string
-          data_retention_period: unknown
-          deleted_at: string | null
-          deletion_requested_at: string | null
-          email: string
-          full_name: string | null
-          id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          data_retention_period?: unknown
-          deleted_at?: string | null
-          deletion_requested_at?: string | null
-          email: string
-          full_name?: string | null
-          id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          data_retention_period?: unknown
-          deleted_at?: string | null
-          deletion_requested_at?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          status?: string
-          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
     }
     Views: {
-      UserSpaceView: {
-        Row: {
-          created_at: string | null
-          deleted_at: string | null
-          id: string | null
-          is_personal: boolean | null
-          name: string | null
-          updated_at: string | null
-          user_email: string | null
-          user_full_name: string | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "memberships_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_disabled_accounts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_audit_logs: {
+        Args: {
+          retention_period?: unknown
+        }
+        Returns: number
+      }
+      is_admin: {
+        Args: {
+          jwt?: Json
+        }
+        Returns: boolean
+      }
+      log_user_action: {
+        Args: {
+          user_id: string
+          action: string
+          details?: Json
+          ip_address?: string
+        }
+        Returns: undefined
+      }
+      mask_ip_address: {
+        Args: {
+          ip: string
+        }
+        Returns: string
+      }
+      parse_name: {
+        Args: {
+          full_name: string
+        }
+        Returns: {
+          first_name: string
+          last_name: string
+        }[]
+      }
+      queue_user_notification: {
+        Args: {
+          user_id: string
+          notification_type: string
+          details?: Json
+        }
+        Returns: string
+      }
+      reactivate_user: {
+        Args: {
+          user_id: string
+          admin_id: string
+          reason?: string
+        }
+        Returns: undefined
+      }
+      request_gdpr_deletion: {
+        Args: {
+          user_id: string
+          requester_id?: string
+          reason?: string
+          admin_override?: boolean
+        }
+        Returns: undefined
+      }
+      verify_active_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       DomainTheme: "LIGHT" | "DARK" | "BOTH"

@@ -1,10 +1,10 @@
-import { PageHeader } from "@/features/domain/components/page-header"
+import { PageHeader } from "@/features/websites/components/page-header"
 
 import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
 type Props = {
-  params: { space_id: string; domain_id: string }
+  params: { space_id: string; website_id: string }
   children: React.ReactNode
 }
 
@@ -13,6 +13,10 @@ export default async function Layout({ params, children }: Props) {
 
   return (
     <>
+      <PageHeader
+        title="Settings"
+        description="Manage your workspace settings"
+      />
       <div className="container py-6">
         <div className="grid md:grid-cols-4 gap-8">
           <nav className="flex flex-col gap-[2px]">

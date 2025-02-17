@@ -1,4 +1,4 @@
-import { CreateSpaceDialog } from "@/features/space/components/create-space-dialog"
+import { SpaceCreateDialog } from "@/features/spaces/components/space-create-dialog"
 
 export default function NotFound() {
   return (
@@ -10,7 +10,7 @@ export default function NotFound() {
         You don't have any workspaces yet. Create your first one to get started.
       </p>
       <div className="mt-4">
-        <CreateSpaceDialog />
+        <SpaceCreateDialog />
       </div>
     </div>
   )

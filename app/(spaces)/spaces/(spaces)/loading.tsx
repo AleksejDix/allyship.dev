@@ -1,6 +1,3 @@
-import { PageHeader } from "@/features/domain/components/page-header"
-import { CreateSpaceDialog } from "@/features/space/components/create-space-dialog"
-
 export default function Loading() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

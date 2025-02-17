@@ -19,7 +19,7 @@ ALTER TABLE "memberships" DROP CONSTRAINT "memberships_space_id_fkey";
 ALTER TABLE "memberships" DROP CONSTRAINT "memberships_user_id_fkey";
 
 -- DropForeignKey
-ALTER TABLE "pages" DROP CONSTRAINT "pages_domain_id_fkey";
+ALTER TABLE "pages" DROP CONSTRAINT "pages_website_id_fkey";
 
 -- DropForeignKey
 ALTER TABLE "scans" DROP CONSTRAINT "scans_page_id_fkey";
@@ -95,7 +95,7 @@ CREATE TABLE "Page" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
-    "domain_id" UUID NOT NULL,
+    "website_id" UUID NOT NULL,
 
     CONSTRAINT "Page_pkey" PRIMARY KEY ("id")
 );
@@ -123,7 +123,7 @@ CREATE UNIQUE INDEX "Domain_space_id_name_key" ON "Domain"("space_id", "name");
 CREATE INDEX "Page_name_idx" ON "Page"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Page_domain_id_name_key" ON "Page"("domain_id", "name");
+CREATE UNIQUE INDEX "Page_website_id_name_key" ON "Page"("website_id", "name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Membership_space_id_user_id_key" ON "Membership"("space_id", "user_id");
@@ -141,7 +141,7 @@ ALTER TABLE "Space" ADD CONSTRAINT "Space_user_id_fkey" FOREIGN KEY ("user_id") 
 ALTER TABLE "Domain" ADD CONSTRAINT "Domain_space_id_fkey" FOREIGN KEY ("space_id") REFERENCES "Space"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Page" ADD CONSTRAINT "Page_domain_id_fkey" FOREIGN KEY ("domain_id") REFERENCES "Domain"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Page" ADD CONSTRAINT "Page_website_id_fkey" FOREIGN KEY ("website_id") REFERENCES "Domain"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_space_id_fkey" FOREIGN KEY ("space_id") REFERENCES "Space"("id") ON DELETE CASCADE ON UPDATE CASCADE;

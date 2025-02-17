@@ -29,7 +29,7 @@ export function CrawlButton({ domain, onCrawlComplete }: Props) {
     setError(undefined)
 
     const [result, error] = await execute({
-      domain_id: domain.id,
+      website_id: domain.id,
       url: `https://${domain.name}`,
     })
 

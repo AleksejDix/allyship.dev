@@ -93,14 +93,14 @@ export const create = createServerAction()
 
     const page = await prisma.page.upsert({
       where: {
-        domain_id_name: {
-          domain_id: domain.id,
+        website_id_name: {
+          website_id: domain.id,
           name: websiteUrl.pathname,
         },
       },
       update: {},
       create: {
-        domain_id: domain.id,
+        website_id: domain.id,
         name: websiteUrl.pathname,
       },
     })
