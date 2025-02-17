@@ -1,6 +1,6 @@
-import { DomainDelete } from "@/features/website/components/domain-delete"
+import { WebsiteDelete } from "@/features/websites/components/website-delete"
 
-import { prisma } from "@/lib/prisma"
+import { createClient } from "@/lib/supabase/server"
 
 type Props = {
   params: { space_id: string; website_id: string }
@@ -9,23 +9,21 @@ type Props = {
 export default async function SettingsPage({ params }: Props) {
   const { space_id, website_id } = await params
 
-  const domain = await prisma.domain.findUnique({
-    where: {
-      id: website_id,
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  })
+  const supabase = await createClient()
 
-  if (!domain) {
-    throw new Error("Domain not found")
+  const { data: website, error } = await supabase
+    .from("Website")
+    .select()
+    .eq("id", website_id)
+    .single()
+
+  if (error || !website) {
+    throw new Error("Website not found")
   }
 
   return (
     <div className="space-y-6">
-      <DomainDelete domain={domain} spaceId={space_id} />
+      <WebsiteDelete website={website} spaceId={space_id} />
     </div>
   )
 }

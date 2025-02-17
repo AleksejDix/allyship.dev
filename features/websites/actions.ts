@@ -64,7 +64,7 @@ export const createWebsite = createServerAction()
     }
   })
 
-export const deleteWebsite = createServerAction()
+export const websiteDelete = createServerAction()
   .input(deleteWebsiteSchema)
   .handler(async ({ input }) => {
     const supabase = await createClient()

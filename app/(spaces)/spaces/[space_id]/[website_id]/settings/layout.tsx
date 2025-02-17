@@ -1,5 +1,5 @@
-import { DomainIdNavigation } from "@/features/website/components/domain-id-navigation"
 import { PageHeader } from "@/features/websites/components/page-header"
+import { WebsitesNavigation } from "@/features/websites/components/website-navigation"
 
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
@@ -14,23 +14,23 @@ export default async function Layout({ params, children }: LayoutProps) {
   const { website_id, space_id } = params
   const supabase = await createClient()
 
-  const { data: domain } = await supabase
-    .from("Domain")
+  const { data } = await supabase
+    .from("Website")
     .select()
     .eq("id", website_id)
     .single()
 
-  if (!domain) {
+  if (!data) {
     return null
   }
 
   return (
     <>
-      <DomainIdNavigation space_id={space_id} website_id={website_id} />
+      <WebsitesNavigation space_id={space_id} website_id={website_id} />
 
       <PageHeader
         title="Settings"
-        description={`Manage settings and configuration for ${domain.name}`}
+        description={`Manage settings and configuration for ${data.url}`}
       />
 
       <div className="container py-6">
@@ -43,13 +43,6 @@ export default async function Layout({ params, children }: LayoutProps) {
                   href={`/spaces/${space_id}/${website_id}/settings`}
                 >
                   <span>General</span>
-                </RouterLink>
-              </Button>
-              <Button variant="ghost" className="justify-start" asChild>
-                <RouterLink
-                  href={`/spaces/${space_id}/${website_id}/settings/advanced`}
-                >
-                  <span>Advanced</span>
                 </RouterLink>
               </Button>
             </nav>
