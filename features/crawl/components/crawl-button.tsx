@@ -2,13 +2,12 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Tables } from "@/database.types"
 import { Loader2 } from "lucide-react"
 import { useServerAction } from "zsa-react"
 
 import { Button } from "@/components/ui/button"
 
-import { crawl } from "../actions/crawl"
+import { crawl } from "../actions"
 
 type Props = {
   website_id: string
@@ -16,6 +15,11 @@ type Props = {
   onCrawlComplete?: (result: {
     type: "success" | "error"
     message: string
+    stats?: {
+      total: number
+      new: number
+      existing: number
+    }
   }) => void
 }
 
@@ -46,10 +50,10 @@ export function CrawlButton({
     }
 
     if (!result?.success) {
-      setError("Failed to crawl site")
+      setError(result?.error?.message ?? "Failed to crawl site")
       onCrawlComplete?.({
         type: "error",
-        message: "Failed to crawl site",
+        message: result?.error?.message ?? "Failed to crawl site",
       })
       return
     }
@@ -57,28 +61,31 @@ export function CrawlButton({
     router.refresh()
     onCrawlComplete?.({
       type: "success",
-      message: "Site crawled successfully",
+      message: `Found ${result.stats.total} pages (${result.stats.new} new)`,
+      stats: result.stats,
     })
   }
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleCrawl}
-      disabled={isPending}
-    >
-      {isPending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Crawling...
-        </>
-      ) : (
-        "Crawl Site"
-      )}
+    <div className="relative">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleCrawl}
+        disabled={isPending}
+      >
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Crawling...
+          </>
+        ) : (
+          "Crawl Site"
+        )}
+      </Button>
       {error && (
-        <div className="text-xs text-destructive absolute mt-8">{error}</div>
+        <div className="text-xs text-destructive absolute mt-2">{error}</div>
       )}
-    </Button>
+    </div>
   )
 }

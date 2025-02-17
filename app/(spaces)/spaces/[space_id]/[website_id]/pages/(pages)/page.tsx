@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { CrawlButton } from "@/features/pages/components/crawl-button"
+import { CrawlButton } from "@/features/crawl/components/crawl-button"
 import { PageCreateDialog } from "@/features/pages/components/page-create-dialog"
 import { PagesIndex } from "@/features/pages/components/pages-index"
 import { PageHeader } from "@/features/websites/components/page-header"
