@@ -10,6 +10,19 @@ import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Field } from "@/components/forms/field"
 
+const normalizeUrl = (url: string): string => {
+  try {
+    // Ensure URL has protocol
+    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
+    const parsed = new URL(urlWithProtocol)
+    // Remove www and get base hostname
+    const hostname = parsed.hostname.replace(/^www\./, "")
+    return `https://${hostname}`
+  } catch (error) {
+    return url // Return original if parsing fails
+  }
+}
+
 const formSchema = z.object({
   url: z
     .string()
@@ -18,7 +31,8 @@ const formSchema = z.object({
     })
     .refine((value) => !/^\s*$/.test(value), {
       message: "Website url cannot be only whitespace",
-    }),
+    })
+    .transform((url) => normalizeUrl(url)), // Normalize URL before submission
   space_id: z.string(),
 })
 
@@ -72,7 +86,8 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
           type="url"
           name="url"
           label="Website URL"
-          description="Enter a url for your new website"
+          description="Enter the website URL (e.g., example.com or www.example.com)"
+          placeholder="example.com"
         />
 
         <Field type="hidden" name="space_id" label="Space ID" />
