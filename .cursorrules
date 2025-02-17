@@ -1158,3 +1158,71 @@ describe('SpaceSettings', () => {
   })
 })
 ```
+
+## Database Types
+
+### Never Modify Database Types Manually
+
+❌ Never modify `database.types.ts` directly:
+
+```typescript
+// Don't do this
+export interface Database {
+  public: {
+    Tables: {
+      Page: {
+        Row: {
+          // Don't add fields here manually
+          status: "idle" | "scanning" | "completed" | "failed"
+        }
+      }
+    }
+  }
+}
+```
+
+✅ Instead:
+
+1. Create/modify database migrations
+2. Run migrations to update the database
+3. Generate types using Supabase CLI:
+
+```bash
+supabase gen types typescript --project-id your-project-id > database.types.ts
+```
+
+Rationale:
+
+- Keeps types in sync with actual database schema
+- Prevents type/schema mismatches
+- Ensures type safety
+- Makes schema changes trackable
+- Maintains single source of truth
+
+Example workflow:
+
+1. Create migration:
+
+```sql
+-- Add new fields to Page table
+ALTER TABLE "public"."Page"
+ADD COLUMN status text NOT NULL DEFAULT 'idle',
+ADD COLUMN last_scan_at timestamp with time zone,
+ADD COLUMN error_message text,
+ADD CONSTRAINT page_status_check
+  CHECK (status IN ('idle', 'scanning', 'completed', 'failed'));
+```
+
+2. Run migration:
+
+```bash
+supabase migration up
+```
+
+3. Generate updated types:
+
+```bash
+supabase gen types typescript --project-id your-project-id > database.types.ts
+```
+
+This ensures database schema and TypeScript types stay in sync.

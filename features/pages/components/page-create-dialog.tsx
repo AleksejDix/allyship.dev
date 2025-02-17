@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createPage } from "@/features/pages/actions"
+import { createPage } from "@/features/pages/actions/create"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -33,7 +33,7 @@ const pageCreateSchema = z.object({
 
 type PageCreateForm = z.infer<typeof pageCreateSchema>
 
-export function PageCreateDialog({ space_id, website_id }: Props) {
+export function PageCreateDialog({ website_id }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string>()
