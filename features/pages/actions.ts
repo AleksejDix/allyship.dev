@@ -69,47 +69,96 @@ export const createPage = createServerAction()
   .handler(async ({ input }) => {
     const supabase = await createClient()
 
-    // Check if page already exists
-    const { data: existingPage } = await supabase
-      .from("Page")
-      .select()
-      .eq("url", input.url)
-      .eq("website_id", input.website_id)
-      .is("deleted_at", null)
+    // First, get the website to validate the domain
+    const { data: website } = await supabase
+      .from("Website")
+      .select("url")
+      .eq("id", input.website_id)
       .single()
 
-    if (existingPage) {
+    if (!website) {
       return {
         success: false,
         error: {
-          message: "Page already exists for this website",
+          message: "Website not found",
+          status: 404,
+          code: "website_not_found",
+        },
+      }
+    }
+
+    // Validate and clean URLs
+    try {
+      const pageUrl = new URL(input.url)
+      const websiteUrl = new URL(website.url)
+
+      if (pageUrl.hostname !== websiteUrl.hostname) {
+        return {
+          success: false,
+          error: {
+            message: "Page URL must belong to the website's domain",
+            status: 400,
+            code: "invalid_domain",
+          },
+        }
+      }
+
+      // Strip query parameters from the URL
+      pageUrl.search = ""
+      const cleanUrl = pageUrl.toString()
+
+      // Check if page already exists (using cleaned URL)
+      const { data: existingPage } = await supabase
+        .from("Page")
+        .select()
+        .eq("url", cleanUrl)
+        .eq("website_id", input.website_id)
+        .is("deleted_at", null)
+        .single()
+
+      if (existingPage) {
+        return {
+          success: false,
+          error: {
+            message: "Page already exists for this website",
+            status: 400,
+            code: "page_already_exists",
+          },
+        }
+      }
+
+      // Create the page with cleaned URL
+      const { data: page, error } = await supabase
+        .from("Page")
+        .insert({
+          url: cleanUrl,
+          website_id: input.website_id,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        return {
+          success: false,
+          error: {
+            message: "Failed to create page",
+            status: 500,
+            code: "create_page_error",
+          },
+        }
+      }
+
+      return { success: true, data: page }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          message: "Invalid URL format",
           status: 400,
-          code: "page_already_exists",
+          code: "invalid_url",
         },
       }
     }
-
-    const { data: page, error } = await supabase
-      .from("Page")
-      .insert({
-        url: input.url,
-        website_id: input.website_id,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      return {
-        success: false,
-        error: {
-          message: "Failed to create page",
-          status: 500,
-          code: "create_page_error",
-        },
-      }
-    }
-
-    return { success: true, data: page }
   })
 
 // UPDATE - Update existing page
