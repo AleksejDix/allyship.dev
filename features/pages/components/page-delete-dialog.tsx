@@ -46,13 +46,18 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
   })
 
   const onSubmit = async () => {
+    console.log("Starting delete submission")
     const [result, actionError] = await execute({
       id: page.id,
       space_id,
       website_id,
     })
 
+    console.log("Delete action result:", result)
+    console.log("Delete action error:", actionError)
+
     if (actionError) {
+      console.error("Delete action failed:", actionError)
       form.setError("root", {
         type: "server",
         message: actionError.message,
@@ -60,7 +65,9 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
       return
     }
 
-    // The action will redirect on success
+    if (result?.success && result.redirect) {
+      window.location.href = result.redirect
+    }
   }
 
   const handleOpenChange = (open: boolean) => {
