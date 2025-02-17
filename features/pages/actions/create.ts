@@ -2,11 +2,8 @@
 
 import { createServerAction } from "zsa"
 import { createClient } from "@/lib/supabase/server"
-import type { Tables } from "@/database.types"
 import { createPageSchema } from "../schemas"
 import { compareHostnames } from "@/features/common/utils/url"
-
-type Page = Tables<"Page">
 
 export const createPage = createServerAction()
   .input(createPageSchema)

@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import type { Tables } from "@/database.types"
-import { deletePage } from "@/features/pages/actions"
+import { deletePage } from "@/features/pages/actions/delete"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -35,6 +36,7 @@ const deleteFormSchema = z.object({
 type DeleteFormData = z.infer<typeof deleteFormSchema>
 
 export function PageDeleteDialog({ page, space_id, website_id }: Props) {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const { execute, isPending } = useServerAction(deletePage)
 
@@ -49,8 +51,6 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
     console.log("Starting delete submission")
     const [result, actionError] = await execute({
       id: page.id,
-      space_id,
-      website_id,
     })
 
     console.log("Delete action result:", result)
@@ -65,8 +65,14 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
       return
     }
 
-    if (result?.success && result.redirect) {
-      window.location.href = result.redirect
+    if (result?.success) {
+      setIsOpen(false)
+      router.refresh()
+    } else {
+      form.setError("root", {
+        type: "server",
+        message: result?.error?.message ?? "Failed to delete page",
+      })
     }
   }
 
@@ -109,24 +115,29 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
               </label>
             </div>
 
-            {form.formState.errors.root?.message && (
-              <p className="text-sm text-destructive" role="alert">
-                {form.formState.errors.root.message}
-              </p>
-            )}
+            <div
+              className="text-sm text-destructive"
+              role="alert"
+              aria-live="polite"
+            >
+              {form.formState.errors.confirmDelete?.message && (
+                <p>{form.formState.errors.confirmDelete.message}</p>
+              )}
+              {form.formState.errors.root?.message && (
+                <p>{form.formState.errors.root.message}</p>
+              )}
+            </div>
 
             <div className="flex justify-end gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
-                disabled={isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={!form.watch("confirmDelete") || isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {isPending ? "Deleting..." : "Delete"}
