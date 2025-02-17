@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Tables } from "@/database.types"
 import { updateSpace } from "@/features/space/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Space } from "@prisma/client"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -24,19 +26,51 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 interface SpaceUpdateProps {
-  space: Space
+  space: Tables<"UserSpaceView">
 }
 
 export function SpaceUpdate(props: SpaceUpdateProps) {
+  const router = useRouter()
+  const [isUpdating, setIsUpdating] = useState(false)
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     values: {
-      name: props.space.name ?? "",
+      name: props.space.space_name || "",
     },
   })
 
   const onSubmit = async (data: FormData) => {
-    await updateSpace(props.space.id, data) // Pass the form data to the server action
+    if (!props.space.space_id) {
+      form.setError("root", {
+        type: "server",
+        message: "Space ID is required",
+      })
+      return
+    }
+
+    try {
+      setIsUpdating(true)
+      const result = await updateSpace(props.space.space_id, data)
+
+      if (result.error) {
+        form.setError("root", {
+          type: "server",
+          message: result.error.message,
+        })
+        return
+      }
+
+      // Refresh the page to show updated data
+      router.refresh()
+    } catch (error) {
+      form.setError("root", {
+        type: "server",
+        message: "Failed to update space. Please try again.",
+      })
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (
@@ -57,11 +91,17 @@ export function SpaceUpdate(props: SpaceUpdateProps) {
               type="text"
               autoComplete="organization"
               description="This is your team's visible name within Allyship. For example, the name of your company or department."
+              disabled={isUpdating}
             />
+            {form.formState.errors.root && (
+              <div className="text-sm text-destructive mt-2" role="alert">
+                {form.formState.errors.root.message}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex items-center justify-end border-t border-border py-4">
-            <Button type="submit" size="sm">
-              Update
+            <Button type="submit" size="sm" disabled={isUpdating}>
+              {isUpdating ? "Updating..." : "Update"}
             </Button>
           </CardFooter>
         </Card>

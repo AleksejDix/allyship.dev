@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation"
 import { getUserSpaces } from "@/features/userSpace/actions"
-import { UserSpaceIndex } from "@/features/userSpace/components"
+import { UserSpaceIndex } from "@/features/userSpace/components/user-space-index"
 
 export default async function Page() {
-  const { spaces, error } = await getUserSpaces()
+  const { data } = await getUserSpaces()
 
-  if (error?.code === "not_found") {
+  if (!data) {
     notFound()
   }
 
-  return <UserSpaceIndex spaces={spaces} error={error} />
+  return <UserSpaceIndex spaces={data} />
 }

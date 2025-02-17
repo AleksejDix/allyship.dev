@@ -9,6 +9,7 @@ export type SpaceWithRelations = Space & {
   domains: Domain[]
   owner: User
   memberships: Membership[]
+  user_id: string
 }
 
 export type SpaceResponse<T = Space> = {

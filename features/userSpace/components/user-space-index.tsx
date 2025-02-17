@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Tables } from "@/database.types"
 import { Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -11,27 +12,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import type { UserSpaceView } from "../types"
-
-interface UserSpaceIndexProps {
-  spaces: UserSpaceView[] | null
-  error?: {
-    message: string
-    status: number
-    code: string
-  }
-}
-
-export function UserSpaceIndex({ spaces, error }: UserSpaceIndexProps) {
-  if (error) {
-    return (
-      <div role="alert" className="p-4">
-        <h2 className="text-lg font-semibold text-destructive">Error</h2>
-        <p className="mt-1 text-muted-foreground">{error.message}</p>
-      </div>
-    )
-  }
-
+export function UserSpaceIndex({
+  spaces,
+}: {
+  spaces: Tables<"UserSpaceView">[]
+}) {
   if (!spaces?.length) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">

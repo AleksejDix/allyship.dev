@@ -1,12 +1,14 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { z } from "zod"
 import { createServerAction } from "zsa"
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { z } from "zod"
 
 import { createClient } from "@/lib/supabase/server"
 import type { Database } from "@/database.types"
-import type { SpaceResponse, SpaceWithRelations } from "./types"
+import type { SpaceResponse } from "./types"
 import { spaceSchema } from "./schema"
 
 // Create a new space
@@ -74,56 +76,103 @@ export const createSpace = createServerAction()
   })
 
 // Get a single space by ID
-export async function getSpace(id: string): Promise<SpaceResponse<SpaceWithRelations>> {
+export async function getSpace(spaceId: string) {
   const supabase = await createClient()
 
-  const { data: space, error } = await supabase
+  const { data, error } = await supabase
     .from("Space")
-    .select(`
-      *,
-      domains:Domain!space_id(*),
-      owner:User!inner(*),
-      memberships:Membership!space_id(*)
-    `)
-    .eq('id', id)
+    .select()
+    .eq("id", spaceId)
     .single()
 
   if (error) {
     return {
       error: {
-        message: "Failed to get space",
+        message: "Failed to fetch space",
         status: 500,
-        code: "fetch_failed"
-      }
+        code: "fetch_failed",
+      },
     }
   }
 
-  return { data: space }
+  return { data }
 }
 
-// Update a space
+const updateSpaceSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+})
+
 export async function updateSpace(
-  id: string,
-  data: Database["public"]["Tables"]["Space"]["Update"]
-): Promise<SpaceResponse> {
-  const supabase = await createClient()
+  spaceId: string,
+  data: z.infer<typeof updateSpaceSchema>
+) {
+  try {
+    // Validate input
+    const validated = updateSpaceSchema.parse(data)
 
-  const { data: space, error } = await supabase
-    .from("Space")
-    .update(data)
-    .eq("id", id)
-    .select()
-    .single()
+    // Create Supabase client
+    const supabase = await createClient()
 
-  if (error) {
-    return {
-      error: {
-        message: "Failed to update space",
-        status: 500,
-        code: "update_failed"
+    // Update the space - RLS will handle permissions
+    const { data: updatedSpace, error: updateError } = await supabase
+      .from("Space")
+      .update({
+        name: validated.name,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", spaceId)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.log("Update error:", updateError)
+      return {
+        success: false,
+        error: {
+          message: updateError.message || "Failed to update space",
+          code: "update_failed",
+        },
       }
     }
-  }
 
-  return { data: space }
+    // Revalidate paths
+    revalidatePath(`/spaces/${spaceId}`)
+    revalidatePath(`/spaces/${spaceId}/settings`)
+    revalidatePath("/spaces")
+
+    return {
+      success: true,
+      data: updatedSpace,
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: {
+          message: "Invalid input",
+          code: "validation_failed",
+        },
+      }
+    }
+
+    console.error("Unexpected error:", error)
+    return {
+      success: false,
+      error: {
+        message: "An unexpected error occurred",
+        code: "internal_error",
+      },
+    }
+  }
+}
+
+// Type for the space data to be used across components
+export interface SpaceData {
+  id: string
+  name: string
+  domain_count: number
+  member_count: number
+  created_at: string
+  updated_at: string
+  // Add other fields as needed
 }
