@@ -26,11 +26,6 @@ export default async function Layout({ params, children }: Props) {
                 General
               </RouterLink>
             </Button>
-            <Button variant="ghost" className="justify-start" asChild>
-              <RouterLink href={`/spaces/${space_id}/settings/members`}>
-                Members
-              </RouterLink>
-            </Button>
           </nav>
 
           <div className="md:col-span-3">{children}</div>
