@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { PageHeader } from "@/features/websites/components/page-header"
 import { ExternalLink } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/server"
@@ -25,16 +26,11 @@ export default async function WebsitePage({ params }: Props) {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {new URL(website.url).hostname}
-          </h1>
-          <p className="text-muted-foreground">
-            Created {new Date(website.created_at).toLocaleDateString()}
-          </p>
-        </div>
+    <>
+      <PageHeader
+        title={new URL(website.url).hostname}
+        description={`Created ${new Date(website.created_at).toLocaleDateString()}`}
+      >
         <Button variant="outline" size="sm" asChild>
           <a
             href={website.url}
@@ -46,37 +42,39 @@ export default async function WebsitePage({ params }: Props) {
             <ExternalLink aria-hidden="true" className="h-4 w-4" />
           </a>
         </Button>
-      </div>
+      </PageHeader>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Website Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-1">
-            <div className="text-sm font-medium">URL</div>
-            <div className="text-sm text-muted-foreground">{website.url}</div>
-          </div>
-          <div className="grid gap-1">
-            <div className="text-sm font-medium">Theme</div>
-            <div className="text-sm text-muted-foreground">
-              <Badge variant="outline">{website.theme.toLowerCase()}</Badge>
+      <div className="container mx-auto py-6 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Website Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-1">
+              <div className="text-sm font-medium">URL</div>
+              <div className="text-sm text-muted-foreground">{website.url}</div>
             </div>
-          </div>
-          <div className="grid gap-1">
-            <div className="text-sm font-medium">Created</div>
-            <div className="text-sm text-muted-foreground">
-              {new Date(website.created_at).toLocaleString()}
+            <div className="grid gap-1">
+              <div className="text-sm font-medium">Theme</div>
+              <div className="text-sm text-muted-foreground">
+                <Badge variant="outline">{website.theme.toLowerCase()}</Badge>
+              </div>
             </div>
-          </div>
-          <div className="grid gap-1">
-            <div className="text-sm font-medium">Last Updated</div>
-            <div className="text-sm text-muted-foreground">
-              {new Date(website.updated_at).toLocaleString()}
+            <div className="grid gap-1">
+              <div className="text-sm font-medium">Created</div>
+              <div className="text-sm text-muted-foreground">
+                {new Date(website.created_at).toLocaleString()}
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="grid gap-1">
+              <div className="text-sm font-medium">Last Updated</div>
+              <div className="text-sm text-muted-foreground">
+                {new Date(website.updated_at).toLocaleString()}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }
