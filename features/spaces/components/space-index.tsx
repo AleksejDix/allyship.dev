@@ -1,14 +1,8 @@
 import Link from "next/link"
 import { Tables } from "@/database.types"
-import { Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface SpaceIndexProps {
   spaces: Tables<"Space">[]
@@ -23,7 +17,7 @@ export async function SpaceIndex({ spaces }: SpaceIndexProps) {
           <Link href={`/spaces/${space.id}`} key={space.id}>
             <Card className="h-full transition-colors hover:bg-muted/50">
               <CardHeader>
-                <CardTitle className="line-clamp-1">{space.url}</CardTitle>
+                <CardTitle className="line-clamp-1">{space.name}</CardTitle>
               </CardHeader>
             </Card>
           </Link>

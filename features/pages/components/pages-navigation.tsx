@@ -1,15 +1,16 @@
 import { Domain } from "@prisma/client"
+import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
 type Props = {
-  domain: Domain
+  page_id: string
   space_id: string
   website_id: string
 }
 
-export function PagesNavigation({ domain, space_id, website_id }: Props) {
+export function PagesNavigation({ page_id, space_id, website_id }: Props) {
   return (
     <nav className="border-b border-border">
       <div className="container">
@@ -20,27 +21,34 @@ export function PagesNavigation({ domain, space_id, website_id }: Props) {
                 exact={true}
                 href={`/spaces/${space_id}/${website_id}`}
               >
-                {domain?.name}
+                <ArrowLeft aria-hidden="true" />
+                <span className="sr-only">Space</span>
               </RouterLink>
             </Button>
           </li>
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink href={`/spaces/${space_id}/${website_id}/pages`}>
-                Pages
+              <RouterLink
+                href={`/spaces/${space_id}/${website_id}/pages/${page_id}`}
+              >
+                Page
               </RouterLink>
             </Button>
           </li>
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink href={`/spaces/${space_id}/${website_id}/audits`}>
-                Audits
+              <RouterLink
+                href={`/spaces/${space_id}/${website_id}/pages/${page_id}/scans`}
+              >
+                Scans
               </RouterLink>
             </Button>
           </li>
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink href={`/spaces/${space_id}/${website_id}/settings`}>
+              <RouterLink
+                href={`/spaces/${space_id}/${website_id}/pages/${page_id}/settings`}
+              >
                 Settings
               </RouterLink>
             </Button>

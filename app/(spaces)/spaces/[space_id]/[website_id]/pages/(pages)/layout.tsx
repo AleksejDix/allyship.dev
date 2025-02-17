@@ -12,7 +12,7 @@ export default async function Layout({ params, children }: LayoutProps) {
   return (
     <div>
       <WebsitesNavigation space_id={space_id} website_id={website_id} />
-      <Suspense fallback={<div className="mt-6">Loading...</div>}>
+      <Suspense fallback={<div className="container">Loading...</div>}>
         {children}
       </Suspense>
     </div>

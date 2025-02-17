@@ -1,14 +1,13 @@
 // import { Domain } from "@prisma/client"
 
 import { create } from "@/features/scans/actions"
-import { ScanIndex } from "@/features/scans/components/scan-index"
-import { ThemeAwareScreenshots } from "@/features/website/components/theme-aware-screenshots"
 import { PageHeader } from "@/features/websites/components/page-header"
 import { Scan } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/server"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 type Params = {
   page_id: string
@@ -25,17 +24,8 @@ export default async function Page({ params }: { params: Params }) {
     .select(
       `
       *,
-      domain:Domain (*),
-      scans:Scan (
-        id,
-        created_at,
-        status,
-        metrics,
-        screenshot_light,
-        screenshot_dark,
-        url,
-        user_id,
-        page_id
+      website:Website (
+        url
       )
     `
     )
@@ -46,24 +36,16 @@ export default async function Page({ params }: { params: Params }) {
     return null
   }
 
-  // Transform the scans data to match the expected type
-  const transformedScans = page.scans.map((scan) => ({
-    ...scan,
-    created_at: scan.created_at ? new Date(scan.created_at) : null,
-  }))
-
-  const latestScan = transformedScans[0]
+  const websiteUrl = new URL(page.website.url)
+  const fullUrl = `${page.website.url}${page.url}`
 
   return (
     <>
-      <PageHeader
-        title={`${page.domain.name}${page.name}`}
-        description={`Manage page for ${page.name}`}
-      >
+      <PageHeader title={page.url} description={`Page details for ${page.url}`}>
         <form
           action={async () => {
             "use server"
-            await create({ url: `https://${page.domain.name}${page.name}` })
+            await create({ url: fullUrl })
           }}
         >
           <Button type="submit">
@@ -73,91 +55,58 @@ export default async function Page({ params }: { params: Params }) {
         </form>
       </PageHeader>
 
-      <div className="container py-6 space-y-6">
+      <div className="container py-6">
         <Card>
-          <CardContent className="p-0">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Preview Section */}
-              <div className="p-6">
-                <div className="rounded overflow-hidden border border-border">
-                  {latestScan?.screenshot_light ||
-                  latestScan?.screenshot_dark ? (
-                    <ThemeAwareScreenshots
-                      lightScreenshot={latestScan.screenshot_light || ""}
-                      darkScreenshot={latestScan.screenshot_dark || ""}
-                      alt={`Latest scan of ${page.name}`}
-                    />
-                  ) : (
-                    <div className="aspect-video bg-muted flex items-center justify-center">
-                      <span className="text-muted-foreground">
-                        No scan preview available
-                      </span>
-                    </div>
-                  )}
-                </div>
+          <CardHeader>
+            <CardTitle>Page Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-1">
+              <div className="text-sm font-medium text-muted-foreground">
+                Domain
               </div>
+              <a
+                href={page.website.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base hover:underline"
+                aria-labelledby={`${page_id}-domain-link`}
+              >
+                {websiteUrl.hostname}
+                <span id={`${page_id}-domain-link`} className="sr-only">
+                  {websiteUrl.hostname} (opens in new window)
+                </span>
+              </a>
+            </div>
 
-              {/* Details Section */}
-              <div className="p-6 space-y-6">
-                <div>
-                  <h2 className="text-sm font-medium text-muted-foreground mb-2">
-                    Domain
-                  </h2>
-                  <a
-                    href={`https://${page.domain.name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-base hover:underline"
-                  >
-                    {page.domain.name}
-                  </a>
-                </div>
+            <div className="grid gap-1">
+              <div className="text-sm font-medium text-muted-foreground">
+                Path
+              </div>
+              <a
+                href={fullUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base hover:underline"
+                aria-labelledby={`${page_id}-path-link`}
+              >
+                {page.url}
+                <span id={`${page_id}-path-link`} className="sr-only">
+                  {page.url} (opens in new window)
+                </span>
+              </a>
+            </div>
 
-                <div>
-                  <h2 className="text-sm font-medium text-muted-foreground mb-2">
-                    Full Path
-                  </h2>
-                  <div className="flex gap-2">
-                    <a
-                      href={`https://${page.domain.name}${page.name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-base hover:underline"
-                    >
-                      {page.name}
-                    </a>
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="text-sm font-medium text-muted-foreground mb-2">
-                    Status
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    <span>Ready</span>
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="text-sm font-medium text-muted-foreground mb-2">
-                    Monitoring
-                  </h2>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                      <span>off</span>
-                    </div>
-                  </div>
-                </div>
+            <div className="grid gap-1">
+              <div className="text-sm font-medium text-muted-foreground">
+                Status
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">Active</Badge>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        <div className="mt-6">
-          <ScanIndex scans={transformedScans} />
-        </div>
       </div>
     </>
   )
