@@ -542,7 +542,7 @@ const { data: domains } = await supabase
 
 For reference, I can see this pattern needs to be applied in several places in the codebase:
 
-```typescript:features/space/actions.ts
+```typescript:features/spaces/actions.ts
 startLine: 67
 endLine: 72
 ```

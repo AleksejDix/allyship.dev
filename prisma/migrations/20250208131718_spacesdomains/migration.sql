@@ -22,7 +22,7 @@ CREATE TABLE "pages" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
-    "domain_id" UUID NOT NULL,
+    "website_id" UUID NOT NULL,
 
     CONSTRAINT "pages_pkey" PRIMARY KEY ("id")
 );
@@ -37,7 +37,7 @@ CREATE UNIQUE INDEX "domains_space_id_name_key" ON "domains"("space_id", "name")
 CREATE INDEX "pages_name_idx" ON "pages"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "pages_domain_id_name_key" ON "pages"("domain_id", "name");
+CREATE UNIQUE INDEX "pages_website_id_name_key" ON "pages"("website_id", "name");
 
 -- AddForeignKey
 ALTER TABLE "scans" ADD CONSTRAINT "scans_page_id_fkey" FOREIGN KEY ("page_id") REFERENCES "pages"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -46,4 +46,4 @@ ALTER TABLE "scans" ADD CONSTRAINT "scans_page_id_fkey" FOREIGN KEY ("page_id") 
 ALTER TABLE "domains" ADD CONSTRAINT "domains_space_id_fkey" FOREIGN KEY ("space_id") REFERENCES "spaces"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "pages" ADD CONSTRAINT "pages_domain_id_fkey" FOREIGN KEY ("domain_id") REFERENCES "domains"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "pages" ADD CONSTRAINT "pages_website_id_fkey" FOREIGN KEY ("website_id") REFERENCES "domains"("id") ON DELETE CASCADE ON UPDATE CASCADE;

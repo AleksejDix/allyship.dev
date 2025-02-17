@@ -98,8 +98,8 @@ export const addPage = createServerAction()
       // Check if page already exists
       const existingPage = await prisma.page.findUnique({
         where: {
-          domain_id_name: {
-            domain_id: domainId,
+          website_id_name: {
+            website_id: domainId,
             name: parsedUrl.pathname,
           },
         },
@@ -121,7 +121,7 @@ export const addPage = createServerAction()
       const page = await prisma.page.create({
         data: {
           name: parsedUrl.pathname,
-          domain_id: domainId,
+          website_id: domainId,
         },
       })
 

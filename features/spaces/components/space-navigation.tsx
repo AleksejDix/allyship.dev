@@ -29,6 +29,13 @@ export function SpaceNavigation({ space_id }: Props) {
           </li>
           <li>
             <Button variant="ghost" asChild>
+              <RouterLink href={`/spaces/${space_id}/websites`}>
+                Websites
+              </RouterLink>
+            </Button>
+          </li>
+          <li>
+            <Button variant="ghost" asChild>
               <RouterLink href={`/spaces/${space_id}/settings`}>
                 Settings
               </RouterLink>

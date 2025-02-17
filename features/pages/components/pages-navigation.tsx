@@ -6,10 +6,10 @@ import { RouterLink } from "@/components/RouterLink"
 type Props = {
   domain: Domain
   space_id: string
-  domain_id: string
+  website_id: string
 }
 
-export function PagesNavigation({ domain, space_id, domain_id }: Props) {
+export function PagesNavigation({ domain, space_id, website_id }: Props) {
   return (
     <nav className="border-b border-border">
       <div className="container">
@@ -18,7 +18,7 @@ export function PagesNavigation({ domain, space_id, domain_id }: Props) {
             <Button variant="ghost" asChild>
               <RouterLink
                 exact={true}
-                href={`/spaces/${space_id}/${domain_id}`}
+                href={`/spaces/${space_id}/${website_id}`}
               >
                 {domain?.name}
               </RouterLink>
@@ -26,21 +26,21 @@ export function PagesNavigation({ domain, space_id, domain_id }: Props) {
           </li>
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink href={`/spaces/${space_id}/${domain_id}/pages`}>
+              <RouterLink href={`/spaces/${space_id}/${website_id}/pages`}>
                 Pages
               </RouterLink>
             </Button>
           </li>
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink href={`/spaces/${space_id}/${domain_id}/audits`}>
+              <RouterLink href={`/spaces/${space_id}/${website_id}/audits`}>
                 Audits
               </RouterLink>
             </Button>
           </li>
           <li>
             <Button variant="ghost" asChild>
-              <RouterLink href={`/spaces/${space_id}/${domain_id}/settings`}>
+              <RouterLink href={`/spaces/${space_id}/${website_id}/settings`}>
                 Settings
               </RouterLink>
             </Button>

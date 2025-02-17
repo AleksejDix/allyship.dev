@@ -6,7 +6,7 @@ import { createServerAction } from "zsa"
 import { prisma } from "@/lib/prisma"
 
 const crawlSchema = z.object({
-  domain_id: z.string(),
+  website_id: z.string(),
   url: z.string().url(),
 })
 
@@ -27,7 +27,7 @@ export const crawl = createServerAction()
 
       const existingPages = await prisma.page.findMany({
         where: {
-          domain_id: input.domain_id,
+          website_id: input.website_id,
         },
         select: {
           name: true,
@@ -46,7 +46,7 @@ export const crawl = createServerAction()
           return prisma.page.create({
             data: {
               name: urlObj.pathname,
-              domain_id: input.domain_id,
+              website_id: input.website_id,
             },
           })
         })

@@ -1,5 +1,5 @@
 import { MembershipList } from "@/features/membership/components/membership-list"
-import { getSpace } from "@/features/space/actions"
+import { getSpace } from "@/features/spaces/actions"
 
 type SpacePageProps = {
   params: { space_id: string }

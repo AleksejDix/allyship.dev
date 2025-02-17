@@ -8,9 +8,9 @@ import { createServerAction } from "zsa"
 import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
 
-export async function getPagesByDomainId(domain_id: string) {
+export async function getPagesByDomainId(website_id: string) {
   return prisma.page.findMany({
-    where: { domain_id },
+    where: { website_id },
   })
 }
 
@@ -18,7 +18,7 @@ export const create = createServerAction()
   .input(
     z.object({
       name: z.string().url().min(1, "Domain name is required"),
-      domain_id: z.string().min(1, "Domain ID is required"),
+      website_id: z.string().min(1, "Domain ID is required"),
     })
   )
   .handler(async ({ input }) => {
@@ -26,7 +26,7 @@ export const create = createServerAction()
     const existingDomain = await prisma.page.findFirst({
       where: {
         name: input.name,
-        domain_id: input.domain_id,
+        website_id: input.website_id,
       },
     })
 
@@ -44,7 +44,7 @@ export const create = createServerAction()
     const page = await prisma.page.create({
       data: {
         name: input.name,
-        domain_id: input.domain_id,
+        website_id: input.website_id,
       },
     })
 
@@ -69,7 +69,7 @@ export async function createPageFromUrl(
     // Check if page already exists
     const existingPage = await prisma.page.findFirst({
       where: {
-        domain_id: domainId,
+        website_id: domainId,
         name: validatedData.url,
       },
     })
@@ -88,7 +88,7 @@ export async function createPageFromUrl(
     const page = await prisma.page.create({
       data: {
         name: url.pathname === "/" ? "Homepage" : url.pathname,
-        domain_id: domainId,
+        website_id: domainId,
       },
     })
 

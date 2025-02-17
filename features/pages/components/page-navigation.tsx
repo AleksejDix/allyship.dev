@@ -5,11 +5,11 @@ import { RouterLink } from "@/components/RouterLink"
 
 type Props = {
   space_id: string
-  domain_id: string
+  website_id: string
   page_id: string
 }
 
-export function PageNavigation({ space_id, domain_id, page_id }: Props) {
+export function WebsiteNavigation({ space_id, website_id, page_id }: Props) {
   return (
     <nav className="border-b border-border">
       <div className="container">
@@ -26,7 +26,7 @@ export function PageNavigation({ space_id, domain_id, page_id }: Props) {
             <Button variant="ghost" asChild>
               <RouterLink
                 exact={true}
-                href={`/spaces/${space_id}/${domain_id}/pages/${page_id}`}
+                href={`/spaces/${space_id}/${website_id}/pages/${page_id}`}
               >
                 Page
               </RouterLink>
@@ -36,7 +36,7 @@ export function PageNavigation({ space_id, domain_id, page_id }: Props) {
             <Button variant="ghost" asChild>
               <RouterLink
                 exact={true}
-                href={`/spaces/${space_id}/${domain_id}/pages/${page_id}/scans`}
+                href={`/spaces/${space_id}/${website_id}/pages/${page_id}/scans`}
               >
                 Scans
               </RouterLink>
@@ -45,7 +45,7 @@ export function PageNavigation({ space_id, domain_id, page_id }: Props) {
           <li>
             <Button variant="ghost" asChild>
               <RouterLink
-                href={`/spaces/${space_id}/${domain_id}/pages/${page_id}/settings`}
+                href={`/spaces/${space_id}/${website_id}/pages/${page_id}/settings`}
               >
                 Settings
               </RouterLink>

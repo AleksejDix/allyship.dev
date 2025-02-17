@@ -60,11 +60,11 @@ model Page {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  domain_id  String    @db.Uuid
-  domain     Domain    @relation(fields: [domain_id], references: [id], onDelete: Cascade)
+  website_id  String    @db.Uuid
+  domain     Domain    @relation(fields: [website_id], references: [id], onDelete: Cascade)
   scans      Scan[]
 
-  @@unique([domain_id, name])
+  @@unique([website_id, name])
   @@index([name])
 }
 
