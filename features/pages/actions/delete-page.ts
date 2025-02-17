@@ -4,13 +4,12 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { createServerAction } from "zsa"
 
-import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
 
 const deletePageSchema = z.object({
   pageId: z.string(),
   spaceId: z.string(),
-  domainId: z.string(),
+  websiteId: z.string(),
 })
 
 export const deletePage = createServerAction()
@@ -31,15 +30,14 @@ export const deletePage = createServerAction()
       }
     }
 
-    const { pageId, spaceId, domainId } = input
+    const { pageId, spaceId, websiteId } = input
 
     // Verify user has access to this space
-    const space = await prisma.space.findFirst({
-      where: {
-        id: spaceId,
-        user_id: user.id,
-      },
-    })
+    const { data: space } = await supabase
+      .from("Space")
+      .select()
+      .match({ id: spaceId, owner_id: user.id })
+      .single()
 
     if (!space) {
       return {
@@ -52,15 +50,24 @@ export const deletePage = createServerAction()
     }
 
     // Delete the page
-    await prisma.page.delete({
-      where: {
-        id: pageId,
-      },
-    })
+    const { error } = await supabase
+      .from("Page")
+      .delete()
+      .match({ id: pageId })
 
-    // Revalidate the pages list and domain pages
-    revalidatePath(`/spaces/${spaceId}/${domainId}`)
-    revalidatePath(`/spaces/${spaceId}/${domainId}/pages`)
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to delete page",
+          code: "DELETE_FAILED",
+        },
+      }
+    }
+
+    // Revalidate the pages list and website pages
+    revalidatePath(`/spaces/${spaceId}/${websiteId}`)
+    revalidatePath(`/spaces/${spaceId}/${websiteId}/pages`)
 
     return {
       success: true,
