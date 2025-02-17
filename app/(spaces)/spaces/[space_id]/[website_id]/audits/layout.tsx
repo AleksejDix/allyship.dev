@@ -1,4 +1,4 @@
-import { WebsiteNavigation } from "@/features/website/components/website-navigation"
+import { WebsitesNavigation } from "@/features/websites/components/website-navigation"
 
 type LayoutProps = {
   params: { website_id: string; space_id: string; page_id?: string }
@@ -10,7 +10,7 @@ export default async function Layout({ params, children }: LayoutProps) {
 
   return (
     <>
-      <WebsiteNavigation space_id={space_id} website_id={website_id} />
+      <WebsitesNavigation space_id={space_id} website_id={website_id} />
       {children}
     </>
   )

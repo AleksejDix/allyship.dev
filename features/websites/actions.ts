@@ -44,6 +44,8 @@ export const createWebsite = createServerAction()
       space_id,
     })
 
+    console.log(data, error)
+
     if (error) {
       return {
         success: false,
