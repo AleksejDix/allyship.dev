@@ -1154,12 +1154,16 @@ COMMENT ON TABLE "public"."Membership" IS 'User memberships in spaces';
 CREATE TABLE IF NOT EXISTS "public"."Page" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "name" "text" NOT NULL,
-    "created_at" timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    "created_at" timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "domain_id" "uuid" NOT NULL
 );
 
 
 ALTER TABLE "public"."Page" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."Page" IS 'Pages within domains with required timestamps';
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."Scan" (
@@ -1223,15 +1227,19 @@ CREATE TABLE IF NOT EXISTS "public"."User" (
     "first_name" "text",
     "last_name" "text",
     "status" "text" DEFAULT 'active'::"text" NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "deleted_at" timestamp with time zone,
     "deletion_requested_at" timestamp with time zone,
-    "data_retention_period" interval DEFAULT '6 mons'::interval,
+    "data_retention_period" interval DEFAULT '6 mons'::interval NOT NULL,
     CONSTRAINT "status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'disabled'::"text", 'deleted'::"text"])))
 );
 
 
 ALTER TABLE "public"."User" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."User" IS 'User profiles with required timestamps and retention period';
+
 
 
 CREATE OR REPLACE VIEW "public"."UserSpaceView" AS
@@ -1241,28 +1249,36 @@ CREATE OR REPLACE VIEW "public"."UserSpaceView" AS
            FROM "public"."Domain"
           GROUP BY "Domain"."space_id"
         )
- SELECT DISTINCT ON ("s"."id", "m"."user_id") "s"."id" AS "space_id",
+ SELECT DISTINCT ON ("s"."id", COALESCE("m"."user_id", "s"."created_by")) "s"."id" AS "space_id",
     "s"."name" AS "space_name",
     "s"."created_at",
     "s"."updated_at",
     "s"."created_by",
     "u"."first_name" AS "owner_first_name",
     "u"."last_name" AS "owner_last_name",
-    "m"."user_id",
-    "m"."role" AS "user_role",
-    "m"."status" AS "membership_status",
+    COALESCE("m"."user_id", "s"."created_by") AS "user_id",
+    COALESCE("m"."role",
+        CASE
+            WHEN ("s"."created_by" = "auth"."uid"()) THEN 'owner'::"public"."MembershipRole"
+            ELSE NULL::"public"."MembershipRole"
+        END) AS "user_role",
+    COALESCE("m"."status",
+        CASE
+            WHEN ("s"."created_by" = "auth"."uid"()) THEN 'active'::"public"."MembershipStatus"
+            ELSE NULL::"public"."MembershipStatus"
+        END) AS "membership_status",
     COALESCE("sd"."domain_count", (0)::bigint) AS "domain_count"
    FROM ((("public"."Space" "s"
-     JOIN "public"."User" "u" ON (("s"."created_by" = "u"."id")))
+     LEFT JOIN "public"."User" "u" ON (("s"."created_by" = "u"."id")))
      LEFT JOIN "public"."Membership" "m" ON (("s"."id" = "m"."space_id")))
      LEFT JOIN "space_domains" "sd" ON (("s"."id" = "sd"."space_id")))
-  WHERE (("s"."deleted_at" IS NULL) AND ("m"."status" = 'active'::"public"."MembershipStatus") AND (("m"."user_id" = "auth"."uid"()) OR (("s"."is_personal" = true) AND ("s"."created_by" = "auth"."uid"()))));
+  WHERE (("s"."deleted_at" IS NULL) AND ((("m"."status" = 'active'::"public"."MembershipStatus") AND ("m"."user_id" = "auth"."uid"())) OR (("s"."is_personal" = true) AND ("s"."created_by" = "auth"."uid"()))));
 
 
 ALTER TABLE "public"."UserSpaceView" OWNER TO "postgres";
 
 
-COMMENT ON VIEW "public"."UserSpaceView" IS 'Provides an optimized view of spaces with their domain counts and user roles';
+COMMENT ON VIEW "public"."UserSpaceView" IS 'Provides an optimized view of spaces with their domain counts and user roles. Guarantees non-null values for space_id, space_name, created_at, updated_at, created_by, user_id, and domain_count. Owner names are intentionally nullable. Role and status are null for non-members.';
 
 
 
@@ -1272,11 +1288,15 @@ CREATE TABLE IF NOT EXISTS "public"."user_audit_logs" (
     "action" "text" NOT NULL,
     "details" "jsonb",
     "ip_address" "text",
-    "timestamp" timestamp with time zone DEFAULT "now"()
+    "timestamp" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
 ALTER TABLE "public"."user_audit_logs" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."user_audit_logs" IS 'Audit logs with required timestamps';
+
 
 
 CREATE TABLE IF NOT EXISTS "public"."user_notifications" (
@@ -1285,7 +1305,7 @@ CREATE TABLE IF NOT EXISTS "public"."user_notifications" (
     "type" "text" NOT NULL,
     "status" "text" DEFAULT 'pending'::"text" NOT NULL,
     "details" "jsonb",
-    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "processed_at" timestamp with time zone,
     "error" "text",
     CONSTRAINT "user_notifications_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'sent'::"text", 'failed'::"text"])))
@@ -1293,6 +1313,10 @@ CREATE TABLE IF NOT EXISTS "public"."user_notifications" (
 
 
 ALTER TABLE "public"."user_notifications" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."user_notifications" IS 'User notifications with required timestamps';
+
 
 
 ALTER TABLE ONLY "public"."Domain"
