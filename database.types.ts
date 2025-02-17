@@ -37,24 +37,30 @@ export type Database = {
       Domain: {
         Row: {
           created_at: string
+          created_by: string | null
           id: string
           name: string
           space_id: string
-          theme: Database["public"]["Enums"]["DomainTheme"]
+          updated_at: string
+          updated_by: string | null
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           id?: string
           name: string
           space_id: string
-          theme?: Database["public"]["Enums"]["DomainTheme"]
+          updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           id?: string
           name?: string
           space_id?: string
-          theme?: Database["public"]["Enums"]["DomainTheme"]
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -63,6 +69,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "Space"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Domain_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "UserSpaceView"
+            referencedColumns: ["space_id"]
           },
         ]
       }
@@ -82,7 +95,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["MembershipRole"]
           space_id: string
           status?: Database["public"]["Enums"]["MembershipStatus"]
-          updated_at: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -103,122 +116,52 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Membership_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "Membership_space_id_fkey"
+            columns: ["space_id"]
             isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      Page: {
-        Row: {
-          created_at: string | null
-          domain_id: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string | null
-          domain_id: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string | null
-          domain_id?: string
-          id?: string
-          name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Page_domain_id_fkey"
-            columns: ["domain_id"]
-            isOneToOne: false
-            referencedRelation: "Domain"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      Scan: {
-        Row: {
-          created_at: string
-          id: string
-          metrics: Json | null
-          page_id: string
-          screenshot_dark: string | null
-          screenshot_light: string | null
-          status: Database["public"]["Enums"]["ScanStatus"]
-          url: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          metrics?: Json | null
-          page_id: string
-          screenshot_dark?: string | null
-          screenshot_light?: string | null
-          status?: Database["public"]["Enums"]["ScanStatus"]
-          url: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          metrics?: Json | null
-          page_id?: string
-          screenshot_dark?: string | null
-          screenshot_light?: string | null
-          status?: Database["public"]["Enums"]["ScanStatus"]
-          url?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Scan_page_id_fkey"
-            columns: ["page_id"]
-            isOneToOne: false
-            referencedRelation: "Page"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Scan_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
+            referencedRelation: "UserSpaceView"
+            referencedColumns: ["space_id"]
           },
         ]
       }
       Space: {
         Row: {
           created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
           id: string
+          is_personal: boolean
           name: string
-          user_id: string
+          transfer_token: string | null
+          transfer_token_expires_at: string | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
           id?: string
+          is_personal?: boolean
           name: string
-          user_id: string
+          transfer_token?: string | null
+          transfer_token_expires_at?: string | null
+          updated_at?: string
         }
         Update: {
           created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
           id?: string
+          is_personal?: boolean
           name?: string
-          user_id?: string
+          transfer_token?: string | null
+          transfer_token_expires_at?: string | null
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "Space_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       User: {
         Row: {
@@ -315,24 +258,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      UserSpaceView: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          domain_count: number | null
+          membership_status:
+            | Database["public"]["Enums"]["MembershipStatus"]
+            | null
+          owner_first_name: string | null
+          owner_last_name: string | null
+          space_id: string | null
+          space_name: string | null
+          updated_at: string | null
+          user_id: string | null
+          user_role: Database["public"]["Enums"]["MembershipRole"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      cleanup_disabled_accounts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_audit_logs: {
+      get_role_level: {
         Args: {
-          retention_period?: unknown
+          role: Database["public"]["Enums"]["MembershipRole"]
         }
         Returns: number
-      }
-      is_admin: {
-        Args: {
-          jwt?: Json
-        }
-        Returns: boolean
       }
       log_user_action: {
         Args: {
@@ -349,6 +299,15 @@ export type Database = {
         }
         Returns: string
       }
+      parse_name: {
+        Args: {
+          full_name: string
+        }
+        Returns: {
+          first_name: string
+          last_name: string
+        }[]
+      }
       queue_user_notification: {
         Args: {
           user_id: string
@@ -357,30 +316,14 @@ export type Database = {
         }
         Returns: string
       }
-      reactivate_user: {
-        Args: {
-          user_id: string
-          admin_id: string
-          reason?: string
-        }
-        Returns: undefined
-      }
-      request_gdpr_deletion: {
-        Args: {
-          user_id: string
-          requester_id?: string
-          reason?: string
-          admin_override?: boolean
-        }
-        Returns: undefined
+      verify_active_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
-      DomainTheme: "LIGHT" | "DARK" | "BOTH"
-      MembershipRole: "OWNER" | "MEMBER"
-      MembershipStatus: "PENDING" | "ACTIVE" | "DECLINED"
-      ScanStatus: "pending" | "completed" | "failed" | "queued"
-      SubStatus: "ACTIVE" | "PAST_DUE" | "CANCELED"
+      MembershipRole: "owner" | "admin" | "member"
+      MembershipStatus: "active" | "inactive" | "pending" | "banned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -484,3 +427,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
