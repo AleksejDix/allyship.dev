@@ -19,7 +19,6 @@ export async function getPagesByWebsiteId(website_id: string) {
     .from("Page")
     .select()
     .eq("website_id", website_id)
-    .is("deleted_at", null)
 
   if (error) {
     return {
@@ -42,7 +41,6 @@ export async function getPage(id: string) {
     .from("Page")
     .select()
     .eq("id", id)
-    .is("deleted_at", null)
     .single()
 
   if (error) {
@@ -197,7 +195,7 @@ export const updatePage = createServerAction()
     return { success: true, data: page }
   })
 
-// DELETE - Soft delete page
+// DELETE - Delete page
 export const deletePage = createServerAction()
   .input(
     z.object({
@@ -207,37 +205,83 @@ export const deletePage = createServerAction()
     })
   )
   .handler(async ({ input }) => {
+    console.log("Starting page deletion", input)
     const supabase = await createClient()
 
-    const { error } = await supabase
+    // First verify the user has access
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error("Auth error:", userError)
+      return {
+        success: false,
+        error: {
+          message: "Not authenticated",
+          code: "AUTH_ERROR",
+        },
+      }
+    }
+    console.log("Authenticated user:", user.id)
+
+    // Verify space ownership
+    const { data: space, error: spaceError } = await supabase
+      .from("Space")
+      .select("owner_id")
+      .eq("id", input.space_id)
+      .single()
+
+    if (spaceError || !space) {
+      console.error("Space access error:", spaceError)
+      return {
+        success: false,
+        error: {
+          message: "Space not found or no access",
+          code: "SPACE_ACCESS_ERROR",
+        },
+      }
+    }
+
+    if (space.owner_id !== user.id) {
+      console.error("User is not space owner", { userId: user.id, ownerId: space.owner_id })
+      return {
+        success: false,
+        error: {
+          message: "Not authorized to delete pages in this space",
+          code: "NOT_SPACE_OWNER",
+        },
+      }
+    }
+    console.log("Space access verified")
+
+    // Perform the hard delete
+    const { data, error } = await supabase
       .from("Page")
-      .update({
-        deleted_at: new Date().toISOString(),
-      })
+      .delete()
       .eq("id", input.id)
-      .is("deleted_at", null)
 
     if (error) {
+      console.error("Failed to delete page:", error)
       return {
         success: false,
         error: {
           message: "Failed to delete page",
           code: "DELETE_FAILED",
+          details: error.message,
         },
       }
     }
+    console.log("Page delete result:", { data, error })
 
-    // First return success
-    const response = {
+    console.log("Page deleted successfully")
+
+    // Revalidate the path
+    revalidatePath(`/spaces/${input.space_id}/${input.website_id}/pages`)
+
+    // Return success response
+    return {
       success: true,
       data: null,
+      redirect: `/spaces/${input.space_id}/${input.website_id}/pages`,
     }
-
-    // Then revalidate and redirect
-    revalidatePath(`/spaces/${input.space_id}/${input.website_id}/pages`)
-    redirect(`/spaces/${input.space_id}/${input.website_id}/pages`)
-
-    return response
   })
 
 // RESTORE - Restore deleted page

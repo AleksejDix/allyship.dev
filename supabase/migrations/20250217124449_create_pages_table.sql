@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS "public"."Page" (
     "website_id" uuid NOT NULL,
     "created_at" timestamp with time zone NOT NULL DEFAULT now(),
     "updated_at" timestamp with time zone NOT NULL DEFAULT now(),
-    "deleted_at" timestamp with time zone,
     CONSTRAINT "Page_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "Page_website_id_url_key" UNIQUE ("website_id", "url"),
     CONSTRAINT "Page_website_id_fkey" FOREIGN KEY ("website_id")
