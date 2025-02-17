@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Tables } from "@/database.types"
-import { addPage } from "@/features/pages/actions/add-page"
+import { createPage } from "@/features/pages/actions"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import { useServerAction } from "zsa-react"
 
 import { Button } from "@/components/ui/button"
@@ -17,29 +19,40 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Form } from "@/components/ui/form"
+import { Field } from "@/components/forms/field"
 
 type Props = {
-  spaceId: string
-  websiteId: string
-  website: Tables<"Website">
+  space_id: string
+  website_id: string
 }
 
-export function AddPageDialog({ spaceId, websiteId, website }: Props) {
+const pageCreateSchema = z.object({
+  url: z.string().url(),
+})
+
+type PageCreateForm = z.infer<typeof pageCreateSchema>
+
+export function PageCreateDialog({ space_id, website_id }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [url, setUrl] = useState("")
-  const { execute, isPending } = useServerAction(addPage)
   const [error, setError] = useState<string>()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const form = useForm<PageCreateForm>({
+    resolver: zodResolver(pageCreateSchema),
+    defaultValues: {
+      url: "",
+    },
+  })
+
+  const { execute, isPending } = useServerAction(createPage)
+
+  const onSubmit = async (data: PageCreateForm) => {
     setError(undefined)
 
     const [result, error] = await execute({
-      url,
-      spaceId,
+      url: data.url,
+      website_id,
     })
 
     if (error) {
@@ -53,7 +66,7 @@ export function AddPageDialog({ spaceId, websiteId, website }: Props) {
     }
 
     setOpen(false)
-    setUrl("")
+    form.reset()
     router.refresh()
   }
 
@@ -72,24 +85,19 @@ export function AddPageDialog({ spaceId, websiteId, website }: Props) {
             Add a new page to scan for accessibility issues.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="url">URL</Label>
-              <Input
-                id="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
+              <Field name="url" type="url" label="URL" />
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding..." : "Add Page"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Adding..." : "Add Page"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

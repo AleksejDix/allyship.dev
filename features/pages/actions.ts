@@ -4,127 +4,157 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
 import { createServerAction } from "zsa"
-
-import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
+import type { Tables, TablesUpdate } from "@/database.types"
 
-export async function getPagesByDomainId(website_id: string) {
-  return prisma.page.findMany({
-    where: { website_id },
-  })
+type Page = Tables<"Page">
+type PageInsert = TablesUpdate<"Page">
+type PageUpdate = TablesUpdate<"Page">
+
+// READ - Get all pages for a website
+export async function getPagesByWebsiteId(website_id: string) {
+  const supabase = await createClient()
+
+  const { data: pages, error } = await supabase
+    .from("Page")
+    .select()
+    .eq("website_id", website_id)
+    .is("deleted_at", null)
+
+  if (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to fetch pages",
+        code: "FETCH_FAILED",
+      },
+    }
+  }
+
+  return { success: true, data: pages }
 }
 
-export const create = createServerAction()
+// READ - Get single page
+export async function getPage(id: string) {
+  const supabase = await createClient()
+
+  const { data: page, error } = await supabase
+    .from("Page")
+    .select()
+    .eq("id", id)
+    .is("deleted_at", null)
+    .single()
+
+  if (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to fetch page",
+        code: "FETCH_FAILED",
+      },
+    }
+  }
+
+  return { success: true, data: page }
+}
+
+// CREATE - Create new page
+export const createPage = createServerAction()
   .input(
     z.object({
-      name: z.string().url().min(1, "Domain name is required"),
-      website_id: z.string().min(1, "Domain ID is required"),
+      url: z.string().url().min(1, "URL is required"),
+      website_id: z.string().min(1, "Website ID is required"),
     })
   )
   .handler(async ({ input }) => {
-    // Check if domain already exists
-    const existingDomain = await prisma.page.findFirst({
-      where: {
-        name: input.name,
-        website_id: input.website_id,
-      },
-    })
-
-    if (existingDomain) {
-      return {
-        success: false,
-        error: {
-          message: "Domain already exists in this space",
-          status: 400,
-          code: "domain_already_exists",
-        },
-      }
-    }
-
-    const page = await prisma.page.create({
-      data: {
-        name: input.name,
-        website_id: input.website_id,
-      },
-    })
-
-    return { success: true, data: page }
-  })
-
-const addPageUrlSchema = z.object({
-  url: z.string().url(),
-})
-
-type AddPageUrlInput = z.infer<typeof addPageUrlSchema>
-
-export async function createPageFromUrl(
-  spaceId: string,
-  domainId: string,
-  input: AddPageUrlInput
-) {
-  try {
-    const validatedData = addPageUrlSchema.parse(input)
-    const url = new URL(validatedData.url)
+    const supabase = await createClient()
 
     // Check if page already exists
-    const existingPage = await prisma.page.findFirst({
-      where: {
-        website_id: domainId,
-        name: validatedData.url,
-      },
-    })
+    const { data: existingPage } = await supabase
+      .from("Page")
+      .select()
+      .eq("url", input.url)
+      .eq("website_id", input.website_id)
+      .is("deleted_at", null)
+      .single()
 
     if (existingPage) {
       return {
         success: false,
         error: {
-          message: "A page with this URL already exists",
+          message: "Page already exists for this website",
           status: 400,
-          code: "page_url_exists",
+          code: "page_already_exists",
         },
       }
     }
 
-    const page = await prisma.page.create({
-      data: {
-        name: url.pathname === "/" ? "Homepage" : url.pathname,
-        website_id: domainId,
-      },
-    })
+    const { data: page, error } = await supabase
+      .from("Page")
+      .insert({
+        url: input.url,
+        website_id: input.website_id,
+      })
+      .select()
+      .single()
 
-    return {
-      success: true,
-      data: page,
-    }
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error) {
       return {
         success: false,
         error: {
-          message: "Invalid URL format",
-          status: 400,
-          code: "invalid_url_format",
+          message: "Failed to create page",
+          status: 500,
+          code: "create_page_error",
         },
       }
     }
 
-    return {
-      success: false,
-      error: {
-        message: "Failed to create page",
-        status: 500,
-        code: "create_page_error",
-      },
-    }
-  }
-}
+    return { success: true, data: page }
+  })
 
+// UPDATE - Update existing page
+export const updatePage = createServerAction()
+  .input(
+    z.object({
+      id: z.string(),
+      url: z.string().url().optional(),
+      website_id: z.string().optional(),
+    })
+  )
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+
+    const { data: page, error } = await supabase
+      .from("Page")
+      .update({
+        ...(input.url && { url: input.url }),
+        ...(input.website_id && { website_id: input.website_id }),
+      })
+      .eq("id", input.id)
+      .is("deleted_at", null)
+      .select()
+      .single()
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to update page",
+          code: "UPDATE_FAILED",
+        },
+      }
+    }
+
+    return { success: true, data: page }
+  })
+
+// DELETE - Soft delete page
 export const deletePage = createServerAction()
   .input(
     z.object({
-      pageId: z.string(),
-      spaceId: z.string(),
-      domainId: z.string(),
+      id: z.string(),
+      website_id: z.string(),
+      space_id: z.string(),
     })
   )
   .handler(async ({ input }) => {
@@ -132,8 +162,11 @@ export const deletePage = createServerAction()
 
     const { error } = await supabase
       .from("Page")
-      .delete()
-      .eq("id", input.pageId)
+      .update({
+        deleted_at: new Date().toISOString(),
+      })
+      .eq("id", input.id)
+      .is("deleted_at", null)
 
     if (error) {
       return {
@@ -145,6 +178,39 @@ export const deletePage = createServerAction()
       }
     }
 
-    revalidatePath(`/spaces/${input.spaceId}/${input.domainId}/pages`)
-    redirect(`/spaces/${input.spaceId}/${input.domainId}/pages`)
+    revalidatePath(`/spaces/${input.space_id}/${input.website_id}/pages`)
+    redirect(`/spaces/${input.space_id}/${input.website_id}/pages`)
+  })
+
+// RESTORE - Restore deleted page
+export const restorePage = createServerAction()
+  .input(
+    z.object({
+      id: z.string(),
+    })
+  )
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+
+    const { data: page, error } = await supabase
+      .from("Page")
+      .update({
+        deleted_at: null,
+      })
+      .eq("id", input.id)
+      .not("deleted_at", "is", null)
+      .select()
+      .single()
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to restore page",
+          code: "RESTORE_FAILED",
+        },
+      }
+    }
+
+    return { success: true, data: page }
   })

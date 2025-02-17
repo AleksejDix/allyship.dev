@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { AddPageDialog } from "@/features/pages/components/add-page-dialog"
 import { CrawlButton } from "@/features/pages/components/crawl-button"
+import { PageCreateDialog } from "@/features/pages/components/page-create-dialog"
 import { PagesIndex } from "@/features/pages/components/pages-index"
 import { PageHeader } from "@/features/websites/components/page-header"
 
@@ -53,10 +53,9 @@ export default async function PagesPage({ params }: Props) {
             website_id={params.website_id}
             website_url={website.url}
           />
-          <AddPageDialog
-            spaceId={params.space_id}
-            websiteId={params.website_id}
-            website={website}
+          <PageCreateDialog
+            space_id={params.space_id}
+            website_id={params.website_id}
           />
         </div>
       </PageHeader>
