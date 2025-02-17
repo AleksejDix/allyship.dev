@@ -9,66 +9,35 @@ import { createClient } from "@/lib/supabase/server"
 
 import { scanJobSchema } from "./schema"
 
-type ActionResponse =
-  | {
-      success: true
-      data: {
-        id: string
-      }
-    }
-  | {
-      success: false
-      error: {
-        message: string
-        status: number
-        code: string
-      }
-    }
-
 export const create = createServerAction()
   .input(scanJobSchema)
-  .handler(async ({ input }): Promise<ActionResponse> => {
+  .handler(async ({ input }) => {
     const supabase = await createClient()
     const { url, page_id } = input
 
-    // Create the scan
+    // Create the scan record
     const { data: scan, error: scanError } = await supabase
       .from("Scan")
       .insert({
         page_id,
         status: "pending",
+        metrics: {},
       })
       .select("id")
       .single()
 
     if (scanError || !scan) {
-      return {
-        success: false,
-        error: {
-          message: "Failed to create scan",
-          status: 500,
-          code: "create_failed",
-        },
-      }
+      throw new Error("Failed to create scan")
     }
 
-    // Fire and forget the scan function
+    // Trigger the edge function
     await supabase.functions.invoke("scan", {
       body: { url, id: scan.id },
     })
 
+    // Revalidate and redirect
     revalidatePath("/", "layout")
-
-    // Redirect immediately after scan creation
     redirect(`/scans/${scan.id}`)
-
-    // This return is only for TypeScript - the redirect will prevent this from executing
-    return {
-      success: true,
-      data: {
-        id: scan.id,
-      },
-    }
   })
 
 export const getScan = createServerAction()
