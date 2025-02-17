@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useTransition } from "react"
 import { Tables } from "@/database.types"
-import { updateSpace } from "@/features/space/actions"
+import { updateSpaceAction } from "@/features/space/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useServerAction } from "zsa-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,56 +21,39 @@ import { Field } from "@/components/forms/field"
 
 const formSchema = z.object({
   name: z.string().min(1, "Workspace name is required"),
+  id: z.string().min(1, "ID is required"),
 })
 
 type FormData = z.infer<typeof formSchema>
 
 interface SpaceUpdateProps {
-  space: Tables<"UserSpaceView">
+  space: Tables<"Space">
 }
 
 export function SpaceUpdate(props: SpaceUpdateProps) {
-  const router = useRouter()
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     values: {
-      name: props.space.space_name || "",
+      name: props.space.name || "",
+      id: props.space.id,
     },
   })
 
+  const { execute } = useServerAction(updateSpaceAction)
+
   const onSubmit = async (data: FormData) => {
-    if (!props.space.space_id) {
+    const [result, validationError] = await execute(data)
+
+    if (validationError) {
       form.setError("root", {
         type: "server",
-        message: "Space ID is required",
+        message: validationError.message,
       })
-      return
     }
 
-    try {
-      setIsUpdating(true)
-      const result = await updateSpace(props.space.space_id, data)
-
-      if (result.error) {
-        form.setError("root", {
-          type: "server",
-          message: result.error.message,
-        })
-        return
-      }
-
-      // Refresh the page to show updated data
-      router.refresh()
-    } catch (error) {
-      form.setError("root", {
-        type: "server",
-        message: "Failed to update space. Please try again.",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
+    console.log(result, validationError)
   }
 
   return (
@@ -91,8 +74,9 @@ export function SpaceUpdate(props: SpaceUpdateProps) {
               type="text"
               autoComplete="organization"
               description="This is your team's visible name within Allyship. For example, the name of your company or department."
-              disabled={isUpdating}
+              disabled={isPending}
             />
+            <Field name="id" label="id" type="hidden" />
             {form.formState.errors.root && (
               <div className="text-sm text-destructive mt-2" role="alert">
                 {form.formState.errors.root.message}
@@ -100,8 +84,8 @@ export function SpaceUpdate(props: SpaceUpdateProps) {
             )}
           </CardContent>
           <CardFooter className="flex items-center justify-end border-t border-border py-4">
-            <Button type="submit" size="sm" disabled={isUpdating}>
-              {isUpdating ? "Updating..." : "Update"}
+            <Button type="submit" size="sm" disabled={isPending}>
+              {isPending ? "Updating..." : "Update"}
             </Button>
           </CardFooter>
         </Card>

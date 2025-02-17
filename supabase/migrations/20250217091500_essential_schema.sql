@@ -153,6 +153,39 @@ CREATE POLICY "Users can delete their own memberships"
     TO authenticated
     USING (auth.uid() = user_id);
 
+-- Add RLS policies for Space table
+CREATE POLICY "Users can view spaces they are members of"
+    ON "public"."Space"
+    FOR SELECT
+    TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM "public"."memberships"
+            WHERE space_id = id
+            AND user_id = auth.uid()
+            AND deleted_at IS NULL
+        )
+    );
+
+CREATE POLICY "Users can create spaces"
+    ON "public"."Space"
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (auth.uid() = created_by);
+
+CREATE POLICY "Space owners can update their spaces"
+    ON "public"."Space"
+    FOR UPDATE
+    TO authenticated
+    USING (auth.uid() = created_by)
+    WITH CHECK (auth.uid() = created_by);
+
+CREATE POLICY "Space owners can delete their spaces"
+    ON "public"."Space"
+    FOR DELETE
+    TO authenticated
+    USING (auth.uid() = created_by);
+
 -- Grant permissions
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";

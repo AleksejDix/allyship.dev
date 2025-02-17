@@ -100,32 +100,25 @@ export async function deleteUserSpace(id: string): Promise<{
     }
   }
 
-  // First verify user has owner access to this space
-  const { data: space, error: spaceError } = await supabase
-    .from('UserSpaceView')
-    .select()
-    .eq('space_id', id)
-    .eq('user_role', 'owner')
-    .single()
-
-  if (spaceError || !space) {
-    return {
-      success: false,
-      error: {
-        message: "You don't have permission to delete this workspace",
-        status: 403,
-        code: "forbidden"
-      }
-    }
-  }
-
-  // Delete the actual space
+  // Delete the space - RLS will handle permission checks
   const { error: deleteError } = await supabase
     .from('Space')
     .delete()
     .eq('id', id)
 
   if (deleteError) {
+    // If RLS blocks the delete, it means user doesn't have permission
+    if (deleteError.code === "42501") { // Permission denied
+      return {
+        success: false,
+        error: {
+          message: "You don't have permission to delete this workspace",
+          status: 403,
+          code: "forbidden"
+        }
+      }
+    }
+
     console.error("Delete error:", deleteError)
     return {
       success: false,

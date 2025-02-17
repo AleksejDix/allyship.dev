@@ -7,71 +7,33 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
-      Customer: {
-        Row: {
-          attrs: Json | null
-          created: string | null
-          description: string | null
-          email: string | null
-          id: string | null
-          name: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          created?: string | null
-          description?: string | null
-          email?: string | null
-          id?: string | null
-          name?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          created?: string | null
-          description?: string | null
-          email?: string | null
-          id?: string | null
-          name?: string | null
-        }
-        Relationships: []
-      }
-      Disputes: {
-        Row: {
-          amount: number | null
-          attrs: Json | null
-          charge: string | null
-          created: string | null
-          currency: string | null
-          id: string | null
-          payment_intent: string | null
-          reason: string | null
-          status: string | null
-        }
-        Insert: {
-          amount?: number | null
-          attrs?: Json | null
-          charge?: string | null
-          created?: string | null
-          currency?: string | null
-          id?: string | null
-          payment_intent?: string | null
-          reason?: string | null
-          status?: string | null
-        }
-        Update: {
-          amount?: number | null
-          attrs?: Json | null
-          charge?: string | null
-          created?: string | null
-          currency?: string | null
-          id?: string | null
-          payment_intent?: string | null
-          reason?: string | null
-          status?: string | null
-        }
-        Relationships: []
-      }
       Domain: {
         Row: {
           created_at: string
@@ -116,160 +78,55 @@ export type Database = {
             columns: ["space_id"]
             isOneToOne: false
             referencedRelation: "UserSpaceView"
-            referencedColumns: ["space_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
-      Invoice: {
-        Row: {
-          attrs: Json | null
-          currency: string | null
-          customer: string | null
-          id: string | null
-          period_end: string | null
-          period_start: string | null
-          status: string | null
-          subscription: string | null
-          total: number | null
-        }
-        Insert: {
-          attrs?: Json | null
-          currency?: string | null
-          customer?: string | null
-          id?: string | null
-          period_end?: string | null
-          period_start?: string | null
-          status?: string | null
-          subscription?: string | null
-          total?: number | null
-        }
-        Update: {
-          attrs?: Json | null
-          currency?: string | null
-          customer?: string | null
-          id?: string | null
-          period_end?: string | null
-          period_start?: string | null
-          status?: string | null
-          subscription?: string | null
-          total?: number | null
-        }
-        Relationships: []
-      }
-      Membership: {
+      memberships: {
         Row: {
           created_at: string
+          deleted_at: string | null
           id: string
-          role: Database["public"]["Enums"]["MembershipRole"]
           space_id: string
-          status: Database["public"]["Enums"]["MembershipStatus"]
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["MembershipRole"]
           space_id: string
-          status?: Database["public"]["Enums"]["MembershipStatus"]
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["MembershipRole"]
           space_id?: string
-          status?: Database["public"]["Enums"]["MembershipStatus"]
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "Membership_space_id_fkey"
+            foreignKeyName: "memberships_space_id_fkey"
             columns: ["space_id"]
             isOneToOne: false
             referencedRelation: "Space"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Membership_space_id_fkey"
+            foreignKeyName: "memberships_space_id_fkey"
             columns: ["space_id"]
             isOneToOne: false
             referencedRelation: "UserSpaceView"
-            referencedColumns: ["space_id"]
-          },
-        ]
-      }
-      Page: {
-        Row: {
-          created_at: string
-          domain_id: string
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          domain_id: string
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          domain_id?: string
-          id?: string
-          name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Page_domain_id_fkey"
-            columns: ["domain_id"]
-            isOneToOne: false
-            referencedRelation: "Domain"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      Scan: {
-        Row: {
-          created_at: string
-          id: string
-          metrics: Json | null
-          page_id: string
-          screenshot_dark: string | null
-          screenshot_light: string | null
-          status: Database["public"]["Enums"]["ScanStatus"]
-          url: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          metrics?: Json | null
-          page_id: string
-          screenshot_dark?: string | null
-          screenshot_light?: string | null
-          status?: Database["public"]["Enums"]["ScanStatus"]
-          url: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          metrics?: Json | null
-          page_id?: string
-          screenshot_dark?: string | null
-          screenshot_light?: string | null
-          status?: Database["public"]["Enums"]["ScanStatus"]
-          url?: string
-          user_id?: string
-        }
-        Relationships: [
           {
-            foreignKeyName: "Scan_page_id_fkey"
-            columns: ["page_id"]
+            foreignKeyName: "memberships_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "Page"
+            referencedRelation: "User"
             referencedColumns: ["id"]
           },
         ]
@@ -277,159 +134,63 @@ export type Database = {
       Space: {
         Row: {
           created_at: string
-          created_by: string | null
           deleted_at: string | null
-          description: string | null
           id: string
           is_personal: boolean
           name: string
-          transfer_token: string | null
-          transfer_token_expires_at: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
           deleted_at?: string | null
-          description?: string | null
           id?: string
           is_personal?: boolean
           name: string
-          transfer_token?: string | null
-          transfer_token_expires_at?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
-          created_by?: string | null
           deleted_at?: string | null
-          description?: string | null
           id?: string
           is_personal?: boolean
           name?: string
-          transfer_token?: string | null
-          transfer_token_expires_at?: string | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      Subscription: {
-        Row: {
-          attrs: Json | null
-          currency: string | null
-          current_period_end: string | null
-          current_period_start: string | null
-          customer: string | null
-          id: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          currency?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          customer?: string | null
-          id?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          currency?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          customer?: string | null
-          id?: string | null
         }
         Relationships: []
       }
       User: {
         Row: {
+          created_at: string
           data_retention_period: unknown
           deleted_at: string | null
           deletion_requested_at: string | null
-          first_name: string | null
+          email: string
+          full_name: string | null
           id: string
-          last_name: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          created_at?: string
           data_retention_period?: unknown
           deleted_at?: string | null
           deletion_requested_at?: string | null
-          first_name?: string | null
+          email: string
+          full_name?: string | null
           id: string
-          last_name?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          created_at?: string
           data_retention_period?: unknown
           deleted_at?: string | null
           deletion_requested_at?: string | null
-          first_name?: string | null
+          email?: string
+          full_name?: string | null
           id?: string
-          last_name?: string | null
           status?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      user_audit_logs: {
-        Row: {
-          action: string
-          details: Json | null
-          id: string
-          ip_address: string | null
-          timestamp: string
-          user_id: string
-        }
-        Insert: {
-          action: string
-          details?: Json | null
-          id?: string
-          ip_address?: string | null
-          timestamp?: string
-          user_id: string
-        }
-        Update: {
-          action?: string
-          details?: Json | null
-          id?: string
-          ip_address?: string | null
-          timestamp?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_notifications: {
-        Row: {
-          created_at: string
-          details: Json | null
-          error: string | null
-          id: string
-          processed_at: string | null
-          status: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          details?: Json | null
-          error?: string | null
-          id?: string
-          processed_at?: string | null
-          status?: string
-          type: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          details?: Json | null
-          error?: string | null
-          id?: string
-          processed_at?: string | null
-          status?: string
-          type?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -438,105 +199,32 @@ export type Database = {
       UserSpaceView: {
         Row: {
           created_at: string | null
-          created_by: string | null
-          domain_count: number | null
-          membership_status:
-            | Database["public"]["Enums"]["MembershipStatus"]
-            | null
-          owner_first_name: string | null
-          owner_last_name: string | null
-          space_id: string | null
-          space_name: string | null
+          deleted_at: string | null
+          id: string | null
+          is_personal: boolean | null
+          name: string | null
           updated_at: string | null
+          user_email: string | null
+          user_full_name: string | null
           user_id: string | null
-          user_role: Database["public"]["Enums"]["MembershipRole"] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
-      cleanup_disabled_accounts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_audit_logs: {
-        Args: {
-          retention_period?: unknown
-        }
-        Returns: number
-      }
-      get_role_level: {
-        Args: {
-          role: Database["public"]["Enums"]["MembershipRole"]
-        }
-        Returns: number
-      }
-      is_admin: {
-        Args: {
-          jwt?: Json
-        }
-        Returns: boolean
-      }
-      log_user_action: {
-        Args: {
-          user_id: string
-          action: string
-          details?: Json
-          ip_address?: string
-        }
-        Returns: undefined
-      }
-      mask_ip_address: {
-        Args: {
-          ip: string
-        }
-        Returns: string
-      }
-      parse_name: {
-        Args: {
-          full_name: string
-        }
-        Returns: {
-          first_name: string
-          last_name: string
-        }[]
-      }
-      queue_user_notification: {
-        Args: {
-          user_id: string
-          notification_type: string
-          details?: Json
-        }
-        Returns: string
-      }
-      reactivate_user: {
-        Args: {
-          user_id: string
-          admin_id: string
-          reason?: string
-        }
-        Returns: undefined
-      }
-      request_gdpr_deletion: {
-        Args: {
-          user_id: string
-          requester_id?: string
-          reason?: string
-          admin_override?: boolean
-        }
-        Returns: undefined
-      }
-      verify_active_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       DomainTheme: "LIGHT" | "DARK" | "BOTH"
-      MembershipRole: "owner" | "admin" | "member"
-      MembershipStatus: "active" | "inactive" | "pending" | "banned"
       ScanStatus: "pending" | "completed" | "failed" | "queued"
-      SubStatus: "ACTIVE" | "PAST_DUE" | "CANCELED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -640,3 +328,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+

@@ -5,7 +5,7 @@ import type { Tables } from "@/database.types"
 import * as UserSpace from "../context"
 
 type Props = {
-  space: Tables<"UserSpaceView">
+  space: Tables<"Space">
   children: React.ReactNode
 }
 
