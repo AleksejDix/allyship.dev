@@ -1,3 +1,20 @@
+-- Drop existing objects first
+DROP TABLE IF EXISTS "public"."user_notifications" CASCADE;
+DROP TABLE IF EXISTS "public"."user_audit_logs" CASCADE;
+DROP TABLE IF EXISTS "public"."Page" CASCADE;
+DROP TABLE IF EXISTS "public"."Scan" CASCADE;
+DROP TABLE IF EXISTS "public"."Domain" CASCADE;
+DROP TABLE IF EXISTS "public"."Membership" CASCADE;
+DROP TABLE IF EXISTS "public"."Space" CASCADE;
+DROP TABLE IF EXISTS "public"."User" CASCADE;
+DROP VIEW IF EXISTS "public"."UserSpaceView" CASCADE;
+
+DROP TYPE IF EXISTS "public"."DomainTheme" CASCADE;
+DROP TYPE IF EXISTS "public"."MembershipRole" CASCADE;
+DROP TYPE IF EXISTS "public"."MembershipStatus" CASCADE;
+DROP TYPE IF EXISTS "public"."ScanStatus" CASCADE;
+DROP TYPE IF EXISTS "public"."SubStatus" CASCADE;
+
 -- Essential extensions only
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
