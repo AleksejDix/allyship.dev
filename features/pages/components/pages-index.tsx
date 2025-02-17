@@ -1,27 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import type { Tables } from "@/database.types"
-import { deletePage } from "@/features/pages/actions"
 import { formatDate } from "@/utils/date-formatting"
-import { Trash2 } from "lucide-react"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { RouterLink } from "@/components/RouterLink"
+
+import { PageDeleteDialog } from "./page-delete-dialog"
 
 type Props = {
   pages: Tables<"Page">[]
@@ -30,7 +17,6 @@ type Props = {
 }
 
 export function PagesIndex({ pages, space_id, website_id }: Props) {
-  const router = useRouter()
   const [filter, setFilter] = React.useState("")
 
   const filteredPages = React.useMemo(() => {
@@ -66,41 +52,11 @@ export function PagesIndex({ pages, space_id, website_id }: Props) {
                     Added {formatDate(page.created_at)}
                   </div>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete page</span>
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Page</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this page? This action
-                        cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={async () => {
-                          const [response] = await deletePage({
-                            pageId: page.id,
-                            spaceId: space_id,
-                            websiteId: website_id,
-                          })
-
-                          if (response?.success) {
-                            router.refresh()
-                          }
-                        }}
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <PageDeleteDialog
+                  page={page}
+                  space_id={space_id}
+                  website_id={website_id}
+                />
               </CardHeader>
             </Card>
           ))
