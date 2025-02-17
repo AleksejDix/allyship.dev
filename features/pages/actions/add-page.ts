@@ -1,11 +1,8 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { Prisma } from "@prisma/client"
 import { z } from "zod"
 import { createServerAction } from "zsa"
-
-import { prisma } from "@/lib/prisma"
 import { createClient } from "@/lib/supabase/server"
 
 const addPageSchema = z.object({
@@ -20,11 +17,9 @@ export const addPage = createServerAction()
     console.log("🚀 Starting addPage server action with input:", input)
 
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-    if (!user) {
+    if (userError || !user) {
       console.log("❌ No user found")
       return {
         success: false,
@@ -37,15 +32,14 @@ export const addPage = createServerAction()
 
     const { url, spaceId, domainId } = input
 
-    // Verify user has access to this space
-    const space = await prisma.space.findFirst({
-      where: {
-        id: spaceId,
-        user_id: user.id,
-      },
-    })
+    // Verify user has access to this space (RLS will handle this automatically)
+    const { data: space, error: spaceError } = await supabase
+      .from("Space")
+      .select()
+      .match({ id: spaceId })
+      .single()
 
-    if (!space) {
+    if (spaceError || !space) {
       console.log("❌ Space not found for user:", user.id)
       return {
         success: false,
@@ -61,14 +55,13 @@ export const addPage = createServerAction()
       const parsedUrl = new URL(url)
 
       // Get the domain from the database to verify it matches
-      const domain = await prisma.domain.findUnique({
-        where: {
-          id: domainId,
-          space_id: spaceId,
-        },
-      })
+      const { data: domain, error: domainError } = await supabase
+        .from("Domain")
+        .select()
+        .match({ id: domainId, space_id: spaceId })
+        .single()
 
-      if (!domain) {
+      if (domainError || !domain) {
         console.log("❌ Domain not found:", domainId)
         return {
           success: false,
@@ -84,7 +77,6 @@ export const addPage = createServerAction()
         domainName: domain.name,
       })
 
-      // Enhanced domain validation with more specific error message
       if (parsedUrl.hostname !== domain.name) {
         return {
           success: false,
@@ -96,14 +88,14 @@ export const addPage = createServerAction()
       }
 
       // Check if page already exists
-      const existingPage = await prisma.page.findUnique({
-        where: {
-          website_id_name: {
-            website_id: domainId,
-            name: parsedUrl.pathname,
-          },
-        },
-      })
+      const { data: existingPage } = await supabase
+        .from("Page")
+        .select()
+        .match({
+          website_id: domainId,
+          name: parsedUrl.pathname,
+        })
+        .single()
 
       if (existingPage) {
         console.log("❌ Page already exists:", existingPage)
@@ -118,12 +110,29 @@ export const addPage = createServerAction()
 
       console.log("✨ Creating page with pathname:", parsedUrl.pathname)
       // Create the page
-      const page = await prisma.page.create({
-        data: {
+      const { data: page, error: insertError } = await supabase
+        .from("Page")
+        .insert({
           name: parsedUrl.pathname,
           website_id: domainId,
-        },
-      })
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        // Handle unique constraint violation
+        if (insertError.code === "23505") {
+          return {
+            success: false,
+            error: {
+              message: "This page already exists for this domain",
+              code: "DUPLICATE",
+            },
+          }
+        }
+
+        throw insertError
+      }
 
       console.log("✅ Page created successfully:", page)
 
@@ -136,21 +145,6 @@ export const addPage = createServerAction()
       }
     } catch (error) {
       console.error("❌ Error in addPage:", error)
-
-      // Handle unique constraint violation explicitly
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        return {
-          success: false,
-          error: {
-            message: "This page already exists for this domain",
-            code: "DUPLICATE",
-          },
-        }
-      }
-
       return {
         success: false,
         error: {

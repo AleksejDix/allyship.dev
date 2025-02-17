@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Database } from "@/database.types"
+import type { Tables } from "@/database.types"
 import { Loader2 } from "lucide-react"
 import { useServerAction } from "zsa-react"
 
@@ -10,17 +10,20 @@ import { Button } from "@/components/ui/button"
 
 import { crawl } from "../actions/crawl"
 
-type Domain = Database["public"]["Tables"]["Domain"]["Row"]
-
 type Props = {
-  domain: Domain
+  website_id: string
+  website_url: string
   onCrawlComplete?: (result: {
     type: "success" | "error"
     message: string
   }) => void
 }
 
-export function CrawlButton({ domain, onCrawlComplete }: Props) {
+export function CrawlButton({
+  website_id,
+  website_url,
+  onCrawlComplete,
+}: Props) {
   const router = useRouter()
   const { execute, isPending } = useServerAction(crawl)
   const [error, setError] = useState<string>()
@@ -29,8 +32,8 @@ export function CrawlButton({ domain, onCrawlComplete }: Props) {
     setError(undefined)
 
     const [result, error] = await execute({
-      website_id: domain.id,
-      url: `https://${domain.name}`,
+      website_id,
+      url: website_url,
     })
 
     if (error) {
