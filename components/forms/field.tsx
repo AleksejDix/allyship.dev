@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 type FieldProps = {
   name: string
@@ -23,10 +24,12 @@ type FieldProps = {
   description?: string
   autoFocus?: boolean
   className?: string
+  disabled?: boolean
 }
 
 export function Field(props: FieldProps) {
   const form = useFormContext()
+  const error = form.formState.errors[props.name]
 
   const isHidden = props.type === "hidden"
 
@@ -51,7 +54,7 @@ export function Field(props: FieldProps) {
               )}
             </span>
             <span>
-              {context.fieldState.invalid ? (
+              {error ? (
                 <TriangleAlert
                   size={16}
                   aria-hidden="true"
@@ -70,9 +73,16 @@ export function Field(props: FieldProps) {
               autoComplete={props.autoComplete}
               placeholder={props.placeholder}
               autoFocus={props.autoFocus}
+              disabled={props.disabled}
+              className={cn(error && "border-destructive")}
             />
           </FormControl>
           <FormMessage />
+          {error?.message && (
+            <p className="text-sm text-destructive" role="alert">
+              {error.message as string}
+            </p>
+          )}
         </FormItem>
       )}
     />

@@ -13,10 +13,6 @@ export default async function Layout({ params, children }: Props) {
 
   return (
     <>
-      <PageHeader
-        title="Space"
-        description="Manage your space settings and configuration."
-      />
       <div className="container py-6">
         <div className="grid md:grid-cols-4 gap-8">
           <nav className="flex flex-col gap-[2px]">

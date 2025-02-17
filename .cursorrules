@@ -935,3 +935,226 @@ Benefits:
 - Proper semantic structure
 - Minimal ARIA usage
 - Clear visual and keyboard focus indicators
+
+## Access Control Patterns
+
+### Use Context Providers for Access Control
+
+❌ Avoid checking permissions in individual components:
+
+```typescript
+// Don't do this - permissions scattered across components
+function SpaceSettings({ space }: Props) {
+  const canEdit = space.user_role === "admin" || space.user_role === "owner"
+  const canDelete = space.user_role === "owner"
+
+  return (
+    <>
+      {canEdit && <EditForm />}
+      {canDelete && <DeleteButton />}
+    </>
+  )
+}
+```
+
+✅ Use context providers to centralize access control:
+
+```typescript
+// 1. Define the context with computed permissions
+interface UserSpaceContextValue {
+  space: UserSpaceView
+  permissions: {
+    isOwner: boolean
+    isAdmin: boolean
+    canEdit: boolean
+    canDelete: boolean
+    canInvite: boolean
+  }
+  status: {
+    isActive: boolean
+    isPending: boolean
+  }
+}
+
+// 2. Compute permissions once in the provider
+export function UserSpaceProvider({ space, children }: Props) {
+  const permissions = {
+    isOwner: space.user_role === "owner",
+    isAdmin: space.user_role === "admin" || space.user_role === "owner",
+    canEdit: ["owner", "admin"].includes(space.user_role ?? ""),
+    canDelete: space.user_role === "owner",
+    canInvite: ["owner", "admin"].includes(space.user_role ?? ""),
+  }
+
+  const status = {
+    isActive: space.membership_status === "active",
+    isPending: space.membership_status === "pending",
+  }
+
+  return (
+    <UserSpaceContext.Provider value={{ space, permissions, status }}>
+      {children}
+    </UserSpaceContext.Provider>
+  )
+}
+
+// 3. Use in components
+function SpaceSettings() {
+  const { permissions } = useUserSpace()
+
+  return (
+    <>
+      {permissions.canEdit && <EditForm />}
+      {permissions.canDelete && <DeleteButton />}
+    </>
+  )
+}
+```
+
+Rationale:
+
+- Centralizes access control logic
+- Prevents permission checking duplication
+- Makes permission changes easier to maintain
+- Provides type-safe access to permissions
+- Keeps components focused on rendering
+- Makes testing easier with mock providers
+
+### Layered Context Providers
+
+Use multiple context providers to separate concerns:
+
+```typescript
+// Layout pattern
+export default function SpaceLayout({ children }) {
+  // First check access using user space view
+  const { space: userSpace, error } = await getUserSpace(id)
+  if (error?.code === "not_found") notFound()
+
+  // Then get full space data
+  const { data: space } = await getSpace(id)
+  if (!space) return null
+
+  return (
+    <UserSpaceProvider space={userSpace}>
+      <SpaceProvider space={space}>
+        {children}
+      </SpaceProvider>
+    </UserSpaceProvider>
+  )
+}
+```
+
+Benefits of layered providers:
+
+1. Clear separation between user permissions and space data
+2. Access control at the layout level
+3. Components can choose which context they need
+4. Prevents prop drilling
+5. Makes it easy to add new space-wide features
+
+### Access Control Best Practices
+
+1. **Compute Permissions Once**
+
+   - Calculate all permissions in the provider
+   - Cache computed values when possible
+   - Use clear, semantic permission names
+
+2. **Type Safety**
+
+   ```typescript
+   // Define clear permission interfaces
+   interface SpacePermissions {
+     canEdit: boolean
+     canDelete: boolean
+     canInvite: boolean
+   }
+
+   // Use discriminated unions for roles
+   type SpaceRole = "owner" | "admin" | "member"
+   ```
+
+3. **Status Management**
+
+   ```typescript
+   // Group related status flags
+   interface SpaceStatus {
+     isActive: boolean
+     isPending: boolean
+     isArchived: boolean
+   }
+   ```
+
+4. **Error Boundaries**
+
+   ```typescript
+   function SpaceErrorBoundary() {
+     return (
+       <ErrorBoundary
+         fallback={
+           <div role="alert">
+             <h2>Access Error</h2>
+             <p>You don't have permission to view this space.</p>
+           </div>
+         }
+       >
+         {children}
+       </ErrorBoundary>
+     )
+   }
+   ```
+
+5. **Loading States**
+
+   ```typescript
+   // Handle loading states at the provider level
+   function SpaceProvider({ space, children }) {
+     if (!space) {
+       return <SpaceSkeleton />
+     }
+
+     return (
+       <SpaceContext.Provider value={space}>
+         {children}
+       </SpaceContext.Provider>
+     )
+   }
+   ```
+
+### Testing Access Control
+
+```typescript
+describe('SpaceSettings', () => {
+  it('shows edit form for admin users', () => {
+    render(
+      <UserSpaceProvider
+        space={{
+          user_role: 'admin',
+          membership_status: 'active'
+        }}
+      >
+        <SpaceSettings />
+      </UserSpaceProvider>
+    )
+
+    expect(screen.getByRole('form')).toBeInTheDocument()
+  })
+
+  it('hides delete button for non-owners', () => {
+    render(
+      <UserSpaceProvider
+        space={{
+          user_role: 'member',
+          membership_status: 'active'
+        }}
+      >
+        <SpaceSettings />
+      </UserSpaceProvider>
+    )
+
+    expect(screen.queryByRole('button', { name: /delete/i }))
+      .not.toBeInTheDocument()
+  })
+})
+```
