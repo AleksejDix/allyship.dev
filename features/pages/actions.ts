@@ -227,8 +227,17 @@ export const deletePage = createServerAction()
       }
     }
 
+    // First return success
+    const response = {
+      success: true,
+      data: null,
+    }
+
+    // Then revalidate and redirect
     revalidatePath(`/spaces/${input.space_id}/${input.website_id}/pages`)
     redirect(`/spaces/${input.space_id}/${input.website_id}/pages`)
+
+    return response
   })
 
 // RESTORE - Restore deleted page
