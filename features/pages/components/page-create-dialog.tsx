@@ -61,7 +61,7 @@ export function PageCreateDialog({ space_id, website_id }: Props) {
     }
 
     if (!result?.success) {
-      setError("Failed to create page")
+      setError(result?.error?.message ?? "Failed to create page")
       return
     }
 
@@ -82,13 +82,20 @@ export function PageCreateDialog({ space_id, website_id }: Props) {
         <DialogHeader>
           <DialogTitle>Add Page</DialogTitle>
           <DialogDescription>
-            Add a new page to scan for accessibility issues.
+            Add a new page to scan for accessibility issues. The page URL must
+            belong to the website's domain. Query parameters will be removed
+            from the URL.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid gap-2">
-              <Field name="url" type="url" label="URL" />
+              <Field
+                name="url"
+                type="url"
+                label="URL"
+                description="Enter the full URL of the page. Query parameters will be removed (e.g., https://example.com/about)."
+              />
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
             <DialogFooter>
