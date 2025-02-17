@@ -15,7 +15,7 @@ export default function SpacesLayout({ children }: SpacesLayoutProps) {
         <SpaceCreateDialog />
       </PageHeader>
 
-      <div className="container">{children}</div>
+      {children}
     </div>
   )
 }

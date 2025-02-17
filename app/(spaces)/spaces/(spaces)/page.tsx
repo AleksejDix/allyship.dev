@@ -9,5 +9,9 @@ export default async function Page() {
     notFound()
   }
 
-  return <SpaceIndex spaces={data} />
+  return (
+    <div className="container">
+      <SpaceIndex spaces={data} />
+    </div>
+  )
 }
