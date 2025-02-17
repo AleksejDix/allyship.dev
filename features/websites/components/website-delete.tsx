@@ -22,11 +22,11 @@ import { Field } from "@/components/forms/field"
 
 const formSchema = z
   .object({
-    url: z.string().min(1, "Domain name is required"),
+    url: z.string().min(1, "Website URL is required"),
     confirmUrl: z.string(),
   })
   .refine((data) => data.url === data.confirmUrl, {
-    message: "Please type the domain name to confirm",
+    message: "Please type the website URL to confirm",
     path: ["confirmUrl"],
   })
 
@@ -51,9 +51,11 @@ export function WebsiteDelete({ website, spaceId }: Props) {
 
   const onSubmit = async () => {
     const [result, error] = await execute({
-      domainId: website.id,
+      websiteId: website.id,
       spaceId: spaceId,
     })
+
+    console.log(result, error)
 
     if (error) {
       form.setError("root", {
@@ -71,7 +73,7 @@ export function WebsiteDelete({ website, spaceId }: Props) {
       return
     }
 
-    router.push(`/spaces/${spaceId}`)
+    router.push(`/spaces/${spaceId}/websites`)
   }
 
   return (
@@ -92,18 +94,19 @@ export function WebsiteDelete({ website, spaceId }: Props) {
           </CardHeader>
           <CardContent>
             <Field
-              name="name"
-              label="Domain Name"
+              name="url"
+              label="Website URL"
               type="hidden"
               autoComplete="off"
+              disabled
             />
 
             <Field
-              name="confirmName"
-              label="Website URL"
+              name="confirmUrl"
+              label="Confirm Website URL"
               type="text"
               autoComplete="off"
-              description="Please type the website URL to delete"
+              description="Please type the website URL to confirm deletion"
             />
 
             {form.formState.errors.root && (
