@@ -42,3 +42,6 @@ next-env.d.ts
 
 # contentlayer
 .contentlayer
+backup.sql
+data_backup.sql
+data_dump.sql
