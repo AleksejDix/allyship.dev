@@ -104,6 +104,63 @@ export type Database = {
           },
         ]
       }
+      Scan: {
+        Row: {
+          id: string
+          page_id: string
+          user_id: string
+          url: string
+          status: "pending" | "completed" | "failed" | "queued"
+          metrics: Json | null
+          screenshot_light: string | null
+          screenshot_dark: string | null
+          created_at: string
+          updated_at: string
+          deleted_at: string | null
+        }
+        Insert: {
+          id?: string
+          page_id: string
+          user_id: string
+          url: string
+          status?: "pending" | "completed" | "failed" | "queued"
+          metrics?: Json | null
+          screenshot_light?: string | null
+          screenshot_dark?: string | null
+          created_at?: string
+          updated_at?: string
+          deleted_at?: string | null
+        }
+        Update: {
+          id?: string
+          page_id?: string
+          user_id?: string
+          url?: string
+          status?: "pending" | "completed" | "failed" | "queued"
+          metrics?: Json | null
+          screenshot_light?: string | null
+          screenshot_dark?: string | null
+          created_at?: string
+          updated_at?: string
+          deleted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Scan_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "Page"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Scan_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       Space: {
         Row: {
           created_at: string

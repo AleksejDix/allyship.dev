@@ -1,8 +1,9 @@
 // import { Domain } from "@prisma/client"
 
+import type { Tables } from "@/database.types"
 import { create } from "@/features/scans/actions"
 import { PageHeader } from "@/features/websites/components/page-header"
-import { Scan } from "lucide-react"
+import { Scan as ScanIcon } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@/components/ui/badge"
@@ -15,10 +16,13 @@ type Params = {
   website_id: string
 }
 
+type Scan = Tables<"Scan">
+
 export default async function Page({ params }: { params: Params }) {
   const { page_id } = params
   const supabase = await createClient()
 
+  // Get page data with website info
   const { data: page } = await supabase
     .from("Page")
     .select(
@@ -37,7 +41,7 @@ export default async function Page({ params }: { params: Params }) {
   }
 
   const websiteUrl = new URL(page.website.url)
-  const fullUrl = `${page.website.url}${page.url}`
+  const fullUrl = `${page.url}`
 
   return (
     <>
@@ -49,13 +53,13 @@ export default async function Page({ params }: { params: Params }) {
           }}
         >
           <Button type="submit">
-            <Scan aria-hidden="true" className="mr-2 h-4 w-4" />
+            <ScanIcon aria-hidden="true" className="mr-2 h-4 w-4" />
             New Scan
           </Button>
         </form>
       </PageHeader>
 
-      <div className="container py-6">
+      <div className="container py-6 space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Page Information</CardTitle>
