@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { useActionState } from "react"
 import { Check } from "lucide-react"
-import * as ReactDom from "react-dom"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,16 +34,13 @@ function Success() {
 export function NewsletterFormSection({
   className,
 }: React.ComponentProps<typeof Card>) {
-  const [state, formAction, pending] = ReactDom.useFormState(
-    newsletterFormAction,
-    {
-      defaultValues: {
-        email: "",
-      },
-      success: false,
-      errors: null,
-    }
-  )
+  const [state, formAction, pending] = useActionState(newsletterFormAction, {
+    defaultValues: {
+      email: "",
+    },
+    success: false,
+    errors: null,
+  })
 
   const formRef = React.useRef<HTMLFormElement>(null)
 

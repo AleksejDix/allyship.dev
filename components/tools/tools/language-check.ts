@@ -2,19 +2,6 @@ import { validate } from "bcp47-validate"
 
 import { BaseTool } from "./base-tool"
 
-interface AxeIssue {
-  id: string
-  impact: "minor" | "moderate" | "serious" | "critical"
-  description: string
-  help: string
-  helpUrl: string
-  nodes: {
-    html: string
-    target: string[]
-    failureSummary: string
-  }[]
-}
-
 export class LanguageCheckTool extends BaseTool {
   private hasIssues = false
 

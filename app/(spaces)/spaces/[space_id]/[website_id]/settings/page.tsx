@@ -3,11 +3,12 @@ import { WebsiteDelete } from "@/features/websites/components/website-delete"
 import { createClient } from "@/lib/supabase/server"
 
 type Props = {
-  params: { space_id: string; website_id: string }
+  params: Promise<{ space_id: string; website_id: string }>
 }
 
-export default async function SettingsPage({ params }: Props) {
-  const { space_id, website_id } = await params
+export default async function SettingsPage(props: Props) {
+  const params = await props.params
+  const { space_id, website_id } = params
 
   const supabase = await createClient()
 

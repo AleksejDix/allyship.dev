@@ -45,10 +45,6 @@ export const signInWithPassword = supabasePrecedure
     revalidatePath("/", "layout")
     redirect("/")
 
-    return {
-      success: true,
-      data,
-    }
   })
 
 export const signup = supabasePrecedure

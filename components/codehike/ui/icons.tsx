@@ -1,4 +1,3 @@
-import { RawCode } from "codehike/code"
 import { themeIcons } from "seti-icons"
 
 export function CodeIcon({ title }: { title: string }) {
@@ -24,19 +23,19 @@ export function CodeIcon({ title }: { title: string }) {
   )
 }
 
-const getDarkIcon = themeIcons({
-  blue: "#519aba",
-  grey: "#4d5a5e",
-  "grey-light": "#6d8086",
-  green: "#8dc149",
-  orange: "#e37933",
-  pink: "#f55385",
-  purple: "#a074c4",
-  red: "#cc3e44",
-  white: "#d4d7d6",
-  yellow: "#cbcb41",
-  ignore: "#41535b",
-})
+// const getDarkIcon = themeIcons({
+//   blue: "#519aba",
+//   grey: "#4d5a5e",
+//   "grey-light": "#6d8086",
+//   green: "#8dc149",
+//   orange: "#e37933",
+//   pink: "#f55385",
+//   purple: "#a074c4",
+//   red: "#cc3e44",
+//   white: "#d4d7d6",
+//   yellow: "#cbcb41",
+//   ignore: "#41535b",
+// })
 
 const getLightIcon = themeIcons({
   blue: "#498ba7",

@@ -1,4 +1,3 @@
-import { Domain } from "@prisma/client"
 import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"

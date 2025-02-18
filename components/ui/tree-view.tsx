@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { cva } from "class-variance-authority"
-import { ChevronRight, Icon } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 

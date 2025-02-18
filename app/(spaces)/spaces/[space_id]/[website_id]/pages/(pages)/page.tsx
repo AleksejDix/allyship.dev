@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { CrawlButton } from "@/features/crawl/components/crawl-button"
 import { PageCreateDialog } from "@/features/pages/components/page-create-dialog"
@@ -8,11 +7,11 @@ import { PageHeader } from "@/features/websites/components/page-header"
 import { createClient } from "@/lib/supabase/server"
 
 type Props = {
-  params: { website_id: string; space_id: string }
+  params: Promise<{ website_id: string; space_id: string }>
 }
 
-async function PagesContent({ params }: Props) {
-  const { website_id, space_id } = params
+async function PagesContent(props: Props) {
+  const { website_id, space_id } = await props.params
   const supabase = await createClient()
 
   const { data: pages } = await supabase
@@ -32,7 +31,8 @@ async function PagesContent({ params }: Props) {
   )
 }
 
-export default async function PagesPage({ params }: Props) {
+export default async function PagesPage(props: Props) {
+  const params = await props.params
   const supabase = await createClient()
 
   const { data: website } = await supabase
@@ -60,7 +60,7 @@ export default async function PagesPage({ params }: Props) {
         </div>
       </PageHeader>
 
-      <PagesContent params={params} />
+      <PagesContent params={Promise.resolve(params)} />
     </div>
   )
 }

@@ -51,6 +51,7 @@ function getAuthorData(authorSlug: string): Author | null {
       website: data.website,
     }
   } catch (error) {
+    console.error("Error getting author data:", error)
     return null
   }
 }
@@ -59,15 +60,15 @@ export function getAllPostSlugs() {
   const fileNames = fs.readdirSync(postsDirectory)
   return fileNames.map((fileName) => {
     return {
-      params: {
+      params: Promise.resolve({
         slug: fileName.replace(/\.mdx$/, ""),
-      },
+      }),
     }
   })
 }
 
 export function getAllPageSlugs() {
-  const pages: { params: { slug: string[] } }[] = []
+  const pages: { params: Promise<{ slug: string[] }> }[] = []
 
   function traverse(dir: string, parentPath: string[] = []) {
     const files = fs.readdirSync(dir)
@@ -81,12 +82,12 @@ export function getAllPageSlugs() {
         traverse(filePath, relativePath)
       } else if (file.endsWith(".mdx")) {
         pages.push({
-          params: {
+          params: Promise.resolve({
             slug: relativePath
               .join("/")
               .replace(/\.mdx$/, "")
               .split("/"),
-          },
+          }),
         })
       }
     })
@@ -96,7 +97,8 @@ export function getAllPageSlugs() {
   return pages
 }
 
-export function getPostBySlug(slug: string): Post {
+export async function getPostBySlug(params: Promise<{ slug: string }>): Promise<Post> {
+  const { slug } = await params
   const fullPath = path.join(postsDirectory, `${slug}.mdx`)
   const fileContents = fs.readFileSync(fullPath, "utf8")
   const { data, content } = matter(fileContents)
@@ -119,8 +121,9 @@ export function getPostBySlug(slug: string): Post {
   }
 }
 
-export function getPageBySlug(slug: string): Page | null {
+export async function getPageBySlug(params: Promise<{ slug: string }>): Promise<Page | null> {
   try {
+    const { slug } = await params
     const fullPath = path.join(pagesDirectory, `${slug}.mdx`)
     const fileContents = fs.readFileSync(fullPath, "utf8")
     const { data, content } = matter(fileContents)
@@ -141,17 +144,18 @@ export function getPageBySlug(slug: string): Page | null {
       authors,
     }
   } catch (error) {
+    console.error("Error getting page by slug:", error)
     return null
   }
 }
 
-export function getAllPosts(): Post[] {
+export async function getAllPosts(): Promise<Post[]> {
   const slugs = getAllPostSlugs()
-  const posts = slugs
-    .map((slug) => getPostBySlug(slug.params.slug))
-    .sort((a, b) => (new Date(b.date) > new Date(a.date) ? 1 : -1))
+  const posts = await Promise.all(
+    slugs.map((slug) => getPostBySlug(slug.params))
+  ).then((posts) =>
+    posts.sort((a, b) => (new Date(b.date) > new Date(a.date) ? 1 : -1))
+  )
 
   return posts
 }
-
-export const allPosts = getAllPosts()

@@ -1,6 +1,0 @@
-[defaults]
-org=allyship
-project=allyship-dev
-
-[auth]
-token=${SENTRY_AUTH_TOKEN}

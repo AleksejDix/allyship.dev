@@ -84,7 +84,8 @@ export function HeadingOrder() {
         </Button>
       </div>
       <p className="text-sm text-foreground">
-        To install: Drag the "Heading Order" button to your bookmarks bar
+        To install: Drag the &quot;Heading Order&quot; button to your bookmarks
+        bar
         <br />
         Alternative method: Use the Copy button and create a new bookmark
         manually

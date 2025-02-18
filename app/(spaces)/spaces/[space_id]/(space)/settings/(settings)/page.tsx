@@ -4,10 +4,11 @@ import { SpaceDelete } from "@/features/spaces/components/space-delete"
 import { SpaceUpdate } from "@/features/spaces/components/space-update"
 
 type Props = {
-  params: { space_id: string }
+  params: Promise<{ space_id: string }>
 }
 
-export default async function SettingsPage({ params }: Props) {
+export default async function SettingsPage(props: Props) {
+  const params = await props.params;
   const { space_id } = params
   const { data: space } = await getSpace(space_id)
 

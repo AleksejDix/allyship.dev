@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
 type Props = {
-  params: { space_id: string; website_id: string }
+  params: Promise<{ space_id: string }>
   children: React.ReactNode
 }
 
-export default async function Layout({ params, children }: Props) {
-  const { space_id } = await params
+export default async function Layout(props: Props) {
+  const params = await props.params
+  const { space_id } = params
 
   return (
     <>
@@ -28,7 +29,7 @@ export default async function Layout({ params, children }: Props) {
             </Button>
           </nav>
 
-          <div className="md:col-span-3">{children}</div>
+          <div className="md:col-span-3">{props.children}</div>
         </div>
       </div>
     </>

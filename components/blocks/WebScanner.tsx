@@ -89,7 +89,7 @@ export const WebScanner = () => {
               </div>
               <div>
                 <p className="text-foreground font-medium">
-                  No "Skip to Content" link?
+                  No &ldquo;Skip to Content&rdquo; link?
                 </p>
                 <p className="text-muted-foreground">
                   Screen reader users might get stuck listening to every menu
@@ -104,7 +104,7 @@ export const WebScanner = () => {
               <div>
                 <p className="text-foreground font-medium">Unlabeled forms?</p>
                 <p className="text-muted-foreground">
-                  Screen reader users can't identify input fields properly.
+                  Screen reader users can&apos;t identify input fields properly.
                 </p>
               </div>
             </div>

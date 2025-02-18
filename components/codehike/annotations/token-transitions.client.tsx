@@ -1,7 +1,7 @@
 "use client"
 
-import React from "react"
-import { CustomPreProps, getPreRef, InnerPre } from "codehike/code"
+import { useEffect, useRef } from "react"
+import { CustomPreProps, InnerPre } from "codehike/code"
 import {
   calculateTransitions,
   getStartingSnapshot,
@@ -9,41 +9,53 @@ import {
 } from "codehike/utils/token-transitions"
 
 const MAX_TRANSITION_DURATION = 900 // milliseconds
-export class PreWithRef extends React.Component<CustomPreProps> {
-  ref: React.RefObject<HTMLPreElement>
-  constructor(props: CustomPreProps) {
-    super(props)
-    this.ref = getPreRef(this.props)
-  }
 
-  render() {
-    return <InnerPre merge={this.props} style={{ position: "relative" }} />
-  }
+interface Keyframe {
+  [property: string]: string | number | null | undefined
+  offset?: number | null
+}
 
-  getSnapshotBeforeUpdate() {
-    return getStartingSnapshot(this.ref.current!)
-  }
+export function PreWithRef(props: CustomPreProps) {
+  const ref = useRef<HTMLPreElement | null>(null)
+  const prevSnapshotRef = useRef<TokenTransitionsSnapshot | null>(null)
 
-  componentDidUpdate(
-    prevProps: never,
-    prevState: never,
-    snapshot: TokenTransitionsSnapshot
-  ) {
-    const transitions = calculateTransitions(this.ref.current!, snapshot)
-    transitions.forEach(({ element, keyframes, options }) => {
-      const { translateX, translateY, ...kf } = keyframes as any
-      if (translateX && translateY) {
-        kf.translate = [
-          `${translateX[0]}px ${translateY[0]}px`,
-          `${translateX[1]}px ${translateY[1]}px`,
-        ]
-      }
-      element.animate(kf, {
-        duration: options.duration * MAX_TRANSITION_DURATION,
-        delay: options.delay * MAX_TRANSITION_DURATION,
-        easing: options.easing,
-        fill: "both",
+  useEffect(() => {
+    if (!ref.current) return
+
+    const snapshot = prevSnapshotRef.current
+    if (snapshot) {
+      const transitions = calculateTransitions(ref.current, snapshot)
+      transitions.forEach(({ element, keyframes, options }) => {
+        const { translateX, translateY } = keyframes as {
+          translateX?: [number, number]
+          translateY?: [number, number]
+        }
+        const keyframeEffect: Keyframe[] = []
+
+        if (translateX && translateY) {
+          keyframeEffect.push(
+            {
+              translate: `${translateX[0]}px ${translateY[0]}px`,
+              offset: 0,
+            },
+            {
+              translate: `${translateX[1]}px ${translateY[1]}px`,
+              offset: 1,
+            }
+          )
+        }
+
+        element.animate(keyframeEffect, {
+          duration: options.duration * MAX_TRANSITION_DURATION,
+          delay: options.delay * MAX_TRANSITION_DURATION,
+          easing: options.easing,
+          fill: "both",
+        })
       })
-    })
-  }
+    }
+
+    prevSnapshotRef.current = getStartingSnapshot(ref.current)
+  })
+
+  return <InnerPre ref={ref} merge={props} style={{ position: "relative" }} />
 }

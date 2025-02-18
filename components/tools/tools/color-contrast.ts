@@ -6,20 +6,6 @@ import { BaseTool } from "./base-tool"
 
 // Add plugins to colord
 extend([a11yPlugin, mixPlugin])
-
-interface AxeIssue {
-  id: string
-  impact: "minor" | "moderate" | "serious" | "critical"
-  description: string
-  help: string
-  helpUrl: string
-  nodes: {
-    html: string
-    target: string[]
-    failureSummary: string
-  }[]
-}
-
 export class ColorContrastTool extends BaseTool {
   getSelector(): string {
     return `
@@ -91,7 +77,6 @@ export class ColorContrastTool extends BaseTool {
   }
 
   private getEffectiveBackgroundColor(el: HTMLElement): string {
-    let currentEl: HTMLElement | null = el
     let bgColor = "transparent"
     let parentBgColor = "transparent"
 

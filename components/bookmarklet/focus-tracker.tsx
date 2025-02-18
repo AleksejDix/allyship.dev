@@ -138,7 +138,8 @@ export function FocusTracker() {
         </Button>
       </div>
       <p className="text-sm text-foreground">
-        To install: Drag the "Focus Tracker" button to your bookmarks bar
+        To install: Drag the &quot;Focus Tracker&quot; button to your bookmarks
+        bar
         <br />
         Alternative method: Use the Copy button and create a new bookmark
         manually

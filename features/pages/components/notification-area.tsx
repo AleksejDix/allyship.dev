@@ -11,7 +11,7 @@ type NotificationResult = {
 }
 
 interface NotificationAreaProps {
-  children?: React.ReactElement
+  children?: React.ReactElement<any>
 }
 
 export function NotificationArea({ children }: NotificationAreaProps) {

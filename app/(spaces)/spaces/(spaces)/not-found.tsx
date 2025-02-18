@@ -7,7 +7,8 @@ export default function NotFound() {
         No Workspaces Found
       </h2>
       <p className="mt-2 text-muted-foreground">
-        You don't have any workspaces yet. Create your first one to get started.
+        You don&apos;t have any workspaces yet. Create your first one to get
+        started.
       </p>
       <div className="mt-4">
         <SpaceCreateDialog />

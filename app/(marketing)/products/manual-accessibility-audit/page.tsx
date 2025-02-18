@@ -71,7 +71,7 @@ export default function AuditsPage() {
           <h2 className="text-3xl font-bold mb-4">Our Audit Process</h2>
           <p className="text-lg text-muted-foreground">
             We follow a comprehensive four-step process to ensure thorough
-            evaluation of your website's accessibility.
+            evaluation of your website&apos;s accessibility.
           </p>
         </div>
         <div className="grid md:grid-cols-4 gap-8">

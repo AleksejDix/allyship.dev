@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
 import { CheckCircle } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 type Lesson = {
   id: string
@@ -12,15 +13,18 @@ type TableOfContentsProps = {
   currentLessonId: string
 }
 
-export function TableOfContents({ lessons, currentLessonId }: TableOfContentsProps) {
+export function TableOfContents({
+  lessons,
+  currentLessonId,
+}: TableOfContentsProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-8">
       {/* Course Introduction */}
       <div className="space-y-4">
         <h1 className="text-4xl font-bold">Master Modern Web Development</h1>
         <p className="text-xl text-muted-foreground">
-          Learn to build professional, scalable web applications from scratch using
-          cutting-edge technologies and best practices.
+          Learn to build professional, scalable web applications from scratch
+          using cutting-edge technologies and best practices.
         </p>
       </div>
 
@@ -34,7 +38,6 @@ export function TableOfContents({ lessons, currentLessonId }: TableOfContentsPro
             {[
               "Full-stack Development with Next.js",
               "Modern UI Design with Tailwind CSS",
-              "Database Management with Prisma",
               "Authentication and Authorization",
               "API Development and Integration",
               "Deployment and DevOps Basics",
@@ -74,7 +77,8 @@ export function TableOfContents({ lessons, currentLessonId }: TableOfContentsPro
         <CardHeader className="pb-3">
           <CardTitle>Course Content</CardTitle>
           <p className="text-sm text-muted-foreground">
-            {lessons.length} comprehensive lessons to take you from beginner to professional
+            {lessons.length} comprehensive lessons to take you from beginner to
+            professional
           </p>
         </CardHeader>
         <CardContent className="grid gap-2">

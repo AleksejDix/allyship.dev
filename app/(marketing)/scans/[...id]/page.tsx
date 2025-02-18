@@ -7,11 +7,12 @@ import { createClient } from "@/lib/supabase/server"
 
 export const revalidate = 0
 
-export default async function ScanPage({
-  params,
-}: {
-  params: { id: string[] }
-}) {
+export default async function ScanPage(
+  props: {
+    params: Promise<{ id: string[] }>
+  }
+) {
+  const params = await props.params;
   const [id] = params.id
   const supabase = await createClient()
 

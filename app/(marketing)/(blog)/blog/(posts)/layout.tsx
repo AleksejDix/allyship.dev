@@ -1,5 +1,3 @@
-import { TocHighlight } from "@/components/mdx/toc"
-
 export default function PageLayout({
   children,
 }: {

@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 
 type Props = {
-  params: { space_id: string; website_id: string; page_id: string }
+  params: Promise<{ space_id: string; website_id: string; page_id: string }>
 }
 
-export default async function ScansPage({ params }: Props) {
+export default async function ScansPage(props: Props) {
+  const params = await props.params;
   const { page_id } = params
   const supabase = await createClient()
 

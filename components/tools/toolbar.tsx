@@ -9,7 +9,7 @@ import {
   ExternalLink,
   FormInput,
   GripHorizontal,
-  Image,
+  Image as ImageIcon,
   Keyboard,
   Languages,
   LayoutTemplate,
@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { checkAriaRoles } from "./tools/aria-roles"
-import { ToolResult } from "./tools/base-tool"
 import { checkColorContrast } from "./tools/color-contrast"
 import { checkCursorRules } from "./tools/cursor-rule"
 import { checkExternalLinks } from "./tools/external-links"
@@ -44,20 +43,6 @@ import { checkKeyboardShortcuts } from "./tools/keyboard-shortcuts"
 import { checkLandmarks } from "./tools/landmarks"
 import { checkLanguage } from "./tools/language-check"
 import { checkLinkLabels } from "./tools/link-labels"
-
-interface Tool {
-  id: string
-  name: string
-  icon: React.ReactNode
-  description: string
-  run: (mode: "apply" | "cleanup") => ToolResult
-}
-
-interface ToolGroup {
-  id: string
-  label: string
-  tools: Tool[]
-}
 
 const TOOLS = {
   headings: {
@@ -123,7 +108,7 @@ const TOOLS = {
   images: {
     id: "images",
     name: "Images",
-    icon: <Image className="h-4 w-4" />,
+    icon: <ImageIcon className="h-4 w-4" />,
     description: "Check image accessibility",
     run: checkImageAlt,
   },
@@ -151,7 +136,7 @@ const TOOLS = {
   imageAlt: {
     id: "imageAlt",
     name: "Image Alt",
-    icon: <Image className="h-4 w-4" />,
+    icon: <ImageIcon className="h-4 w-4" />,
     description: "Check image alt text",
     run: checkImageAlt,
   },
@@ -320,24 +305,6 @@ export function AccessibilityToolbar() {
 
       return newTools
     })
-  }
-
-  const getDropdownPosition = (buttonRect: DOMRect) => {
-    if (!dragRef.current) return "right"
-    const toolbarRect = dragRef.current.getBoundingClientRect()
-    const spaceRight = window.innerWidth - buttonRect.right
-    const spaceLeft = buttonRect.left
-    const spaceTop = buttonRect.top
-    const spaceBottom = window.innerHeight - buttonRect.bottom
-
-    // Return the direction with most space
-    const spaces = [
-      { dir: "right", space: spaceRight },
-      { dir: "left", space: spaceLeft },
-      { dir: "top", space: spaceTop },
-      { dir: "bottom", space: spaceBottom },
-    ]
-    return spaces.reduce((a, b) => (a.space > b.space ? a : b)).dir
   }
 
   return (

@@ -10,14 +10,15 @@ export const metadata: Metadata = {
 }
 
 interface Props {
-  params: {
+  params: Promise<{
     page_id: string
     space_id: string
     website_id: string
-  }
+  }>
 }
 
-export default async function DeletePage({ params }: Props) {
+export default async function DeletePage(props: Props) {
+  const params = await props.params;
   const { page_id, space_id, website_id } = params
   const supabase = await createClient()
 

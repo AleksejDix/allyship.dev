@@ -484,220 +484,453 @@ export async function approveAction() // Don't do this
 export async function statusUpdateAction() // Do this instead
 ```
 
-## Database Access Patterns
+## Authentication Guidelines
 
-### Use Supabase Instead of Prisma
+### Use Native Supabase Auth
 
-Always use Supabase queries instead of Prisma to leverage Row Level Security (RLS):
-
-❌ Avoid Prisma queries:
+❌ Never use @supabase/auth-helpers-nextjs:
 
 ```typescript
 // Don't do this
-const space = await prisma.space.findFirst({
-  where: { id: spaceId },
-})
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+
+const supabase = createClientComponentClient()
 ```
 
-✅ Use Supabase queries instead:
+✅ Use native Supabase auth instead:
 
 ```typescript
 // Do this
-const { data: space } = await supabase
-  .from("Space")
-  .select()
-  .match({ id: spaceId })
-  .single()
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 ```
 
-Key benefits of using Supabase:
+## Icon Usage Guidelines
 
-- Built-in Row Level Security (RLS)
-- Automatic policy enforcement
-- Better security at the database level
-- Consistent access control
+### Use Lucide Icons
 
-Example of refactoring from Prisma to Supabase:
+❌ Never use Heroicons:
 
 ```typescript
-// Before (Prisma)
-const domains = await prisma.domain.findMany({
-  where: { space_id: spaceId },
-  orderBy: { name: "asc" },
-  include: { pages: true },
-})
-
-// After (Supabase)
-const { data: domains } = await supabase
-  .from("Domain")
-  .select(
-    `
-    *,
-    pages:Page(*)
-  `
-  )
-  .match({ space_id: spaceId })
-  .order("name")
+// Don't do this
+import { LockClosedIcon } from "@heroicons/react/24/outline"
 ```
 
-For reference, I can see this pattern needs to be applied in several places in the codebase:
-
-```typescript:features/spaces/actions.ts
-startLine: 67
-endLine: 72
-```
-
-```typescript:features/domains/actions.ts
-startLine: 10
-endLine: 15
-```
-
-```typescript:features/membership/actions.ts
-startLine: 9
-endLine: 15
-```
-
-These should all be refactored to use Supabase queries to properly leverage RLS policies.
-
-## Form Submit Buttons
-
-### Never Disable Submit Buttons
-
-❌ Don't disable submit buttons:
+✅ Use Lucide icons instead:
 
 ```typescript
-<Button type="submit" disabled={isPending || !form.isValid}>
-  Submit
-</Button>
-```
-
-✅ Always keep submit buttons enabled:
-
-```typescript
-<Button type="submit">
-  {isPending ? "Submitting..." : "Submit"}
-</Button>
+// Do this
+import { Lock } from "lucide-react"
 ```
 
 Rationale:
 
-- Disabling submit buttons hides form validation errors from users
-- Users should be able to attempt submission and see validation feedback
-- Let the form's validation handle invalid states
-- Show loading states through button text/spinner instead
-- Better accessibility as screen readers can interact with the button
-- More consistent user experience across the application
+- Consistent icon design system
+- Better TypeScript support
+- Smaller bundle size
+- More frequent updates
+- Better accessibility defaults
 
-### Form Validation Feedback
+## Icon Accessibility
 
-Instead of preventing submission:
+### Always Hide Decorative Icons
 
-1. Let users submit the form
-2. Show validation errors inline
-3. Use aria-live regions for error announcements
-4. Provide clear feedback on what needs to be fixed
-5. Maintain interactive state for better UX
-
-## Learning From Failures
-
-### Document Common Mistakes
-
-Keep track of mistakes and their solutions to maintain consistency and prevent repetition:
-
-❌ Common Mistakes to Avoid:
+❌ Avoid exposing icons to screen readers:
 
 ```typescript
-// 1. Never disable submit buttons
-<Button type="submit" disabled={isPending}>  // Don't do this
+// Don't do this
+<button onClick={onClose}>
+  <Icon />
+  Close menu
+</button>
 
-// 2. Never use client-side redirects in server components
-redirect('/some-path')  // Don't do this in server components
+// Don't do this - icon will be announced by screen readers
+<MenuIcon className="w-4 h-4" />
+```
 
-// 3. Never use Prisma directly (use Supabase)
-const user = await prisma.user.findFirst()  // Don't do this
+✅ Use aria-hidden="true" for icons:
 
-// 4. Never handle forms without proper validation
-<form onSubmit={handleSubmit}>  // Don't do this without validation
-  <input />
-</form>
+```typescript
+// Do this
+<button onClick={onClose}>
+  <Icon aria-hidden="true" />
+  Close menu
+</button>
 
-// 5. Never define Zod schemas outside component scope if they need props
-const schema = z.object({  // Don't do this
-  name: z.string().refine(value => value === page.name)  // page is undefined!
-})
+// Do this for standalone icons that have accessible labels
+<button aria-labelledby="menu-label">
+  <MenuIcon aria-hidden="true" className="w-4 h-4" />
+  <span id="menu-label" className="sr-only">Open menu</span>
+</button>
+```
 
-// 6. Never use getSession() for client-side auth checks
-const { data: { session } } = await supabase.auth.getSession() // Don't do this
-if (!session) {
-  throw new Error("Please sign in")
+Rationale:
+
+- Icons are typically decorative and shouldn't be announced by screen readers
+- Prevents duplicate or confusing announcements when icons accompany text
+- Improves the screen reader experience by reducing noise
+- Ensures focus on meaningful content
+- Follows WCAG best practices for decorative elements
+
+Common icon usage patterns:
+
+```typescript
+// With text
+<button className="flex items-center gap-2">
+  <StarIcon aria-hidden="true" className="w-4 h-4" />
+  Add to favorites
+</button>
+
+// Standalone with label
+<button aria-labelledby="search-label">
+  <SearchIcon aria-hidden="true" className="w-4 h-4" />
+  <span id="search-label" className="sr-only">Search</span>
+</button>
+
+// In links that open in new window
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-labelledby={`${id}-link-label`}
+>
+  {children}
+  <span id={`${id}-link-label`} className="sr-only">
+    {children} (opens in new window)
+  </span>
+  <ExternalLink aria-hidden="true" className="w-4 h-4" />
+</a>
+```
+
+## Blog Listing Patterns
+
+### Article List Structure
+
+❌ Avoid over-complicating with unnecessary ARIA:
+
+```typescript
+// Don't do this
+<section aria-labelledby="blog-list-title">
+  <h2 id="blog-list-title" className="sr-only">Blog posts</h2>
+  <ul>
+    <li>
+      <article role="region" aria-label="Blog post">  // Don't elevate to region
+        <Link aria-labelledby="post-title post-date"> // Unnecessary aria
+          <span id="post-title">{title}</span>
+          <time id="post-date">{date}</time>
+        </Link>
+      </article>
+    </li>
+  </ul>
+</section>
+```
+
+✅ Use semantic HTML with proper heading structure:
+
+```typescript
+<main>
+  <ul>
+    <li>
+      <article> // Simple semantic grouping
+        <Link href={`/blog/${slug}`}>
+          <time dateTime={date}>{formattedDate}</time>
+          <h2>{title}</h2> // Navigable via headings menu
+        </Link>
+      </article>
+    </li>
+  </ul>
+</main>
+```
+
+Rationale:
+
+- Articles should not be elevated to landmarks/regions unless they are primary content areas
+- Use native heading elements (h2) instead of ARIA labeling for navigation
+- Keep landmark menu clean and focused on major page sections
+- Rely on semantic HTML over ARIA when possible
+- Allow navigation via:
+  1. Headings menu (h2 titles)
+  2. List structure
+  3. Main landmark
+
+### Blog Post Navigation
+
+Key navigation patterns to support:
+
+1. Keyboard navigation through list items
+2. Screen reader list announcement
+3. Heading-based navigation to individual posts
+4. Single main landmark containing all posts
+
+Example with proper focus management:
+
+```typescript
+<main>
+  <ul className="space-y-4">
+    {posts.map((post) => (
+      <li key={post.slug}>
+        <article>
+          <Link
+            href={`/blog/${post.slug}`}
+            className={cn(
+              "grid grid-cols-4 p-2 rounded-md",
+              "transition-colors duration-200",
+              "hover:bg-muted hover:shadow-sm",
+              "focus-visible:outline-none focus-visible:ring-2",
+              "focus-visible:ring-ring focus-visible:ring-offset-2",
+              "focus-visible:bg-muted focus-visible:shadow-sm"
+            )}
+          >
+            <time dateTime={post.date} className="...">
+              {formatDate(post.date)}
+            </time>
+            <div className="col-span-12 md:col-span-3">
+              <h2 className="text-base font-normal">
+                {post.title}
+              </h2>
+            </div>
+          </Link>
+        </article>
+      </li>
+    ))}
+  </ul>
+</main>
+```
+
+Benefits:
+
+- Clean document outline
+- Efficient navigation for screen reader users
+- Proper semantic structure
+- Minimal ARIA usage
+- Clear visual and keyboard focus indicators
+
+## Access Control Patterns
+
+### Use Context Providers for Access Control
+
+❌ Avoid checking permissions in individual components:
+
+```typescript
+// Don't do this - permissions scattered across components
+function SpaceSettings({ space }: Props) {
+  const canEdit = space.user_role === "admin" || space.user_role === "owner"
+  const canDelete = space.user_role === "owner"
+
+  return (
+    <>
+      {canEdit && <EditForm />}
+      {canDelete && <DeleteButton />}
+    </>
+  )
 }
 ```
 
-✅ Correct Patterns:
+✅ Use context providers to centralize access control:
 
 ```typescript
-// 1. Keep submit buttons enabled with loading state
-<Button type="submit">
-  {isPending ? "Submitting..." : "Submit"}
-</Button>
-
-// 2. Use server actions for redirects
-export async function deleteAction() {
-  // ... delete logic
-  revalidatePath()
-  redirect()
+// 1. Define the context with computed permissions
+interface UserSpaceContextValue {
+  space: UserSpaceView
+  permissions: {
+    isOwner: boolean
+    isAdmin: boolean
+    canEdit: boolean
+    canDelete: boolean
+    canInvite: boolean
+  }
+  status: {
+    isActive: boolean
+    isPending: boolean
+  }
 }
 
-// 3. Use Supabase with RLS
-const { data: user } = await supabase
-  .from("User")
-  .select()
-  .single()
+// 2. Compute permissions once in the provider
+export function UserSpaceProvider({ space, children }: Props) {
+  const permissions = {
+    isOwner: space.user_role === "owner",
+    isAdmin: space.user_role === "admin" || space.user_role === "owner",
+    canEdit: ["owner", "admin"].includes(space.user_role ?? ""),
+    canDelete: space.user_role === "owner",
+    canInvite: ["owner", "admin"].includes(space.user_role ?? ""),
+  }
 
-// 4. Always use form validation
-const form = useForm({
-  resolver: zodResolver(schema)
-})
+  const status = {
+    isActive: space.membership_status === "active",
+    isPending: space.membership_status === "pending",
+  }
 
-// 5. Define dynamic schemas inside component scope
-function Component({ page }) {
-  const schema = z.object({
-    name: z.string().refine(value => value === page.name)  // page is in scope
-  })
+  return (
+    <UserSpaceContext.Provider value={{ space, permissions, status }}>
+      {children}
+    </UserSpaceContext.Provider>
+  )
 }
 
-// 6. Use getUser() for client-side auth checks
-const { data: { user }, error: userError } = await supabase.auth.getUser()
-if (userError || !user) {
-  throw new Error("Please sign in")
-}
+// 3. Use in components
+function SpaceSettings() {
+  const { permissions } = useUserSpace()
 
-// For real-time auth state changes, use onAuthStateChange
-useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-    // Handle auth state changes
-  })
-  return () => subscription.unsubscribe()
-}, [])
+  return (
+    <>
+      {permissions.canEdit && <EditForm />}
+      {permissions.canDelete && <DeleteButton />}
+    </>
+  )
+}
 ```
 
-### Maintaining a Knowledge Base
+Rationale:
 
-1. Document each encountered issue
-2. Add the solution to the codebase guidelines
-3. Share learnings with the team
-4. Update component patterns
-5. Review and refactor similar instances
+- Centralizes access control logic
+- Prevents permission checking duplication
+- Makes permission changes easier to maintain
+- Provides type-safe access to permissions
+- Keeps components focused on rendering
+- Makes testing easier with mock providers
 
-### Error Prevention Checklist
+### Layered Context Providers
 
-Before implementing new features:
+Use multiple context providers to separate concerns:
 
-1. Check for similar patterns in the codebase
-2. Review documented mistakes
-3. Follow established solutions
-4. Use type-safe alternatives
-5. Add new learnings to documentation
+```typescript
+// Layout pattern
+export default function SpaceLayout({ children }) {
+  // First check access using user space view
+  const { space: userSpace, error } = await getUserSpace(id)
+  if (error?.code === "not_found") notFound()
+
+  // Then get full space data
+  const { data: space } = await getSpace(id)
+  if (!space) return null
+
+  return (
+    <UserSpaceProvider space={userSpace}>
+      <SpaceProvider space={space}>
+        {children}
+      </SpaceProvider>
+    </UserSpaceProvider>
+  )
+}
+```
+
+Benefits of layered providers:
+
+1. Clear separation between user permissions and space data
+2. Access control at the layout level
+3. Components can choose which context they need
+4. Prevents prop drilling
+5. Makes it easy to add new space-wide features
+
+### Access Control Best Practices
+
+1. **Compute Permissions Once**
+
+   - Calculate all permissions in the provider
+   - Cache computed values when possible
+   - Use clear, semantic permission names
+
+2. **Type Safety**
+
+   ```typescript
+   // Define clear permission interfaces
+   interface SpacePermissions {
+     canEdit: boolean
+     canDelete: boolean
+     canInvite: boolean
+   }
+
+   // Use discriminated unions for roles
+   type SpaceRole = "owner" | "admin" | "member"
+   ```
+
+3. **Status Management**
+
+   ```typescript
+   // Group related status flags
+   interface SpaceStatus {
+     isActive: boolean
+     isPending: boolean
+     isArchived: boolean
+   }
+   ```
+
+4. **Error Boundaries**
+
+   ```typescript
+   function SpaceErrorBoundary() {
+     return (
+       <ErrorBoundary
+         fallback={
+           <div role="alert">
+             <h2>Access Error</h2>
+             <p>You don't have permission to view this space.</p>
+           </div>
+         }
+       >
+         {children}
+       </ErrorBoundary>
+     )
+   }
+   ```
+
+5. **Loading States**
+
+   ```typescript
+   // Handle loading states at the provider level
+   function SpaceProvider({ space, children }) {
+     if (!space) {
+       return <SpaceSkeleton />
+     }
+
+     return (
+       <SpaceContext.Provider value={space}>
+         {children}
+       </SpaceContext.Provider>
+     )
+   }
+   ```
+
+### Testing Access Control
+
+```typescript
+describe('SpaceSettings', () => {
+  it('shows edit form for admin users', () => {
+    render(
+      <UserSpaceProvider
+        space={{
+          user_role: 'admin',
+          membership_status: 'active'
+        }}
+      >
+        <SpaceSettings />
+      </UserSpaceProvider>
+    )
+
+    expect(screen.getByRole('form')).toBeInTheDocument()
+  })
+
+  it('hides delete button for non-owners', () => {
+    render(
+      <UserSpaceProvider
+        space={{
+          user_role: 'member',
+          membership_status: 'active'
+        }}
+      >
+        <SpaceSettings />
+      </UserSpaceProvider>
+    )
+
+    expect(screen.queryByRole('button', { name: /delete/i }))
+      .not.toBeInTheDocument()
+  })
+})
+```
 
 ## Code Cleanliness
 

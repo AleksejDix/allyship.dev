@@ -6,15 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-interface Props {
-  params: {
-    page_id: string
-    space_id: string
-    website_id: string
-  }
-}
-
-export default async function SettingsPage({ params }: Props) {
+export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="grid gap-6">

@@ -161,6 +161,7 @@ export function normalizeDomainName(url: string): string {
     // Remove www. prefix if present
     return hostname.replace(/^www\./, "")
   } catch (error) {
+    console.error("Error normalizing domain name:", error)
     return url
   }
 }

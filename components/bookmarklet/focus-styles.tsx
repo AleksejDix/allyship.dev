@@ -51,8 +51,8 @@ export function FocusStyles() {
         </Button>
       </div>
       <p className="text-sm text-foreground">
-        To install: Drag the "Focus Style Bookmarklet" button to your bookmarks
-        bar
+        To install: Drag the &quot;Focus Style Bookmarklet&quot; button to your
+        bookmarks bar
         <br />
         Alternative method: Use the Copy button and create a new bookmark
         manually

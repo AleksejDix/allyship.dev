@@ -10,6 +10,9 @@ import { newsletterShema } from "./newsletter-schema"
 
 const resend = new Resend(env.RESEND_API_KEY)
 
+// Add proper type for the template props
+type NewsletterTemplateProps = z.infer<typeof newsletterShema>
+
 export async function newsletterFormAction(
   _prevState: unknown,
   formData: FormData
@@ -25,7 +28,9 @@ export async function newsletterFormAction(
       from: `Newsletter: <newsletter@allyship.dev>`,
       to: [data.email],
       subject: `Confirm your newsletter subscription`,
-      react: NewsletterTemplate(data) as React.ReactElement,
+      react: NewsletterTemplate(
+        data
+      ) as React.ReactElement<NewsletterTemplateProps>,
     })
 
     return {

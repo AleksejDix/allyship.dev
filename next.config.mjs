@@ -1,10 +1,8 @@
+import bundleAnalyzer from "@next/bundle-analyzer"
 import createMDX from "@next/mdx"
 import { withSentryConfig } from "@sentry/nextjs"
-import { remarkCodeHike } from "codehike/mdx"
-import rehypeAutolinkHeadings from "rehype-autolink-headings"
-import rehypeSlug from "rehype-slug"
-import remarkGfm from "remark-gfm"
-import { remarkTableOfContents } from "remark-table-of-contents"
+
+import { rehypePlugins, remarkPlugins } from "./mdx.config.mjs"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -21,71 +19,59 @@ const nextConfig = {
   },
 }
 
-/** @type {import('codehike/mdx').CodeHikeConfig} */
-const chConfig = {
-  // optional (see code docs):
-  components: { code: "Code" },
-  // if you can't use RSC:
-  // syntaxHighlighting: {
-  //   theme: "github-dark",
-  // },
-}
-
-/** @type {import('remark-table-of-contents').IRemarkTableOfContentsOptions} */
-const remarkTableOfContentsOptions = {
-  containerAttributes: {
-    id: "articleToc",
-    className: "not-prose",
-  },
-  navAttributes: {
-    "aria-label": "table of contents",
-  },
-  maxDepth: 3,
-}
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})
 
 const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [
-      [remarkTableOfContents, remarkTableOfContentsOptions],
-      [remarkGfm, { singleTilde: false }],
-      [remarkCodeHike, chConfig],
-    ],
-    rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
+    remarkPlugins,
+    rehypePlugins,
   },
 })
 
-export default withSentryConfig(withMDX(nextConfig), {
-  // For all available options, see:
-  // https://github.com/getsentry/sentry-webpack-plugin#options
+// Apply MDX configuration first, then Sentry
+export default withBundleAnalyzer(
+  withSentryConfig(
+    withMDX(nextConfig),
+    {
+      // For all available options, see:
+      // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "dix-consulting",
-  project: "allyshipdev",
+      // Suppresses source map uploading logs during build
+      silent: true,
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+      org: "dix-consulting",
+      project: "allyshipdev",
 
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+      // Attempts to upload source maps 3 times with a 10 second delay between attempts
+      uploadSourceMaps: {
+        retries: 3,
+        delay: 10000,
+      },
 
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
+      // Don't fail the build if source map upload fails
+      errorHandler: (err, invokeErr, compilation) => {
+        compilation.warnings.push("Sentry source map upload failed:", err)
+        return null
+      },
+    },
+    {
+      // For all available options, see:
+      // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-  // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  // tunnelRoute: "/monitoring",
+      // Upload a larger set of source maps for prettier stack traces (increases build time)
+      widenClientFileUpload: true,
 
-  // Hides source maps from generated client bundles
-  hideSourceMaps: true,
+      // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
+      tunnelRoute: "/monitoring",
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+      // Hides source maps from generated client bundles
+      hideSourceMaps: true,
 
-  // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-  // See the following for more information:
-  // https://docs.sentry.io/product/crons/
-  // https://vercel.com/docs/cron-jobs
-  automaticVercelMonitors: true,
-})
+      // Automatically tree-shake Sentry logger statements to reduce bundle size
+      disableLogger: true,
+    }
+  )
+)
