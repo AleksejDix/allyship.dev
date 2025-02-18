@@ -1226,3 +1226,114 @@ supabase gen types typescript --project-id your-project-id > database.types.ts
 ```
 
 This ensures database schema and TypeScript types stay in sync.
+
+## URL Handling
+
+### URL Normalization and Storage
+
+❌ Never store or monitor URLs with:
+
+```typescript
+// Don't store URLs with query parameters
+"https://example.com/path?param=value" // Bad
+"https://example.com/search?q=test" // Bad
+
+// Don't store URLs with fragments
+"https://example.com/path#section" // Bad
+
+// Don't store URLs with tracking parameters
+"https://example.com?utm_source=x" // Bad
+"https://example.com?fbclid=123" // Bad
+```
+
+✅ Always normalize URLs before storage:
+
+```typescript
+// Clean base URLs only
+"https://example.com/path" // Good
+"https://example.com/products/item" // Good
+"https://example.com/blog/post-1" // Good
+
+// Homepage URLs should not have trailing slash
+"https://example.com" // Good
+```
+
+### URL Storage Hierarchy
+
+1. **Website URLs**:
+
+   - Store base domain only
+   - Always normalize to remove www
+   - Example: `apollo.io`
+
+2. **Page URLs**:
+
+   - Store full path without query params
+   - Must be under website domain
+   - Example: `apollo.io/products`
+
+3. **Scan URLs**:
+   - Store point-in-time URL that was scanned
+   - Must match normalized page URL
+   - Example: `apollo.io/products`
+
+### URL Validation Rules
+
+1. **Input Cleaning**:
+
+   ```typescript
+   // Always strip:
+   - Query parameters (?param=value)
+   - Fragments (#section)
+   - Tracking parameters (utm_, fbclid, etc)
+   - Default ports (80, 443)
+   - Trailing slashes
+   - Protocol (store without, display with https://)
+   ```
+
+2. **Domain Validation**:
+
+   ```typescript
+   // Required:
+   - Must be valid domain
+   - Must resolve to DNS
+   - No IP addresses
+   - No localhost
+   ```
+
+3. **Path Validation**:
+   ```typescript
+   // Required:
+   - Must start with /
+   - No query parameters
+   - No fragments
+   - Must be valid URL path
+   ```
+
+### URL Display
+
+1. **User Interface**:
+
+   ```typescript
+   // Show friendly versions:
+   apollo.io // In forms and lists
+   //apollo.io        // In detailed views
+   https: /products/aeefrtu // For paths
+   ```
+
+2. **Error Messages**:
+   ```typescript
+   // Clear feedback:
+   "Please enter the domain without www or http://"
+   "Enter the URL without any parameters or #fragments"
+   ```
+
+Rationale:
+
+- Query parameters often indicate dynamic content
+- Fragments are client-side only
+- Tracking parameters pollute URL space
+- Clean URLs are more maintainable
+- Consistent storage format
+- Better caching and deduplication
+- Clearer user experience
