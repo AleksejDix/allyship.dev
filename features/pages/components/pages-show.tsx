@@ -21,8 +21,8 @@ import { Input } from "@/components/ui/input"
 import { createPage } from "../actions"
 
 const formSchema = z.object({
-  name: z.string().url().min(1, "Domain name is required"),
-  website_id: z.string().min(1, "Domain ID is required"),
+  url: z.string().url().min(1, "URL is required"),
+  website_id: z.string().min(1, "Website ID is required"),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -35,7 +35,7 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      url: "",
       website_id: domainId,
     },
   })
@@ -78,10 +78,10 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
       >
         <FormField
           control={form.control}
-          name="name"
+          name="url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Domain Name</FormLabel>
+              <FormLabel>Page URL</FormLabel>
               <FormControl>
                 <Input type="url" {...field} />
               </FormControl>
@@ -101,7 +101,7 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
         )}
 
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Adding..." : "Add Domain"}
+          {isPending ? "Adding..." : "Add Page"}
         </Button>
       </form>
     </Form>
