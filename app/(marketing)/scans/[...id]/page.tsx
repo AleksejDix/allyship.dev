@@ -7,14 +7,42 @@ import { createClient } from "@/lib/supabase/server"
 
 export const revalidate = 0
 
-export default async function ScanPage({ params }: { params: { id: string } }) {
-  const [id] = await params.id
+export default async function ScanPage({
+  params,
+}: {
+  params: { id: string[] }
+}) {
+  const [id] = params.id
   const supabase = await createClient()
-  const { data } = await supabase.from("Scan").select().match({ id }).single()
 
-  if (!data) {
+  // Fetch scan with related page and website data
+  const { data: scan, error } = await supabase
+    .from("Scan")
+    .select(
+      `
+      *,
+      page:Page (
+        *,
+        website:Website (
+          *,
+          space:Space (*)
+        )
+      )
+    `
+    )
+    .match({ id })
+    .single()
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return notFound()
+    }
+    throw error
+  }
+
+  if (!scan) {
     return notFound()
   }
 
-  return <ScanShow serverProps={data} />
+  return <ScanShow serverProps={scan} />
 }

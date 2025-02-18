@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Scan } from "@prisma/client"
+import type { Database } from "@/database.types"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -40,6 +40,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+type Scan = Database["public"]["Tables"]["Scan"]["Row"] & {
+  url: string
+  user_id: string
+}
+
 export const columns: ColumnDef<Scan>[] = [
   {
     id: "select",
@@ -73,7 +78,7 @@ export const columns: ColumnDef<Scan>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Page
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4" aria-hidden="true" />
         </Button>
       )
     },
@@ -118,7 +123,7 @@ export const columns: ColumnDef<Scan>[] = [
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
+              <MoreHorizontal aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -169,7 +174,7 @@ export function ScanIndex({ scans }: { scans: Scan[] }) {
   })
 
   return (
-    <div className="">
+    <div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Search by URL..."
@@ -182,7 +187,7 @@ export function ScanIndex({ scans }: { scans: Scan[] }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
+              Columns <ChevronDown aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
