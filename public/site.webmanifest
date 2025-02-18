@@ -1,10 +1,10 @@
 {
-  "name": "Allyship.dev",
-  "short_name": "Allyship",
-  "description": "Tools and resources for web accessibility",
+  "name": "Allyship.dev | Accessibility & QA Services",
+  "short_name": "Allyship.dev",
+  "description": "Web accessibility tools, audits, and QA services to help make the web more inclusive.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [
     {
@@ -16,6 +16,79 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Tools",
+      "short_name": "Tools",
+      "description": "View accessibility tools",
+      "url": "/tools",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Run Accessibility Scan",
+      "short_name": "Scan",
+      "description": "Start an accessibility audit",
+      "url": "/scan",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Reports",
+      "short_name": "Reports",
+      "description": "View past audit reports",
+      "url": "/reports",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Spaces",
+      "short_name": "Spaces",
+      "description": "View your spaces",
+      "url": "/spaces",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Account",
+      "short_name": "Account",
+      "description": "View your account",
+      "url": "/account",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["productivity", "utilities", "development"],
+  "orientation": "any",
+  "prefer_related_applications": false,
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr"
 }
