@@ -1,24 +1,23 @@
 export function normalizeUrl(url: string): string {
-  try {
-    // Ensure URL has protocol
-    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
-    const parsed = new URL(urlWithProtocol)
-    // Remove www and get base hostname
-    const hostname = parsed.hostname.replace(/^www\./, "")
-    return `https://${hostname}`
-  } catch (error) {
-    return url // Return original if parsing fails
-  }
+  const urlObj = new URL(url);
+  // Convert to lowercase
+  const hostname = urlObj.hostname.toLowerCase();
+  // Remove www.
+  const normalizedHostname = hostname.replace(/^www\./, '');
+  // Remove trailing slash from pathname
+  const normalizedPath = urlObj.pathname.replace(/\/$/, '');
+  // Combine without protocol, www, trailing slashes, query params, or hash
+  return `${normalizedHostname}${normalizedPath}`;
 }
 
 export function compareHostnames(url1: string, url2: string): boolean {
-  try {
-    const parsed1 = new URL(url1)
-    const parsed2 = new URL(url2)
-    const hostname1 = parsed1.hostname.toLowerCase().replace(/^www\./, "")
-    const hostname2 = parsed2.hostname.toLowerCase().replace(/^www\./, "")
-    return hostname1 === hostname2
-  } catch (error) {
-    return false
-  }
+  const hostname1 = new URL(url1).hostname.toLowerCase()
+  const hostname2 = new URL(url2).hostname.toLowerCase()
+  return hostname1 === hostname2
+}
+
+export function normalizePath(url: string): string {
+  const urlObj = new URL(url);
+  // Remove trailing slash, query parameters, and hash fragments
+  return urlObj.pathname.replace(/\/$/, '');
 }

@@ -3,7 +3,7 @@
 import { createServerAction } from "zsa"
 import { createClient } from "@/lib/supabase/server"
 import { createPageSchema } from "../schemas"
-import { compareHostnames } from "@/features/common/utils/url"
+import { compareHostnames, normalizeUrl, normalizePath } from "@/utils/normalize"
 
 export const createPage = createServerAction()
   .input(createPageSchema)
@@ -73,6 +73,36 @@ export const createPage = createServerAction()
         }
       }
       console.log("[createPage] Domain validation passed")
+
+      const normalized_url = normalizeUrl(input.url)
+      const path = normalizePath(input.url)
+
+      // Create the page
+      console.log("[createPage] Creating new page with URL:", input.url)
+      const { data: page, error } = await supabase
+        .from("Page")
+        .insert({
+          url: input.url,
+          website_id: input.website_id,
+          path,
+          normalized_url,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("[createPage] Failed to create page:", error)
+        return {
+          success: false,
+          error: {
+            message: "Failed to create page",
+            code: "CREATE_FAILED",
+          },
+        }
+      }
+
+      console.log("[createPage] Successfully created page:", page)
+      return { success: true, data: page }
     } catch (e) {
       console.error("[createPage] Invalid URL:", e)
       return {
@@ -83,30 +113,4 @@ export const createPage = createServerAction()
         },
       }
     }
-
-    // Create the page
-    console.log("[createPage] Creating new page with URL:", input.url)
-    const { data: page, error } = await supabase
-      .from("Page")
-      .insert({
-        url: input.url,
-        website_id: input.website_id,
-        path: new URL(input.url).pathname,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error("[createPage] Failed to create page:", error)
-      return {
-        success: false,
-        error: {
-          message: "Failed to create page",
-          code: "CREATE_FAILED",
-        },
-      }
-    }
-
-    console.log("[createPage] Successfully created page:", page)
-    return { success: true, data: page }
   })
