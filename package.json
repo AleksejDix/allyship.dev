@@ -12,7 +12,7 @@
     "test:e2e": "npx playwright test --reporter=list",
     "test:e2e:headless": "npx playwright test --headed",
     "db:types": "npx supabase gen types typescript --project-id jzicfoncnrqfymqszmxp --schema public > database.types.ts",
-    "prepare": "lint-staged --allow-empty"
+    "precommit": "lint-staged"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.12",
@@ -119,7 +119,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
+      "next lint --fix",
       "prettier --write"
     ],
     "*.{json,css,md,mdx}": [
