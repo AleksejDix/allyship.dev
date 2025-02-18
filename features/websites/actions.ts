@@ -5,11 +5,8 @@ import { z } from "zod"
 import { createServerAction } from "zsa"
 
 import { createClient } from "@/lib/supabase/server"
-import { normalizeUrl, normalizePath } from "@/utils/normalize"
-import { Database } from "@/database.types"
+import { normalizeUrl, extractPath } from "@/utils/url"
 
-type Website = Database["public"]["Tables"]["Website"]["Update"]
-type Page = Database["public"]["Tables"]["Page"]["Update"]
 
 const deleteWebsiteSchema = z.object({
   websiteId: z.string(),
@@ -191,7 +188,7 @@ export const normalizeUrls = createServerAction()
         return pages.map(async (page) => {
           try {
             const normalized_url = normalizeUrl(page.url)
-            const path = normalizePath(page.url)
+            const path = extractPath(page.url)
             return supabase
               .from("Page")
               .update({ normalized_url, path })

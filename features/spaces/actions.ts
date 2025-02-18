@@ -2,31 +2,12 @@
 
 import { revalidatePath } from "next/cache"
 import { createServerAction } from "zsa"
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { z } from "zod"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Database } from "@/database.types"
-import type { SpaceResponse } from "./types"
 import { spaceSchema } from "./schema"
 
-// First, let's define our response types
-type SuccessResponse<T> = {
-  success: true
-  data: T
-}
-
-type ErrorResponse = {
-  success: false
-  error: {
-    message: string
-    code: string
-    status?: number
-  }
-}
-
-type ActionResponse<T> = SuccessResponse<T> | ErrorResponse
 
 // Create a new space
 export const createSpace = createServerAction()
@@ -196,18 +177,6 @@ export const deleteSpaceAction = createServerAction()
 
     revalidatePath("/spaces")
     redirect("/spaces")
-
-
-    if (error) {
-      return {
-        success: false,
-        error: {
-          message: "Failed to delete space",
-          code: "delete_space_failed",
-          status: 500,
-        },
-      }
-    }
 
     return {
       success: true,

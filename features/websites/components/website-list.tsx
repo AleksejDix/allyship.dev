@@ -10,7 +10,7 @@ export function WebsiteList() {
       {websites.map((website) => (
         <Card key={website.id}>
           <CardHeader>
-            <CardTitle>{website.name}</CardTitle>
+            <CardTitle>{website.url}</CardTitle>
           </CardHeader>
           <CardContent>
             <p>Theme: {website.theme}</p>
