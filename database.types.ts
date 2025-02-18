@@ -95,6 +95,7 @@ export type Database = {
           screenshot_dark: string | null
           screenshot_light: string | null
           status: Database["public"]["Enums"]["ScanStatus"]
+          url: string
         }
         Insert: {
           created_at?: string
@@ -105,6 +106,7 @@ export type Database = {
           screenshot_dark?: string | null
           screenshot_light?: string | null
           status?: Database["public"]["Enums"]["ScanStatus"]
+          url?: string
         }
         Update: {
           created_at?: string
@@ -115,6 +117,7 @@ export type Database = {
           screenshot_dark?: string | null
           screenshot_light?: string | null
           status?: Database["public"]["Enums"]["ScanStatus"]
+          url?: string
         }
         Relationships: [
           {
