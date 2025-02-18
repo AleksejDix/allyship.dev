@@ -48,3 +48,6 @@ data_dump.sql
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Database backups
+supabase/backups/
