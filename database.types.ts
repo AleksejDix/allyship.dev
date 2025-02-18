@@ -49,6 +49,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
+          normalized_url: string
           path: string
           updated_at: string
           url: string
@@ -58,6 +59,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          normalized_url?: string
           path: string
           updated_at?: string
           url: string
@@ -67,6 +69,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          normalized_url?: string
           path?: string
           updated_at?: string
           url?: string
@@ -87,6 +90,7 @@ export type Database = {
           created_at: string
           id: string
           metrics: Json
+          normalized_url: string
           page_id: string
           screenshot_dark: string | null
           screenshot_light: string | null
@@ -96,6 +100,7 @@ export type Database = {
           created_at?: string
           id?: string
           metrics?: Json
+          normalized_url?: string
           page_id: string
           screenshot_dark?: string | null
           screenshot_light?: string | null
@@ -105,6 +110,7 @@ export type Database = {
           created_at?: string
           id?: string
           metrics?: Json
+          normalized_url?: string
           page_id?: string
           screenshot_dark?: string | null
           screenshot_light?: string | null
@@ -154,6 +160,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          normalized_url: string
           space_id: string
           theme: Database["public"]["Enums"]["DomainTheme"]
           updated_at: string
@@ -163,6 +170,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          normalized_url?: string
           space_id: string
           theme?: Database["public"]["Enums"]["DomainTheme"]
           updated_at?: string
@@ -172,6 +180,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          normalized_url?: string
           space_id?: string
           theme?: Database["public"]["Enums"]["DomainTheme"]
           updated_at?: string
@@ -202,20 +211,6 @@ export type Database = {
           retention_period?: unknown
         }
         Returns: number
-      }
-      create_scan_with_website_and_page: {
-        Args: {
-          p_website_url: string
-          p_page_url: string
-          p_page_path: string
-          p_space_id: string
-          p_user_id: string
-        }
-        Returns: {
-          scan_id: string
-          scan_status: string
-          scan_created_at: string
-        }[]
       }
       is_admin: {
         Args: {

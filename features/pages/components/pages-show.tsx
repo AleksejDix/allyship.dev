@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-import { create } from "../actions"
+import { createPage } from "../actions"
 
 const formSchema = z.object({
   name: z.string().url().min(1, "Domain name is required"),
@@ -40,7 +40,7 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
     },
   })
 
-  const { execute, isPending } = useServerAction(create)
+  const { execute, isPending } = useServerAction(createPage)
 
   async function onSubmit(formData: FormValues) {
     const [data, validationError] = await execute(formData)
