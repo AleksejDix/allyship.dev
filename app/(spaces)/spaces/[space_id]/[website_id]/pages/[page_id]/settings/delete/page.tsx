@@ -37,7 +37,7 @@ export default async function DeletePage({ params }: Props) {
         title="Delete Page"
         description="Permanently delete this page and all of its data"
       />
-      <PageDelete page={page} spaceId={space_id} domainId={website_id} />
+      <PageDelete page={page} space_id={space_id} website_id={website_id} />
     </div>
   )
 }

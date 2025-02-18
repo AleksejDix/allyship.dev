@@ -1,6 +1,7 @@
 "use client"
 
-import { create } from "@/features/pages/actions"
+import { useState } from "react"
+import { createPage } from "@/features/pages/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertTriangle } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -19,51 +20,48 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const formSchema = z.object({
-  name: z.string().url().min(1, "Domain name is required"),
-  website_id: z.string().min(1, "Domain ID is required"),
-})
+export function PagesCreate({ website_id }: { website_id: string }) {
+  const [error, setError] = useState<string>()
 
-type FormValues = z.infer<typeof formSchema>
+  const formSchema = z.object({
+    url: z.string().url("Please enter a valid URL"),
+    website_id: z.string(),
+  })
 
-interface PagesCreateProps {
-  domainId: string
-}
+  type FormValues = z.infer<typeof formSchema>
 
-export function PagesCreate({ domainId }: PagesCreateProps) {
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      website_id: domainId,
+      url: "",
+      website_id: website_id,
     },
   })
 
-  const { execute, isPending } = useServerAction(create)
+  const { execute, isPending } = useServerAction(createPage)
 
   async function onSubmit(formData: FormValues) {
-    const [data, validationError] = await execute(formData)
-    if (validationError) {
-      if (validationError.code === "INPUT_PARSE_ERROR") {
-        Object.entries(validationError.fieldErrors).forEach(
-          ([field, messages]) => {
-            form.setError(field as keyof FormValues, {
-              type: "server",
-              message: messages?.join(", "),
-            })
-          }
-        )
+    setError(undefined)
+    const [result, actionError] = await execute(formData)
+    if (actionError) {
+      if (actionError.code === "INPUT_PARSE_ERROR") {
+        Object.entries(actionError.fieldErrors).forEach(([field, messages]) => {
+          form.setError(field as keyof FormValues, {
+            type: "server",
+            message: messages?.join(", "),
+          })
+        })
       } else {
-        console.error(validationError)
+        console.error(actionError)
       }
     }
 
-    if (data && !data.success) {
+    if (result && !result.success) {
       form.setError("root.serverError", {
-        message: data.error?.message,
+        message: result.error?.message,
         type: "server",
       })
-    } else if (data?.success) {
+    } else if (result?.success) {
       form.reset()
     }
   }
@@ -77,7 +75,7 @@ export function PagesCreate({ domainId }: PagesCreateProps) {
       >
         <FormField
           control={form.control}
-          name="name"
+          name="url"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Domain Name</FormLabel>

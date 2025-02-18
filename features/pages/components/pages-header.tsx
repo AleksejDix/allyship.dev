@@ -2,17 +2,16 @@
 
 import { useState } from "react"
 import type { Database } from "@/database.types"
+import { CrawlButton } from "@/features/crawl/components/crawl-button"
+import { PageCreateDialog } from "@/features/pages/components/page-create-dialog"
 import { AlertTriangle, CheckCircle2 } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-import { CrawlButton } from "./crawl-button"
-import { AddPageDialog } from "./page-create-dialog"
-
-type Domain = Database["public"]["Tables"]["Domain"]["Row"]
+type Domain = Database["public"]["Tables"]["Website"]["Row"]
 
 interface PagesHeaderProps {
-  domain: Domain
+  website: Domain
   spaceId: string
   domainId: string
 }
@@ -22,7 +21,7 @@ type NotificationResult = {
   message: string
 }
 
-export function PagesHeader({ domain, spaceId, domainId }: PagesHeaderProps) {
+export function PagesHeader({ website, spaceId, domainId }: PagesHeaderProps) {
   const [notification, setNotification] = useState<NotificationResult | null>(
     null
   )
@@ -50,8 +49,12 @@ export function PagesHeader({ domain, spaceId, domainId }: PagesHeaderProps) {
         )}
       </div>
       <div className="flex items-center gap-2">
-        <CrawlButton domain={domain} onCrawlComplete={setNotification} />
-        <AddPageDialog spaceId={spaceId} domainId={domainId} domain={domain} />
+        <CrawlButton
+          website_id={website.id}
+          website_url={website.url}
+          onCrawlComplete={setNotification}
+        />
+        <PageCreateDialog space_id={spaceId} website_id={domainId} />
       </div>
     </div>
   )

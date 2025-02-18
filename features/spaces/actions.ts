@@ -55,17 +55,18 @@ export const createSpace = createServerAction()
         .from("Space")
         .insert({
           name,
-          user_id: user.id,
+          owner_id: user.id,
         })
         .select()
         .single()
 
       if (error) {
+        console.error("Supabase error:", error)
         return {
           success: false,
           error: {
-            message: "Failed to create workspace",
-            code: "create_space_failed",
+            message: error.message || "Failed to create workspace",
+            code: error.code || "create_space_failed",
             status: 500,
           },
         }

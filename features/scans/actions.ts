@@ -3,39 +3,54 @@
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
+import { CreateScanParams, CreateScanResult } from "./types"
 
 const urlSchema = z.object({
   url: z.string().url(),
+  space_id: z.string().optional(),
 })
 
-export async function createScan(formData: FormData | { url: string }) {
-  const supabase = await createClient()
+type ScanInput = z.infer<typeof urlSchema>
 
-  // Parse input
-  const input = typeof formData === "object" && "url" in formData
-    ? formData
-    : Object.fromEntries(formData)
-
-  const result = urlSchema.safeParse(input)
-
-  if (!result.success) {
+const parseFormData = (data: FormData | { url: string; space_id?: string }): ScanInput => {
+  if (data instanceof FormData) {
+    const formObject = Object.fromEntries(data)
     return {
-      success: false,
-      error: {
-        message: "Invalid URL provided",
-      },
+      url: String(formObject.url || ""),
+      space_id: formObject.space_id ? String(formObject.space_id) : undefined,
     }
   }
+  return data
+}
 
-  const { url } = result.data
+export async function createScan(formData: FormData | { url: string; space_id?: string }) {
+  const supabase = await createClient()
 
   try {
-    // Get user's personal space or create one
+    // Parse and validate input
+    const input = parseFormData(formData)
+    const result = urlSchema.safeParse(input)
+
+    if (!result.success) {
+      console.error("[VALIDATION ERROR]", result.error.format())
+      return {
+        success: false,
+        error: {
+          message: "Invalid URL provided",
+          details: result.error.format(),
+        },
+      }
+    }
+
+    const { url, space_id } = result.data
+
+    // Check user is logged in
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) {
+      console.warn("[AUTH ERROR] User not authenticated")
       return {
         success: false,
         error: {
@@ -44,110 +59,118 @@ export async function createScan(formData: FormData | { url: string }) {
       }
     }
 
-    // Get or create personal space
-    const { data: space, error: spaceError } = await supabase
-      .from("Space")
-      .select()
-      .match({ owner_id: user.id, is_personal: true })
-      .single()
-
-    if (spaceError && spaceError.code === "PGRST116") {
-      // Space not found, create it
-      const { data: newSpace, error: createSpaceError } = await supabase
+    // Get or create space (use personal space if none specified)
+    let targetSpaceId = space_id
+    if (!targetSpaceId) {
+      const { data: personalSpace, error: spaceError } = await supabase
         .from("Space")
-        .insert({
-          name: "Personal Space",
-          owner_id: user.id,
-          is_personal: true,
-        })
         .select()
+        .match({ owner_id: user.id, is_personal: true })
         .single()
 
-      if (createSpaceError) throw createSpaceError
-      if (!newSpace) throw new Error("Failed to create personal space")
+      if (spaceError) {
+        if (spaceError.code === "PGRST116") {
+          // Create personal space
+          const { data: newSpace, error: createSpaceError } = await supabase
+            .from("Space")
+            .insert({
+              name: "Personal Space",
+              owner_id: user.id,
+              is_personal: true,
+            })
+            .select()
+            .single()
+
+          if (createSpaceError) {
+            console.error("[DB ERROR] Failed to create personal space", createSpaceError)
+            throw createSpaceError
+          }
+          if (!newSpace) {
+            console.error("[DB ERROR] Personal space creation returned no data")
+            throw new Error("Failed to create personal space")
+          }
+          targetSpaceId = newSpace.id
+        } else {
+          console.error("[DB ERROR] Failed to fetch personal space", spaceError)
+          throw spaceError
+        }
+      } else {
+        targetSpaceId = personalSpace.id
+      }
     }
 
-    const userSpace = space || (await supabase.from("Space").select().match({ owner_id: user.id, is_personal: true }).single()).data
+    // Parse URL to get website URL (hostname) and page path
+    const parsedUrl = new URL(url)
+    const websiteUrl = parsedUrl.origin
+    const pagePath = parsedUrl.pathname + parsedUrl.search + parsedUrl.hash
 
-    if (!userSpace) {
-      throw new Error("Failed to get or create personal space")
-    }
-
-    // Get or create website
-    const websiteUrl = new URL(url).origin
+    // 1. Create or update website
     const { data: website, error: websiteError } = await supabase
       .from("Website")
-      .select()
-      .match({ space_id: userSpace.id, url: websiteUrl })
-      .single()
-
-    let websiteId
-    if (websiteError && websiteError.code === "PGRST116") {
-      // Website not found, create it
-      const { data: newWebsite, error: createWebsiteError } = await supabase
-        .from("Website")
-        .insert({
+      .upsert(
+        {
           url: websiteUrl,
-          space_id: userSpace.id,
+          space_id: targetSpaceId,
           user_id: user.id,
           theme: "BOTH",
-        })
-        .select()
-        .single()
-
-      if (createWebsiteError) throw createWebsiteError
-      if (!newWebsite) throw new Error("Failed to create website")
-      websiteId = newWebsite.id
-    } else {
-      websiteId = website?.id
-    }
-
-    if (!websiteId) {
-      throw new Error("Failed to get or create website")
-    }
-
-    // Get or create page
-    const { data: page, error: pageError } = await supabase
-      .from("Page")
+        },
+        { onConflict: "url,space_id" }
+      )
       .select()
-      .match({ website_id: websiteId, url })
       .single()
 
-    let pageId
-    if (pageError && pageError.code === "PGRST116") {
-      // Page not found, create it
-      const { data: newPage, error: createPageError } = await supabase
-        .from("Page")
-        .insert({
+    if (websiteError) {
+      console.error("[DB ERROR] Failed to create website", websiteError)
+      throw websiteError
+    }
+
+    if (!website) {
+      console.error("[DB ERROR] Website creation returned no data")
+      throw new Error("Failed to create website")
+    }
+
+    // 2. Create or update page
+    const { data: page, error: pageError } = await supabase
+      .from("Page")
+      .upsert(
+        {
           url,
-          website_id: websiteId,
-        })
-        .select()
-        .single()
+          path: pagePath,
+          website_id: website.id,
+        },
+        { onConflict: "website_id,path" }
+      )
+      .select()
+      .single()
 
-      if (createPageError) throw createPageError
-      if (!newPage) throw new Error("Failed to create page")
-      pageId = newPage.id
-    } else {
-      pageId = page?.id
+    if (pageError) {
+      console.error("[DB ERROR] Failed to create page", pageError)
+      throw pageError
     }
 
-    if (!pageId) {
-      throw new Error("Failed to get or create page")
+    if (!page) {
+      console.error("[DB ERROR] Page creation returned no data")
+      throw new Error("Failed to create page")
     }
 
-    // Create the scan record
+    // 3. Create scan
     const { data: scan, error: scanError } = await supabase
       .from("Scan")
       .insert({
-        page_id: pageId,
+        page_id: page.id,
         status: "pending",
         metrics: {},
       })
       .select()
       .single()
 
-    if (scanError || !scan) {
+    if (scanError) {
+      console.error("[DB ERROR] Failed to create scan", scanError)
+      throw scanError
+    }
+
+    if (!scan) {
+      console.error("[DB ERROR] Scan creation returned no data")
       throw new Error("Failed to create scan")
     }
 
@@ -157,6 +180,12 @@ export async function createScan(formData: FormData | { url: string }) {
     })
 
     if (functionError) {
+      console.error("[EDGE FUNCTION ERROR]", {
+        error: functionError,
+        scanId: scan.id,
+        url,
+      })
+
       // Update scan status to failed
       await supabase
         .from("Scan")
@@ -185,6 +214,12 @@ export async function createScan(formData: FormData | { url: string }) {
       },
     }
   } catch (error) {
+    console.error("[UNEXPECTED ERROR]", {
+      error,
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+
     return {
       success: false,
       error: {
