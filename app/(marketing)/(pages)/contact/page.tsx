@@ -2,11 +2,8 @@ import dynamic from "next/dynamic"
 
 import { generateMetadata } from "@/lib/metadata"
 import { Separator } from "@/components/ui/separator"
+import { ContactForm } from "@/components/emails/contact-form"
 import { PageHeader } from "@/components/page-header"
-
-const ContactForm = dynamic(() => import("@/components/emails/contact-form"), {
-  ssr: false,
-})
 
 export const metadata = generateMetadata({
   title: "Contact",
