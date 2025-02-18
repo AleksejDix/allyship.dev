@@ -45,3 +45,6 @@ next-env.d.ts
 backup.sql
 data_backup.sql
 data_dump.sql
+
+# Sentry Config File
+.env.sentry-build-plugin
