@@ -34,6 +34,7 @@ type FormData = z.infer<typeof formSchema>
 type Space = {
   id: string
   name: string
+  is_personal: boolean
 }
 
 interface SpaceDeleteProps {
@@ -71,6 +72,22 @@ export function SpaceDelete(props: SpaceDeleteProps) {
       })
       return
     }
+  }
+
+  // Don't render delete form for personal spaces
+  if (props.space.is_personal) {
+    return (
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle>Delete Space</CardTitle>
+          <CardDescription>
+            This is your personal space and cannot be deleted. It is
+            automatically created when you sign up and is used to store your
+            personal scans and websites.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
   }
 
   return (
