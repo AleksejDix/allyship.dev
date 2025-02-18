@@ -13,23 +13,32 @@ export default async function ScansPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: scans } = await supabase
+  // Fetch scans with related data
+  const { data: scans, error } = await supabase
     .from("Scan")
-    .select("*")
+    .select(
+      `
+      *,
+      page:Page (
+        *,
+        website:Website (
+          *
+        )
+      )
+    `
+    )
     .order("created_at", { ascending: false })
 
-  // Transform the data to match the expected type
+  if (error) {
+    throw error
+  }
+
+  // Transform the data to include necessary fields
   const transformedScans =
     scans?.map((scan) => ({
-      id: scan.id,
-      url: scan.url,
-      user_id: scan.user_id,
-      status: scan.status,
-      created_at: scan.created_at ? new Date(scan.created_at) : null,
-      metrics: scan.metrics || null,
-      page_id: scan.page_id,
-      screenshot_light: scan.screenshot_light,
-      screenshot_dark: scan.screenshot_dark,
+      ...scan,
+      url: scan.page.url,
+      user_id: scan.page.website.user_id || user?.id || "",
     })) || []
 
   return (
@@ -50,7 +59,7 @@ export default async function ScansPage() {
           <div className="text-center space-y-4">
             <Button size="lg" asChild>
               <Link href="/auth/signup">
-                Get Started <ArrowRight className="ml-2" />
+                Get Started <ArrowRight className="ml-2" aria-hidden="true" />
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground">

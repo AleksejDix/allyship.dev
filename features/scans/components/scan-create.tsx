@@ -1,12 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
-import { create } from "@/features/scans/actions"
-import { scanJobSchema, type ScanJobSchema } from "@/features/scans/schema"
+import { useRouter } from "next/navigation"
+import { createScan } from "@/features/scans/actions"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CheckIcon, TriangleAlert } from "lucide-react"
+import { CheckIcon, Loader2, TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
-import { useServerAction } from "zsa-react"
+import { z } from "zod"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -22,15 +23,20 @@ import {
 import { Form } from "@/components/ui/form"
 import { Field } from "@/components/forms/field"
 
+const formSchema = z.object({
+  url: z.string().url("Please enter a valid URL"),
+})
+
+type FormValues = z.infer<typeof formSchema>
+
 type ScanJobCreateProps = {
-  pageId?: string
   variant?: "marketing" | "admin"
 }
 
-export function ScanJobCreate({
-  pageId,
-  variant = "marketing",
-}: ScanJobCreateProps) {
+export function ScanJobCreate({ variant = "marketing" }: ScanJobCreateProps) {
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const complianceBadges = [
     { id: "wcag20", label: "WCAG 2.0" },
     { id: "wcag21", label: "WCAG 2.1" },
@@ -40,83 +46,91 @@ export function ScanJobCreate({
     { id: "en301549", label: "EN 301 549" },
   ]
 
-  const form = useForm({
-    resolver: zodResolver(scanJobSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       url: "",
-      ...(pageId && { page_id: pageId }),
     },
   })
 
-  const { execute, isPending } = useServerAction(create)
+  const onSubmit = async (data: FormValues) => {
+    try {
+      setIsSubmitting(true)
+      const result = await createScan(data)
 
-  const onSubmit = async (formData: ScanJobSchema) => {
-    const [data, validationError] = await execute(formData)
-
-    if (validationError) {
-      if (validationError.code === "INPUT_PARSE_ERROR") {
-        Object.entries(validationError.fieldErrors).forEach(
-          ([field, messages]) => {
-            form.setError(field as keyof ScanJobSchema, {
-              type: "server",
-              message: messages?.join(", "),
-            })
-          }
-        )
-      } else {
+      if (result?.error) {
         form.setError("root.serverError", {
-          message: validationError.message ?? "An error occurred",
+          message: result.error.message,
           type: "server",
         })
+        return
       }
-    }
 
-    if (data && !data.success) {
+      if (result?.success && result.data?.id) {
+        router.push(`/scans/${result.data.id}`)
+      }
+    } catch (error) {
       form.setError("root.serverError", {
-        message: data.error?.message,
+        message:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
         type: "server",
       })
-    } else if (data?.success) {
-      form.reset()
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {variant === "marketing"
-              ? "Web Accessibility Scanner"
-              : "Run Accessibility Scan"}
-          </CardTitle>
-          <CardDescription>
-            {variant === "marketing"
-              ? "Check your website for accessibility compliance and get detailed reports."
-              : "Run a new accessibility scan for this page."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col md:flex-row gap-2">
-                  <Field
-                    type="url"
-                    name="url"
-                    label="Website URL"
-                    className="flex-1"
-                    placeholder="Enter URL to scan"
-                  />
-                  <Button
-                    type="submit"
-                    className="md:mt-6 md:min-w-24 w-full md:w-auto"
-                    disabled={isPending}
-                  >
-                    {isPending ? "Scanning..." : "Scan Now"}
-                  </Button>
-                </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {variant === "marketing"
+            ? "Web Accessibility Scanner"
+            : "Run Accessibility Scan"}
+        </CardTitle>
+        <CardDescription>
+          {variant === "marketing"
+            ? "Check your website for accessibility compliance and get detailed reports."
+            : "Run a new accessibility scan for this page."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+            className="space-y-4"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row gap-2">
+                <Field
+                  type="url"
+                  name="url"
+                  label="Website URL"
+                  className="flex-1"
+                  placeholder="Enter URL to scan"
+                />
+                <Button
+                  type="submit"
+                  className="md:mt-6 md:min-w-24 w-full md:w-auto"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2
+                        className="mr-2 h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                      <span>Scanning...</span>
+                    </>
+                  ) : (
+                    "Scan Now"
+                  )}
+                </Button>
+              </div>
 
+              <div role="alert" aria-live="polite">
                 {form.formState?.errors?.root?.serverError?.type ===
                   "server" && (
                   <Alert variant="destructive">
@@ -148,20 +162,20 @@ export function ScanJobCreate({
                   </Alert>
                 )}
               </div>
-            </form>
-          </Form>
-        </CardContent>
-        {variant === "marketing" && (
-          <CardFooter className="flex flex-wrap gap-2">
-            {complianceBadges.map((badge) => (
-              <Badge key={badge.id} variant="secondary">
-                <CheckIcon size={16} className="mr-1" aria-hidden="true" />
-                <span>{badge.label}</span>
-              </Badge>
-            ))}
-          </CardFooter>
-        )}
-      </Card>
-    </div>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+      {variant === "marketing" && (
+        <CardFooter className="flex flex-wrap gap-2">
+          {complianceBadges.map((badge) => (
+            <Badge key={badge.id} variant="secondary">
+              <CheckIcon size={16} className="mr-1" aria-hidden="true" />
+              <span>{badge.label}</span>
+            </Badge>
+          ))}
+        </CardFooter>
+      )}
+    </Card>
   )
 }
