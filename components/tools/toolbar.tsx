@@ -14,7 +14,6 @@ import {
   Languages,
   LayoutTemplate,
   Link,
-  MousePointer2,
   Settings,
   SquareAsterisk,
   Type,
@@ -31,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { checkAbbreviations } from "./tools/abbreviations"
 import { checkAriaRoles } from "./tools/aria-roles"
 import { ToolResult } from "./tools/base-tool"
 import { checkColorContrast } from "./tools/color-contrast"

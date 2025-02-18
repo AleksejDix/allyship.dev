@@ -3,7 +3,11 @@
 import { createServerAction } from "zsa"
 import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/database.types"
-import { deletePageSchema } from "../schemas"
+import { z } from "zod"
+
+export const deletePageSchema = z.object({
+  id: z.string(),
+})
 
 type Page = Tables<"Page">
 

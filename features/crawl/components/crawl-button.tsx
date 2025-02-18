@@ -61,8 +61,8 @@ export function CrawlButton({
     router.refresh()
     onCrawlComplete?.({
       type: "success",
-      message: `Found ${result.stats.total} pages (${result.stats.new} new)`,
-      stats: result.stats,
+      message: `Found ${result.stats?.total ?? 0} pages (${result.stats?.new ?? 0} new)`,
+      stats: result.stats ?? { total: 0, new: 0, existing: 0 },
     })
   }
 

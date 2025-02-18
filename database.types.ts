@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       Memberships: {
@@ -74,6 +49,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
+          path: string
           updated_at: string
           url: string
           website_id: string
@@ -82,6 +58,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          path: string
           updated_at?: string
           url: string
           website_id: string
@@ -90,6 +67,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
+          path?: string
           updated_at?: string
           url?: string
           website_id?: string
@@ -224,6 +202,20 @@ export type Database = {
           retention_period?: unknown
         }
         Returns: number
+      }
+      create_scan_with_website_and_page: {
+        Args: {
+          p_website_url: string
+          p_page_url: string
+          p_page_path: string
+          p_space_id: string
+          p_user_id: string
+        }
+        Returns: {
+          scan_id: string
+          scan_status: string
+          scan_created_at: string
+        }[]
       }
       is_admin: {
         Args: {

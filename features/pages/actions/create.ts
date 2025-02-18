@@ -91,6 +91,7 @@ export const createPage = createServerAction()
       .insert({
         url: input.url,
         website_id: input.website_id,
+        path: new URL(input.url).pathname,
       })
       .select()
       .single()

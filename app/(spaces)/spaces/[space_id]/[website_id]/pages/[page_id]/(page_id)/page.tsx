@@ -1,7 +1,8 @@
 // import { Domain } from "@prisma/client"
 
+import { notFound } from "next/navigation"
 import type { Tables } from "@/database.types"
-import { create } from "@/features/scans/actions"
+import { createScan } from "@/features/scans/actions"
 import { PageHeader } from "@/features/websites/components/page-header"
 import { Scan as ScanIcon } from "lucide-react"
 
@@ -22,22 +23,26 @@ export default async function Page({ params }: Props) {
   const { page_id } = await params
   const supabase = await createClient()
 
-  // Get page data with website info
-  const { data: page, error: pageError } = await supabase
+  // Fetch page with related website data
+  const { data: page, error } = await supabase
     .from("Page")
     .select(
       `
       *,
       website:Website (
-        url
+        *,
+        space:Space (*)
       )
     `
     )
-    .eq("id", page_id)
+    .match({ id: params.page_id })
     .single()
 
-  if (pageError || !page || !page.url) {
-    return null
+  if (error) {
+    if (error.code === "PGRST116") {
+      return notFound()
+    }
+    throw error
   }
 
   // Get scans for this page
@@ -50,16 +55,16 @@ export default async function Page({ params }: Props) {
   const fullUrl = new URL(page.url)
   console.log(fullUrl)
 
-  async function startScan() {
+  async function createNewScan() {
     "use server"
     if (!page) return
-    await create({ url: page.url, page_id })
+    await createScan({ url: page.url, space_id: page.website.space_id })
   }
 
   return (
     <>
       <PageHeader title={page.url} description={`Page details for ${page.url}`}>
-        <form action={startScan}>
+        <form action={createNewScan}>
           <Button type="submit">
             <ScanIcon aria-hidden="true" className="mr-2 h-4 w-4" />
             New Scan

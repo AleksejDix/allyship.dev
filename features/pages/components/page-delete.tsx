@@ -16,11 +16,11 @@ type DbPage = Database["public"]["Tables"]["Page"]["Row"]
 
 interface PageDeleteProps {
   page: DbPage
-  spaceId: string
-  domainId: string
+  space_id: string
+  website_id: string
 }
 
-export function PageDelete({ page, spaceId, domainId }: PageDeleteProps) {
+export function PageDelete({ page, space_id, website_id }: PageDeleteProps) {
   const [error, setError] = useState<string>()
   const { execute, isPending } = useServerAction(deletePage)
 
@@ -28,7 +28,7 @@ export function PageDelete({ page, spaceId, domainId }: PageDeleteProps) {
     confirmName: z
       .string()
       .min(1, "Please enter the page name to confirm")
-      .refine((value) => value === page.name, {
+      .refine((value) => value === page.url, {
         message: "The name you entered does not match",
       }),
   })
@@ -45,9 +45,7 @@ export function PageDelete({ page, spaceId, domainId }: PageDeleteProps) {
   const onSubmit = async () => {
     setError(undefined)
     const [result, actionError] = await execute({
-      pageId: page.id,
-      spaceId,
-      domainId,
+      id: page.id,
     })
 
     if (actionError) {
@@ -69,7 +67,7 @@ export function PageDelete({ page, spaceId, domainId }: PageDeleteProps) {
       >
         <Field
           name="confirmName"
-          label={`Please type ${page.name} to confirm`}
+          label={`Please type ${page.url} to confirm`}
           type="text"
           description="This action cannot be undone"
         />
