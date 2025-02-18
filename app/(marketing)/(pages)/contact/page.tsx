@@ -1,5 +1,3 @@
-import dynamic from "next/dynamic"
-
 import { generateMetadata } from "@/lib/metadata"
 import { Separator } from "@/components/ui/separator"
 import { ContactForm } from "@/components/emails/contact-form"
