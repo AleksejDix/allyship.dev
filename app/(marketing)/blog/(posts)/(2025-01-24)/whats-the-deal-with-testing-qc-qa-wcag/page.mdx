@@ -1,0 +1,124 @@
+import { generateMetadata } from "@/lib/metadata"
+
+export const metadata = generateMetadata({
+  title: "Understanding Web Accessibility Testing: QC, QA, and WCAG Compliance",
+  description: "Dive into the world of web accessibility testing, understanding the differences between QC and QA, and how they relate to WCAG compliance.",
+  path: "/blog/whats-the-deal-with-testing-qc-qa-wcag",
+})
+
+export const frontmatter = {
+  title: "Understanding Web Accessibility Testing: QC, QA, and WCAG Compliance",
+  description: "Dive into the world of web accessibility testing, understanding the differences between QC and QA, and how they relate to WCAG compliance.",
+  date: "2025-01-24",
+  authors: ["Aleksej Dix"],
+  category: "Testing",
+  tags: ["testing", "accessibility", "wcag", "qa", "qc", "quality-assurance"],
+  status: "published",
+}
+
+<article className="prose dark:prose-invert max-w-none">
+
+# {frontmatter.title}
+
+Imagine you're building a house. You hire workers, designers, and architects. Someone needs to make sure the house doesn't collapse when you step inside, right? That's **testing**. Now, let's say someone also checks that the materials—like the bricks—are good quality. That's **Quality Control (QC)**. Finally, someone ensures the entire process runs smoothly, from design to construction. That's **Quality Assurance (QA)**.
+
+Oh, and one more thing: what if your house needs to be accessible to _everyone_—not just those who can take the stairs or push open heavy doors? That's where **WCAG** comes in.
+
+Let's break it all down.
+
+---
+
+## Testing: The Brick-by-Brick Check
+
+Testing is the hands-on part of the job. It's like walking through the house, knocking on walls, flipping switches, and opening doors to make sure everything works.
+
+In software, testing involves:
+
+- **Dynamic Testing:** Running the software to see how it behaves. Think of it as testing the plumbing by turning on a faucet.
+- **Static Testing:** Reviewing the blueprints (or code) without actually running it. This could be reading through documentation or performing a code review.
+
+The goal? Find cracks and flaws _before_ anyone starts using the product.
+
+---
+
+## Quality Control: Are These Bricks Good Enough?
+
+QC isn't just about checking if the house works—it's about analyzing the materials you're building it with. Are the bricks, beams, and wiring good enough?
+
+In software, QC involves:
+
+1. **Planning:** Figuring out what needs testing and how.
+2. **Analyzing:** Checking whether the components meet the required standards.
+3. **Reporting:** Documenting the results, highlighting issues, and providing feedback.
+
+QC is the sharp-eyed foreman who makes sure no bad materials sneak in.
+
+---
+
+## Quality Assurance: The Master Plan
+
+QA is the big-picture process. It ensures that the entire construction project is set up for success. This means organizing processes, preventing issues, and setting up standards so that the house is built the right way from the start.
+
+In software, QA involves:
+
+- **Processes:** Establishing systems like automated testing, regular reviews, and coding standards.
+- **Prevention:** Catching potential issues _before_ testing begins.
+- **Compliance:** Ensuring the work aligns with regulations or company guidelines.
+
+QA is like the architect who lays out the plan, ensuring every worker knows their job and sticks to the blueprint.
+
+---
+
+## WCAG: Making the House Accessible for All
+
+Now let's talk about **WCAG**—the **Web Content Accessibility Guidelines**. If testing, QC, and QA are about ensuring the house is safe and functional, WCAG is about making sure _everyone_ can use it.
+
+WCAG focuses on making web content accessible to people with disabilities. Its principles are simple:
+
+- **Perceivable:** Everyone should be able to perceive content, whether they rely on sight, sound, or assistive technology.
+- **Operable:** All interactive elements, like buttons and forms, should be usable by anyone, including those who navigate with a keyboard or voice commands.
+- **Understandable:** The content and interface should be clear and intuitive.
+- **Robust:** Content should work with a variety of assistive technologies and devices.
+
+Without WCAG, your digital house might exclude entire groups of people. Testing for accessibility is just as important as testing for bugs.
+
+---
+
+## Why Does This Matter?
+
+Here's the kicker: Many companies don't fully understand the differences between Testing, QC, QA, and accessibility standards like WCAG. You might be hired as a tester and end up handling everything—quality checks, process improvements, and accessibility compliance.
+
+That's why it's important to:
+
+1. Understand the purpose of each role and standard.
+2. Be able to communicate the value of accessibility (WCAG) and quality assurance to stakeholders.
+3. Set clear boundaries so you don't burn out while juggling every responsibility.
+
+---
+
+## A Quick Recap
+
+- **Testing:** Find defects in the product.
+- **Quality Control:** Ensure the product meets quality standards.
+- **Quality Assurance:** Set up processes to ensure quality from the start.
+- **WCAG:** Make sure the product is accessible to everyone, regardless of ability.
+
+---
+
+## The Reality of Work
+
+In real life, roles often overlap. You might be the only person on the team thinking about accessibility or responsible for setting up quality standards. And that's okay—as long as you understand the distinctions and work to improve processes where you can.
+
+---
+
+## Closing Thoughts
+
+As Richard Feynman once said:
+
+> "You must not fool yourself—and you are the easiest person to fool."
+
+In testing, quality control, and accessibility, our job is to uncover truths about the system. Whether it's catching bugs, ensuring processes run smoothly, or making things accessible to everyone, it all comes down to asking the right questions and not being afraid of the answers.
+
+</article>
+
+%toc%

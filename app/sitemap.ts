@@ -95,6 +95,7 @@ const getLastModified = (route: string): Date => {
     }
     return new Date()
   } catch (error) {
+    console.error(`Error getting last modified date for ${route}:`, error)
     return new Date()
   }
 }

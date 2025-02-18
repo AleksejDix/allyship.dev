@@ -1,6 +1,7 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
 import Link from "next/link"
 
+import { generateMetadata } from "@/lib/metadata"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Faqs } from "@/components/blocks/Faqs"
@@ -14,6 +15,10 @@ import { Loader } from "@/components/loader"
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
 // import { Button } from "@/components/ui/button"
+
+export const metadata = generateMetadata({
+  path: "/",
+})
 
 const Page = async () => {
   const supabase = await createClient()

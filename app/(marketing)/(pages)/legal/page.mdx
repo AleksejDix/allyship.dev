@@ -1,9 +1,12 @@
-export const metadata = {
-  title: 'Legal Notice (Impressum)',
-  description: 'Legal information and company details for Allyship.dev',
-}
+import { generateMetadata } from "@/lib/metadata"
 
-# Legal Notice (Impressum)
+export const metadata = generateMetadata({
+  title: "Legal Information",
+  description: "Legal information and company details for Allyship.dev",
+  path: "/legal",
+})
+
+# Legal Information
 
 ## Company Information
 **Dix Consulting**

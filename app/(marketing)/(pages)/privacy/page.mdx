@@ -1,7 +1,10 @@
-export const metadata = {
-  title: 'Privacy Policy',
-  description: 'The Privacy Policy for Allyship.dev',
-}
+import { generateMetadata } from "@/lib/metadata"
+
+export const metadata = generateMetadata({
+  title: "Privacy Policy",
+  description: "Our commitment to protecting your privacy and personal data",
+  path: "/privacy",
+})
 
 # Privacy Policy
 

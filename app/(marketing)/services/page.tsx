@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, Bot, FileSearch, Users } from "lucide-react"
 
+import { generateMetadata } from "@/lib/metadata"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -67,6 +68,13 @@ const services = [
 
   // }
 ]
+
+export const metadata = generateMetadata({
+  title: "Services",
+  description:
+    "Professional accessibility auditing and QA services for your digital products",
+  path: "/services",
+})
 
 export default function ServicesPage() {
   return (

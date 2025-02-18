@@ -1,0 +1,28 @@
+import { generateMetadata } from "@/lib/metadata"
+
+export const metadata = generateMetadata({
+  title: "About",
+  description: "Learn about Allyship.dev, our mission to advance accessibility and inclusion in the digital world, and meet the founders behind our service.",
+  path: "/about",
+})
+
+export const frontmatter = {
+  title: "About",
+  description: "Learn about Allyship.dev, our mission to advance accessibility and inclusion in the digital world, and meet the founders behind our service.",
+  lastUpdated: "2024-02-14",
+  authors: ["Aleksej Dix", "Lidia Dix"],
+  section: "Company",
+  priority: "high",
+}
+
+<article className="prose dark:prose-invert max-w-none">
+
+# {frontmatter.title}
+
+## Who We Are
+
+Welcome to Allyship, a service dedicated to advancing accessibility and inclusion in the digital world. We believe that technology should empower everyone, regardless of ability, to navigate and engage with the web seamlessly. Our mission is to create a digital landscape where no one is left behind.
+
+// ... rest of the content ...
+
+</article>
