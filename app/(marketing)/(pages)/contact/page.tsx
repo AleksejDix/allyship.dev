@@ -1,6 +1,6 @@
 import { generateMetadata } from "@/lib/metadata"
 import { Separator } from "@/components/ui/separator"
-import { ContactForm } from "@/components/emails/contact-form"
+import ContactForm from "@/components/emails/contact-form"
 import { PageHeader } from "@/components/page-header"
 
 export const metadata = generateMetadata({
