@@ -30,14 +30,44 @@ export const create = createServerAction()
       throw new Error("Failed to create scan")
     }
 
-    // Trigger the edge function
-    await supabase.functions.invoke("scan", {
-      body: { url, id: scan.id },
-    })
+    try {
+      // Trigger the edge function
+      const { error: functionError } = await supabase.functions.invoke("scan", {
+        body: { url, id: scan.id },
+      })
 
-    // Revalidate and redirect
-    revalidatePath("/", "layout")
-    redirect(`/scans/${scan.id}`)
+      if (functionError) {
+        // Update scan status to failed
+        await supabase
+          .from("Scan")
+          .update({
+            status: "failed",
+            metrics: {
+              error: functionError.message || "Edge function failed"
+            }
+          })
+          .eq("id", scan.id)
+
+        throw new Error("Failed to start scan: " + functionError.message)
+      }
+
+      // Revalidate and redirect
+      revalidatePath("/", "layout")
+      redirect(`/scans/${scan.id}`)
+    } catch (error) {
+      // Update scan status to failed if not already done
+      await supabase
+        .from("Scan")
+        .update({
+          status: "failed",
+          metrics: {
+            error: error instanceof Error ? error.message : "Unknown error occurred"
+          }
+        })
+        .eq("id", scan.id)
+
+      throw error
+    }
   })
 
 export const getScan = createServerAction()
