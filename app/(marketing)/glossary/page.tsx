@@ -1,27 +1,17 @@
-import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { GlossarySearch } from "@/features/glossary/components/glossary-search"
 
-import { siteConfig } from "@/config/site"
+import { generateMetadata } from "@/lib/metadata"
 import { getAllTerms } from "@/lib/terms"
 import { Separator } from "@/components/ui/separator"
 import { PageHeader } from "@/components/page-header"
 
-export const metadata: Metadata = {
-  title: "Glossary",
-  description: "Learn the language of web accessibility and development.",
-  openGraph: {
-    title: "Glossary | Allyship.dev",
-    description: "Learn the language of web accessibility and development.",
-    url: `${siteConfig.url}/glossary`,
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Glossary | Allyship.dev",
-    description: "Learn the language of web accessibility and development.",
-  },
-}
+export const metadata = generateMetadata({
+  title: "Accessibility Glossary",
+  description:
+    "Comprehensive guide to web accessibility terms, concepts, and definitions",
+  path: "/glossary",
+})
 
 export default async function GlossaryPage() {
   const terms = getAllTerms()

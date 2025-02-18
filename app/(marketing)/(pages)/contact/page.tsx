@@ -2,9 +2,17 @@
 
 import React from "react"
 
+import { generateMetadata } from "@/lib/metadata"
+import { Separator } from "@/components/ui/separator"
 import { ContactForm } from "@/components/emails/contact-form"
 import { PageHeader } from "@/components/page-header"
-import { Separator } from "@/components/ui/separator"
+
+export const metadata = generateMetadata({
+  title: "Contact",
+  description:
+    "Get in touch with us about accessibility consulting and services",
+  path: "/contact",
+})
 
 const Page = () => {
   return (

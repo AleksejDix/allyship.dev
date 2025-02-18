@@ -1,6 +1,7 @@
 export const siteConfig: SiteConfig = {
-  name: "Allyship.dev",
+  name: "Allyship",
   description:
     "Empowering inclusive web experiences with accessibility courses, professional QA services, and advanced tools for end-to-end testing.",
-  url: "https://www.allyship.dev",
+  url: "https://allyship.dev",
+  ogImage: "/og.png",
 }

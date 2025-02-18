@@ -1,0 +1,89 @@
+import { generateMetadata } from "@/lib/metadata"
+
+export const metadata = generateMetadata({
+  title: "Why Capitalization Matters for Accessibility",
+  description: "Learn how proper capitalization impacts screen readers, readability, and overall accessibility of your web content. Discover best practices for using capitalization to enhance user experience.",
+  path: "/blog/why-capitalisation-matters-for-accessibility",
+})
+
+export const frontmatter = {
+  title: "Why Capitalization Matters for Accessibility",
+  description: "Learn how proper capitalization impacts screen readers, readability, and overall accessibility of your web content. Discover best practices for using capitalization to enhance user experience.",
+  date: "2025-01-20",
+  authors: ["Aleksej Dix"],
+  category: "Accessibility",
+  tags: ["typography", "accessibility", "wcag", "screen-readers", "readability"],
+  status: "published",
+}
+
+<article className="prose dark:prose-invert max-w-none">
+
+# {frontmatter.title}
+
+Capitalisation is a subtle but significant aspect of web design that often goes overlooked. While it might seem like an aesthetic choice, the way you handle uppercase letters can greatly affect the usability and accessibility of your website. In this blog post, we'll explore the impact of capitalisation on users, especially those with disabilities, and how it ties into WCAG guidelines.
+
+---
+
+## WCAG Guidelines and Readability
+
+### WCAG 3.1.5 -- Reading Level
+
+**Requirement**: Content should not require a reading ability more advanced than the lower secondary education level unless additional mechanisms are provided.
+
+**Connection to Capitalisation**: Uppercase letters can hinder readability for many users, particularly those with dyslexia. The lack of "ups and downs" in text (ascenders and descenders in lowercase letters) makes it harder to distinguish between characters. This increases cognitive load and can make content inaccessible to users with reading difficulties.
+
+---
+
+### WCAG 1.4.12 -- Text Spacing
+
+**Requirement**: No loss of content or functionality should occur when adjusting text spacing.
+
+**Connection to Capitalisation**: Screen readers and assistive technologies rely on proper spacing and casing for accurate interpretation. Uppercase text in markup may cause some screen readers to misinterpret it as an acronym, spelling out each letter individually. While modern tools like VoiceOver and NVDA handle this better, older versions and niche tools may still face issues.
+
+---
+
+## The Case Against Uppercase
+
+### Dyslexia and Uppercase Text
+
+Uppercase letters create a uniform height across all characters, removing the natural flow that aids in recognition. Users with dyslexia depend on the visual variety of lowercase letters to identify words quickly. Removing this visual cue can slow down reading and comprehension.
+
+### Screen Reader Limitations
+
+Although most modern screen readers interpret uppercase text correctly, there are still exceptions. For example, a phrase like "VERY IMPORTANT" in all caps might be read as "Vee-Ee-Ar-Why I-Em-Pee-Oh-Ar-Tee-Ay-En-Tee" by older or less commonly used tools. This creates an inconsistent experience for users relying on assistive technology.
+
+### Readability for All Users
+
+Uppercase text is not just challenging for users with disabilities; it's harder for everyone to read. Studies show that lowercase text improves reading speed and comprehension due to its natural variation in shape and size.
+
+---
+
+## Best Practices for Capitalisation
+
+### Use CSS for Uppercase Styling
+
+If uppercase text is necessary for design or branding purposes, implement it through CSS rather than in the markup. This ensures screen readers interpret the content correctly and allows for easier adjustments.
+
+```css index.css
+.uppercase {
+  text-transform: uppercase;
+}
+```
+
+### Limit Uppercase Usage
+
+Avoid using uppercase letters for long blocks of text. Reserve them for short, high-impact elements like acronyms, buttons, or headings.
+
+### Test with Assistive Technologies
+
+Always test your content with screen readers and other assistive tools to ensure uppercase styling does not introduce barriers for users.
+
+---
+
+## Conclusion
+
+Capitalisation might seem like a minor detail, but it can significantly impact the accessibility and usability of your website. By following WCAG guidelines and using best practices like CSS styling and limited uppercase usage, you can create a more inclusive experience for all users. Remember, accessibility is not just about compliance; it's about making the web a better place for everyone.
+
+</article>
+
+%toc%

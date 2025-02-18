@@ -1,7 +1,10 @@
-export const metadata = {
-  title: 'Terms of Service',
-  description: 'The Terms of Service for Allyship.dev',
-}
+import { generateMetadata } from "@/lib/metadata"
+
+export const metadata = generateMetadata({
+  title: "Terms of Service",
+  description: "Terms and conditions for using Allyship.dev services and tools",
+  path: "/terms",
+})
 
 # Terms of Service
 
