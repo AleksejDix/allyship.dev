@@ -1,10 +1,7 @@
-"use client"
-
 import React from "react"
 
 import { generateMetadata } from "@/lib/metadata"
 import { Separator } from "@/components/ui/separator"
-import { ContactForm } from "@/components/emails/contact-form"
 import { PageHeader } from "@/components/page-header"
 
 export const metadata = generateMetadata({
@@ -14,14 +11,18 @@ export const metadata = generateMetadata({
   path: "/contact",
 })
 
-const Page = () => {
+function ClientContactForm() {
+  "use client"
+  const { ContactForm } = require("@/components/emails/contact-form")
+  return <ContactForm />
+}
+
+export default function ContactPage() {
   return (
     <div className="container py-8">
       <PageHeader heading="Contact" description="How can we help?" />
       <Separator className="my-8" />
-      <ContactForm />
+      <ClientContactForm />
     </div>
   )
 }
-
-export default Page
