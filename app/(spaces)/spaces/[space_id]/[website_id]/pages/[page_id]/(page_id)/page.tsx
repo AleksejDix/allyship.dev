@@ -10,20 +10,20 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-type Params = {
-  page_id: string
-  space_id: string
-  website_id: string
+type Props = {
+  params: {
+    page_id: string
+    space_id: string
+    website_id: string
+  }
 }
 
-type Scan = Tables<"Scan">
-
-export default async function Page({ params }: { params: Params }) {
-  const { page_id } = params
+export default async function Page({ params }: Props) {
+  const { page_id } = await params
   const supabase = await createClient()
 
   // Get page data with website info
-  const { data: page } = await supabase
+  const { data: page, error: pageError } = await supabase
     .from("Page")
     .select(
       `
@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: Params }) {
     .eq("id", page_id)
     .single()
 
-  if (!page) {
+  if (pageError || !page || !page.url) {
     return null
   }
 
@@ -47,12 +47,13 @@ export default async function Page({ params }: { params: Params }) {
     .eq("page_id", page_id)
     .order("created_at", { ascending: false })
 
-  const websiteUrl = new URL(page.website.url)
-  const fullUrl = `${page.website.url}${page.url}`
+  const fullUrl = new URL(page.url)
+  console.log(fullUrl)
 
   async function startScan() {
     "use server"
-    await create({ url: fullUrl, page_id })
+    if (!page) return
+    await create({ url: page.url, page_id })
   }
 
   return (
@@ -83,9 +84,9 @@ export default async function Page({ params }: { params: Params }) {
                 className="text-base hover:underline"
                 aria-labelledby={`${page_id}-domain-link`}
               >
-                {websiteUrl.hostname}
+                {fullUrl.hostname}
                 <span id={`${page_id}-domain-link`} className="sr-only">
-                  {websiteUrl.hostname} (opens in new window)
+                  {JSON.stringify(fullUrl)} (opens in new window)
                 </span>
               </a>
             </div>
@@ -95,15 +96,15 @@ export default async function Page({ params }: { params: Params }) {
                 Path
               </div>
               <a
-                href={fullUrl}
+                href={fullUrl.toString()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-base hover:underline"
                 aria-labelledby={`${page_id}-path-link`}
               >
-                {page.url}
+                {fullUrl.pathname}
                 <span id={`${page_id}-path-link`} className="sr-only">
-                  {page.url} (opens in new window)
+                  {fullUrl.toString()} (opens in new window)
                 </span>
               </a>
             </div>

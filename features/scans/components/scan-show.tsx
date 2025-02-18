@@ -247,9 +247,9 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
                       <Image
                         src={scan.screenshot_light}
                         alt={`Light mode screenshot of ${scan.url}`}
-                        width={800}
-                        height={600}
-                        className="rounded-lg object-cover w-full border border-border"
+                        width={1440}
+                        height={900}
+                        className="rounded-lg w-full border border-border"
                       />
                     )}
                   </div>
@@ -262,9 +262,9 @@ export function ScanShow({ serverProps }: { serverProps: Scan }) {
                       <Image
                         src={scan.screenshot_dark}
                         alt={`Dark mode screenshot of ${scan.url}`}
-                        width={800}
-                        height={600}
-                        className="rounded-lg object-cover w-full border border-border"
+                        width={1440}
+                        height={900}
+                        className="rounded-lg w-full border border-border"
                       />
                     )}
                   </div>
