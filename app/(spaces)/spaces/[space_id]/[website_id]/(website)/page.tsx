@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 type Props = {
-  params: { website_id: string; space_id: string }
+  params: Promise<{ website_id: string; space_id: string }>
 }
 
-export default async function WebsitePage({ params }: Props) {
+export default async function WebsitePage(props: Props) {
+  const params = await props.params;
   const { website_id } = params
   const supabase = await createClient()
 

@@ -1,24 +1,5 @@
 import { BaseTool } from "./base-tool"
 
-interface AxeIssue {
-  id: string
-  impact: "minor" | "moderate" | "serious" | "critical"
-  description: string
-  help: string
-  helpUrl: string
-  nodes: {
-    html: string
-    target: string[]
-    failureSummary: string
-  }[]
-}
-
-interface LinkInfo {
-  url: string
-  labels: Set<string>
-  elements: HTMLElement[]
-}
-
 export class LinkLabelsTool extends BaseTool {
   getSelector(): string {
     return `

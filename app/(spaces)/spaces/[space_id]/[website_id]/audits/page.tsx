@@ -4,14 +4,14 @@ import { PageHeader } from "@/features/websites/components/page-header"
 import { createClient } from "@/lib/supabase/server"
 
 type Props = {
-  params: { space_id: string; website_id: string }
+  params: Promise<{ space_id: string; website_id: string }>
 }
 
-export default async function AuditsPage({ params }: Props) {
+export default async function AuditsPage(props: Props) {
+  const params = await props.params
   const { website_id } = params
   const supabase = await createClient()
 
-  // Use Supabase query instead of Prisma
   const { data, error } = await supabase
     .from("Website")
     .select()

@@ -1,4 +1,4 @@
-import { BaseTool, ToolResult } from "./base-tool"
+import { BaseTool } from "./base-tool"
 
 export class FormLabelsTool extends BaseTool {
   private hasIssues = false

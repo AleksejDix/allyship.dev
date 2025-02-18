@@ -70,7 +70,8 @@ export function FieldLabels() {
         </Button>
       </div>
       <p className="text-sm text-foreground">
-        To install: Drag the "Field Labels Checker" button to your bookmarks bar
+        To install: Drag the &quot;Field Labels Checker&quot; button to your
+        bookmarks bar
         <br />
         Alternative method: Use the Copy button and create a new bookmark
         manually

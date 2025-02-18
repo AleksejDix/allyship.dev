@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Bot, Code, FileSearch, Users } from "lucide-react"
+import { ArrowRight, Bot, FileSearch, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -133,8 +133,8 @@ export default function ServicesPage() {
             Not Sure Which Service You Need?
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Schedule a free consultation with our accessibility experts. We'll
-            help you choose the right solution for your needs.
+            Schedule a free consultation with our accessibility experts.
+            We&apos;ll help you choose the right solution for your needs.
           </p>
           <Button
             size="lg"

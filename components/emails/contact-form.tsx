@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { useActionState } from "react"
 import { Check } from "lucide-react"
-import * as ReactDom from "react-dom"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,24 +34,17 @@ function Success() {
 }
 
 export function ContactForm({ className }: React.ComponentProps<typeof Card>) {
-  const [state, formAction, pending] = ReactDom.useFormState(
-    contactFormAction,
-    {
-      defaultValues: {
-        name: "",
-        email: "",
-        message: "",
-      },
-      success: false,
-      errors: null,
-    }
-  )
+  const [state, formAction] = useActionState(contactFormAction, {
+    defaultValues: {
+      name: "",
+      email: "",
+      message: "",
+    },
+    success: false,
+  })
 
   const formRef = React.useRef<HTMLFormElement>(null)
-
-  const handleReset = () => {
-    formRef.current?.reset() // Resets the form fields
-  }
+  const pending = state.success === false
 
   return (
     <Card className={cn("w-full max-w-md", className)}>
@@ -70,25 +63,14 @@ export function ContactForm({ className }: React.ComponentProps<typeof Card>) {
         <form
           noValidate
           ref={formRef}
-          action={async (event) => {
-            await formAction(event)
-            if (state.success) {
-              handleReset()
-              document.getElementById("success-message")?.focus() // Move focus to the success message
-            } else {
-              const firstError = document.querySelector(
-                "[aria-invalid='true']"
-              ) as HTMLElement
-              firstError?.focus() // Focus the first error field
-            }
-          }}
+          action={formAction}
           aria-labelledby="form-title"
           aria-describedby="form-description"
         >
           <CardContent className="flex flex-col gap-6">
             <div
               className="group/field grid gap-2"
-              data-invalid={!!state.errors?.name}
+              data-invalid={!!state.error?.details?.name}
             >
               <Label
                 htmlFor="name"
@@ -101,19 +83,19 @@ export function ContactForm({ className }: React.ComponentProps<typeof Card>) {
                 name="name"
                 className="group-data-[invalid=true]/field:border-destructive focus-visible:group-data-[invalid=true]/field:ring-destructive"
                 disabled={pending}
-                aria-invalid={!!state.errors?.name}
+                aria-invalid={!!state.error?.details?.name}
                 aria-errormessage="error-name"
                 defaultValue={state.defaultValues.name}
               />
-              {state.errors?.name && (
+              {state.error?.details?.name && (
                 <p id="error-name" className="text-destructive text-sm">
-                  {state.errors.name}
+                  {state.error.details.name}
                 </p>
               )}
             </div>
             <div
               className="group/field grid gap-2"
-              data-invalid={!!state.errors?.email}
+              data-invalid={!!state.error?.details?.email}
             >
               <Label
                 htmlFor="email"
@@ -126,19 +108,19 @@ export function ContactForm({ className }: React.ComponentProps<typeof Card>) {
                 name="email"
                 className="group-data-[invalid=true]/field:border-destructive focus-visible:group-data-[invalid=true]/field:ring-destructive"
                 disabled={pending}
-                aria-invalid={!!state.errors?.email}
+                aria-invalid={!!state.error?.details?.email}
                 aria-errormessage="error-email"
                 defaultValue={state.defaultValues.email}
               />
-              {state.errors?.email && (
+              {state.error?.details?.email && (
                 <p id="error-email" className="text-destructive text-sm">
-                  {state.errors.email}
+                  {state.error.details.email}
                 </p>
               )}
             </div>
             <div
               className="group/field grid gap-2"
-              data-invalid={!!state.errors?.message}
+              data-invalid={!!state.error?.details?.message}
             >
               <Label
                 htmlFor="message"
@@ -152,13 +134,13 @@ export function ContactForm({ className }: React.ComponentProps<typeof Card>) {
                 placeholder="Type your message here..."
                 className="group-data-[invalid=true]/field:border-destructive focus-visible:group-data-[invalid=true]/field:ring-destructive"
                 disabled={pending}
-                aria-invalid={!!state.errors?.message}
+                aria-invalid={!!state.error?.details?.message}
                 aria-errormessage="error-message"
                 defaultValue={state.defaultValues.message}
               />
-              {state.errors?.message && (
+              {state.error?.details?.message && (
                 <p id="error-message" className="text-destructive text-sm">
-                  {state.errors.message}
+                  {state.error.details.message}
                 </p>
               )}
             </div>

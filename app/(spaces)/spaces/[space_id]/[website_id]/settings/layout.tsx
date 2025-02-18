@@ -6,11 +6,17 @@ import { Button } from "@/components/ui/button"
 import { RouterLink } from "@/components/RouterLink"
 
 type LayoutProps = {
-  params: { website_id: string; space_id: string }
+  params: Promise<{ website_id: string; space_id: string }>
   children: React.ReactNode
 }
 
-export default async function Layout({ params, children }: LayoutProps) {
+export default async function Layout(props: LayoutProps) {
+  const params = await props.params;
+
+  const {
+    children
+  } = props;
+
   const { website_id, space_id } = params
   const supabase = await createClient()
 

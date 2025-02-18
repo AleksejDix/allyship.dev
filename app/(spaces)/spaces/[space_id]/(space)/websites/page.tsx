@@ -1,10 +1,7 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
-import { WebsiteCreateDialog } from "@/features/websites/components/website-create-dialog"
-import { ExternalLink, Globe } from "lucide-react"
+import { Globe } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -14,10 +11,11 @@ import {
 } from "@/components/ui/card"
 
 type Props = {
-  params: { space_id: string }
+  params: Promise<{ space_id: string }>
 }
 
-export default async function WebsitesPage({ params }: Props) {
+export default async function WebsitesPage(props: Props) {
+  const params = await props.params
   const { space_id } = params
   const supabase = await createClient()
 

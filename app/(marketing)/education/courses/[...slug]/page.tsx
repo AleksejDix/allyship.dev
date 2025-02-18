@@ -15,11 +15,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { FeatureCardsGrid } from "@/components/feature-cards-grid"
 
-export default async function CoursePage({
-  params,
-}: {
-  params: { slug: string[] }
+export default async function CoursePage(props: {
+  params: Promise<{ slug: string[] }>
 }) {
+  const params = await props.params
   const courseId = params.slug[0]
 
   const course = {
@@ -138,7 +137,7 @@ export default async function CoursePage({
       <section className="border-y border-border">
         <div className="container py-20">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">What You'll Learn</h2>
+            <h2 className="text-3xl font-bold mb-4">What You&apos;ll Learn</h2>
             <p className="text-lg text-muted-foreground">
               Comprehensive curriculum designed to take you from beginner to
               accessibility expert. Master both theoretical knowledge and
@@ -228,9 +227,9 @@ export default async function CoursePage({
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Course Guarantee</h3>
                 <p className="text-muted-foreground mb-6">
-                  If you're not satisfied with the course within 30 days, we'll
-                  give you a full refund. No questions asked. Your success and
-                  satisfaction are our top priorities.
+                  If you&apos;re not satisfied with the course within 30 days,
+                  we&apos;ll give you a full refund. No questions asked. Your
+                  success and satisfaction are our top priorities.
                 </p>
                 <Button className="w-full" size="lg">
                   Enroll Now - $49.99

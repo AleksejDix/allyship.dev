@@ -1,4 +1,3 @@
-import Image from "next/image"
 import { SocialIcon } from "react-social-icons"
 
 import { cn } from "@/lib/utils"

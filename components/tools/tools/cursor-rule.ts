@@ -1,18 +1,5 @@
 import { BaseTool } from "./base-tool"
 
-interface AxeIssue {
-  id: string
-  impact: "minor" | "moderate" | "serious" | "critical"
-  description: string
-  help: string
-  helpUrl: string
-  nodes: {
-    html: string
-    target: string[]
-    failureSummary: string
-  }[]
-}
-
 export class CursorRuleTool extends BaseTool {
   getSelector(): string {
     return `

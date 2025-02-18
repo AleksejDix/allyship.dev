@@ -1,4 +1,4 @@
-import { AnnotationHandler, BlockAnnotation, InnerLine } from "codehike/code"
+import { AnnotationHandler, InnerLine } from "codehike/code"
 
 export const mark: AnnotationHandler = {
   name: "mark",

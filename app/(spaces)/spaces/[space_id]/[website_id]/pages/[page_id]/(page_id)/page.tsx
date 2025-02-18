@@ -1,7 +1,4 @@
-// import { Domain } from "@prisma/client"
-
 import { notFound } from "next/navigation"
-import type { Tables } from "@/database.types"
 import { createScan } from "@/features/scans/actions"
 import { PageHeader } from "@/features/websites/components/page-header"
 import { Scan as ScanIcon } from "lucide-react"
@@ -12,14 +9,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 type Props = {
-  params: {
+  params: Promise<{
     page_id: string
     space_id: string
     website_id: string
-  }
+  }>
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page(props: Props) {
+  const params = await props.params
   const { page_id } = await params
   const supabase = await createClient()
 

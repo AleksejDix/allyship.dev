@@ -9,7 +9,7 @@ export const PreWithFocus: AnnotationHandler["PreWithRef"] = (props) => {
   return <InnerPre merge={props} />
 }
 
-function useScrollToFocus(ref: React.RefObject<HTMLPreElement>) {
+function useScrollToFocus(ref: React.RefObject<HTMLPreElement | null>) {
   const firstRender = useRef(true)
   useLayoutEffect(() => {
     if (ref.current) {
