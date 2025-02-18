@@ -14,7 +14,17 @@ const deleteWebsiteSchema = z.object({
 })
 
 const createWebsiteSchema = z.object({
-  url: z.string(),
+  url: z.string().transform((val, ctx) => {
+    try {
+      return normalizeUrl(val)
+    } catch (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid URL format",
+      })
+      return z.NEVER
+    }
+  }),
   space_id: z.string(),
 })
 
@@ -43,10 +53,11 @@ export const createWebsite = createServerAction()
     const { url, space_id } = input
 
     try {
-      const normalized_url = normalizeUrl(url)
+      // URL is already normalized from the schema transform
+      const normalized_url = url
 
       const { data, error } = await supabase.from("Website").insert({
-        url,
+        url: normalized_url, // Use normalized URL for both fields
         normalized_url,
         space_id,
       })

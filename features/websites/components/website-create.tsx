@@ -1,6 +1,7 @@
 "use client"
 
 import { createWebsite } from "@/features/websites/actions"
+import { normalizeUrl } from "@/utils/url"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -10,29 +11,31 @@ import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Field } from "@/components/forms/field"
 
-const normalizeUrl = (url: string): string => {
-  try {
-    // Ensure URL has protocol
-    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
-    const parsed = new URL(urlWithProtocol)
-    // Remove www and get base hostname
-    const hostname = parsed.hostname.replace(/^www\./, "")
-    return `https://${hostname}`
-  } catch (error) {
-    return url // Return original if parsing fails
-  }
-}
-
 const formSchema = z.object({
-  url: z
-    .string()
-    .min(1, {
-      message: "Website url is required",
-    })
-    .refine((value) => !/^\s*$/.test(value), {
-      message: "Website url cannot be only whitespace",
-    })
-    .transform((url) => normalizeUrl(url)), // Normalize URL before submission
+  url: z.string().transform((url, ctx) => {
+    const trimmed = url.trim()
+    if (trimmed.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter a website URL",
+      })
+      return z.NEVER
+    }
+
+    try {
+      // Add protocol if missing
+      const urlWithProtocol = trimmed.startsWith("http")
+        ? trimmed
+        : `https://${trimmed}`
+      return normalizeUrl(urlWithProtocol) // Don't keep query params for websites
+    } catch (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error instanceof Error ? error.message : "Invalid URL format",
+      })
+      return z.NEVER
+    }
+  }),
   space_id: z.string(),
 })
 
@@ -83,7 +86,7 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
         className="space-y-4"
       >
         <Field
-          type="url"
+          type="text"
           name="url"
           label="Website URL"
           description="Enter the website URL (e.g., example.com or www.example.com)"
