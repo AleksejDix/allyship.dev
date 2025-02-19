@@ -148,9 +148,9 @@ export abstract class BaseTool {
     isValid: boolean,
     message?: string
   ): void {
-    el.setAttribute('data-a11y-highlight', isValid ? 'valid' : 'invalid')
+    el.setAttribute('data-ally-state', isValid ? 'valid' : 'error')
     if (message) {
-      el.setAttribute('data-a11y-message', message)
+      el.setAttribute('data-ally-label', message)
     }
   }
 
