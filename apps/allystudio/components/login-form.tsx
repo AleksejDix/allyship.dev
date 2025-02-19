@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import { Button } from "~/components/ui/button"
 import {
   Card,
@@ -14,6 +16,32 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsLoading(true)
+
+    try {
+      // Get the current window
+      const currentWindow = await chrome.windows.getCurrent()
+      if (!currentWindow.id) throw new Error("No window ID found")
+
+      // Send message to background script
+      await chrome.runtime.sendMessage({
+        type: "OPEN_SIDE_PANEL",
+        windowId: currentWindow.id
+      })
+
+      // Close the popup
+      window.close()
+    } catch (error) {
+      console.error("Failed to open sidebar:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -24,7 +52,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={onSubmit}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -46,10 +74,10 @@ export function LoginForm({
                 </div>
                 <Input id="password" type="password" required />
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" disabled={isLoading}>
                 Login with Google
               </Button>
             </div>

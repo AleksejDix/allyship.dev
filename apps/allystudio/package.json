@@ -37,6 +37,15 @@
   "manifest": {
     "host_permissions": [
       "https://*/*"
-    ]
+    ],
+    "permissions": [
+      "sidePanel",
+      "tabs",
+      "activeTab",
+      "windows"
+    ],
+    "side_panel": {
+      "default_path": "sidepanel.html"
+    }
   }
 }
