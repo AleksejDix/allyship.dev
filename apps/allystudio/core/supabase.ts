@@ -2,8 +2,6 @@ import { createClient, type SupportedStorage } from "@supabase/supabase-js"
 
 import { Storage } from "@plasmohq/storage"
 
-import type { Database } from "../types/database.types"
-
 // Create a custom storage implementation that matches Supabase's requirements
 const storage = new Storage({
   area: "local"
