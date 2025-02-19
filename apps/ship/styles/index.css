@@ -145,7 +145,7 @@ body {
 }
 
 @layer components {
-  [aria-invalid="true"].border-input {
+  [aria-invalid='true'].border-input {
     @apply border-destructive bg-destructive/10;
   }
 }
@@ -157,13 +157,13 @@ body {
   width: calc(var(--base-width) * 1.7);
   margin: 0 auto;
   grid-template-columns: 1fr 1fr;
-  --c1: theme("colors.violet.500");
-  --c2: theme("colors.red.500");
-  --c3: theme("colors.orange.500");
-  --c4: theme("colors.yellow.500");
-  --c5: theme("colors.green.500");
-  --c6: theme("colors.blue.500");
-  --c7: theme("colors.indigo.500");
+  --c1: theme('colors.violet.500');
+  --c2: theme('colors.red.500');
+  --c3: theme('colors.orange.500');
+  --c4: theme('colors.yellow.500');
+  --c5: theme('colors.green.500');
+  --c6: theme('colors.blue.500');
+  --c7: theme('colors.indigo.500');
 }
 
 .circle {
@@ -197,8 +197,8 @@ body {
   );
 }
 
-a:not(.button)[aria-current="page"] {
-  color: theme("colors.orange.700");
+a:not(.button)[aria-current='page'] {
+  color: theme('colors.orange.700');
   text-decoration: underline;
   font-weight: 700;
 }
@@ -211,11 +211,11 @@ a:not(.button)[aria-current="page"] {
   @apply ring-offset-background transition-colors outline-none ring-2 ring-ring ring-offset-2 rounded-md;
 }
 
-.dark a:not(.button)[aria-current="page"] {
-  color: theme("colors.orange.400");
+.dark a:not(.button)[aria-current='page'] {
+  color: theme('colors.orange.400');
 }
 
-a.button[aria-current="page"] {
+a.button[aria-current='page'] {
   @apply bg-accent text-accent-foreground;
 }
 
@@ -275,6 +275,67 @@ a.button[aria-current="page"] {
   padding-inline: 0;
 }
 
-.prose {
-  max-width: 100%;
+[data-ally-state='valid'] {
+  outline: 2px solid #00bcd4 !important; /* Accessible cyan color */
+  outline-offset: 2px !important;
+  position: relative !important;
+}
+
+[data-ally-state='error'] {
+  outline: 2px solid #ff3d00 !important; /* A more accessible red */
+  outline-offset: 2px !important;
+  position: relative !important;
+}
+
+[data-ally-state][data-ally-label]::before {
+  content: attr(data-ally-label);
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: -4px;
+  color: black;
+  background: white;
+  padding: 2px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}
+
+[data-ally-state='valid'][data-ally-label]::before {
+  background: #00bcd4;
+}
+
+[data-ally-state='error'][data-ally-label]::before {
+  background: #ff3d00;
+}
+
+/* Grid layout transitions */
+.accessibility-toolbar {
+  transition: width 0.3s ease-in-out;
+}
+
+.accessibility-toolbar.expanded {
+  width: 480px;
+}
+
+/* Grid button styles */
+.tool-grid-button {
+  @apply flex h-auto flex-col items-center gap-1 p-2 text-center;
+}
+
+.tool-grid-button:hover {
+  @apply bg-accent;
+}
+
+.tool-grid-button.active {
+  @apply bg-primary text-primary-foreground;
+}
+
+.tool-grid-button .tool-name {
+  @apply text-xs font-medium;
 }
