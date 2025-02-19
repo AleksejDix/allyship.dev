@@ -9,13 +9,14 @@
     "DATABASE_URL",
     "DIRECT_URL",
     "NEXTAUTH_SECRET",
-    "SUPABASE_SERVICE_ROLE_KEY"
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "VERCEL",
+    "VERCEL_ENV"
   ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "cache": true,
       "env": [
         "NODE_ENV",
         "ANALYZE",
@@ -28,13 +29,10 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
-      "cache": true
+      "outputs": ["coverage/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"],
-      "outputs": [],
-      "cache": true
+      "dependsOn": ["^lint"]
     },
     "dev": {
       "cache": false,
@@ -45,12 +43,15 @@
       "cache": false
     },
     "check-types": {
-      "dependsOn": ["^build"],
-      "cache": true
+      "dependsOn": ["^build"]
     },
     "format": {
       "outputs": [],
       "cache": false
+    },
+    "deploy": {
+      "dependsOn": ["build", "test", "lint"],
+      "outputs": []
     }
   }
 }
