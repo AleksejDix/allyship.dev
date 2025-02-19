@@ -1,0 +1,56 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env*", "tsconfig.json"],
+  "globalEnv": [
+    "NODE_ENV",
+    "NEXT_PUBLIC_APP_URL",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "DATABASE_URL",
+    "DIRECT_URL",
+    "NEXTAUTH_SECRET",
+    "SUPABASE_SERVICE_ROLE_KEY"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "cache": true,
+      "env": [
+        "NODE_ENV",
+        "ANALYZE",
+        "RESEND_API_KEY",
+        "BROWSERCAT_API_KEY",
+        "PUPPETEER_BROWSERLESS_IO_KEY",
+        "OPENAI_API_KEY",
+        "SENTRY_AUTH_TOKEN"
+      ]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "outputs": [],
+      "cache": true
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": ["PORT", "NODE_ENV"]
+    },
+    "clean": {
+      "cache": false
+    },
+    "check-types": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "format": {
+      "outputs": [],
+      "cache": false
+    }
+  }
+}
