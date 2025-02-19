@@ -312,6 +312,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: 1.1.2
         version: 1.1.2(@types/react@18.2.48)(react@18.2.0)
+      '@supabase/supabase-js':
+        specifier: ^2.39.3
+        version: 2.48.1
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
