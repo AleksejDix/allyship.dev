@@ -47,7 +47,8 @@
       "sidePanel",
       "tabs",
       "activeTab",
-      "windows"
+      "windows",
+      "scripting"
     ],
     "web_accessible_resources": [
       {
