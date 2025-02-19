@@ -1,6 +1,18 @@
 import type { Session } from "@supabase/supabase-js"
+import { ImageIcon, LogOutIcon, ScanIcon, TypeIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
+import "./styles/globals.css"
+
+import { Button } from "~components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "~components/ui/card"
+import { Separator } from "~components/ui/separator"
 import { supabase } from "~core/supabase"
 
 function IndexSidePanel() {
@@ -125,67 +137,80 @@ function IndexSidePanel() {
 
   if (!session) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <p>Please log in to use the extension</p>
-          <button
-            onClick={() => chrome.runtime.openOptionsPage()}
-            className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-            Go to Login
-          </button>
-        </div>
+      <div className="flex h-screen items-center justify-center p-4">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>
+              Please log in to use Allyship Studio
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full"
+              onClick={() => chrome.runtime.openOptionsPage()}>
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen flex-col p-4">
-      <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Allyship Studio</h1>
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className="text-sm text-red-600 hover:text-red-700">
-          Sign Out
-        </button>
-      </header>
+    <div className="flex h-screen flex-col space-y-4 p-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Allyship Studio</CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => supabase.auth.signOut()}>
+              <LogOutIcon className="h-4 w-4" />
+            </Button>
+          </div>
+          <CardDescription>Welcome back, {session.user.email}</CardDescription>
+        </CardHeader>
+      </Card>
 
-      <main className="flex-1">
-        <div className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">Welcome, {session.user.email}</h2>
-          <p className="text-sm text-gray-600">
-            Start using the accessibility tools below
-          </p>
-        </div>
+      <div className="space-y-2">
+        <h2 className="text-lg font-semibold">Accessibility Tools</h2>
+        <Separator />
 
-        {/* Add your accessibility tools here */}
-        <div className="mt-4 space-y-4">
-          <button className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        <div className="grid gap-2">
+          <Button variant="default" className="w-full justify-start">
+            <ScanIcon className="mr-2 h-4 w-4" />
             Scan Page
-          </button>
-          <button
+          </Button>
+
+          <Button
+            variant={headingsHighlighted ? "destructive" : "default"}
+            className="w-full justify-start"
             onClick={
               headingsHighlighted
                 ? handleRemoveHighlights
                 : handleHighlightHeadings
-            }
-            className={`w-full rounded-md px-4 py-2 text-white ${
-              headingsHighlighted
-                ? "bg-yellow-600 hover:bg-yellow-700"
-                : "bg-green-600 hover:bg-green-700"
-            }`}>
+            }>
+            <TypeIcon className="mr-2 h-4 w-4" />
             {headingsHighlighted
               ? "Remove Heading Highlights"
               : "Check Headings"}
-          </button>
-          <button className="w-full rounded-md bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">
-            Analyze Images
-          </button>
-        </div>
-      </main>
+          </Button>
 
-      <footer className="mt-4 text-center text-sm text-gray-500">
-        <p>Allyship Studio v0.0.1</p>
-      </footer>
+          <Button variant="default" className="w-full justify-start">
+            <ImageIcon className="mr-2 h-4 w-4" />
+            Analyze Images
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-auto">
+        <Separator />
+        <p className="pt-2 text-center text-sm text-muted-foreground">
+          Version 0.0.1
+        </p>
+      </div>
     </div>
   )
 }

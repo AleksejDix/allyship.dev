@@ -15,6 +15,7 @@
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.9.0",
     "@radix-ui/react-label": "2.1.2",
+    "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "1.1.2",
     "@supabase/supabase-js": "^2.39.3",
     "class-variance-authority": "0.7.1",
