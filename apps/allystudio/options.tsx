@@ -1,6 +1,8 @@
 import type { Provider, Session } from "@supabase/supabase-js"
 import { useEffect, useState } from "react"
 
+import "./styles/globals.css"
+
 import { supabase } from "~core/supabase"
 
 function IndexOptions() {

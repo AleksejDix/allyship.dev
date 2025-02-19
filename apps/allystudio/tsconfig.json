@@ -4,15 +4,8 @@
   "include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx"],
   "compilerOptions": {
     "paths": {
-      "~*": ["./*"],
-      "@/*": ["./*"]
+      "~*": ["./*"]
     },
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "jsx": "preserve",
-    "jsxImportSource": "react",
-    "strict": true,
-    "skipLibCheck": true,
-    "noEmit": true
+    "baseUrl": "."
   }
 }
