@@ -1,12 +1,18 @@
 {
   "extends": "plasmo/templates/tsconfig.base",
   "exclude": ["node_modules"],
-  "include": [".plasmo/index.d.ts", "next-env.d.ts", "./**/*.ts", "./**/*.tsx"],
+  "include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx"],
   "compilerOptions": {
     "paths": {
-      "~*": ["./src/*"]
+      "~*": ["./*"],
+      "@/*": ["./*"]
     },
+    "isolatedModules": true,
     "baseUrl": ".",
-    "isolatedModules": true
+    "jsx": "preserve",
+    "jsxImportSource": "react",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
   }
 }
