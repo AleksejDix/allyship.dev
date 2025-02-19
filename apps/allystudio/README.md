@@ -8,14 +8,15 @@ A premium Chrome extension built with [Plasmo](https://docs.plasmo.com/) and [sh
 
 1. **Authentication System**
 
-   - Built on Supabase Auth
+   - Built on Supabase Auth with auto-login support
+   - Multi-step session validation and refresh
    - Supports email/password and OAuth (GitHub) login
    - Persistent session management using `@plasmohq/storage`
    - Secure token handling and refresh mechanism
 
 2. **Extension UI**
 
-   - Options Page: Full-screen authentication interface
+   - Options Page: Full-screen authentication interface with auto-login
    - Side Panel: Main accessibility tools interface
    - Theme Support: System/light/dark mode using shadcn/ui
 
@@ -47,7 +48,7 @@ Build Tools:
 
 ## How It Works
 
-### 1. Authentication Flow
+### 1. Authentication Flow with Auto-Login
 
 ```mermaid
 sequenceDiagram
@@ -57,11 +58,22 @@ sequenceDiagram
     participant Storage
 
     User->>Options: Open extension
-    Options->>Supabase: Check session
-    alt Has session
-        Supabase->>Storage: Store tokens
-        Storage->>Options: Update UI
-    else No session
+    Options->>Storage: Check local session
+    alt Has local session
+        Storage->>Supabase: Validate session
+        alt Session valid
+            Supabase->>Options: Return user data
+            Options->>Options: Auto-login complete
+        else Session invalid
+            Supabase->>Supabase: Attempt refresh
+            alt Refresh successful
+                Supabase->>Options: Return new session
+                Options->>Options: Auto-login complete
+            else Refresh failed
+                Options->>User: Show login form
+            end
+        end
+    else No local session
         Options->>User: Show login form
         User->>Options: Enter credentials
         Options->>Supabase: Authenticate
@@ -69,32 +81,44 @@ sequenceDiagram
     end
 ```
 
-**Implementation Details:**
+**Auto-Login Implementation:**
 
 ```typescript
-// Core authentication logic in options.tsx
-const [user, setUser] = useStorage<User>({
-  key: "user",
-  instance: new Storage({ area: "local" })
-})
+// Core auto-login logic
+export async function attemptAutoLogin() {
+  try {
+    // 1. Check for existing session
+    const {
+      data: { session }
+    } = await supabase.auth.getSession()
 
-// Session initialization
-useEffect(() => {
-  async function init() {
-    const { data, error } = await supabase.auth.getSession()
-    if (!!data.session) {
-      setUser(data.session.user)
-      sendToBackground({
-        name: "init-session",
-        body: {
-          refresh_token: data.session.refresh_token,
-          access_token: data.session.access_token
-        }
-      })
+    if (session) {
+      // 2. Validate session
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+      if (user) return { user, session }
     }
+
+    // 3. Try session refresh
+    const {
+      data: { session: refreshedSession }
+    } = await supabase.auth.refreshSession()
+
+    if (refreshedSession) {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+      if (user) return { user, session: refreshedSession }
+    }
+
+    return null
+  } catch (error) {
+    // Clear invalid session
+    await supabase.auth.signOut()
+    return null
   }
-  init()
-}, [])
+}
 ```
 
 ### 2. Storage System

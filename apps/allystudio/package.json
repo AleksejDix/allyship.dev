@@ -12,6 +12,7 @@
     "clean": "rm -rf build .plasmo"
   },
   "dependencies": {
+    "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.9.0",
     "@radix-ui/react-label": "2.1.2",
     "@radix-ui/react-slot": "1.1.2",
