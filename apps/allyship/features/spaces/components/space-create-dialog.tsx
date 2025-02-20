@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { Suspense, useState } from "react"
-import { SpaceCreate } from "@/features/spaces/components/space-create"
+import { Suspense, useState } from 'react'
+import { SpaceCreate } from '@/features/spaces/components/space-create'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@workspace/ui/components/dialog'
 
 export function SpaceCreateDialog() {
   const [open, setOpen] = useState(false)

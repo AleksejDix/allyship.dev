@@ -1,68 +1,73 @@
-"use client"
+'use client'
 
-import { Circle, TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts"
+import { Circle, TrendingUp } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
 
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@workspace/ui/components/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from '@workspace/ui/components/chart'
 
 const chartData = [
   {
-    issue: "Contrast",
+    issue: 'Contrast',
     percent: 80,
-    fill: "var(--color-low-contrast)",
+    fill: 'var(--color-low-contrast)',
   },
   {
-    issue: "Images",
+    issue: 'Images',
     percent: 55,
-    fill: "var(--color-missing-alt)",
+    fill: 'var(--color-missing-alt)',
   },
   {
-    issue: "Links",
+    issue: 'Links',
     percent: 48,
-    fill: "var(--color-empty-links)",
+    fill: 'var(--color-empty-links)',
   },
   {
-    issue: "Labels",
+    issue: 'Labels',
     percent: 44,
-    fill: "var(--color-form-labels)",
+    fill: 'var(--color-form-labels)',
   },
   {
-    issue: "Buttons",
+    issue: 'Buttons',
     percent: 28,
-    fill: "var(--color-form-labels)",
+    fill: 'var(--color-form-labels)',
   },
   {
-    issue: "Language",
+    issue: 'Language',
     percent: 17,
-    fill: "var(--color-form-labels)",
+    fill: 'var(--color-form-labels)',
   },
 ]
 
 const chartConfig = {
   issue: {
-    label: "Issue",
+    label: 'Issue',
   },
-  "low-contrast": {
-    label: "Low Contrast",
-    color: "hsl(var(--chart-2))",
+  'low-contrast': {
+    label: 'Low Contrast',
+    color: 'hsl(var(--chart-2))',
   },
-  "missing-alt": {
-    label: "Missing Alt Text",
-    color: "hsl(var(--chart-2))",
+  'missing-alt': {
+    label: 'Missing Alt Text',
+    color: 'hsl(var(--chart-2))',
   },
-  "empty-links": {
-    label: "Empty Links",
-    color: "hsl(var(--chart-2))",
+  'empty-links': {
+    label: 'Empty Links',
+    color: 'hsl(var(--chart-2))',
   },
-  "form-labels": {
-    label: "Missing Form Labels",
-    color: "hsl(var(--chart-2))",
+  'form-labels': {
+    label: 'Missing Form Labels',
+    color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig
 
@@ -79,7 +84,7 @@ const TriangleBar = (props: any) => {
 
   return <path d={getPath(x, y, width, height)} stroke="none" fill={fill} />
 }
-const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "red", "pink"]
+const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', 'red', 'pink']
 
 export function Issues() {
   return (
@@ -112,7 +117,7 @@ export function Issues() {
                     fill="#8884d8"
                     shape={<TriangleBar />}
                     label={{
-                      position: "top",
+                      position: 'top',
                       formatter: (value: number) => `${value}%`,
                     }}
                   >
@@ -142,7 +147,7 @@ export function Issues() {
             Top Issues in the WebAIM Million
           </p>
           <ul className="mt-6 space-y-4">
-            {chartData.map((item) => (
+            {chartData.map(item => (
               <li
                 key={item.issue}
                 className="flex items-center text-lg leading-snug text-muted-foreground"

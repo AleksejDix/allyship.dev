@@ -8,15 +8,15 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Form } from '@/components/ui/form'
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
 import { Field } from '@/components/forms/field'
 
 const formSchema = z.object({

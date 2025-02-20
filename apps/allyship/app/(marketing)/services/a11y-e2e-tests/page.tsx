@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { Badge } from '@workspace/ui/components/badge'
 import {
   ArrowRight,
   Bot,
@@ -11,15 +11,15 @@ import {
   Shield,
   Gauge,
   RefreshCcw,
-  Workflow
-} from "lucide-react"
+  Workflow,
+} from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useState } from "react"
+} from '@workspace/ui/components/dialog'
+import { useState } from 'react'
 
 export default function E2ETestingPage() {
   const [showDemoModal, setShowDemoModal] = useState(false)
@@ -56,8 +56,9 @@ export default function E2ETestingPage() {
                 Automated Accessibility Monitoring
               </h1>
               <p className="text-xl text-muted-foreground">
-                Continuous end-to-end testing to ensure your website stays accessible.
-                Catch issues before they affect your users with our automated monitoring service.
+                Continuous end-to-end testing to ensure your website stays
+                accessible. Catch issues before they affect your users with our
+                automated monitoring service.
               </p>
               <div className="flex gap-4">
                 <Button size="lg" className="bg-green-600 hover:bg-green-700">
@@ -76,22 +77,23 @@ export default function E2ETestingPage() {
             <div className="grid gap-4 lg:grid-cols-2">
               {[
                 {
-                  title: "24/7 Monitoring",
-                  description: "Continuous testing across your entire site"
+                  title: '24/7 Monitoring',
+                  description: 'Continuous testing across your entire site',
                 },
                 {
-                  title: "Instant Alerts",
-                  description: "Real-time notifications for accessibility issues"
+                  title: 'Instant Alerts',
+                  description:
+                    'Real-time notifications for accessibility issues',
                 },
                 {
-                  title: "Detailed Reports",
-                  description: "Comprehensive analytics and trends"
+                  title: 'Detailed Reports',
+                  description: 'Comprehensive analytics and trends',
                 },
                 {
-                  title: "Auto-fixes",
-                  description: "AI-powered suggestions for quick fixes"
-                }
-              ].map((item) => (
+                  title: 'Auto-fixes',
+                  description: 'AI-powered suggestions for quick fixes',
+                },
+              ].map(item => (
                 <Card key={item.title} className="bg-card/50">
                   <CardContent className="p-4">
                     <div className="space-y-2">
@@ -113,33 +115,35 @@ export default function E2ETestingPage() {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl font-bold mb-4">How It Works</h2>
           <p className="text-lg text-muted-foreground">
-            Our automated system continuously monitors your website for accessibility issues,
-            providing real-time alerts and detailed reports.
+            Our automated system continuously monitors your website for
+            accessibility issues, providing real-time alerts and detailed
+            reports.
           </p>
         </div>
         <div className="grid md:grid-cols-4 gap-8">
           {[
             {
               icon: Bot,
-              title: "Automated Scans",
-              description: "Regular automated testing across your entire website"
+              title: 'Automated Scans',
+              description:
+                'Regular automated testing across your entire website',
             },
             {
               icon: LineChart,
-              title: "Trend Analysis",
-              description: "Track accessibility improvements over time"
+              title: 'Trend Analysis',
+              description: 'Track accessibility improvements over time',
             },
             {
               icon: Bell,
-              title: "Instant Alerts",
-              description: "Real-time notifications for new issues"
+              title: 'Instant Alerts',
+              description: 'Real-time notifications for new issues',
             },
             {
               icon: Shield,
-              title: "Compliance Tracking",
-              description: "Monitor WCAG compliance continuously"
-            }
-          ].map((item) => (
+              title: 'Compliance Tracking',
+              description: 'Monitor WCAG compliance continuously',
+            },
+          ].map(item => (
             <Card key={item.title}>
               <CardContent className="pt-6">
                 <div className="space-y-2">
@@ -161,41 +165,43 @@ export default function E2ETestingPage() {
             {[
               {
                 icon: Gauge,
-                title: "Performance Metrics",
+                title: 'Performance Metrics',
                 features: [
-                  "Page load time monitoring",
-                  "Resource usage tracking",
-                  "User interaction analysis",
-                  "Mobile responsiveness checks"
-                ]
+                  'Page load time monitoring',
+                  'Resource usage tracking',
+                  'User interaction analysis',
+                  'Mobile responsiveness checks',
+                ],
               },
               {
                 icon: RefreshCcw,
-                title: "Continuous Testing",
+                title: 'Continuous Testing',
                 features: [
-                  "24/7 automated monitoring",
-                  "Cross-browser testing",
-                  "Device compatibility",
-                  "Regular compliance checks"
-                ]
+                  '24/7 automated monitoring',
+                  'Cross-browser testing',
+                  'Device compatibility',
+                  'Regular compliance checks',
+                ],
               },
               {
                 icon: Workflow,
-                title: "Integration Ready",
+                title: 'Integration Ready',
                 features: [
-                  "CI/CD pipeline integration",
-                  "API access",
-                  "Custom webhook support",
-                  "Third-party tool connections"
-                ]
-              }
-            ].map((section) => (
+                  'CI/CD pipeline integration',
+                  'API access',
+                  'Custom webhook support',
+                  'Third-party tool connections',
+                ],
+              },
+            ].map(section => (
               <Card key={section.title} className="bg-card/50">
                 <CardContent className="p-6">
                   <section.icon className="h-8 w-8 text-green-600 mb-4" />
-                  <h3 className="text-xl font-semibold mb-4">{section.title}</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    {section.title}
+                  </h3>
                   <div className="space-y-3">
-                    {section.features.map((feature) => (
+                    {section.features.map(feature => (
                       <div key={feature} className="flex items-center gap-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-green-600" />
                         <span className="text-sm">{feature}</span>
@@ -215,8 +221,8 @@ export default function E2ETestingPage() {
           <CardContent className="p-12 text-center space-y-6">
             <h2 className="text-3xl font-bold">Ready to Start Monitoring?</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Keep your website accessible 24/7 with automated testing and monitoring.
-              Start your free trial today.
+              Keep your website accessible 24/7 with automated testing and
+              monitoring. Start your free trial today.
             </p>
             <div className="flex gap-4 justify-center">
               <Button size="lg" className="bg-green-600 hover:bg-green-700">

@@ -20,10 +20,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Form } from '@/components/ui/form'
+} from '@workspace/ui/components/alert-dialog'
+import { Button } from '@workspace/ui/components/button'
+import { Checkbox } from '@workspace/ui/components/checkbox'
+import { Form } from '@workspace/ui/components/form'
 
 type Props = {
   page: Tables<'Page'>

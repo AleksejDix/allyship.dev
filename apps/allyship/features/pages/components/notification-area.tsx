@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { AlertTriangle, CheckCircle2 } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription } from '@workspace/ui/components/alert'
 
 type NotificationResult = {
-  type: "success" | "error"
+  type: 'success' | 'error'
   message: string
 }
 
@@ -26,13 +26,13 @@ export function NotificationArea({ children }: NotificationAreaProps) {
 
     // TypeScript requires type assertion for CustomEvent
     document.addEventListener(
-      "showNotification",
+      'showNotification',
       handleNotification as EventListener
     )
 
     return () => {
       document.removeEventListener(
-        "showNotification",
+        'showNotification',
         handleNotification as EventListener
       )
     }
@@ -43,12 +43,12 @@ export function NotificationArea({ children }: NotificationAreaProps) {
       {children}
       {notification && (
         <Alert
-          variant={notification.type === "success" ? "success" : "destructive"}
+          variant={notification.type === 'success' ? 'success' : 'destructive'}
           role="status"
           aria-live="polite"
           className="inline-flex"
         >
-          {notification.type === "success" ? (
+          {notification.type === 'success' ? (
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
           ) : (
             <AlertTriangle className="h-4 w-4" aria-hidden="true" />

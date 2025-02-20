@@ -1,8 +1,8 @@
-import { HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute } from "react"
-import { TriangleAlert } from "lucide-react"
-import { useFormContext } from "react-hook-form"
+import { HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute } from 'react'
+import { TriangleAlert } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 import {
   FormControl,
   FormDescription,
@@ -10,8 +10,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from '@workspace/ui/components/form'
+import { Input } from '@workspace/ui/components/input'
 
 type FieldProps = {
   name: string
@@ -30,18 +30,18 @@ export function Field(props: FieldProps) {
   const form = useFormContext()
   const error = form.formState.errors[props.name]
 
-  const isHidden = props.type === "hidden"
+  const isHidden = props.type === 'hidden'
 
   return (
     <FormField
       control={form.control}
       name={props.name}
-      render={(context) => (
-        <FormItem className={cn("space-y-2", props.className)}>
+      render={context => (
+        <FormItem className={cn('space-y-2', props.className)}>
           <FormLabel
             className={cn(
-              "flex items-center justify-between min-h-4",
-              isHidden && "sr-only"
+              'flex items-center justify-between min-h-4',
+              isHidden && 'sr-only'
             )}
           >
             <span className="inline-flex gap-1">
@@ -73,7 +73,7 @@ export function Field(props: FieldProps) {
               placeholder={props.placeholder}
               autoFocus={props.autoFocus}
               disabled={props.disabled}
-              className={cn(error && "border-destructive")}
+              className={cn(error && 'border-destructive')}
             />
           </FormControl>
           <FormMessage />

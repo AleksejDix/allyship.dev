@@ -1,15 +1,15 @@
-import { SignInWithOAuthCredentials } from "@supabase/auth-js"
+import { SignInWithOAuthCredentials } from '@supabase/auth-js'
 
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
+import { createClient } from '@/lib/supabase/client'
+import { Button } from '@workspace/ui/components/button'
 
 export const LoginWithGoogle = () => {
-  async function withOAuth(provider: SignInWithOAuthCredentials["provider"]) {
+  async function withOAuth(provider: SignInWithOAuthCredentials['provider']) {
     const supabase = createClient()
     supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: process.env.NEXT_PUBLIC_APP_URL + "/auth/callback",
+        redirectTo: process.env.NEXT_PUBLIC_APP_URL + '/auth/callback',
       },
     })
   }
@@ -19,7 +19,7 @@ export const LoginWithGoogle = () => {
       type="button"
       variant="outline"
       className="w-full"
-      onClick={() => withOAuth("google")}
+      onClick={() => withOAuth('google')}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -4,7 +4,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@workspace/ui/components/card'
 
 export default async function SettingsPage() {
   return (

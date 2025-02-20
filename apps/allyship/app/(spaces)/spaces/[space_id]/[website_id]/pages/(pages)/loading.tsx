@@ -1,6 +1,6 @@
-import { PageHeader } from "@/features/websites/components/page-header"
+import { PageHeader } from '@/features/websites/components/page-header'
 
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from '@workspace/ui/components/skeleton'
 
 export default function PagesLoading() {
   return (

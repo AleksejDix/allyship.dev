@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import { createWebsite } from "@/features/websites/actions"
-import { normalizeUrl } from "@/utils/url"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { createWebsite } from '@/features/websites/actions'
+import { normalizeUrl } from '@/utils/url'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+import { Button } from '@workspace/ui/components/button'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
 const formSchema = z.object({
   url: z.string().transform((url, ctx) => {
@@ -17,21 +17,21 @@ const formSchema = z.object({
     if (trimmed.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please enter a website URL",
+        message: 'Please enter a website URL',
       })
       return z.NEVER
     }
 
     try {
       // Add protocol if missing
-      const urlWithProtocol = trimmed.startsWith("http")
+      const urlWithProtocol = trimmed.startsWith('http')
         ? trimmed
         : `https://${trimmed}`
       return normalizeUrl(urlWithProtocol) // Don't keep query params for websites
     } catch (error) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: error instanceof Error ? error.message : "Invalid URL format",
+        message: error instanceof Error ? error.message : 'Invalid URL format',
       })
       return z.NEVER
     }
@@ -50,7 +50,7 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      url: "",
+      url: '',
       space_id,
     },
   })
@@ -62,12 +62,12 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
     console.log(response, validationError)
 
     if (validationError) {
-      if (validationError.code === "INPUT_PARSE_ERROR") {
+      if (validationError.code === 'INPUT_PARSE_ERROR') {
         Object.entries(validationError.fieldErrors).forEach(
           ([field, messages]) => {
             form.setError(field as keyof FormData, {
-              type: "server",
-              message: messages?.join(", "),
+              type: 'server',
+              message: messages?.join(', '),
             })
           }
         )
@@ -96,7 +96,7 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
         <Field type="hidden" name="space_id" label="Space ID" />
 
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Creating..." : "Create"}
+          {isPending ? 'Creating...' : 'Create'}
         </Button>
       </form>
     </Form>

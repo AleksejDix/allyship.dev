@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { Square, SquareCheckBig } from "lucide-react"
+import { Square, SquareCheckBig } from 'lucide-react'
 
-import { TreeDataItem, TreeView } from "@/components/ui/tree-view"
+import { TreeDataItem, TreeView } from '@workspace/ui/components/tree-view'
 
 import {
   Card,
@@ -11,62 +11,62 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card"
+} from '../ui/card'
 
 const data: TreeDataItem[] = [
   {
-    id: "/",
-    name: "/",
+    id: '/',
+    name: '/',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },
   {
-    id: "/about",
-    name: "/about",
+    id: '/about',
+    name: '/about',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },
   {
-    id: "/contact",
-    name: "/contact",
+    id: '/contact',
+    name: '/contact',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },
   {
-    id: "/blog",
-    name: "/blog",
-    icon: Square,
-    selectedIcon: SquareCheckBig,
-  },
-
-  {
-    id: "/blog/2024-01-21-click-target-size",
-    name: "/blog/2024-01-21-click-target-size",
-    icon: Square,
-    selectedIcon: SquareCheckBig,
-  },
-  {
-    id: "/2024-01-20-why-capitalisation-matters-for-accessibility",
-    name: "/2024-01-20-why-capitalisation-matters-for-accessibility",
+    id: '/blog',
+    name: '/blog',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },
 
   {
-    id: "/privacy",
-    name: "/privacy",
+    id: '/blog/2024-01-21-click-target-size',
+    name: '/blog/2024-01-21-click-target-size',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },
   {
-    id: "/terms",
-    name: "/terms",
+    id: '/2024-01-20-why-capitalisation-matters-for-accessibility',
+    name: '/2024-01-20-why-capitalisation-matters-for-accessibility',
+    icon: Square,
+    selectedIcon: SquareCheckBig,
+  },
+
+  {
+    id: '/privacy',
+    name: '/privacy',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },
   {
-    id: "/imprint",
-    name: "/imprint",
+    id: '/terms',
+    name: '/terms',
+    icon: Square,
+    selectedIcon: SquareCheckBig,
+  },
+  {
+    id: '/imprint',
+    name: '/imprint',
     icon: Square,
     selectedIcon: SquareCheckBig,
   },

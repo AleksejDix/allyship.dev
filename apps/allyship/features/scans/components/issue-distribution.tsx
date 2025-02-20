@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Label, Pie, PieChart } from "recharts"
+import * as React from 'react'
+import { Label, Pie, PieChart } from 'recharts'
 
 import {
   Card,
@@ -10,37 +10,37 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@workspace/ui/components/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from '@workspace/ui/components/chart'
 
 const chartConfig = {
   count: {
-    label: "Issues",
+    label: 'Issues',
   },
   critical: {
-    label: "Critical",
-    color: "hsl(var(--chart-5))",
+    label: 'Critical',
+    color: 'hsl(var(--chart-5))',
   },
   high: {
-    label: "High",
-    color: "hsl(var(--destructive))",
+    label: 'High',
+    color: 'hsl(var(--destructive))',
   },
   medium: {
-    label: "Medium",
-    color: "hsl(var(--chart-3))",
+    label: 'Medium',
+    color: 'hsl(var(--chart-3))',
   },
   low: {
-    label: "Low",
-    color: "hsl(var(--chart-3))",
+    label: 'Low',
+    color: 'hsl(var(--chart-3))',
   },
   info: {
-    label: "Info",
-    color: "hsl(var(--chart-1))",
+    label: 'Info',
+    color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig
 
@@ -60,24 +60,24 @@ export function IssueDistribution({ results }: { results: ScanResults }) {
 
   const chartData = [
     {
-      severity: "critical",
-      count: allIssues.filter((v) => v.impact === "critical").length,
-      fill: "hsl(var(--chart-5))",
+      severity: 'critical',
+      count: allIssues.filter(v => v.impact === 'critical').length,
+      fill: 'hsl(var(--chart-5))',
     },
     {
-      severity: "serious",
-      count: allIssues.filter((v) => v.impact === "serious").length,
-      fill: "hsl(var(--destructive))",
+      severity: 'serious',
+      count: allIssues.filter(v => v.impact === 'serious').length,
+      fill: 'hsl(var(--destructive))',
     },
     {
-      severity: "moderate",
-      count: allIssues.filter((v) => v.impact === "moderate").length,
-      fill: "hsl(var(--chart-3))",
+      severity: 'moderate',
+      count: allIssues.filter(v => v.impact === 'moderate').length,
+      fill: 'hsl(var(--chart-3))',
     },
     {
-      severity: "minor",
-      count: allIssues.filter((v) => v.impact === "minor").length,
-      fill: "hsl(var(--chart-3))",
+      severity: 'minor',
+      count: allIssues.filter(v => v.impact === 'minor').length,
+      fill: 'hsl(var(--chart-3))',
     },
   ]
 
@@ -106,7 +106,7 @@ export function IssueDistribution({ results }: { results: ScanResults }) {
             >
               <Label
                 content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
                     return (
                       <text
                         x={viewBox.cx}

@@ -9,8 +9,8 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useServerAction } from 'zsa-react'
 
-import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
+import { Button } from '@workspace/ui/components/button'
+import { Form } from '@workspace/ui/components/form'
 import { Field } from '@/components/forms/field'
 
 interface Props {

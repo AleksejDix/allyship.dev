@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import Confetti from "react-confetti"
-import { useForm } from "react-hook-form"
+import { useEffect, useState } from 'react'
+import Confetti from 'react-confetti'
+import { useForm } from 'react-hook-form'
 
-import { Form, FormControl, FormItem } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Form, FormControl, FormItem } from '@workspace/ui/components/form'
+import { Input } from '@workspace/ui/components/input'
+import { Label } from '@workspace/ui/components/label'
+import { Switch } from '@workspace/ui/components/switch'
 
-import type { ChecklistSection } from "../types"
+import type { ChecklistSection } from '../types'
 
 interface ChecklistClientProps {
   items: ChecklistSection[]
@@ -19,7 +19,7 @@ interface ChecklistClientProps {
 export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
   const [checkedItems, setCheckedItems] = useState<number[]>([])
   const [allChecked, setAllChecked] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
 
   const form = useForm()
 
@@ -28,9 +28,9 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
   )
 
   const handleCheckboxChange = (index: number) => {
-    setCheckedItems((prev) =>
+    setCheckedItems(prev =>
       prev.includes(index)
-        ? prev.filter((item) => item !== index)
+        ? prev.filter(item => item !== index)
         : [...prev, index]
     )
   }
@@ -39,9 +39,9 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
     setAllChecked(checkedItems.length === totalItems)
   }, [checkedItems, totalItems])
 
-  const filteredItems = items.map((section) => ({
+  const filteredItems = items.map(section => ({
     ...section,
-    items: section.items.filter((item) =>
+    items: section.items.filter(item =>
       item.label.toLowerCase().includes(searchTerm.toLowerCase())
     ),
   }))
@@ -77,7 +77,7 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
             style={
               {
                 width: `${progressPercentage}%`,
-                "--progress": `${progressPercentage}%`,
+                '--progress': `${progressPercentage}%`,
               } as React.CSSProperties
             }
           />
@@ -97,7 +97,7 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
                 type="search"
                 placeholder="Search checklist items..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
               />
             </FormControl>
           </FormItem>
@@ -113,13 +113,13 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
       >
         {searchTerm
           ? `Found ${totalFilteredItems} item${
-              totalFilteredItems === 1 ? "" : "s"
+              totalFilteredItems === 1 ? '' : 's'
             } matching "${searchTerm}"`
-          : ""}
+          : ''}
       </div>
 
       <div className="space-y-8" role="list">
-        {filteredItems.map((section) => (
+        {filteredItems.map(section => (
           <section
             key={section.title}
             className="space-y-4"
@@ -132,7 +132,7 @@ export function ChecklistClient({ items, totalItems }: ChecklistClientProps) {
               {section.title}
             </h2>
             <ul className="space-y-2" role="list">
-              {section.items.map((item) => (
+              {section.items.map(item => (
                 <ChecklistItem
                   key={item.index}
                   index={item.index}
@@ -169,12 +169,12 @@ function ChecklistItem({
       </Label>
       <Switch
         id={`switch-${index}`}
-        className={`mt-0.5 ${isChecked ? "bg-green-500" : ""}`}
+        className={`mt-0.5 ${isChecked ? 'bg-green-500' : ''}`}
         checked={isChecked}
         onCheckedChange={() => onChange(index)}
         aria-checked={isChecked}
         role="switch"
-        aria-label={`Mark ${label} as ${isChecked ? "incomplete" : "complete"}`}
+        aria-label={`Mark ${label} as ${isChecked ? 'incomplete' : 'complete'}`}
       />
     </li>
   )

@@ -1,16 +1,16 @@
-import { notFound } from "next/navigation"
-import { GlossarySearch } from "@/features/glossary/components/glossary-search"
+import { notFound } from 'next/navigation'
+import { GlossarySearch } from '@/features/glossary/components/glossary-search'
 
-import { generateMetadata } from "@/lib/metadata"
-import { getAllTerms } from "@/lib/terms"
-import { Separator } from "@/components/ui/separator"
-import { PageHeader } from "@/components/page-header"
+import { generateMetadata } from '@/lib/metadata'
+import { getAllTerms } from '@/lib/terms'
+import { Separator } from '@workspace/ui/components/separator'
+import { PageHeader } from '@/components/page-header'
 
 export const metadata = generateMetadata({
-  title: "Accessibility Glossary",
+  title: 'Accessibility Glossary',
   description:
-    "Comprehensive guide to web accessibility terms, concepts, and definitions",
-  path: "/glossary",
+    'Comprehensive guide to web accessibility terms, concepts, and definitions',
+  path: '/glossary',
 })
 
 export default async function GlossaryPage() {

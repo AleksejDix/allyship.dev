@@ -1,18 +1,22 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { createScan } from "@/features/scans/actions"
-import { normalizeUrl } from "@/utils/url"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { CheckIcon, Loader2, TriangleAlert } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { createScan } from '@/features/scans/actions'
+import { normalizeUrl } from '@/utils/url'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CheckIcon, Loader2, TriangleAlert } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
@@ -20,38 +24,38 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
 const formSchema = z.object({
   url: z.string().transform((url, ctx) => {
-    console.log("[SCAN] Original URL:", url)
+    console.log('[SCAN] Original URL:', url)
     const trimmed = url.trim()
-    console.log("[SCAN] Trimmed URL:", trimmed)
+    console.log('[SCAN] Trimmed URL:', trimmed)
     if (trimmed.length === 0) {
-      console.log("[SCAN] Empty URL after trim")
+      console.log('[SCAN] Empty URL after trim')
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please enter a website URL",
+        message: 'Please enter a website URL',
       })
       return z.NEVER
     }
 
     try {
       // Add protocol if missing
-      const urlWithProtocol = trimmed.startsWith("http")
+      const urlWithProtocol = trimmed.startsWith('http')
         ? trimmed
         : `https://${trimmed}`
-      console.log("[SCAN] URL with protocol:", urlWithProtocol)
+      console.log('[SCAN] URL with protocol:', urlWithProtocol)
       const normalized = normalizeUrl(urlWithProtocol, true)
-      console.log("[SCAN] Normalized URL:", normalized)
+      console.log('[SCAN] Normalized URL:', normalized)
       return normalized
     } catch (error) {
-      console.error("[SCAN] URL normalization error:", error)
+      console.error('[SCAN] URL normalization error:', error)
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: error instanceof Error ? error.message : "Invalid URL format",
+        message: error instanceof Error ? error.message : 'Invalid URL format',
       })
       return z.NEVER
     }
@@ -61,70 +65,70 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 type ScanJobCreateProps = {
-  variant?: "marketing" | "admin"
+  variant?: 'marketing' | 'admin'
 }
 
-export function ScanJobCreate({ variant = "marketing" }: ScanJobCreateProps) {
+export function ScanJobCreate({ variant = 'marketing' }: ScanJobCreateProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const complianceBadges = [
-    { id: "wcag20", label: "WCAG 2.0" },
-    { id: "wcag21", label: "WCAG 2.1" },
-    { id: "wcag22", label: "WCAG 2.2" },
-    { id: "eaa", label: "European Accessibility Act" },
-    { id: "section508", label: "Section 508" },
-    { id: "en301549", label: "EN 301 549" },
+    { id: 'wcag20', label: 'WCAG 2.0' },
+    { id: 'wcag21', label: 'WCAG 2.1' },
+    { id: 'wcag22', label: 'WCAG 2.2' },
+    { id: 'eaa', label: 'European Accessibility Act' },
+    { id: 'section508', label: 'Section 508' },
+    { id: 'en301549', label: 'EN 301 549' },
   ]
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      url: "",
+      url: '',
     },
   })
 
   const onSubmit = async (data: FormValues) => {
-    console.log("[SCAN] Form submitted with data:", data)
+    console.log('[SCAN] Form submitted with data:', data)
     try {
       setIsSubmitting(true)
       const result = await createScan(data)
-      console.log("[SCAN] Server response:", result)
+      console.log('[SCAN] Server response:', result)
 
       if (result?.error) {
-        console.error("[SCAN] Server error:", result.error)
+        console.error('[SCAN] Server error:', result.error)
         if (
-          result.error.message === "You must be logged in to scan a website"
+          result.error.message === 'You must be logged in to scan a website'
         ) {
-          form.setError("root.serverError", {
+          form.setError('root.serverError', {
             message: result.error.message,
-            type: "server",
+            type: 'server',
           })
           return
         }
-        form.setError("root.serverError", {
+        form.setError('root.serverError', {
           message:
             result.error.message +
             (result.error.details
               ? `: ${JSON.stringify(result.error.details)}`
-              : ""),
-          type: "server",
+              : ''),
+          type: 'server',
         })
         return
       }
 
       if (result?.success && result.data?.id) {
-        console.log("[SCAN] Scan created successfully:", result.data)
+        console.log('[SCAN] Scan created successfully:', result.data)
         router.push(`/scans/${result.data.id}`)
       }
     } catch (error) {
-      console.error("[SCAN] Unexpected error:", error)
-      form.setError("root.serverError", {
+      console.error('[SCAN] Unexpected error:', error)
+      form.setError('root.serverError', {
         message:
           error instanceof Error
             ? error.message
-            : "An unexpected error occurred",
-        type: "server",
+            : 'An unexpected error occurred',
+        type: 'server',
       })
     } finally {
       setIsSubmitting(false)
@@ -135,14 +139,14 @@ export function ScanJobCreate({ variant = "marketing" }: ScanJobCreateProps) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {variant === "marketing"
-            ? "Web Accessibility Scanner"
-            : "Run Accessibility Scan"}
+          {variant === 'marketing'
+            ? 'Web Accessibility Scanner'
+            : 'Run Accessibility Scan'}
         </CardTitle>
         <CardDescription>
-          {variant === "marketing"
-            ? "Check your website for accessibility compliance and get detailed reports."
-            : "Run a new accessibility scan for this page."}
+          {variant === 'marketing'
+            ? 'Check your website for accessibility compliance and get detailed reports.'
+            : 'Run a new accessibility scan for this page.'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -174,14 +178,14 @@ export function ScanJobCreate({ variant = "marketing" }: ScanJobCreateProps) {
                       <span>Scanning...</span>
                     </>
                   ) : (
-                    "Scan Now"
+                    'Scan Now'
                   )}
                 </Button>
               </div>
 
               <div role="alert" aria-live="polite">
                 {form.formState?.errors?.root?.serverError?.type ===
-                  "server" && (
+                  'server' && (
                   <Alert variant="destructive">
                     <TriangleAlert aria-hidden="true" size={16} />
                     <AlertTitle>Error</AlertTitle>
@@ -189,21 +193,21 @@ export function ScanJobCreate({ variant = "marketing" }: ScanJobCreateProps) {
                       {form.formState?.errors?.root?.serverError?.message}
 
                       {form.formState?.errors?.root?.serverError?.message ===
-                        "You must be logged in to scan a website" && (
+                        'You must be logged in to scan a website' && (
                         <span className="mt-2 block">
                           <Link
                             href="/auth/login"
                             className="underline font-bold"
                           >
                             Login
-                          </Link>{" "}
-                          or{" "}
+                          </Link>{' '}
+                          or{' '}
                           <Link
                             href="/auth/signup"
                             className="underline font-bold"
                           >
                             Sign up
-                          </Link>{" "}
+                          </Link>{' '}
                           to save your scan results.
                         </span>
                       )}
@@ -215,9 +219,9 @@ export function ScanJobCreate({ variant = "marketing" }: ScanJobCreateProps) {
           </form>
         </Form>
       </CardContent>
-      {variant === "marketing" && (
+      {variant === 'marketing' && (
         <CardFooter className="flex flex-wrap gap-2">
-          {complianceBadges.map((badge) => (
+          {complianceBadges.map(badge => (
             <Badge key={badge.id} variant="secondary">
               <CheckIcon size={16} className="mr-1" aria-hidden="true" />
               <span>{badge.label}</span>

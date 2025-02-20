@@ -1,23 +1,23 @@
 // import { MoveRight, PhoneCall } from "lucide-react"
-import Link from "next/link"
+import Link from 'next/link'
 
-import { generateMetadata } from "@/lib/metadata"
-import { createClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
-import { Faqs } from "@/components/blocks/Faqs"
-import { Issues } from "@/components/blocks/Issues"
-import { ScanProcess } from "@/components/blocks/ScanProcess"
-import { Services } from "@/components/blocks/Services"
-import { Stats } from "@/components/blocks/Stats"
-import { WebScanner } from "@/components/blocks/WebScanner"
-import { Compliance } from "@/components/charts/Compliance"
-import { Loader } from "@/components/loader"
+import { generateMetadata } from '@/lib/metadata'
+import { createClient } from '@/lib/supabase/server'
+import { Button } from '@workspace/ui/components/button'
+import { Faqs } from '@/components/blocks/Faqs'
+import { Issues } from '@/components/blocks/Issues'
+import { ScanProcess } from '@/components/blocks/ScanProcess'
+import { Services } from '@/components/blocks/Services'
+import { Stats } from '@/components/blocks/Stats'
+import { WebScanner } from '@/components/blocks/WebScanner'
+import { Compliance } from '@/components/charts/Compliance'
+import { Loader } from '@/components/loader'
 
 // import { NewsletterFormSection } from "@/components/emails/newletter-form-banner"
-// import { Button } from "@/components/ui/button"
+// import { Button } from "@workspace/ui/components/button"
 
 export const metadata = generateMetadata({
-  path: "/",
+  path: '/',
 })
 
 const Page = async () => {

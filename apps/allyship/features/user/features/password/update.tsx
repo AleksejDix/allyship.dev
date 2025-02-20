@@ -1,30 +1,34 @@
-"use client"
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LoaderCircle, TriangleAlert } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { useServerAction } from "zsa-react"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle, TriangleAlert } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { useServerAction } from 'zsa-react'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
-import { update } from "./actions"
-import { schema, type Schema } from "./schemas"
+import { update } from './actions'
+import { schema, type Schema } from './schemas'
 
 export function PasswordUpdate() {
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
     defaultValues: {
-      password: "",
+      password: '',
     },
   })
 
@@ -34,16 +38,16 @@ export function PasswordUpdate() {
     const [result, error] = await execute(data)
 
     if (error) {
-      if (error.code === "INPUT_PARSE_ERROR") {
+      if (error.code === 'INPUT_PARSE_ERROR') {
         Object.entries(error.fieldErrors).forEach(([field, messages]) => {
           form.setError(field as keyof Schema, {
-            type: "server",
-            message: messages?.join(", "),
+            type: 'server',
+            message: messages?.join(', '),
           })
         })
       } else {
-        form.setError("root.serverError", {
-          type: "server",
+        form.setError('root.serverError', {
+          type: 'server',
           message: error.message,
         })
       }
@@ -78,7 +82,7 @@ export function PasswordUpdate() {
               description="Must be at least 8 characters long, with one uppercase letter, one number, and one special character."
             />
 
-            {form.formState?.errors?.root?.serverError?.type === "server" && (
+            {form.formState?.errors?.root?.serverError?.type === 'server' && (
               <Alert variant="destructive">
                 <TriangleAlert aria-hidden="true" size={16} />
                 <AlertTitle>Error</AlertTitle>
@@ -103,7 +107,7 @@ export function PasswordUpdate() {
                 {isPending ? (
                   <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                {isPending ? "Saving..." : "Save"}
+                {isPending ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </form>

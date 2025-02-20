@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Check, Copy } from "lucide-react"
+import * as React from 'react'
+import { Check, Copy } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 
 export function CopyButton({ text }: { text: string; className?: string }) {
   const [copied, setCopied] = React.useState(false)

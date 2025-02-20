@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useActionState } from "react"
-import { Check } from "lucide-react"
+import * as React from 'react'
+import { useActionState } from 'react'
+import { Check } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
@@ -13,11 +13,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from '@workspace/ui/components/card'
+import { Input } from '@workspace/ui/components/input'
+import { Label } from '@workspace/ui/components/label'
 
-import { newsletterFormAction } from "./newsletter-action"
+import { newsletterFormAction } from './newsletter-action'
 
 function Success() {
   return (
@@ -37,7 +37,7 @@ export function NewsletterForm({
 }: React.ComponentProps<typeof Card>) {
   const [state, formAction, pending] = useActionState(newsletterFormAction, {
     defaultValues: {
-      email: "",
+      email: '',
     },
     success: false,
     errors: null,
@@ -50,7 +50,7 @@ export function NewsletterForm({
   }
 
   return (
-    <Card className={cn("w-full max-w-md", className)}>
+    <Card className={cn('w-full max-w-md', className)}>
       <CardHeader>
         <CardTitle id="form-title">Subscribe to our Newsletter</CardTitle>
         <CardDescription id="form-description">
@@ -66,11 +66,11 @@ export function NewsletterForm({
         <form
           noValidate
           ref={formRef}
-          action={async (event) => {
+          action={async event => {
             await formAction(event)
             if (state.success) {
               handleReset()
-              document.getElementById("success-message")?.focus() // Move focus to the success message
+              document.getElementById('success-message')?.focus() // Move focus to the success message
             } else {
               const firstError = document.querySelector(
                 "[aria-invalid='true']"
@@ -110,7 +110,7 @@ export function NewsletterForm({
           </CardContent>
           <CardFooter>
             <Button type="submit" size="sm" disabled={pending}>
-              {pending ? "Subscribing..." : "Subscribe"}
+              {pending ? 'Subscribing...' : 'Subscribe'}
             </Button>
           </CardFooter>
         </form>

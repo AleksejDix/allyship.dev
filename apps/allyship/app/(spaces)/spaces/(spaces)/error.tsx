@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
+import { useEffect } from 'react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 
 export default function Error({
   error,
@@ -22,7 +22,7 @@ export default function Error({
         Failed to Load Workspaces
       </h2>
       <p className="mt-2 text-muted-foreground">
-        {error.message || "An unexpected error occurred. Please try again."}
+        {error.message || 'An unexpected error occurred. Please try again.'}
       </p>
       <Button onClick={reset} className="mt-4">
         Try Again

@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { Tables } from '@/apps/AllyShip/database.types'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardHeader, CardTitle } from '@workspace/ui/components/card'
 
 interface SpaceIndexProps {
   spaces: Tables<'Space'>[]

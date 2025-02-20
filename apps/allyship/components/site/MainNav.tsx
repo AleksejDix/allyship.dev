@@ -1,9 +1,9 @@
-import * as React from "react"
-import Link from "next/link"
-import { Menu } from "lucide-react"
+import * as React from 'react'
+import Link from 'next/link'
+import { Menu } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@workspace/ui/components/button'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,79 +11,83 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { UserMenu } from "@/components/auth/UserMenu"
+} from '@workspace/ui/components/navigation-menu'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@workspace/ui/components/sheet'
+import { UserMenu } from '@/components/auth/UserMenu'
 
-import { RouterLink } from "../RouterLink"
-import { Logo } from "./Logo"
+import { RouterLink } from '../RouterLink'
+import { Logo } from './Logo'
 
 const MENU_SETTINGS = {
   products: {
-    label: "Products",
+    label: 'Products',
     items: [
       {
-        title: "Automated Accessibility Scanning",
-        href: "/products/automated-accessibility-scanning",
-        description: "Scan your website for accessibility issues",
+        title: 'Automated Accessibility Scanning',
+        href: '/products/automated-accessibility-scanning',
+        description: 'Scan your website for accessibility issues',
       },
       {
-        title: "Manual Accessibility Audits",
-        href: "/products/manual-accessibility-audit",
-        description: "A manual accessibility audit of your website",
+        title: 'Manual Accessibility Audits',
+        href: '/products/manual-accessibility-audit',
+        description: 'A manual accessibility audit of your website',
       },
       {
-        title: "Field Labels Bookmarklet",
-        href: "/products/field-label-bookmarklet",
-        description: "A bookmarklet to help you check form field labels",
+        title: 'Field Labels Bookmarklet',
+        href: '/products/field-label-bookmarklet',
+        description: 'A bookmarklet to help you check form field labels',
       },
       {
-        title: "Focus Bookmarklet",
-        href: "/products/focus-bookmarklet",
-        description: "A bookmarklet to help you understand tab order",
+        title: 'Focus Bookmarklet',
+        href: '/products/focus-bookmarklet',
+        description: 'A bookmarklet to help you understand tab order',
       },
       {
-        title: "Heading Order Bookmarklet",
-        href: "/products/heading-order-bookmarklet",
-        description: "A bookmarklet to help you understand heading order",
+        title: 'Heading Order Bookmarklet',
+        href: '/products/heading-order-bookmarklet',
+        description: 'A bookmarklet to help you understand heading order',
       },
       {
-        title: "Focus Styles Bookmarklet",
-        href: "/products/focus-styles-bookmarklet",
-        description: "A bookmarklet to help you check focus indicators",
+        title: 'Focus Styles Bookmarklet',
+        href: '/products/focus-styles-bookmarklet',
+        description: 'A bookmarklet to help you check focus indicators',
       },
     ],
   },
   education: {
-    label: "Education",
+    label: 'Education',
     items: [
       {
-        title: "Blog",
-        href: "/blog",
+        title: 'Blog',
+        href: '/blog',
         description:
-          "A blog about accessibility, quality assurance, and automated testing.",
+          'A blog about accessibility, quality assurance, and automated testing.',
       },
       {
-        title: "Glossary",
-        href: "/glossary",
+        title: 'Glossary',
+        href: '/glossary',
         description:
-          "A glossary of accessibility terms and definitions for the web.",
+          'A glossary of accessibility terms and definitions for the web.',
       },
       {
-        title: "Accessibility Standards Matrix",
-        href: "/education/accessibility-standards-matrix",
+        title: 'Accessibility Standards Matrix',
+        href: '/education/accessibility-standards-matrix',
         description:
-          "Compare accessibility criteria between different standards and guidelines.",
+          'Compare accessibility criteria between different standards and guidelines.',
       },
       {
-        title: "Accessibility Checklist",
-        href: "/education/checklist",
-        description: "A checklist of accessibility criteria",
+        title: 'Accessibility Checklist',
+        href: '/education/checklist',
+        description: 'A checklist of accessibility criteria',
       },
       {
-        title: "Accessibility Training",
-        href: "/education/courses",
-        description: "A training program for accessibility",
+        title: 'Accessibility Training',
+        href: '/education/courses',
+        description: 'A training program for accessibility',
       },
     ],
   },
@@ -97,13 +101,13 @@ export function MainNav() {
         <NavigationMenu className="hidden md:block">
           <NavigationMenuList>
             {Object.entries(MENU_SETTINGS).map(([key, menu]) => {
-              if (key === "mobile") return null
+              if (key === 'mobile') return null
               return (
                 <NavigationMenuItem key={key}>
                   <NavigationMenuTrigger>{menu.label}</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                      {menu.items.map((item) => (
+                      {menu.items.map(item => (
                         <ListItem
                           key={item.title}
                           title={item.title}
@@ -142,7 +146,7 @@ export function MainNav() {
                 {Object.entries(MENU_SETTINGS).map(([key, menu]) => (
                   <div key={key} className="flex flex-col gap-2">
                     <div className="font-medium text-lg">{menu.label}</div>
-                    {menu.items.map((item) => (
+                    {menu.items.map(item => (
                       <RouterLink
                         key={item.href}
                         href={item.href}
@@ -164,7 +168,7 @@ export function MainNav() {
 
 const ListItem = React.forwardRef<
   HTMLAnchorElement,
-  React.ComponentPropsWithoutRef<"a"> & { title: string }
+  React.ComponentPropsWithoutRef<'a'> & { title: string }
 >(({ className, title, children, href, ...props }, ref) => {
   return (
     <li>
@@ -173,7 +177,7 @@ const ListItem = React.forwardRef<
           ref={ref}
           href={href!}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             className
           )}
           {...props}
@@ -187,4 +191,4 @@ const ListItem = React.forwardRef<
     </li>
   )
 })
-ListItem.displayName = "ListItem"
+ListItem.displayName = 'ListItem'

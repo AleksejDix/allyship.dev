@@ -1,64 +1,64 @@
-"use client"
+'use client'
 
-import { Badge } from "@/components/ui/badge"
-import ThemeToggle from "@/components/ThemeToggle"
+import { Badge } from '@workspace/ui/components/badge'
+import ThemeToggle from '@/components/ThemeToggle'
 
-import { RouterLink } from "../RouterLink"
-import { Logo } from "./Logo"
+import { RouterLink } from '../RouterLink'
+import { Logo } from './Logo'
 
 const sections = [
   {
-    title: "Products",
+    title: 'Products',
     links: [
       {
-        name: "Automated Audit",
-        href: "/products/automated-accessibility-scanning",
+        name: 'Automated Audit',
+        href: '/products/automated-accessibility-scanning',
       },
-      { name: "Manual Audit", href: "/products/manual-accessibility-audit" },
+      { name: 'Manual Audit', href: '/products/manual-accessibility-audit' },
       {
-        name: "Focus Bookmarklet",
-        href: "/products/focus-bookmarklet",
+        name: 'Focus Bookmarklet',
+        href: '/products/focus-bookmarklet',
       },
       {
-        name: "Heading Bookmarklet",
-        href: "/products/heading-order-bookmarklet",
+        name: 'Heading Bookmarklet',
+        href: '/products/heading-order-bookmarklet',
       },
     ],
   },
   {
-    title: "Company",
+    title: 'Company',
     links: [
       // { name: "Help", href: "#" },
       // { name: "Sales" },
       // { name: "Advertise", href: "#" },
-      { name: "About", href: "/about" },
-      { name: "Privacy", href: "/privacy" },
-      { name: "Terms", href: "/terms" },
-      { name: "Legal", href: "/legal" },
-      { name: "Contact", href: "/contact" },
+      { name: 'About', href: '/about' },
+      { name: 'Privacy', href: '/privacy' },
+      { name: 'Terms', href: '/terms' },
+      { name: 'Legal', href: '/legal' },
+      { name: 'Contact', href: '/contact' },
     ],
   },
   {
-    title: "Education",
+    title: 'Education',
     links: [
-      { name: "Courses", href: "/education/courses" },
-      { name: "Checklist", href: "/education/checklist" },
-      { name: "Blog", href: "/blog" },
-      { name: "Glossary", href: "/glossary" },
+      { name: 'Courses', href: '/education/courses' },
+      { name: 'Checklist', href: '/education/checklist' },
+      { name: 'Blog', href: '/blog' },
+      { name: 'Glossary', href: '/glossary' },
     ],
   },
   {
-    title: "Social",
+    title: 'Social',
     links: [
-      { name: "Twitter", href: "https://x.com/aleksejdix" },
+      { name: 'Twitter', href: 'https://x.com/aleksejdix' },
       {
-        name: "LinkedIn",
-        href: "https://www.linkedin.com/company/allyship-dev",
+        name: 'LinkedIn',
+        href: 'https://www.linkedin.com/company/allyship-dev',
       },
-      { name: "GitHub", href: "https://github.com/AleksejDix" },
+      { name: 'GitHub', href: 'https://github.com/AleksejDix' },
       {
-        name: "Bluesky",
-        href: "https://bsky.app/profile/aleksejdix.bsky.social",
+        name: 'Bluesky',
+        href: 'https://bsky.app/profile/aleksejdix.bsky.social',
       },
     ],
   },
@@ -66,7 +66,7 @@ const sections = [
 
 // Add a helper function to check if a URL is external
 const isExternalUrl = (url: string) => {
-  return url.startsWith("http") || url.startsWith("https")
+  return url.startsWith('http') || url.startsWith('https')
 }
 
 export const Footer = () => {

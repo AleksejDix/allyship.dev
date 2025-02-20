@@ -1,17 +1,21 @@
-"use client"
+'use client'
 
-import { signup } from "@/features/user/actions/user-actions"
-import { LoginWithGoogle } from "@/features/user/components/user-login-with-google"
-import { loginFormSchema } from "@/features/user/schemas/user-schemas"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LoaderCircle, TriangleAlert } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { signup } from '@/features/user/actions/user-actions'
+import { LoginWithGoogle } from '@/features/user/components/user-login-with-google'
+import { loginFormSchema } from '@/features/user/schemas/user-schemas'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle, TriangleAlert } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { cn } from "@/lib/utils"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
@@ -19,21 +23,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
-import { RouterLink } from "@/components/RouterLink"
-import { Logo } from "@/components/site/Logo"
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
+import { RouterLink } from '@/components/RouterLink'
+import { Logo } from '@/components/site/Logo'
 
 export function UserSignupForm({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<'div'>) {
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
   })
 
@@ -43,12 +47,12 @@ export function UserSignupForm({
     const [data, validationError] = await execute(formData) // Pass the form data to the server action
     console.log({ data, validationError })
     if (validationError) {
-      if (validationError.code === "INPUT_PARSE_ERROR") {
+      if (validationError.code === 'INPUT_PARSE_ERROR') {
         Object.entries(validationError.fieldErrors).forEach(
           ([field, messages]) => {
             form.setError(field as keyof z.infer<typeof loginFormSchema>, {
-              type: "server",
-              message: messages?.join(", "),
+              type: 'server',
+              message: messages?.join(', '),
             })
           }
         )
@@ -58,9 +62,9 @@ export function UserSignupForm({
     }
 
     if (data && !data.success) {
-      form.setError("root.serverError", {
+      form.setError('root.serverError', {
         message: data.error?.message,
-        type: "server",
+        type: 'server',
       })
     } else if (data?.success) {
       form.reset()
@@ -68,7 +72,7 @@ export function UserSignupForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <div className="mx-auto">
         <Logo />
       </div>
@@ -129,7 +133,7 @@ export function UserSignupForm({
                 </div>
 
                 {form.formState?.errors?.root?.serverError?.type ===
-                  "server" && (
+                  'server' && (
                   <Alert variant="destructive">
                     <TriangleAlert aria-hidden="true" size={16} />
                     <AlertTitle>Authentication Error</AlertTitle>
@@ -141,7 +145,7 @@ export function UserSignupForm({
 
                 {form.formState.isSubmitSuccessful &&
                   !(
-                    form.formState?.errors?.root?.serverError?.type === "server"
+                    form.formState?.errors?.root?.serverError?.type === 'server'
                   ) && (
                     <Alert variant="success">
                       <TriangleAlert aria-hidden="true" size={16} />
@@ -161,7 +165,7 @@ export function UserSignupForm({
                       aria-hidden="true"
                     />
                   ) : null}
-                  {isPending ? "Creating account..." : "Create new account"}
+                  {isPending ? 'Creating account...' : 'Create new account'}
                 </Button>
               </div>
             </form>

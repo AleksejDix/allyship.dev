@@ -1,6 +1,6 @@
-import Link from "next/link"
+import Link from 'next/link'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 
 export default function WelcomePage() {
   return (

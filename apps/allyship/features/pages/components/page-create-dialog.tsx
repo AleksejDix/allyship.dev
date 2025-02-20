@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createPage } from "@/features/pages/actions/create"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createPage } from '@/features/pages/actions/create'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Plus } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+} from '@workspace/ui/components/dialog'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
 type Props = {
   space_id: string
@@ -41,7 +41,7 @@ export function PageCreateDialog({ website_id }: Props) {
   const form = useForm<PageCreateForm>({
     resolver: zodResolver(pageCreateSchema),
     defaultValues: {
-      url: "",
+      url: '',
     },
   })
 
@@ -61,7 +61,7 @@ export function PageCreateDialog({ website_id }: Props) {
     }
 
     if (!result?.success) {
-      setError(result?.error?.message ?? "Failed to create page")
+      setError(result?.error?.message ?? 'Failed to create page')
       return
     }
 
@@ -100,7 +100,7 @@ export function PageCreateDialog({ website_id }: Props) {
             </div>
             <DialogFooter>
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Adding..." : "Add Page"}
+                {isPending ? 'Adding...' : 'Add Page'}
               </Button>
             </DialogFooter>
           </form>

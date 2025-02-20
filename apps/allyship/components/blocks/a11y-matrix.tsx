@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useEffect, useRef, useState } from "react"
-import wcagData from "@/data/wcag-data.json"
-import { Check, X } from "lucide-react"
+import { useEffect, useRef, useState } from 'react'
+import wcagData from '@/data/wcag-data.json'
+import { Check, X } from 'lucide-react'
 
 import {
   Table,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@workspace/ui/components/table'
 
 export function A11yMatrix() {
   const tableRef = useRef<HTMLDivElement>(null)
@@ -26,8 +26,8 @@ export function A11yMatrix() {
     }
 
     updateHeight()
-    window.addEventListener("resize", updateHeight)
-    return () => window.removeEventListener("resize", updateHeight)
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
   }, [])
 
   return (

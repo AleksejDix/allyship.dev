@@ -16,7 +16,20 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "build/**"],
+      "env": [
+        "NODE_ENV",
+        "ANALYZE",
+        "RESEND_API_KEY",
+        "BROWSERCAT_API_KEY",
+        "PUPPETEER_BROWSERLESS_IO_KEY",
+        "OPENAI_API_KEY",
+        "SENTRY_AUTH_TOKEN"
+      ]
+    },
+    "preview": {
+      "dependsOn": ["^preview"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "build/**"],
       "env": [
         "NODE_ENV",
         "ANALYZE",

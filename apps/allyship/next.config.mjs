@@ -12,6 +12,11 @@ const nextConfig = {
     // This will show type errors in the UI components but won't fail the build
     ignoreBuildErrors: true,
   },
+  experimental: {
+    clientTraceMetadata: ['sentry-trace', 'baggage'],
+    instrumentationHook: undefined,
+    serverActions: true,
+  },
   images: {
     remotePatterns: [
       {

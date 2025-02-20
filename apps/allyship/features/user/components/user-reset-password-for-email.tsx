@@ -1,16 +1,20 @@
-"use client"
+'use client'
 
-import { resetPasswordForEmail } from "@/features/user/actions/user-reset-password-for-email-action" // Update this to your RecoverPassword server action
-import { ResetPasswordForEmailSchema } from "@/features/user/schemas/user-reset-password-for-email-schema" // Update this schema to match Recover password form
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LoaderCircle, TriangleAlert } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { resetPasswordForEmail } from '@/features/user/actions/user-reset-password-for-email-action' // Update this to your RecoverPassword server action
+import { ResetPasswordForEmailSchema } from '@/features/user/schemas/user-reset-password-for-email-schema' // Update this schema to match Recover password form
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle, TriangleAlert } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { cn } from "@/lib/utils"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
@@ -18,20 +22,20 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
-import { RouterLink } from "@/components/RouterLink"
-import { Logo } from "@/components/site/Logo"
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
+import { RouterLink } from '@/components/RouterLink'
+import { Logo } from '@/components/site/Logo'
 
 export function UserResetPasswordForEmail({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<'div'>) {
   const form = useForm<z.infer<typeof ResetPasswordForEmailSchema>>({
     resolver: zodResolver(ResetPasswordForEmailSchema),
     defaultValues: {
-      username: "",
+      username: '',
     },
   })
 
@@ -43,14 +47,14 @@ export function UserResetPasswordForEmail({
     const [data, validationError] = await execute(formData)
 
     if (validationError) {
-      if (validationError.code === "INPUT_PARSE_ERROR") {
+      if (validationError.code === 'INPUT_PARSE_ERROR') {
         Object.entries(validationError.fieldErrors).forEach(
           ([field, messages]) => {
             form.setError(
               field as keyof z.infer<typeof ResetPasswordForEmailSchema>,
               {
-                type: "server",
-                message: messages?.join(", "),
+                type: 'server',
+                message: messages?.join(', '),
               }
             )
           }
@@ -61,9 +65,9 @@ export function UserResetPasswordForEmail({
     }
 
     if (data && !data.success) {
-      form.setError("root.serverError", {
+      form.setError('root.serverError', {
         message: data.error?.message,
-        type: "server",
+        type: 'server',
       })
     } else if (data?.success) {
       form.reset()
@@ -71,7 +75,7 @@ export function UserResetPasswordForEmail({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <div className="mx-auto">
         <RouterLink href="/">
           <Logo />
@@ -104,7 +108,7 @@ export function UserResetPasswordForEmail({
                 />
 
                 {form.formState?.errors?.root?.serverError?.type ===
-                  "server" && (
+                  'server' && (
                   <Alert variant="destructive">
                     <TriangleAlert aria-hidden="true" size={16} />
                     <AlertTitle>Authentication Error</AlertTitle>
@@ -116,7 +120,7 @@ export function UserResetPasswordForEmail({
 
                 {form.formState.isSubmitSuccessful &&
                   !(
-                    form.formState?.errors?.root?.serverError?.type === "server"
+                    form.formState?.errors?.root?.serverError?.type === 'server'
                   ) && (
                     <Alert variant="success">
                       <TriangleAlert aria-hidden="true" size={16} />

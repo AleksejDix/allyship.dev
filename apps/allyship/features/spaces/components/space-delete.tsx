@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import { useRouter } from "next/navigation"
-import { deleteSpaceAction } from "@/features/spaces/actions"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { useRouter } from 'next/navigation'
+import { deleteSpaceAction } from '@/features/spaces/actions'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
@@ -15,18 +15,18 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
 const formSchema = z
   .object({
-    name: z.string().min(1, "Workspace name is required"),
+    name: z.string().min(1, 'Workspace name is required'),
     confirmName: z.string(),
   })
-  .refine((data) => data.name === data.confirmName, {
-    message: "Please type the workspace name to confirm",
-    path: ["confirmName"],
+  .refine(data => data.name === data.confirmName, {
+    message: 'Please type the workspace name to confirm',
+    path: ['confirmName'],
   })
 
 type FormData = z.infer<typeof formSchema>
@@ -48,7 +48,7 @@ export function SpaceDelete(props: SpaceDeleteProps) {
     context: { spaceName: props.space.name },
     values: {
       name: props.space.name,
-      confirmName: "",
+      confirmName: '',
     },
   })
 
@@ -58,17 +58,17 @@ export function SpaceDelete(props: SpaceDeleteProps) {
     const [result, error] = await execute({ id: props.space.id })
 
     if (error) {
-      form.setError("root", {
-        type: "server",
+      form.setError('root', {
+        type: 'server',
         message: error.message,
       })
       return
     }
 
     if (!result?.success) {
-      form.setError("root", {
-        type: "server",
-        message: "Failed to delete workspace",
+      form.setError('root', {
+        type: 'server',
+        message: 'Failed to delete workspace',
       })
       return
     }
@@ -134,7 +134,7 @@ export function SpaceDelete(props: SpaceDeleteProps) {
               variant="destructive"
               disabled={isPending}
             >
-              {isPending ? "Deleting..." : "Delete"}
+              {isPending ? 'Deleting...' : 'Delete'}
             </Button>
           </CardFooter>
         </Card>

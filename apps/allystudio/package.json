@@ -7,9 +7,10 @@
   "packageManager": "pnpm@8.15.3",
   "scripts": {
     "dev": "pnpm run clean && plasmo dev",
+    "preview": "plasmo build && echo '\nTo preview: \n1. Open Chrome\n2. Go to chrome://extensions\n3. Enable Developer Mode\n4. Click \"Load unpacked\"\n5. Select the \"build\" directory'",
     "build": "pnpm run clean && plasmo build",
     "package": "plasmo package",
-    "clean": "rm -rf build .plasmo"
+    "clean": "rm -rf build"
   },
   "dependencies": {
     "@plasmohq/messaging": "^0.7.1",
