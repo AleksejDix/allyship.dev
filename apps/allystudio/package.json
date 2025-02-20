@@ -13,6 +13,7 @@
     "clean": "rm -rf build"
   },
   "dependencies": {
+    "@workspace/ui": "workspace:*",
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.9.0",
     "@radix-ui/react-label": "2.1.2",
@@ -29,6 +30,8 @@
     "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "@ianvs/prettier-plugin-sort-imports": "4.1.1",
     "@types/chrome": "0.0.258",
     "@types/node": "20.11.5",
