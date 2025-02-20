@@ -2,19 +2,19 @@ import type { Session } from "@supabase/supabase-js"
 import { ImageIcon, ScanIcon, TypeIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import "./styles/globals.css"
+import "@/styles/globals.css"
 
-import { supabase } from "~core/supabase"
+import { supabase } from "@/core/supabase"
 
-import { Button } from "./components/ui/button"
+import { Button } from "../components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "./components/ui/card"
-import { Separator } from "./components/ui/separator"
+} from "../components/ui/card"
+import { Separator } from "../components/ui/separator"
 
 function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)

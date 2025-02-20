@@ -1,4 +1,4 @@
-import { supabase } from "~core/supabase"
+import { supabase } from "@/core/supabase"
 
 // Handle browser action click
 chrome.action.onClicked.addListener(async () => {
