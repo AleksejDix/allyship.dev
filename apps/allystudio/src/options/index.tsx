@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 
 import "@/styles/globals.css"
 
+import { Layout } from "@/components/layout"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { supabase } from "@/core/supabase"
 
 function IndexOptions() {
@@ -128,87 +130,107 @@ function IndexOptions() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4 rounded-lg border p-6 shadow-lg">
-        {error && (
-          <div role="alert" className="rounded-md bg-red-50 p-4 text-red-700">
-            {error}
+    <Layout>
+      <div className="flex min-h-screen flex-col">
+        <header className="flex items-center justify-between border-b p-4">
+          <h1 className="text-xl font-bold">Allyship Studio</h1>
+          <ThemeToggle />
+        </header>
+        <main className="flex-1 p-4">
+          <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="w-full max-w-md space-y-4 rounded-lg border p-6 shadow-lg">
+              {error && (
+                <div
+                  role="alert"
+                  className="rounded-md bg-red-50 p-4 text-red-700">
+                  {error}
+                </div>
+              )}
+
+              {session?.user && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium">
+                      Welcome, {session.user.email}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      ID: {session.user.id}
+                    </p>
+                  </div>
+                  <button
+                    className="w-full rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                    onClick={handleSignOut}>
+                    Logout
+                  </button>
+                </div>
+              )}
+
+              {!session?.user && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">Email</label>
+                    <input
+                      type="text"
+                      placeholder="Your Email"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full rounded-md border px-3 py-2"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-md border px-3 py-2"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <button
+                      className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                      onClick={() =>
+                        handleEmailLogin("LOGIN", username, password)
+                      }>
+                      Login
+                    </button>
+                    <button
+                      className="w-full rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                      onClick={() =>
+                        handleEmailLogin("SIGNUP", username, password)
+                      }>
+                      Sign up
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white px-2 text-gray-500">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    className="flex w-full items-center justify-center rounded-md bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
+                    onClick={() => handleOAuthLogin("github")}>
+                    <span>GitHub</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-
-        {session?.user && (
-          <div className="space-y-4">
-            <div className="text-center">
-              <h3 className="text-lg font-medium">
-                Welcome, {session.user.email}
-              </h3>
-              <p className="text-sm text-gray-500">ID: {session.user.id}</p>
-            </div>
-            <button
-              className="w-full rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-              onClick={handleSignOut}>
-              Logout
-            </button>
-          </div>
-        )}
-
-        {!session?.user && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Email</label>
-              <input
-                type="text"
-                placeholder="Your Email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-md border px-3 py-2"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Password</label>
-              <input
-                type="password"
-                placeholder="Your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-md border px-3 py-2"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <button
-                className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                onClick={() => handleEmailLogin("LOGIN", username, password)}>
-                Login
-              </button>
-              <button
-                className="w-full rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-                onClick={() => handleEmailLogin("SIGNUP", username, password)}>
-                Sign up
-              </button>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <button
-              className="flex w-full items-center justify-center rounded-md bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
-              onClick={() => handleOAuthLogin("github")}>
-              <span>GitHub</span>
-            </button>
-          </div>
-        )}
+        </main>
       </div>
-    </main>
+    </Layout>
   )
 }
 

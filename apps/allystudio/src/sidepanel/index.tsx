@@ -1,20 +1,19 @@
 import type { Session } from "@supabase/supabase-js"
-import { ImageIcon, ScanIcon, TypeIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import "@/styles/globals.css"
 
-import { supabase } from "@/core/supabase"
-
-import { Button } from "../components/ui/button"
+import { Layout } from "@/components/layout"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "../components/ui/card"
-import { Separator } from "../components/ui/separator"
+} from "@/components/ui/card"
+import { supabase } from "@/core/supabase"
 
 function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)
@@ -28,7 +27,7 @@ function IndexSidePanel() {
       setIsLoading(false)
     })
 
-    // Listen for auth changes
+    // Listen for auth changes from Supabase
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -128,91 +127,84 @@ function IndexSidePanel() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div role="status" className="text-center">
-          <p>Loading...</p>
+      <Layout>
+        <div className="flex h-screen items-center justify-center">
+          <div role="status" className="text-center">
+            <p>Loading...</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     )
   }
 
   if (!session) {
     return (
-      <div className="flex h-screen items-center justify-center p-4">
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>
-              Please log in to use Allyship Studio
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              className="w-full"
-              onClick={() => chrome.runtime.openOptionsPage()}>
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Layout>
+        <div className="flex h-screen items-center justify-center p-4">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Authentication Required</CardTitle>
+              <CardDescription>
+                Please log in to use Allyship Studio
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="w-full"
+                onClick={() => chrome.runtime.openOptionsPage()}>
+                Go to Login
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
     )
   }
 
   return (
-    <div className="flex h-screen flex-col space-y-4 p-4">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Allyship Studio</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => supabase.auth.signOut()}></Button>
+    <Layout>
+      <div className="flex h-screen flex-col space-y-4 p-4">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Allyship Studio</CardTitle>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => supabase.auth.signOut()}>
+                  Sign Out
+                </Button>
+              </div>
             </div>
-          </div>
-          <CardDescription>Welcome back, {session.user.email}</CardDescription>
-        </CardHeader>
-      </Card>
+            <CardDescription>
+              Welcome back, {session.user.email}
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Accessibility Tools</h2>
-        <Separator />
-
-        <div className="grid gap-2">
-          <Button variant="default" className="w-full justify-start">
-            <ScanIcon className="mr-2 h-4 w-4" />
-            Scan Page
-          </Button>
-
-          <Button
-            variant={headingsHighlighted ? "destructive" : "default"}
-            className="w-full justify-start"
-            onClick={
-              headingsHighlighted
-                ? handleRemoveHighlights
-                : handleHighlightHeadings
-            }>
-            <TypeIcon className="mr-2 h-4 w-4" />
-            {headingsHighlighted
-              ? "Remove Heading Highlights"
-              : "Check Headings"}
-          </Button>
-
-          <Button variant="default" className="w-full justify-start">
-            <ImageIcon className="mr-2 h-4 w-4" />
-            Analyze Images
-          </Button>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Heading Analysis</CardTitle>
+            <CardDescription>
+              Analyze and highlight heading structure on the current page
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Button
+              className="w-full"
+              onClick={
+                headingsHighlighted
+                  ? handleRemoveHighlights
+                  : handleHighlightHeadings
+              }>
+              {headingsHighlighted ? "Remove Highlights" : "Highlight Headings"}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="mt-auto">
-        <Separator />
-        <p className="pt-2 text-center text-sm text-muted-foreground">
-          Version 0.0.1
-        </p>
-      </div>
-    </div>
+    </Layout>
   )
 }
 
