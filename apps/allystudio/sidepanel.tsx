@@ -1,19 +1,20 @@
 import type { Session } from "@supabase/supabase-js"
-import { ImageIcon, LogOutIcon, ScanIcon, TypeIcon } from "lucide-react"
+import { ImageIcon, ScanIcon, TypeIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import "./styles/globals.css"
 
-import { Button } from "~components/ui/button"
+import { supabase } from "~core/supabase"
+
+import { Button } from "./components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "~components/ui/card"
-import { Separator } from "~components/ui/separator"
-import { supabase } from "~core/supabase"
+} from "./components/ui/card"
+import { Separator } from "./components/ui/separator"
 
 function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)
@@ -163,12 +164,12 @@ function IndexSidePanel() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Allyship Studio</CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => supabase.auth.signOut()}>
-              <LogOutIcon className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => supabase.auth.signOut()}></Button>
+            </div>
           </div>
           <CardDescription>Welcome back, {session.user.email}</CardDescription>
         </CardHeader>

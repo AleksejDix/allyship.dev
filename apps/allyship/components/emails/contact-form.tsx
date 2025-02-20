@@ -1,8 +1,10 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle, TriangleAlert } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import { useServerAction } from 'zsa-react'
 
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -15,22 +17,18 @@ import {
 } from '@workspace/ui/components/form'
 import { Input } from '@workspace/ui/components/input'
 import { Textarea } from '@workspace/ui/components/textarea'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
-  email: z.string().email({
-    message: 'Please enter a valid email address.',
-  }),
-  message: z.string().min(10, {
-    message: 'Message must be at least 10 characters.',
-  }),
-})
+import { contactFormAction } from './contact-action'
+import { contactFormSchema } from './contact-schema'
 
 export function ContactForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof contactFormSchema>>({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -38,13 +36,56 @@ export function ContactForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  const { execute, isPending } = useServerAction(contactFormAction)
+
+  async function onSubmit(data: z.infer<typeof contactFormSchema>) {
+    const [result, error] = await execute(data)
+
+    if (error) {
+      if (error.code === 'INPUT_PARSE_ERROR') {
+        Object.entries(error.fieldErrors).forEach(([field, messages]) => {
+          form.setError(field as keyof z.infer<typeof contactFormSchema>, {
+            type: 'server',
+            message: messages?.join(', '),
+          })
+        })
+      } else {
+        form.setError('root.serverError', {
+          type: 'server',
+          message: error.message,
+        })
+      }
+    }
+
+    if (result?.success) {
+      form.reset()
+    }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {form.formState?.errors?.root?.serverError?.type === 'server' && (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden="true" size={16} />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {form.formState?.errors?.root?.serverError?.message}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {form.formState.isSubmitSuccessful && (
+          <Alert variant="success">
+            <TriangleAlert aria-hidden="true" size={16} />
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>
+              Your message has been sent successfully. We'll get back to you
+              soon.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <FormField
           control={form.control}
           name="name"
@@ -87,7 +128,12 @@ export function ContactForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? (
+            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
+          {isPending ? 'Sending...' : 'Submit'}
+        </Button>
       </form>
     </Form>
   )
