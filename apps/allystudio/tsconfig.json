@@ -6,6 +6,10 @@
     "paths": {
       "~*": ["./*"]
     },
-    "baseUrl": "."
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "react",
+    "types": ["chrome", "node"]
   }
 }

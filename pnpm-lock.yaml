@@ -53,9 +53,6 @@ importers:
       '@next/bundle-analyzer':
         specifier: ^15.1.7
         version: 15.1.7
-      '@next/font':
-        specifier: ^14.2.15
-        version: 14.2.15(next@15.1.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.85.0))
       '@next/mdx':
         specifier: 15.1.7
         version: 15.1.7(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.98.0(@swc/core@1.10.18(@swc/helpers@0.5.15))(esbuild@0.18.20)))(@mdx-js/react@3.1.0(@types/react@19.0.10)(react@19.0.0))
@@ -246,9 +243,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      tailwind-merge:
-        specifier: 3.0.1
-        version: 3.0.1
       tailwindcss-animate:
         specifier: 1.0.7
         version: 1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@20.11.5)(typescript@5.3.3)))
@@ -1253,11 +1247,6 @@ packages:
 
   '@next/eslint-plugin-next@15.1.7':
     resolution: {integrity: sha512-kRP7RjSxfTO13NE317ek3mSGzoZlI33nc/i5hs1KaWpK+egs85xg0DJ4p32QEiHnR0mVjuUfhRIun7awqfL7pQ==}
-
-  '@next/font@14.2.15':
-    resolution: {integrity: sha512-QopYhBmCDDrNDynbi+ZD1hDZXmQXVFo7TmAFp4DQgO/kogz1OLbQ92hPigJbj572eZ3GaaVxNIyYVn3/eAsehg==}
-    peerDependencies:
-      next: '*'
 
   '@next/mdx@15.1.7':
     resolution: {integrity: sha512-olVOjKA1K8b7/cu0zqWecVkwyCUnB9xlKXxB/CeCRoZYlH0zluLHwhWBX0PR9yf3CG7eNLrK+PfuPBF+LdWODQ==}
@@ -7202,9 +7191,6 @@ packages:
   tailwind-merge@2.6.0:
     resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
 
-  tailwind-merge@3.0.1:
-    resolution: {integrity: sha512-AvzE8FmSoXC7nC+oU5GlQJbip2UO7tmOhOfQyOmPhrStOGXHU08j8mZEHZ4BmCqY5dWTCo4ClWkNyRNx1wpT0g==}
-
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
@@ -8487,10 +8473,6 @@ snapshots:
   '@next/eslint-plugin-next@15.1.7':
     dependencies:
       fast-glob: 3.3.1
-
-  '@next/font@14.2.15(next@15.1.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.85.0))':
-    dependencies:
-      next: 15.1.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.85.0)
 
   '@next/mdx@15.1.7(@mdx-js/loader@3.1.0(acorn@8.14.0)(webpack@5.98.0(@swc/core@1.10.18(@swc/helpers@0.5.15))(esbuild@0.18.20)))(@mdx-js/react@3.1.0(@types/react@19.0.10)(react@19.0.0))':
     dependencies:
@@ -15789,8 +15771,6 @@ snapshots:
       use-sync-external-store: 1.4.0(react@19.0.0)
 
   tailwind-merge@2.6.0: {}
-
-  tailwind-merge@3.0.1: {}
 
   tailwindcss-animate@1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@20.11.5)(typescript@5.3.3))):
     dependencies:

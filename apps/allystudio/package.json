@@ -6,16 +6,17 @@
   "author": "Plasmo Corp. <foss@plasmo.com>",
   "packageManager": "pnpm@8.15.3",
   "scripts": {
-    "dev": "pnpm run clean && plasmo dev",
+    "dev": "pnpm run clean && plasmo dev --verbose",
     "preview": "plasmo build && echo '\nTo preview: \n1. Open Chrome\n2. Go to chrome://extensions\n3. Enable Developer Mode\n4. Click \"Load unpacked\"\n5. Select the \"build\" directory'",
     "build": "pnpm run clean && plasmo build",
     "package": "plasmo package",
-    "clean": "rm -rf build"
+    "clean": "rm -rf build",
+    "setup": "sh scripts/copy-ui.sh"
   },
   "dependencies": {
-    "@workspace/ui": "workspace:*",
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.9.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.6",
     "@radix-ui/react-label": "2.1.2",
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "1.1.2",
@@ -26,7 +27,7 @@
     "plasmo": "0.90.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tailwind-merge": "3.0.1",
+    "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
