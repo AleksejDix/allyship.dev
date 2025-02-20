@@ -1,10 +1,5 @@
-import type { Session } from "@supabase/supabase-js"
-import { useEffect, useState } from "react"
-
-import "@/styles/globals.css"
-
+import { Header } from "@/components/header"
 import { Layout } from "@/components/layout"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -14,6 +9,8 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { supabase } from "@/core/supabase"
+import type { Session } from "@supabase/supabase-js"
+import { useEffect, useState } from "react"
 
 function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)
@@ -163,46 +160,31 @@ function IndexSidePanel() {
 
   return (
     <Layout>
-      <div className="flex h-screen flex-col space-y-4 p-4">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Allyship Studio</CardTitle>
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => supabase.auth.signOut()}>
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-            <CardDescription>
-              Welcome back, {session.user.email}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Heading Analysis</CardTitle>
-            <CardDescription>
-              Analyze and highlight heading structure on the current page
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button
-              className="w-full"
-              onClick={
-                headingsHighlighted
-                  ? handleRemoveHighlights
-                  : handleHighlightHeadings
-              }>
-              {headingsHighlighted ? "Remove Highlights" : "Highlight Headings"}
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex h-screen flex-col space-y-4">
+        <Header session={session} />
+        <div className="p-4 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Heading Analysis</CardTitle>
+              <CardDescription>
+                Analyze and highlight heading structure on the current page
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button
+                className="w-full"
+                onClick={
+                  headingsHighlighted
+                    ? handleRemoveHighlights
+                    : handleHighlightHeadings
+                }>
+                {headingsHighlighted
+                  ? "Remove Highlights"
+                  : "Highlight Headings"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Layout>
   )
