@@ -1,25 +1,30 @@
-import { notFound } from "next/navigation"
-import { PageHeader } from "@/features/websites/components/page-header"
-import { ExternalLink } from "lucide-react"
+import { notFound } from 'next/navigation'
+import { PageHeader } from '@/features/websites/components/page-header'
+import { ExternalLink } from 'lucide-react'
 
-import { createClient } from "@/lib/supabase/server"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { createClient } from '@/lib/supabase/server'
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@workspace/ui/components/card'
 
 type Props = {
   params: Promise<{ website_id: string; space_id: string }>
 }
 
 export default async function WebsitePage(props: Props) {
-  const params = await props.params;
+  const params = await props.params
   const { website_id } = params
   const supabase = await createClient()
 
   const { data: website } = await supabase
-    .from("Website")
+    .from('Website')
     .select()
-    .eq("id", website_id)
+    .eq('id', website_id)
     .single()
 
   if (!website) {
@@ -29,7 +34,7 @@ export default async function WebsitePage(props: Props) {
   return (
     <>
       <PageHeader
-        title={new URL(website.url).hostname}
+        title={website.url}
         description={`Created ${new Date(website.created_at).toLocaleDateString()}`}
       >
         <Button variant="outline" size="sm" asChild>

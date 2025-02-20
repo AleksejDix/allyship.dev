@@ -1,44 +1,44 @@
-"use client"
+'use client'
 
-import { DollarSign, Eye, TrendingUp, Users } from "lucide-react"
-import { Sparklines, SparklinesLine } from "react-sparklines"
+import { DollarSign, Eye, TrendingUp, Users } from 'lucide-react'
+import { Sparklines, SparklinesLine } from 'react-sparklines'
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
 
 const stats = [
   {
     id: 1,
-    title: "Global Aging Population",
+    title: 'Global Aging Population',
     description:
       "By 2050, 16% of the world's population will be over 65, increasing the need for accessible websites.",
-    value: "16%",
+    value: '16%',
     icon: <Users size="16" />,
     data: [5, 6, 7, 8, 9, 13, 20], // Made steeper at the end
   },
   {
     id: 2,
-    title: "Increased Revenue",
+    title: 'Increased Revenue',
     description:
-      "Businesses that prioritize accessibility see a 20% increase in revenue due to better usability for all.",
-    value: "+20%",
+      'Businesses that prioritize accessibility see a 20% increase in revenue due to better usability for all.',
+    value: '+20%',
     icon: <DollarSign size="16" />,
     data: [100, 105, 108, 112, 115, 120], // Made steeper at the end
   },
   {
     id: 3,
-    title: "Market Reach",
+    title: 'Market Reach',
     description:
-      "Over 1 billion people worldwide live with disabilities, representing a significant market opportunity.",
-    value: "1B+",
+      'Over 1 billion people worldwide live with disabilities, representing a significant market opportunity.',
+    value: '1B+',
     icon: <Eye size="16" />,
     data: [800, 850, 880, 900, 940, 1000], // Made steeper at the end
   },
   {
     id: 4,
-    title: "SEO Benefits",
+    title: 'SEO Benefits',
     description:
-      "Accessible websites rank higher on search engines, leading to increased traffic and visibility.",
-    value: "+50%",
+      'Accessible websites rank higher on search engines, leading to increased traffic and visibility.',
+    value: '+50%',
     icon: <TrendingUp size="16" />,
     data: [100, 110, 120, 130, 140, 155], // Made steeper at the end
   },
@@ -51,7 +51,7 @@ export function Stats() {
         Why Accessibility Matters
       </h2>
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {stats.map(stat => (
           <Card key={stat.id} className="relative  overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="text-sm font-medium">{stat.title}</div>

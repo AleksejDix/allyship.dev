@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { ShieldCheck, TrendingUp } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { ShieldCheck, TrendingUp } from 'lucide-react'
+import { CartesianGrid, Line, LineChart, XAxis } from 'recharts'
 
 import {
   Card,
@@ -10,27 +10,27 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@workspace/ui/components/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from '@workspace/ui/components/chart'
 
 const complianceData = [
-  { month: "January", compliance: 0 },
-  { month: "February", compliance: 20 },
-  { month: "March", compliance: 15 },
-  { month: "April", compliance: 10 },
-  { month: "May", compliance: 70 },
-  { month: "June", compliance: 90 },
+  { month: 'January', compliance: 0 },
+  { month: 'February', compliance: 20 },
+  { month: 'March', compliance: 15 },
+  { month: 'April', compliance: 10 },
+  { month: 'May', compliance: 70 },
+  { month: 'June', compliance: 90 },
 ]
 
 const complianceConfig = {
   compliance: {
-    label: "WCAG Compliance",
-    color: "hsl(var(--chart-2))",
+    label: 'WCAG Compliance',
+    color: 'hsl(var(--chart-2))',
   },
 } satisfies ChartConfig
 
@@ -61,7 +61,7 @@ export function Compliance() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickFormatter={value => value.slice(0, 3)}
               />
               <ChartTooltip
                 cursor={false}

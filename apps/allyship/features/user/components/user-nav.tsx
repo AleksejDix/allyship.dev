@@ -1,12 +1,16 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { signOut } from "@/features/user/actions/user-actions"
-import { User } from "@supabase/supabase-js"
-import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react"
+import Link from 'next/link'
+import { signOut } from '@/features/user/actions/user-actions'
+import { User } from '@supabase/supabase-js'
+import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@workspace/ui/components/avatar'
+import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +18,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@workspace/ui/components/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from '@workspace/ui/components/sidebar'
 
 type UserNavProps = {
   user: User
@@ -41,7 +45,7 @@ export function UserNav(props: UserNavProps) {
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
                   src={props.user.user_metadata.avatar_url}
-                  alt={props.user.user_metadata.full_name ?? ""}
+                  alt={props.user.user_metadata.full_name ?? ''}
                 />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
@@ -56,7 +60,7 @@ export function UserNav(props: UserNavProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
@@ -65,7 +69,7 @@ export function UserNav(props: UserNavProps) {
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
                     src={props.user.user_metadata.avatar_url}
-                    alt={props.user.user_metadata.full_name ?? ""}
+                    alt={props.user.user_metadata.full_name ?? ''}
                   />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>

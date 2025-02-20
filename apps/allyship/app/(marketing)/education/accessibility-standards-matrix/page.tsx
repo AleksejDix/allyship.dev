@@ -1,22 +1,22 @@
-import { Metadata } from "next"
-import Link from "next/link"
+import { Metadata } from 'next'
+import Link from 'next/link'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { A11yMatrix } from "@/components/blocks/a11y-matrix"
-import { PageHeader } from "@/components/page-header"
+} from '@workspace/ui/components/card'
+import { Separator } from '@workspace/ui/components/separator'
+import { A11yMatrix } from '@/components/blocks/a11y-matrix'
+import { PageHeader } from '@/components/page-header'
 
 export const metadata: Metadata = {
-  title: "Accessibility Standards Matrix",
+  title: 'Accessibility Standards Matrix',
   description:
-    "Compare accessibility criteria between different standards and guidelines.",
+    'Compare accessibility criteria between different standards and guidelines.',
 }
 
 export default function Page() {

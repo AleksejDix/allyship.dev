@@ -1,7 +1,7 @@
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { RouterLink } from "@/components/RouterLink"
+import { Button } from '@workspace/ui/components/button'
+import { RouterLink } from '@/components/RouterLink'
 
 type Props = {
   page_id: string

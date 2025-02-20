@@ -1,7 +1,11 @@
-import { SocialIcon } from "react-social-icons"
+import { SocialIcon } from 'react-social-icons'
 
-import { cn } from "@/lib/utils"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from '@/lib/utils'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@workspace/ui/components/avatar'
 
 interface SocialLink {
   url: string
@@ -28,29 +32,29 @@ export function AuthorCard({ author, className }: AuthorCardProps) {
   const socialLinks: SocialLink[] = [
     author.twitter && {
       url: `https://twitter.com/${author.twitter}`,
-      network: "x",
+      network: 'x',
       label: `Follow ${author.name} on Twitter`,
     },
     author.linkedin && {
       url: author.linkedin,
-      network: "linkedin",
+      network: 'linkedin',
       label: `Connect with ${author.name} on LinkedIn`,
     },
     author.github && {
       url: `https://github.com/${author.github}`,
-      network: "github",
+      network: 'github',
       label: `View ${author.name}'s GitHub profile`,
     },
     author.website && {
       url: author.website,
-      network: "website",
+      network: 'website',
       label: `Visit ${author.name}'s website`,
     },
   ].filter(Boolean) as SocialLink[]
 
   return (
     <div className="flex justify-between">
-      <div className={cn("flex items-center gap-4", className)}>
+      <div className={cn('flex items-center gap-4', className)}>
         {author.avatar && (
           <Avatar className="w-16 h-16 bg-white">
             <AvatarImage

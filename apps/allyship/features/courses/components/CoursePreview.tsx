@@ -1,15 +1,19 @@
-import Image from "next/image"
-import { BarChart2, BookOpen, Clock } from "lucide-react"
-import { generateImage } from "@/lib/generate-image"
+import Image from 'next/image'
+import { BarChart2, BookOpen, Clock } from 'lucide-react'
+import { generateImage } from '@/lib/generate-image'
 
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Badge } from '@workspace/ui/components/badge'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@workspace/ui/components/card'
 
-
-const levelColorMap: Record<Course["level"], string> = {
-  Beginner: "bg-green-100 text-green-800",
-  Intermediate: "bg-yellow-100 text-yellow-800",
-  Advanced: "bg-red-100 text-red-800",
+const levelColorMap: Record<Course['level'], string> = {
+  Beginner: 'bg-green-100 text-green-800',
+  Intermediate: 'bg-yellow-100 text-yellow-800',
+  Advanced: 'bg-red-100 text-red-800',
 }
 
 type CoursePreviewProps = {
@@ -22,7 +26,7 @@ export const CoursePreview: React.FC<CoursePreviewProps> = ({ course }) => {
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
           <Image
-            src={generateImage(course.title) || "/placeholder.svg"}
+            src={generateImage(course.title) || '/placeholder.svg'}
             alt={course.title}
             layout="fill"
             objectFit="cover"
@@ -50,8 +54,8 @@ export const CoursePreview: React.FC<CoursePreviewProps> = ({ course }) => {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
               {course.lessons > 0
-                ? `${course.lessons} lesson${course.lessons !== 1 ? "s" : ""}`
-                : "N/A"}
+                ? `${course.lessons} lesson${course.lessons !== 1 ? 's' : ''}`
+                : 'N/A'}
             </span>
           </div>
         </div>
@@ -59,7 +63,7 @@ export const CoursePreview: React.FC<CoursePreviewProps> = ({ course }) => {
           <BarChart2 className="h-4 w-4 text-muted-foreground" />
           <Badge
             variant="secondary"
-            className={`px-2 py-1 ${levelColorMap[course.level] || ""}`}
+            className={`px-2 py-1 ${levelColorMap[course.level] || ''}`}
           >
             {course.level}
           </Badge>

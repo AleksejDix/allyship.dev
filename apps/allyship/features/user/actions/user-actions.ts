@@ -1,13 +1,13 @@
-"use server"
+'use server'
 
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
-import { supabasePrecedure } from "@/features/user/procedures/authPrecedude"
-import { loginFormSchema } from "@/features/user/schemas/user-schemas"
-import { isAuthApiError } from "@supabase/supabase-js"
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { supabasePrecedure } from '@/features/user/procedures/authPrecedude'
+import { loginFormSchema } from '@/features/user/schemas/user-schemas'
+import { isAuthApiError } from '@supabase/supabase-js'
 
-import { env } from "@/env.mjs"
-import { createClient } from "@/lib/supabase/server"
+import { env } from '@/env.mjs'
+import { createClient } from '@/lib/supabase/server'
 
 export const signInWithPassword = supabasePrecedure
   .createServerAction()
@@ -35,16 +35,15 @@ export const signInWithPassword = supabasePrecedure
       return {
         success: false,
         error: {
-          message: "Something went wrong",
+          message: 'Something went wrong',
           status: 500,
-          code: "unknown_error",
+          code: 'unknown_error',
         },
       }
     }
 
-    revalidatePath("/", "layout")
-    redirect("/")
-
+    revalidatePath('/', 'layout')
+    redirect('/')
   })
 
 export const signup = supabasePrecedure
@@ -56,7 +55,7 @@ export const signup = supabasePrecedure
       email: input.username,
       password: input.password,
       options: {
-        emailRedirectTo: env.NEXT_PUBLIC_APP_URL + "/auth/welcome",
+        emailRedirectTo: env.NEXT_PUBLIC_APP_URL + '/auth/welcome',
       },
     })
 
@@ -75,23 +74,24 @@ export const signup = supabasePrecedure
       return {
         success: false,
         error: {
-          message: "Something went wrong",
+          message: 'Something went wrong',
           status: 500,
-          code: "unknown_error",
+          code: 'unknown_error',
         },
       }
     }
 
-    revalidatePath("/", "layout")
+    revalidatePath('/', 'layout')
 
     return {
       success: true,
       data,
-      message: "Check your email to verify your account.",
+      message: 'Check your email to verify your account.',
     }
   })
 
 export async function signOut() {
+  console.log('signing out')
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
 
@@ -99,9 +99,9 @@ export async function signOut() {
     if (isAuthApiError(error)) {
       throw new Error(error.message)
     }
-    throw new Error("Something went wrong during logout.")
+    throw new Error('Something went wrong during logout.')
   }
 
-  revalidatePath("/", "layout")
-  redirect("/auth/login")
+  revalidatePath('/', 'layout')
+  redirect('/auth/login')
 }

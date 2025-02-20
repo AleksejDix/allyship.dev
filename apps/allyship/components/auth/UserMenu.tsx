@@ -1,16 +1,16 @@
-import Link from "next/link"
-import { SignoutButton } from "@/features/user/components/user-logout"
+import Link from 'next/link'
+import { SignoutButton } from '@/features/user/components/user-logout'
 
-import { createClient } from "@/lib/supabase/server"
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { createClient } from '@/lib/supabase/server'
+import { Avatar, AvatarImage } from '@workspace/ui/components/avatar'
+import { Button, buttonVariants } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@workspace/ui/components/dropdown-menu'
 
 export async function UserMenu() {
   const supabase = await createClient()
@@ -22,7 +22,7 @@ export async function UserMenu() {
       <div className="flex items-center gap-2">
         <Link
           href="/auth/login"
-          className={buttonVariants({ variant: "default" })}
+          className={buttonVariants({ variant: 'default' })}
         >
           Sign in
         </Link>
@@ -45,7 +45,7 @@ export async function UserMenu() {
 
               <AvatarImage
                 src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${Math.floor(Math.random() * 100000) + 1}`}
-                alt={data.user.user_metadata.full_name ?? ""}
+                alt={data.user.user_metadata.full_name ?? ''}
               />
             </Avatar>
           </Button>
@@ -67,9 +67,8 @@ export async function UserMenu() {
           <DropdownMenuItem asChild>
             <Link href="/spaces">Spaces</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <SignoutButton />
-          </DropdownMenuItem>
+
+          <SignoutButton />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

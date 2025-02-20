@@ -1,12 +1,17 @@
-import { notFound } from "next/navigation"
-import { createScan } from "@/features/scans/actions"
-import { PageHeader } from "@/features/websites/components/page-header"
-import { Scan as ScanIcon } from "lucide-react"
+import { notFound } from 'next/navigation'
+import { createScan } from '@/features/scans/actions'
+import { PageHeader } from '@/features/websites/components/page-header'
+import { Scan as ScanIcon } from 'lucide-react'
 
-import { createClient } from "@/lib/supabase/server"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { createClient } from '@/lib/supabase/server'
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@workspace/ui/components/card'
 
 type Props = {
   params: Promise<{
@@ -23,7 +28,7 @@ export default async function Page(props: Props) {
 
   // Fetch page with related website data
   const { data: page, error } = await supabase
-    .from("Page")
+    .from('Page')
     .select(
       `
       *,
@@ -37,7 +42,7 @@ export default async function Page(props: Props) {
     .single()
 
   if (error) {
-    if (error.code === "PGRST116") {
+    if (error.code === 'PGRST116') {
       return notFound()
     }
     throw error
@@ -45,16 +50,16 @@ export default async function Page(props: Props) {
 
   // Get scans for this page
   const { data: scans } = await supabase
-    .from("Scan")
-    .select("*")
-    .eq("page_id", page_id)
-    .order("created_at", { ascending: false })
+    .from('Scan')
+    .select('*')
+    .eq('page_id', page_id)
+    .order('created_at', { ascending: false })
 
-  const fullUrl = new URL(page.url)
+  const fullUrl = page.url
   console.log(fullUrl)
 
   async function createNewScan() {
-    "use server"
+    'use server'
     if (!page) return
     await createScan({ url: page.url, space_id: page.website.space_id })
   }
@@ -132,7 +137,7 @@ export default async function Page(props: Props) {
               <p className="text-sm text-muted-foreground">No scans found</p>
             ) : (
               <div className="space-y-4">
-                {scans.map((scan) => (
+                {scans.map(scan => (
                   <div
                     key={scan.id}
                     className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"

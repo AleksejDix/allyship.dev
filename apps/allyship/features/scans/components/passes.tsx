@@ -1,21 +1,21 @@
-import { TriangleAlert } from "lucide-react"
+import { TriangleAlert } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import { cn } from '@/lib/utils'
+import { Badge } from '@workspace/ui/components/badge'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from '@workspace/ui/components/collapsible'
 
 interface Pass {
   id: string | number
   help: string
   description: string
-  impact: "moderate" | "minor" | "critical"
+  impact: 'moderate' | 'minor' | 'critical'
 }
 
-const isCritical = (pass: Pass) => pass.impact === "critical"
+const isCritical = (pass: Pass) => pass.impact === 'critical'
 
 export function Passes({ passes }: { passes: Pass[] }) {
   return (
@@ -25,8 +25,8 @@ export function Passes({ passes }: { passes: Pass[] }) {
           <Collapsible>
             <CollapsibleTrigger
               className={cn(
-                "text-left w-full py-2 px-3 [&[aria-expanded=true]]:bg-muted hover:bg-muted flex items-center justify-between ",
-                isCritical(pass) && "bg-destructive/10"
+                'text-left w-full py-2 px-3 [&[aria-expanded=true]]:bg-muted hover:bg-muted flex items-center justify-between ',
+                isCritical(pass) && 'bg-destructive/10'
               )}
             >
               <div>
@@ -41,7 +41,7 @@ export function Passes({ passes }: { passes: Pass[] }) {
                   variant="destructive"
                   className="inline-flex items-center gap-2"
                 >
-                <TriangleAlert size="16" />
+                  <TriangleAlert size="16" />
                   {String(pass.impact).charAt(0).toUpperCase() +
                     String(pass.impact).slice(1)}
                 </Badge>

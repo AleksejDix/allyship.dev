@@ -1,19 +1,19 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
-import { useServerAction } from "zsa-react"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
+import { useServerAction } from 'zsa-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 
-import { crawl } from "../actions"
+import { crawl } from '../actions'
 
 type Props = {
   website_id: string
   website_url: string
   onCrawlComplete?: (result: {
-    type: "success" | "error"
+    type: 'success' | 'error'
     message: string
     stats?: {
       total: number
@@ -43,24 +43,24 @@ export function CrawlButton({
     if (error) {
       setError(error.message)
       onCrawlComplete?.({
-        type: "error",
+        type: 'error',
         message: error.message,
       })
       return
     }
 
     if (!result?.success) {
-      setError(result?.error?.message ?? "Failed to crawl site")
+      setError(result?.error?.message ?? 'Failed to crawl site')
       onCrawlComplete?.({
-        type: "error",
-        message: result?.error?.message ?? "Failed to crawl site",
+        type: 'error',
+        message: result?.error?.message ?? 'Failed to crawl site',
       })
       return
     }
 
     router.refresh()
     onCrawlComplete?.({
-      type: "success",
+      type: 'success',
       message: `Found ${result.stats?.total ?? 0} pages (${result.stats?.new ?? 0} new)`,
       stats: result.stats ?? { total: 0, new: 0, existing: 0 },
     })
@@ -80,7 +80,7 @@ export function CrawlButton({
             Crawling...
           </>
         ) : (
-          "Crawl Site"
+          'Crawl Site'
         )}
       </Button>
       {error && (

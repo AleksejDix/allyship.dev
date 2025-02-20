@@ -1,28 +1,28 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createSpace } from "@/features/spaces/actions"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createSpace } from '@/features/spaces/actions'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+import { Button } from '@workspace/ui/components/button'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
 const formSchema = z.object({
   name: z
     .string()
     .min(1, {
-      message: "Workspace name is required",
+      message: 'Workspace name is required',
     })
     .max(50, {
-      message: "Workspace name cannot be longer than 50 characters",
+      message: 'Workspace name cannot be longer than 50 characters',
     })
-    .refine((value) => !/^\s*$/.test(value), {
-      message: "Workspace name cannot be only whitespace",
+    .refine(value => !/^\s*$/.test(value), {
+      message: 'Workspace name cannot be only whitespace',
     }),
 })
 
@@ -38,7 +38,7 @@ export function SpaceCreate({ onSuccess }: SpaceCreateProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: '',
     },
   })
 
@@ -51,30 +51,30 @@ export function SpaceCreate({ onSuccess }: SpaceCreateProps) {
       console.log(response, validationError)
 
       if (validationError) {
-        if (validationError.code === "INPUT_PARSE_ERROR") {
+        if (validationError.code === 'INPUT_PARSE_ERROR') {
           Object.entries(validationError.fieldErrors).forEach(
             ([field, messages]) => {
               form.setError(field as keyof FormData, {
-                type: "server",
-                message: messages?.join(", "),
+                type: 'server',
+                message: messages?.join(', '),
               })
             }
           )
         } else {
-          setError(validationError.message ?? "An unexpected error occurred")
+          setError(validationError.message ?? 'An unexpected error occurred')
         }
         return
       }
 
       if (response && !response.success) {
-        setError(response.error?.message ?? "An unexpected error occurred")
+        setError(response.error?.message ?? 'An unexpected error occurred')
         return
       }
 
       router.refresh()
       onSuccess?.()
     } catch {
-      setError("An unexpected error occurred. Please try again.")
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 
@@ -100,7 +100,7 @@ export function SpaceCreate({ onSuccess }: SpaceCreateProps) {
         )}
 
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Creating..." : "Create Workspace"}
+          {isPending ? 'Creating...' : 'Create Workspace'}
         </Button>
       </form>
     </Form>

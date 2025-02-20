@@ -1,7 +1,12 @@
-import { CheckCircle } from "lucide-react"
+import { CheckCircle } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { cn } from '@/lib/utils'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@workspace/ui/components/card'
 
 type Lesson = {
   id: string
@@ -36,12 +41,12 @@ export function TableOfContents({
           </CardHeader>
           <CardContent className="space-y-2">
             {[
-              "Full-stack Development with Next.js",
-              "Modern UI Design with Tailwind CSS",
-              "Authentication and Authorization",
-              "API Development and Integration",
-              "Deployment and DevOps Basics",
-            ].map((item) => (
+              'Full-stack Development with Next.js',
+              'Modern UI Design with Tailwind CSS',
+              'Authentication and Authorization',
+              'API Development and Integration',
+              'Deployment and DevOps Basics',
+            ].map(item => (
               <div key={item} className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-primary" />
                 <span>{item}</span>
@@ -56,13 +61,13 @@ export function TableOfContents({
           </CardHeader>
           <CardContent className="space-y-2">
             {[
-              "40+ Hours of Video Content",
-              "Hands-on Projects",
-              "Downloadable Resources",
-              "Certificate of Completion",
-              "Lifetime Access",
-              "Community Support",
-            ].map((item) => (
+              '40+ Hours of Video Content',
+              'Hands-on Projects',
+              'Downloadable Resources',
+              'Certificate of Completion',
+              'Lifetime Access',
+              'Community Support',
+            ].map(item => (
               <div key={item} className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-primary" />
                 <span>{item}</span>
@@ -82,12 +87,12 @@ export function TableOfContents({
           </p>
         </CardHeader>
         <CardContent className="grid gap-2">
-          {lessons.map((lesson) => (
+          {lessons.map(lesson => (
             <div
               key={lesson.id}
               className={cn(
-                "flex items-center rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent/50 cursor-pointer",
-                currentLessonId === lesson.id && "bg-accent"
+                'flex items-center rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent/50 cursor-pointer',
+                currentLessonId === lesson.id && 'bg-accent'
               )}
             >
               <div className="flex flex-col flex-1">

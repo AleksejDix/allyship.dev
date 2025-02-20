@@ -3,44 +3,44 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from '@workspace/ui/components/accordion'
 
 export const Faqs = () => {
   const faqs = [
     {
-      question: "What is A11yShip.dev?",
+      question: 'What is A11yShip.dev?',
       answer:
-        "A11yShip.dev is a platform dedicated to improving web accessibility through training, consulting, and audits based on WCAG standards.",
+        'A11yShip.dev is a platform dedicated to improving web accessibility through training, consulting, and audits based on WCAG standards.',
     },
     {
-      question: "Who can benefit from your services?",
+      question: 'Who can benefit from your services?',
       answer:
-        "Our services are designed for developers, designers, and organizations aiming to create inclusive digital experiences.",
+        'Our services are designed for developers, designers, and organizations aiming to create inclusive digital experiences.',
     },
     {
-      question: "What is accessibility compliance?",
+      question: 'What is accessibility compliance?',
       answer:
-        "Accessibility compliance ensures your digital content meets standards like WCAG, providing equal access to users with disabilities.",
+        'Accessibility compliance ensures your digital content meets standards like WCAG, providing equal access to users with disabilities.',
     },
     {
-      question: "Why is accessibility important?",
+      question: 'Why is accessibility important?',
       answer:
-        "Accessibility improves user experience, expands your audience, and ensures legal compliance in many regions.",
+        'Accessibility improves user experience, expands your audience, and ensures legal compliance in many regions.',
     },
     {
-      question: "Do you offer custom training sessions?",
+      question: 'Do you offer custom training sessions?',
       answer:
         "Yes, we provide tailored training sessions to meet your team's specific needs and skill levels.",
     },
     {
-      question: "What are WCAG standards?",
+      question: 'What are WCAG standards?',
       answer:
-        "WCAG (Web Content Accessibility Guidelines) are international standards for making web content more accessible to people with disabilities.",
+        'WCAG (Web Content Accessibility Guidelines) are international standards for making web content more accessible to people with disabilities.',
     },
     {
-      question: "How can I get started with A11yShip.dev?",
+      question: 'How can I get started with A11yShip.dev?',
       answer:
-        "Reach out to us through our contact page to discuss your accessibility needs and goals.",
+        'Reach out to us through our contact page to discuss your accessibility needs and goals.',
     },
   ]
 

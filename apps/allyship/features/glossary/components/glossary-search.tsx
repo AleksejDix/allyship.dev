@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Search, X } from "lucide-react"
+import { useState } from 'react'
+import { Search, X } from 'lucide-react'
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
+import { Input } from '@workspace/ui/components/input'
 
 type CategoryType = {
   [key: string]: readonly string[]
@@ -13,28 +13,28 @@ type CategoryType = {
 
 const categories: CategoryType = {
   Accessibility: [
-    "a11y",
-    "WAI",
-    "WAI-ARIA",
-    "WCAG",
-    "ARIA",
-    "Screen Reader",
-    "Alt Text",
-    "Semantic HTML",
-    "Keyboard Navigation",
-    "Focus Management",
-    "Color Contrast",
+    'a11y',
+    'WAI',
+    'WAI-ARIA',
+    'WCAG',
+    'ARIA',
+    'Screen Reader',
+    'Alt Text',
+    'Semantic HTML',
+    'Keyboard Navigation',
+    'Focus Management',
+    'Color Contrast',
   ],
-  Development: ["CI", "CD", "API"],
+  Development: ['CI', 'CD', 'API'],
   Testing: [
-    "QA",
-    "QC",
-    "Code Coverage",
-    "Regression Testing",
-    "E2E",
-    "Unit Testing",
+    'QA',
+    'QC',
+    'Code Coverage',
+    'Regression Testing',
+    'E2E',
+    'Unit Testing',
   ],
-  Internationalization: ["l10n"],
+  Internationalization: ['l10n'],
 } as const
 
 interface Term {
@@ -48,14 +48,14 @@ interface GlossarySearchProps {
 }
 
 export function GlossarySearch({ terms }: GlossarySearchProps) {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 
   // Filter terms based on search query and categories
-  const filteredTerms = terms.filter((term) => {
+  const filteredTerms = terms.filter(term => {
     const matchesSearch =
       term.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (term.description?.toLowerCase() || "").includes(
+      (term.description?.toLowerCase() || '').includes(
         searchQuery.toLowerCase()
       )
 
@@ -66,19 +66,19 @@ export function GlossarySearch({ terms }: GlossarySearchProps) {
     const categoryEntry = Object.entries(categories).find(([, termList]) =>
       termList.includes(term.title)
     )
-    const category = categoryEntry?.[0] || "Other"
+    const category = categoryEntry?.[0] || 'Other'
 
     return matchesSearch && selectedCategories.includes(category)
   })
 
   const resultCount = filteredTerms.length
-  const searchResultId = "search-results"
+  const searchResultId = 'search-results'
 
   // Toggle category selection
   const toggleCategory = (category: string) => {
-    setSelectedCategories((prev) =>
+    setSelectedCategories(prev =>
       prev.includes(category)
-        ? prev.filter((c) => c !== category)
+        ? prev.filter(c => c !== category)
         : [...prev, category]
     )
   }
@@ -92,15 +92,15 @@ export function GlossarySearch({ terms }: GlossarySearchProps) {
             placeholder="Search terms..."
             className="pl-10"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             aria-label="Search glossary terms"
             aria-controls={searchResultId}
             aria-describedby="search-desc"
           />
           <div className="sr-only" id="search-desc">
             {resultCount === 0
-              ? "No results found"
-              : `${resultCount} result${resultCount === 1 ? "" : "s"} found`}
+              ? 'No results found'
+              : `${resultCount} result${resultCount === 1 ? '' : 's'} found`}
           </div>
         </div>
 
@@ -109,11 +109,11 @@ export function GlossarySearch({ terms }: GlossarySearchProps) {
           role="group"
           aria-label="Filter by category"
         >
-          {Object.keys(categories).map((category) => (
+          {Object.keys(categories).map(category => (
             <Button
               key={category}
               variant={
-                selectedCategories.includes(category) ? "default" : "outline"
+                selectedCategories.includes(category) ? 'default' : 'outline'
               }
               size="sm"
               onClick={() => toggleCategory(category)}
@@ -134,10 +134,10 @@ export function GlossarySearch({ terms }: GlossarySearchProps) {
           {filteredTerms.length === 0 ? (
             <div className="text-muted-foreground">
               No terms found matching your search
-              {selectedCategories.length > 0 && " and selected categories"}.
+              {selectedCategories.length > 0 && ' and selected categories'}.
             </div>
           ) : (
-            filteredTerms.map((term) => {
+            filteredTerms.map(term => {
               const termCategory = Object.entries(categories).find(
                 ([, termList]) => termList.includes(term.title)
               )?.[0]

@@ -4,8 +4,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+} from '@workspace/ui/components/card'
+import { Skeleton } from '@workspace/ui/components/skeleton'
 
 export default function SettingsLoading() {
   return (

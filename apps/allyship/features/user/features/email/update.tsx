@@ -1,31 +1,35 @@
-"use client"
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LoaderCircle, TriangleAlert } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle, TriangleAlert } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Field } from "@/components/forms/field"
+} from '@workspace/ui/components/card'
+import { Form } from '@workspace/ui/components/form'
+import { Field } from '@/components/forms/field'
 
-import { updateEmail } from "./actions"
-import { FormUpdateEmailSchema } from "./schemas"
+import { updateEmail } from './actions'
+import { FormUpdateEmailSchema } from './schemas'
 
 export function EmailUpdate({ email }: { email: string | undefined }) {
   const form = useForm<z.infer<typeof FormUpdateEmailSchema>>({
     resolver: zodResolver(FormUpdateEmailSchema),
     defaultValues: {
-      email: email ?? "",
+      email: email ?? '',
     },
   })
 
@@ -35,16 +39,16 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
     const [result, error] = await execute(data)
 
     if (error) {
-      if (error.code === "INPUT_PARSE_ERROR") {
+      if (error.code === 'INPUT_PARSE_ERROR') {
         Object.entries(error.fieldErrors).forEach(([field, messages]) => {
           form.setError(field as keyof z.infer<typeof FormUpdateEmailSchema>, {
-            type: "server",
-            message: messages?.join(", "),
+            type: 'server',
+            message: messages?.join(', '),
           })
         })
       } else {
-        form.setError("root.serverError", {
-          type: "server",
+        form.setError('root.serverError', {
+          type: 'server',
           message: error.message,
         })
       }
@@ -80,7 +84,7 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
               required
             />
 
-            {form.formState?.errors?.root?.serverError?.type === "server" && (
+            {form.formState?.errors?.root?.serverError?.type === 'server' && (
               <Alert variant="destructive">
                 <TriangleAlert aria-hidden="true" size={16} />
                 <AlertTitle>Error</AlertTitle>
@@ -105,7 +109,7 @@ export function EmailUpdate({ email }: { email: string | undefined }) {
                 {isPending ? (
                   <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                {isPending ? "Saving..." : "Save"}
+                {isPending ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </form>

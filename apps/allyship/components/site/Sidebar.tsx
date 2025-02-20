@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from 'react'
 
 import {
   Sidebar,
@@ -10,30 +10,30 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Logo } from "@/components/site/Logo"
+} from '@workspace/ui/components/sidebar'
+import { Logo } from '@/components/site/Logo'
 
-import { UserMenu } from "../auth/UserMenu"
-import { RouterLink } from "../RouterLink"
+import { UserMenu } from '../auth/UserMenu'
+import { RouterLink } from '../RouterLink'
 
 // This is sample data.
 const data = {
   navMain: [
     {
-      title: "Getting Started",
-      url: "#",
+      title: 'Getting Started',
+      url: '#',
     },
     {
-      title: "Courses",
-      url: "#",
+      title: 'Courses',
+      url: '#',
     },
     {
-      title: "Sites",
-      url: "#",
+      title: 'Sites',
+      url: '#',
     },
     {
-      title: "Reports",
-      url: "#",
+      title: 'Reports',
+      url: '#',
     },
   ],
 }
@@ -55,7 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            {data.navMain.map((item) => (
+            {data.navMain.map(item => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
                   <a href={item.url} className="font-medium">

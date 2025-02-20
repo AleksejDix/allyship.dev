@@ -6,7 +6,7 @@ import { CrawlButton } from '@/features/crawl/components/crawl-button'
 import { PageCreateDialog } from '@/features/pages/components/page-create-dialog'
 import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@workspace/ui/components/alert'
 
 type Domain = Database['public']['Tables']['Website']['Row']
 

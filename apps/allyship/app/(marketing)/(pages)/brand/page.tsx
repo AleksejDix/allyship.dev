@@ -1,21 +1,21 @@
-import { CircleCheck, CircleX } from "lucide-react"
+import { CircleCheck, CircleX } from 'lucide-react'
 
-import { generateMetadata } from "@/lib/metadata"
+import { generateMetadata } from '@/lib/metadata'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Loader } from "@/components/loader"
-import { PageHeader } from "@/components/page-header"
+} from '@workspace/ui/components/card'
+import { Separator } from '@workspace/ui/components/separator'
+import { Loader } from '@/components/loader'
+import { PageHeader } from '@/components/page-header'
 
 export const metadata = generateMetadata({
-  title: "Brand Guidelines",
-  description: "Brand assets, guidelines, and resources for Allyship.dev",
-  path: "/brand",
+  title: 'Brand Guidelines',
+  description: 'Brand assets, guidelines, and resources for Allyship.dev',
+  path: '/brand',
 })
 
 export default function BrandPage() {

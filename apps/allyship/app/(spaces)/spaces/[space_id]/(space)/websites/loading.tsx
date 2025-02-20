@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
+import { Skeleton } from '@workspace/ui/components/skeleton'
 
 export default function WebsitesLoading() {
   return (

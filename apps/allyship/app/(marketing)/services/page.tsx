@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { ArrowRight, Bot, FileSearch, Users } from "lucide-react"
+import Link from 'next/link'
+import { ArrowRight, Bot, FileSearch, Users } from 'lucide-react'
 
-import { generateMetadata } from "@/lib/metadata"
-import { Button } from "@/components/ui/button"
+import { generateMetadata } from '@/lib/metadata'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
@@ -10,49 +10,49 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { PageHeader } from "@/components/page-header"
+} from '@workspace/ui/components/card'
+import { Separator } from '@workspace/ui/components/separator'
+import { PageHeader } from '@/components/page-header'
 
 const services = [
   {
-    title: "Accessibility Audits",
+    title: 'Accessibility Audits',
     description:
       "Get a comprehensive evaluation of your website's accessibility compliance with WCAG guidelines.",
     icon: FileSearch,
     features: [
-      "Manual expert review",
-      "Detailed compliance report",
-      "Prioritized fixes",
-      "Implementation guidance",
+      'Manual expert review',
+      'Detailed compliance report',
+      'Prioritized fixes',
+      'Implementation guidance',
     ],
-    href: "/services/audits",
+    href: '/services/audits',
   },
   {
-    title: "Automated Monitoring",
+    title: 'Automated Monitoring',
     description:
-      "Continuous end-to-end testing to ensure your website stays accessible 24/7.",
+      'Continuous end-to-end testing to ensure your website stays accessible 24/7.',
     icon: Bot,
     features: [
-      "Real-time monitoring",
-      "Instant issue alerts",
-      "Trend analysis",
-      "Automated fixes",
+      'Real-time monitoring',
+      'Instant issue alerts',
+      'Trend analysis',
+      'Automated fixes',
     ],
-    href: "/services/a11y-e2e-tests",
+    href: '/services/a11y-e2e-tests',
   },
   {
-    title: "Accessibility Training",
+    title: 'Accessibility Training',
     description:
-      "Empower your team with the knowledge and skills to build accessible websites.",
+      'Empower your team with the knowledge and skills to build accessible websites.',
     icon: Users,
     features: [
-      "Interactive workshops",
-      "Best practices",
-      "Hands-on exercises",
-      "Certification",
+      'Interactive workshops',
+      'Best practices',
+      'Hands-on exercises',
+      'Certification',
     ],
-    href: "/education/courses",
+    href: '/education/courses',
   },
   // {
   //   title: "Development Support",
@@ -70,10 +70,10 @@ const services = [
 ]
 
 export const metadata = generateMetadata({
-  title: "Services",
+  title: 'Services',
   description:
-    "Professional accessibility auditing and QA services for your digital products",
-  path: "/services",
+    'Professional accessibility auditing and QA services for your digital products',
+  path: '/services',
 })
 
 export default function ServicesPage() {
@@ -100,7 +100,7 @@ export default function ServicesPage() {
           Our Services
         </h2>
         <div className="grid md:grid-cols-2 gap-8">
-          {services.map((service) => (
+          {services.map(service => (
             <Card key={service.title}>
               <CardHeader>
                 <CardTitle>{service.title}</CardTitle>
@@ -108,7 +108,7 @@ export default function ServicesPage() {
               </CardHeader>
               <CardContent>
                 <ul>
-                  {service.features.map((feature) => (
+                  {service.features.map(feature => (
                     <li key={feature} className="flex items-center gap-3">
                       <span>{feature}</span>
                     </li>

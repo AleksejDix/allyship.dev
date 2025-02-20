@@ -1,7 +1,7 @@
-import { PageHeader } from "@/features/websites/components/page-header"
+import { PageHeader } from '@/features/websites/components/page-header'
 
-import { Button } from "@/components/ui/button"
-import { RouterLink } from "@/components/RouterLink"
+import { Button } from '@workspace/ui/components/button'
+import { RouterLink } from '@/components/RouterLink'
 
 type LayoutProps = {
   params: Promise<{ website_id: string; space_id: string; page_id: string }>

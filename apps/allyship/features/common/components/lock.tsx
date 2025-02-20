@@ -1,16 +1,16 @@
-import { ReactNode } from "react"
-import Link from "next/link"
-import { Lock as LockIcon } from "lucide-react"
+import { ReactNode } from 'react'
+import Link from 'next/link'
+import { Lock as LockIcon } from 'lucide-react'
 
-import { createClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
+import { createClient } from '@/lib/supabase/server'
+import { Button } from '@workspace/ui/components/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@workspace/ui/components/card'
 
 interface LockProps {
   children: ReactNode

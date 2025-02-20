@@ -1,10 +1,10 @@
-// import NameForm from "@/components/ui/AccountForms/NameForm"
-import { redirect } from "next/navigation"
-import { EmailUpdate } from "@/features/user/features/email/update"
-import { PasswordUpdate } from "@/features/user/features/password/update"
+// import NameForm from "@workspace/ui/components/AccountForms/NameForm"
+import { redirect } from 'next/navigation'
+import { EmailUpdate } from '@/features/user/features/email/update'
+import { PasswordUpdate } from '@/features/user/features/password/update'
 
-import { createClient } from "@/lib/supabase/server"
-import { PageHeader } from "@/components/page-header"
+import { createClient } from '@/lib/supabase/server'
+import { PageHeader } from '@/components/page-header'
 
 export default async function Account() {
   const supabase = await createClient()
@@ -13,7 +13,7 @@ export default async function Account() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return redirect("/auth/login")
+    return redirect('/auth/login')
   }
 
   return (

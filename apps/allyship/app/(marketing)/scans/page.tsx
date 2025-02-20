@@ -1,10 +1,10 @@
-import Link from "next/link"
-import { ScanJobCreate } from "@/features/scans/components/scan-create"
-import { ScanIndex } from "@/features/scans/components/scan-index"
-import { ArrowRight } from "lucide-react"
+import Link from 'next/link'
+import { ScanJobCreate } from '@/features/scans/components/scan-create'
+import { ScanIndex } from '@/features/scans/components/scan-index'
+import { ArrowRight } from 'lucide-react'
 
-import { createClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
+import { createClient } from '@/lib/supabase/server'
+import { Button } from '@workspace/ui/components/button'
 
 export default async function ScansPage() {
   const supabase = await createClient()
@@ -15,7 +15,7 @@ export default async function ScansPage() {
 
   // Fetch scans with related data
   const { data: scans, error } = await supabase
-    .from("Scan")
+    .from('Scan')
     .select(
       `
       *,
@@ -27,7 +27,7 @@ export default async function ScansPage() {
       )
     `
     )
-    .order("created_at", { ascending: false })
+    .order('created_at', { ascending: false })
 
   if (error) {
     throw error
@@ -35,10 +35,10 @@ export default async function ScansPage() {
 
   // Transform the data to include necessary fields
   const transformedScans =
-    scans?.map((scan) => ({
+    scans?.map(scan => ({
       ...scan,
       url: scan.page.url,
-      user_id: scan.page.website.user_id || user?.id || "",
+      user_id: scan.page.website.user_id || user?.id || '',
     })) || []
 
   return (
@@ -63,7 +63,7 @@ export default async function ScansPage() {
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <Link href="/auth/login" className="underline">
                 Login
               </Link>

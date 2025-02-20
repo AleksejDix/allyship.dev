@@ -1,6 +1,6 @@
-import { CourseListPage } from "@/features/courses/components/CourseListPage"
-import { PageHeader } from "@/components/page-header"
-import { Separator } from "@/components/ui/separator"
+import { CourseListPage } from '@/features/courses/components/CourseListPage'
+import { PageHeader } from '@/components/page-header'
+import { Separator } from '@workspace/ui/components/separator'
 
 export default function Page() {
   return (

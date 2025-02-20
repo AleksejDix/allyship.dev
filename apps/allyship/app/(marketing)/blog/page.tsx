@@ -1,18 +1,18 @@
-import fs from "fs"
-import path from "path"
-import Link from "next/link"
-import { compareDesc } from "date-fns"
+import fs from 'fs'
+import path from 'path'
+import Link from 'next/link'
+import { compareDesc } from 'date-fns'
 
-import { generateMetadata } from "@/lib/metadata"
-import { formatDate } from "@/lib/utils"
-import { Separator } from "@/components/ui/separator"
-import { PageHeader } from "@/components/page-header"
+import { generateMetadata } from '@/lib/metadata'
+import { formatDate } from '@/lib/utils'
+import { Separator } from '@workspace/ui/components/separator'
+import { PageHeader } from '@/components/page-header'
 
 export const metadata = generateMetadata({
-  title: "Blog",
+  title: 'Blog',
   description:
-    "Keep up to date with the latest news and updates about web accessibility, testing, and inclusive design.",
-  path: "/blog",
+    'Keep up to date with the latest news and updates about web accessibility, testing, and inclusive design.',
+  path: '/blog',
 })
 
 interface Post {
@@ -26,22 +26,22 @@ interface Post {
 async function getAllPosts(): Promise<Post[]> {
   const postsDirectory = path.join(
     process.cwd(),
-    "app/(marketing)/blog/(posts)"
+    'app/(marketing)/blog/(posts)'
   )
   const entries = fs.readdirSync(postsDirectory, { withFileTypes: true })
 
   const postPromises = entries
-    .filter((entry) => entry.isDirectory())
-    .flatMap(async (entry) => {
+    .filter(entry => entry.isDirectory())
+    .flatMap(async entry => {
       // Handle date-grouped directories (new structure)
-      if (entry.name.startsWith("(")) {
+      if (entry.name.startsWith('(')) {
         const datePostsPath = path.join(postsDirectory, entry.name)
         const postEntries = fs
           .readdirSync(datePostsPath, { withFileTypes: true })
-          .filter((entry) => entry.isDirectory())
+          .filter(entry => entry.isDirectory())
 
         const posts = await Promise.all(
-          postEntries.map(async (postEntry) => {
+          postEntries.map(async postEntry => {
             const { metadata, frontmatter } = await import(
               `./(posts)/${entry.name}/${postEntry.name}/page.mdx`
             )
@@ -51,7 +51,7 @@ async function getAllPosts(): Promise<Post[]> {
               title: metadata.title,
               description: metadata.description,
               date: frontmatter.date,
-              published: frontmatter.status === "published",
+              published: frontmatter.status === 'published',
             }
           })
         )
@@ -66,7 +66,7 @@ async function getAllPosts(): Promise<Post[]> {
         )
 
         // Extract the slug without the date prefix
-        const slug = entry.name.replace(/^\d{4}-\d{2}-\d{2}-/, "")
+        const slug = entry.name.replace(/^\d{4}-\d{2}-\d{2}-/, '')
 
         return [
           {
@@ -74,7 +74,7 @@ async function getAllPosts(): Promise<Post[]> {
             title: metadata.title,
             description: metadata.description,
             date: frontmatter.date,
-            published: frontmatter.status === "published",
+            published: frontmatter.status === 'published',
           },
         ]
       }
@@ -88,7 +88,7 @@ async function getAllPosts(): Promise<Post[]> {
 
 export default async function BlogPage() {
   const posts = (await getAllPosts())
-    .filter((post) => post.published)
+    .filter(post => post.published)
     .sort((a, b) => {
       return compareDesc(new Date(a.date), new Date(b.date))
     })
@@ -104,7 +104,7 @@ export default async function BlogPage() {
 
       <main className="mt-12">
         <ul className="space-y-4">
-          {posts.map((post) => (
+          {posts.map(post => (
             <li key={post.slug}>
               <article>
                 <Link

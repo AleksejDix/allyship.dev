@@ -10,9 +10,9 @@ import {
 } from 'lucide-react'
 import { notFound } from 'next/navigation'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { FeatureCardsGrid } from '@/components/feature-cards-grid'
 
 interface CourseLesson {

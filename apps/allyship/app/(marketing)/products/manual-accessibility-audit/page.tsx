@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { ArrowRight, CheckCircle, FileSearch, Shield, Zap } from "lucide-react"
+import Link from 'next/link'
+import { ArrowRight, CheckCircle, FileSearch, Shield, Zap } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent } from '@workspace/ui/components/card'
 
 export default function AuditsPage() {
   return (
@@ -24,7 +24,7 @@ export default function AuditsPage() {
               <div className="flex gap-4">
                 <Button asChild>
                   <Link href="/contact">
-                    Order Manual Audit{" "}
+                    Order Manual Audit{' '}
                     <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -33,22 +33,22 @@ export default function AuditsPage() {
             <div className="grid gap-4 lg:grid-cols-2">
               {[
                 {
-                  title: "WCAG 2.1 Compliance",
-                  description: "Full evaluation against latest standards",
+                  title: 'WCAG 2.1 Compliance',
+                  description: 'Full evaluation against latest standards',
                 },
                 {
-                  title: "Detailed Report",
-                  description: "Comprehensive findings and recommendations",
+                  title: 'Detailed Report',
+                  description: 'Comprehensive findings and recommendations',
                 },
                 {
-                  title: "Expert Review",
-                  description: "Manual testing by accessibility specialists",
+                  title: 'Expert Review',
+                  description: 'Manual testing by accessibility specialists',
                 },
                 {
-                  title: "Action Plan",
-                  description: "Prioritized fixes and implementation guide",
+                  title: 'Action Plan',
+                  description: 'Prioritized fixes and implementation guide',
                 },
-              ].map((item) => (
+              ].map(item => (
                 <Card key={item.title} className="bg-card/50">
                   <CardContent className="p-4">
                     <div className="space-y-2">
@@ -78,24 +78,24 @@ export default function AuditsPage() {
           {[
             {
               icon: FileSearch,
-              title: "Initial Scan",
+              title: 'Initial Scan',
               description:
-                "Automated testing to identify common accessibility issues",
+                'Automated testing to identify common accessibility issues',
             },
             {
               icon: Shield,
-              title: "Manual Testing",
-              description: "Expert review using assistive technologies",
+              title: 'Manual Testing',
+              description: 'Expert review using assistive technologies',
             },
             {
               icon: CheckCircle,
-              title: "Compliance Check",
-              description: "Evaluation against WCAG 2.1 guidelines",
+              title: 'Compliance Check',
+              description: 'Evaluation against WCAG 2.1 guidelines',
             },
             {
               icon: Zap,
-              title: "Action Items",
-              description: "Detailed report with prioritized recommendations",
+              title: 'Action Items',
+              description: 'Detailed report with prioritized recommendations',
             },
           ].map((item, index) => (
             <Card key={item.title} className="relative">
@@ -123,26 +123,26 @@ export default function AuditsPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               [
-                "Website Navigation",
-                "Form validation",
-                "Login and registration Flows",
-                "Keyboard navigation",
+                'Website Navigation',
+                'Form validation',
+                'Login and registration Flows',
+                'Keyboard navigation',
               ],
               [
-                "Semantic HTML structure",
-                "ARIA labels and landmarks",
-                "Alternative text for images",
-                "Multimedia accessibility",
+                'Semantic HTML structure',
+                'ARIA labels and landmarks',
+                'Alternative text for images',
+                'Multimedia accessibility',
               ],
               [
-                "Mobile responsiveness",
-                "Dynamic content updates",
-                "Document structure and headings",
-                "Tab order and focus management",
+                'Mobile responsiveness',
+                'Dynamic content updates',
+                'Document structure and headings',
+                'Tab order and focus management',
               ],
             ].map((list, index) => (
               <div key={index} className="space-y-4">
-                {list.map((item) => (
+                {list.map(item => (
                   <div key={item} className="flex gap-3">
                     <CheckCircle className="h-6 w-6 text-primary flex-shrink-0" />
                     <span>{item}</span>
@@ -182,12 +182,12 @@ export default function AuditsPage() {
                 </div>
                 <div className="space-y-3">
                   {[
-                    "Basic WCAG 2.1 compliance check",
-                    "Technical report",
-                    "Key action items",
-                    "Basic recommendations",
-                    "14-day support period",
-                  ].map((feature) => (
+                    'Basic WCAG 2.1 compliance check',
+                    'Technical report',
+                    'Key action items',
+                    'Basic recommendations',
+                    '14-day support period',
+                  ].map(feature => (
                     <div key={feature} className="flex items-center gap-2">
                       <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                       <span>{feature}</span>
@@ -196,7 +196,7 @@ export default function AuditsPage() {
                 </div>
                 <Button asChild>
                   <Link href="/contact">
-                    Order Basic Audit{" "}
+                    Order Basic Audit{' '}
                     <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -220,12 +220,12 @@ export default function AuditsPage() {
                 </div>
                 <div className="space-y-3">
                   {[
-                    "Complete WCAG 2.1 compliance audit",
-                    "Detailed technical report",
-                    "Prioritized action items",
-                    "Implementation recommendations",
-                    "30-day support period",
-                  ].map((feature) => (
+                    'Complete WCAG 2.1 compliance audit',
+                    'Detailed technical report',
+                    'Prioritized action items',
+                    'Implementation recommendations',
+                    '30-day support period',
+                  ].map(feature => (
                     <div key={feature} className="flex items-center gap-2">
                       <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                       <span>{feature}</span>
@@ -234,7 +234,7 @@ export default function AuditsPage() {
                 </div>
                 <Button asChild>
                   <Link href="/contact">
-                    Order Comprehensive Audit{" "}
+                    Order Comprehensive Audit{' '}
                     <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -258,7 +258,7 @@ export default function AuditsPage() {
             <div className="flex gap-4 justify-center">
               <Button asChild>
                 <Link href="/contact">
-                  Request Your Audit{" "}
+                  Request Your Audit{' '}
                   <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

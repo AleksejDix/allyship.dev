@@ -1,11 +1,8 @@
-import { signOut } from "@/features/user/actions/user-actions"
+'use client'
+
+import { signOut } from '@/features/user/actions/user-actions'
+import { DropdownMenuItem } from '@workspace/ui/components/dropdown-menu'
 
 export function SignoutButton() {
-  return (
-    <form noValidate>
-      <button className="w-full text-left" formAction={signOut}>
-        Sign out
-      </button>
-    </form>
-  )
+  return <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
 }

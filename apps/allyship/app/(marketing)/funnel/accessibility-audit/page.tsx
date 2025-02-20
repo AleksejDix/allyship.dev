@@ -1,23 +1,23 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import { useState } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
   CheckCircle,
   DollarSign,
   Timer,
-} from "lucide-react"
+} from 'lucide-react'
 
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+} from '@workspace/ui/components/accordion'
+import { Badge } from '@workspace/ui/components/badge'
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent } from '@workspace/ui/components/card'
 
 export default function AuditFunnelPage() {
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null)
@@ -54,23 +54,23 @@ export default function AuditFunnelPage() {
           {[
             {
               icon: AlertTriangle,
-              title: "Legal Risk",
+              title: 'Legal Risk',
               description:
-                "ADA non-compliance lawsuits increased by 400% in the last 3 years",
+                'ADA non-compliance lawsuits increased by 400% in the last 3 years',
             },
             {
               icon: DollarSign,
-              title: "Lost Revenue",
+              title: 'Lost Revenue',
               description:
                 "You're missing out on $6.9 billion in annual revenue from disabled users",
             },
             {
               icon: Timer,
-              title: "Time Bomb",
+              title: 'Time Bomb',
               description:
-                "Every day without accessibility is another day closer to legal action",
+                'Every day without accessibility is another day closer to legal action',
             },
-          ].map((item) => (
+          ].map(item => (
             <Card key={item.title}>
               <CardContent className="pt-6">
                 <item.icon className="h-12 w-12 text-red-600 mb-4" />
@@ -92,17 +92,17 @@ export default function AuditFunnelPage() {
             {[
               {
                 quote:
-                  "The audit helped us identify critical issues we had no idea about. ROI was immediate.",
-                author: "Sarah Johnson",
-                role: "CTO, E-commerce Giant",
+                  'The audit helped us identify critical issues we had no idea about. ROI was immediate.',
+                author: 'Sarah Johnson',
+                role: 'CTO, E-commerce Giant',
               },
               {
                 quote:
-                  "Comprehensive, actionable, and worth every penny. Saved us from potential lawsuits.",
-                author: "Michael Chen",
-                role: "Director of Digital, Fortune 500",
+                  'Comprehensive, actionable, and worth every penny. Saved us from potential lawsuits.',
+                author: 'Michael Chen',
+                role: 'Director of Digital, Fortune 500',
               },
-            ].map((testimonial) => (
+            ].map(testimonial => (
               <Card key={testimonial.author}>
                 <CardContent className="p-6">
                   <p className="text-lg mb-4">
@@ -127,26 +127,26 @@ export default function AuditFunnelPage() {
         <Accordion type="single" collapsible className="max-w-3xl mx-auto">
           {[
             {
-              question: "How long does the audit take?",
+              question: 'How long does the audit take?',
               answer:
                 "Our comprehensive audit takes 5-7 business days. You'll get your initial accessibility score within 24 hours.",
             },
             {
               question: "What's included in the audit?",
               answer:
-                "WCAG 2.1 compliance check, detailed reports, prioritized fixes, legal risk assessment, and implementation guidance.",
+                'WCAG 2.1 compliance check, detailed reports, prioritized fixes, legal risk assessment, and implementation guidance.',
             },
             {
-              question: "Is this a one-time fee?",
+              question: 'Is this a one-time fee?',
               answer:
-                "Yes, the audit fee is one-time. We also offer optional ongoing monitoring and support packages.",
+                'Yes, the audit fee is one-time. We also offer optional ongoing monitoring and support packages.',
             },
             {
-              question: "Do I really need this?",
+              question: 'Do I really need this?',
               answer:
                 "If your website isn't fully accessible, you're at risk of lawsuits and losing customers. It's not if, but when.",
             },
-          ].map((faq) => (
+          ].map(faq => (
             <AccordionItem key={faq.question} value={faq.question}>
               <AccordionTrigger>{faq.question}</AccordionTrigger>
               <AccordionContent>{faq.answer}</AccordionContent>
@@ -169,42 +169,42 @@ export default function AuditFunnelPage() {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: "Essential",
-                price: "997",
+                name: 'Essential',
+                price: '997',
                 features: [
-                  "Basic WCAG 2.1 compliance check",
-                  "Accessibility score",
-                  "High-level recommendations",
-                  "PDF report",
+                  'Basic WCAG 2.1 compliance check',
+                  'Accessibility score',
+                  'High-level recommendations',
+                  'PDF report',
                 ],
               },
               {
-                name: "Professional",
-                price: "1,997",
+                name: 'Professional',
+                price: '1,997',
                 features: [
-                  "Everything in Essential",
-                  "Detailed technical audit",
-                  "Legal risk assessment",
-                  "Priority fixes list",
-                  "60-min consultation",
+                  'Everything in Essential',
+                  'Detailed technical audit',
+                  'Legal risk assessment',
+                  'Priority fixes list',
+                  '60-min consultation',
                 ],
               },
               {
-                name: "Enterprise",
-                price: "4,997",
+                name: 'Enterprise',
+                price: '4,997',
                 features: [
-                  "Everything in Professional",
-                  "Custom solutions",
-                  "Implementation guidance",
-                  "3 months support",
-                  "Training session",
+                  'Everything in Professional',
+                  'Custom solutions',
+                  'Implementation guidance',
+                  '3 months support',
+                  'Training session',
                 ],
               },
-            ].map((pkg) => (
+            ].map(pkg => (
               <Card
                 key={pkg.name}
                 className={`${
-                  selectedPackage === pkg.name ? "ring-2 ring-primary" : ""
+                  selectedPackage === pkg.name ? 'ring-2 ring-primary' : ''
                 }`}
               >
                 <CardContent className="p-6">
@@ -216,7 +216,7 @@ export default function AuditFunnelPage() {
                     </span>
                   </p>
                   <ul className="space-y-3 mb-6">
-                    {pkg.features.map((feature) => (
+                    {pkg.features.map(feature => (
                       <li key={feature} className="flex items-center gap-2">
                         <CheckCircle className="h-5 w-5 text-primary" />
                         <span>{feature}</span>

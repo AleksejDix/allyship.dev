@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { Copy } from "lucide-react"
+import { Copy } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 
 export function FieldLabels() {
   const bookmarkletCode = encodeURIComponent(`(function(){
@@ -53,7 +53,7 @@ export function FieldLabels() {
         <a
           href={bookmarkletUrl}
           className="inline-block px-4 py-2 bg-success text-white rounded hover:bg-success/80 cursor-move"
-          onClick={(e) => e.preventDefault()}
+          onClick={e => e.preventDefault()}
         >
           Allyship.dev Field Labels Checker
         </a>
@@ -61,7 +61,7 @@ export function FieldLabels() {
           onClick={() => {
             navigator.clipboard.writeText(bookmarkletUrl)
             alert(
-              "Bookmarklet code copied! To use:\n1. Create a new bookmark\n2. Paste this code in the URL/location field"
+              'Bookmarklet code copied! To use:\n1. Create a new bookmark\n2. Paste this code in the URL/location field'
             )
           }}
         >

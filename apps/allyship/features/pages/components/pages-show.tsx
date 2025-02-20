@@ -1,13 +1,17 @@
-"use client"
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertTriangle } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useServerAction } from "zsa-react"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { AlertTriangle } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useServerAction } from 'zsa-react'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@workspace/ui/components/alert'
+import { Button } from '@workspace/ui/components/button'
 import {
   Form,
   FormControl,
@@ -15,14 +19,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from '@workspace/ui/components/form'
+import { Input } from '@workspace/ui/components/input'
 
-import { createPage } from "../actions"
+import { createPage } from '../actions'
 
 const formSchema = z.object({
-  url: z.string().url().min(1, "URL is required"),
-  website_id: z.string().min(1, "Website ID is required"),
+  url: z.string().url().min(1, 'URL is required'),
+  website_id: z.string().min(1, 'Website ID is required'),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -35,7 +39,7 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      url: "",
+      url: '',
       website_id: domainId,
     },
   })
@@ -45,12 +49,12 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
   async function onSubmit(formData: FormValues) {
     const [data, validationError] = await execute(formData)
     if (validationError) {
-      if (validationError.code === "INPUT_PARSE_ERROR") {
+      if (validationError.code === 'INPUT_PARSE_ERROR') {
         Object.entries(validationError.fieldErrors).forEach(
           ([field, messages]) => {
             form.setError(field as keyof FormValues, {
-              type: "server",
-              message: messages?.join(", "),
+              type: 'server',
+              message: messages?.join(', '),
             })
           }
         )
@@ -60,9 +64,9 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
     }
 
     if (data && !data.success) {
-      form.setError("root.serverError", {
+      form.setError('root.serverError', {
         message: data.error?.message,
-        type: "server",
+        type: 'server',
       })
     } else if (data?.success) {
       form.reset()
@@ -90,7 +94,7 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
           )}
         />
 
-        {form.formState?.errors?.root?.serverError?.type === "server" && (
+        {form.formState?.errors?.root?.serverError?.type === 'server' && (
           <Alert variant="destructive">
             <AlertTriangle aria-hidden="true" size={16} />
             <AlertTitle>Server Error</AlertTitle>
@@ -101,7 +105,7 @@ export function DomainsCreate({ domainId }: DomainsCreateProps) {
         )}
 
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Adding..." : "Add Page"}
+          {isPending ? 'Adding...' : 'Add Page'}
         </Button>
       </form>
     </Form>

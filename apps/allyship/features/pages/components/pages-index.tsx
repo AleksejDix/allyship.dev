@@ -4,8 +4,8 @@ import * as React from 'react'
 import type { Tables } from '@/apps/AllyShip/database.types'
 import { formatDate } from '@/utils/date-formatting'
 
-import { Card, CardHeader } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Card, CardHeader } from '@workspace/ui/components/card'
+import { Input } from '@workspace/ui/components/input'
 import { RouterLink } from '@/components/RouterLink'
 
 import { PageDeleteDialog } from './page-delete-dialog'

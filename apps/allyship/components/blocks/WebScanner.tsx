@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { Bug, CheckCircle, XCircle } from "lucide-react"
+import Link from 'next/link'
+import { Bug, CheckCircle, XCircle } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@workspace/ui/components/button'
 
 export const WebScanner = () => {
   return (
