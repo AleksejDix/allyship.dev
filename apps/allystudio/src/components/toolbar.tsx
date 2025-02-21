@@ -15,10 +15,12 @@ import {
   Keyboard,
   Languages,
   LayoutTemplate,
+  Link2,
   Link2Off,
   MousePointer2,
   MousePointerClick,
   Navigation,
+  Plus,
   Timer,
   Video,
   Wand2,
@@ -27,7 +29,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
-import { FileHeader } from "./file-header"
+import { PageConnector } from "./page-connector"
 import { Button } from "./ui/button"
 import {
   Tooltip,
@@ -277,7 +279,7 @@ export function Toolbar({
   return (
     <TooltipProvider>
       <div className="flex w-full flex-col border-b bg-muted/50">
-        <FileHeader
+        <PageConnector
           currentFile={currentFile}
           isConnected={isConnected}
           onAddPage={onAddPage}
