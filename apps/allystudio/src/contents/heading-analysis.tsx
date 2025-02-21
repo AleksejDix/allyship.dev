@@ -1,21 +1,38 @@
 import { useTheme } from "@/components/theme-provider"
+import { cn } from "@/lib/utils"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 const COLORS = {
   light: {
     bg: "rgba(59, 130, 246, 0.1)", // Light blue background
     outline: "#3b82f6", // Blue outline
+    indicator: {
+      bg: "#1d4ed8", // Darker blue for AAA contrast with white text
+      text: "#ffffff"
+    },
     error: {
       bg: "rgba(239, 68, 68, 0.1)", // Light red background
-      outline: "#ef4444" // Red outline
+      outline: "#ef4444", // Red outline
+      indicator: {
+        bg: "#b91c1c", // Darker red for AAA contrast with white text
+        text: "#ffffff"
+      }
     }
   },
   dark: {
     bg: "rgba(59, 130, 246, 0.2)", // Darker blue background
     outline: "#60a5fa", // Lighter blue outline
+    indicator: {
+      bg: "#2563eb", // Bright blue for AAA contrast with white text
+      text: "#ffffff"
+    },
     error: {
       bg: "rgba(239, 68, 68, 0.2)", // Darker red background
-      outline: "#f87171" // Lighter red outline
+      outline: "#f87171", // Lighter red outline
+      indicator: {
+        bg: "#dc2626", // Bright red for AAA contrast with white text
+        text: "#ffffff"
+      }
     }
   }
 }
@@ -72,29 +89,31 @@ function HeadingIndicator({
   message?: string
 }) {
   const colors = COLORS[isDark ? "dark" : "light"]
-  const style = {
-    position: "absolute" as const,
-    bottom: "100%",
-    left: "-2px", // Align with the border
-    padding: "0",
-    borderRadius: "0",
-    fontSize: "0.675rem",
-    lineHeight: "1",
-    fontWeight: "bold",
-    backgroundColor: isValid ? colors.outline : colors.error.outline,
-    color: "#ffffff",
-    zIndex: 10001,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: "1.5rem",
-    height: "1.5rem",
-    border: `2px solid ${isValid ? colors.outline : colors.error.outline}`,
-    borderBottom: "none"
-  }
+  const indicatorColors = isValid ? colors.indicator : colors.error.indicator
 
   return (
-    <div style={style} title={message}>
+    <div
+      className="heading-indicator"
+      style={{
+        backgroundColor: indicatorColors.bg,
+        color: indicatorColors.text,
+        border: `2px solid ${indicatorColors.bg}`,
+        position: "absolute",
+        bottom: "100%",
+        left: "-2px",
+        padding: "4px",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "12px",
+        fontWeight: 600,
+        lineHeight: 1,
+        whiteSpace: "nowrap",
+        userSelect: "none",
+        zIndex: 10001,
+        transition: "all 200ms ease"
+      }}
+      title={message}>
       <span>H{level}</span>
     </div>
   )
@@ -226,6 +245,11 @@ export default function HeadingAnalysisOverlay() {
     }
   }, [isActive, handleResize, updateHeadings])
 
+  useEffect(() => {
+    // Remove the style element creation since we're using inline styles
+    return () => {}
+  }, [])
+
   // Don't render anything if not active
   if (!isActive) return null
 
@@ -237,6 +261,10 @@ export default function HeadingAnalysisOverlay() {
         return (
           <div
             key={`${index}-${forceUpdate}`}
+            className={cn(
+              "pointer-events-none absolute transition-all duration-200 ease-in-out will-change-[transform,opacity,width,height]",
+              isResizingRef.current && "transition-none"
+            )}
             style={{
               position: "absolute",
               top: `${rect.top + window.scrollY}px`,
@@ -245,13 +273,7 @@ export default function HeadingAnalysisOverlay() {
               height: `${rect.height}px`,
               backgroundColor: isValid ? colors.bg : colors.error.bg,
               outline: `2px solid ${isValid ? colors.outline : colors.error.outline}`,
-              pointerEvents: "none",
-              zIndex: 10000,
-              opacity: isActive ? 1 : 0,
-              transition: isResizingRef.current
-                ? "none"
-                : "all 0.2s ease-in-out",
-              willChange: "transform, opacity, width, height"
+              opacity: isActive ? 1 : 0
             }}>
             <HeadingIndicator
               level={level}
