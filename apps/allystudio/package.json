@@ -7,9 +7,18 @@
   "packageManager": "pnpm@8.15.3",
   "scripts": {
     "dev": "pnpm run clean && plasmo dev --verbose",
+    "dev:chrome": "pnpm run clean && plasmo dev --verbose",
+    "dev:firefox": "pnpm run clean && plasmo dev --target=firefox-mv2 --verbose",
+    "dev:safari": "pnpm run clean && plasmo dev --target=safari-mv3 --verbose",
     "preview": "plasmo build && echo '\nTo preview: \n1. Open Chrome\n2. Go to chrome://extensions\n3. Enable Developer Mode\n4. Click \"Load unpacked\"\n5. Select the \"build\" directory'",
     "build": "pnpm run clean && plasmo build",
+    "build:chrome": "pnpm run clean && plasmo build",
+    "build:firefox": "pnpm run clean && plasmo build --target=firefox-mv2",
+    "build:safari": "pnpm run clean && plasmo build --target=safari-mv3",
     "package": "plasmo package",
+    "package:chrome": "plasmo package",
+    "package:firefox": "plasmo package --target=firefox-mv2",
+    "package:safari": "plasmo package --target=safari-mv3",
     "clean": "rm -rf build",
     "setup": "sh scripts/copy-ui.sh"
   },
@@ -88,6 +97,15 @@
           "<all_urls>"
         ]
       }
-    ]
+    ],
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "{allystudio@allyship.dev}",
+        "strict_min_version": "109.0"
+      },
+      "safari": {
+        "strict_min_version": "14.0"
+      }
+    }
   }
 }
