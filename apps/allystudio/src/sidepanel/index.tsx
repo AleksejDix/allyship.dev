@@ -9,11 +9,17 @@ import { HeadingAnalysis } from "@/components/heading-analysis"
 import { Layout } from "@/components/layout"
 import { LoadingState } from "@/components/loading-state"
 import { Toolbar } from "@/components/toolbar"
-import { connectPageToAllyship, getWebsiteForUrl } from "@/core/pages"
+import {
+  connectPageToAllyship,
+  getPageByUrl,
+  getWebsiteForUrl
+} from "@/core/pages"
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database"
 
-type PageData = Database["public"]["Tables"]["Page"]["Row"]
+type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
+  website: Database["public"]["Tables"]["Website"]["Row"]
+}
 
 function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)
@@ -60,24 +66,22 @@ function IndexSidePanel() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Get website ID and check if page exists when URL changes
+  // Check if page exists and get website ID when URL changes
   useEffect(() => {
     if (!currentUrl || !session) return
 
-    // Get website ID
-    getWebsiteForUrl(currentUrl).then((result) => {
+    // First check if page already exists
+    getPageByUrl(currentUrl).then((result) => {
       if (result.success) {
-        setWebsiteId(result.data.id)
-
-        // Check if page exists
-        supabase
-          .from("Page")
-          .select()
-          .eq("url", currentUrl)
-          .single()
-          .then(({ data }) => {
-            setPageData(data)
-          })
+        setPageData(result.data)
+        setWebsiteId(result.data.website_id)
+      } else {
+        // If page doesn't exist, get website ID for potential connection
+        getWebsiteForUrl(currentUrl).then((websiteResult) => {
+          if (websiteResult.success) {
+            setWebsiteId(websiteResult.data.id)
+          }
+        })
       }
     })
   }, [currentUrl, session])
@@ -87,7 +91,11 @@ function IndexSidePanel() {
 
     const result = await connectPageToAllyship(currentUrl, websiteId)
     if (result.success) {
-      setPageData(result.data)
+      // Refresh page data after connection
+      const pageResult = await getPageByUrl(currentUrl)
+      if (pageResult.success) {
+        setPageData(pageResult.data)
+      }
     }
   }
 

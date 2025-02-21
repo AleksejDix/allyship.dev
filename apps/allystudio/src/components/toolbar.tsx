@@ -257,13 +257,14 @@ interface ToolbarProps {
   isConnected?: boolean
   onAddPage?: () => Promise<void>
   pageData?: any
-  scanStatus?: "pending" | "completed" | "failed" | "queued"
 }
 
 export function Toolbar({
   onToolChange,
   currentFile = "Untitled Page",
-  isConnected = false
+  isConnected = false,
+  onAddPage,
+  pageData
 }: ToolbarProps) {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
@@ -276,7 +277,12 @@ export function Toolbar({
   return (
     <TooltipProvider>
       <div className="flex w-full flex-col border-b bg-muted/50">
-        <FileHeader currentFile={currentFile} isConnected={isConnected} />
+        <FileHeader
+          currentFile={currentFile}
+          isConnected={isConnected}
+          onAddPage={onAddPage}
+          pageData={pageData}
+        />
 
         {/* Tool Groups */}
         <div className="flex h-[24px] gap-1 border-b px-1 text-[10px]">
