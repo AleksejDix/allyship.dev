@@ -31,12 +31,48 @@ function compareHostnames(url1: string, url2: string): boolean {
 
 export async function getWebsiteForUrl(url: string) {
   try {
+    // Get authenticated user
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser()
+
+    if (authError) {
+      return {
+        success: false,
+        error: {
+          message: "Not authenticated",
+          code: "AUTH_ERROR"
+        }
+      }
+    }
+
+    // Get user's personal space
+    const { data: space, error: spaceError } = await supabase
+      .from("Space")
+      .select()
+      .eq("owner_id", user.id)
+      .eq("is_personal", true)
+      .single()
+
+    if (spaceError) {
+      return {
+        success: false,
+        error: {
+          message: "Personal space not found",
+          code: "SPACE_NOT_FOUND"
+        }
+      }
+    }
+
     const hostname = extractDomain(url)
+    const normalized_hostname = normalizeUrl(hostname)
 
     const { data: website, error } = await supabase
       .from("Website")
       .select()
-      .ilike("url", `%${hostname}%`)
+      .eq("normalized_url", normalized_hostname)
+      .eq("space_id", space.id)
       .single()
 
     if (error) {
@@ -61,17 +97,136 @@ export async function getWebsiteForUrl(url: string) {
   }
 }
 
-export async function connectPageToAllyship(url: string, websiteId: string) {
+export async function connectPageToAllyship(url: string) {
   try {
-    console.log("[connectPageToAllyship] Starting with:", { url, websiteId })
-
-    // First verify the user has access
+    // Get authenticated user
     const {
       data: { user },
       error: authError
     } = await supabase.auth.getUser()
-    if (authError || !user) {
-      console.error("[connectPageToAllyship] Auth error:", authError)
+
+    if (authError) {
+      console.error("Auth error:", authError)
+      return {
+        success: false,
+        error: { message: "Not authenticated", code: "AUTH_ERROR" }
+      }
+    }
+
+    // Get user's personal space
+    const { data: space, error: spaceError } = await supabase
+      .from("Space")
+      .select()
+      .eq("owner_id", user.id)
+      .eq("is_personal", true)
+      .single()
+
+    if (spaceError) {
+      console.error("Failed to get user's personal space:", spaceError)
+      return {
+        success: false,
+        error: { message: "Failed to get personal space", code: "SPACE_ERROR" }
+      }
+    }
+
+    // Get or create website for this domain in the user's space
+    const hostname = extractDomain(url)
+    const normalized_hostname = normalizeUrl(hostname)
+
+    // First try to get existing website
+    const { data: existingWebsite } = await supabase
+      .from("Website")
+      .select()
+      .eq("normalized_url", normalized_hostname)
+      .eq("space_id", space.id)
+      .single()
+
+    // Create website if it doesn't exist
+    const website =
+      existingWebsite ||
+      (await (async () => {
+        const { data: newWebsite, error: createError } = await supabase
+          .from("Website")
+          .insert({
+            url: hostname,
+            normalized_url: normalized_hostname,
+            space_id: space.id,
+            theme: "BOTH"
+          })
+          .select()
+          .single()
+
+        if (createError) {
+          console.error("Failed to create website:", createError)
+          return null
+        }
+
+        return newWebsite
+      })())
+
+    if (!website) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to get/create website",
+          code: "WEBSITE_ERROR"
+        }
+      }
+    }
+
+    // Check if page already exists
+    const normalized_url = normalizeUrl(url)
+    const { data: existingPage } = await supabase
+      .from("Page")
+      .select()
+      .eq("normalized_url", normalized_url)
+      .eq("website_id", website.id)
+      .single()
+
+    if (existingPage) {
+      return { success: true, data: existingPage }
+    }
+
+    // Create the page
+    const path = extractPath(url)
+    const { data: page, error: pageError } = await supabase
+      .from("Page")
+      .insert({
+        url,
+        website_id: website.id,
+        path,
+        normalized_url
+      })
+      .select()
+      .single()
+
+    if (pageError) {
+      console.error("Failed to create page:", pageError)
+      return {
+        success: false,
+        error: { message: "Failed to create page", code: "PAGE_ERROR" }
+      }
+    }
+
+    return { success: true, data: page }
+  } catch (error) {
+    console.error("Unexpected error:", error)
+    return {
+      success: false,
+      error: { message: "Unexpected error occurred", code: "UNKNOWN_ERROR" }
+    }
+  }
+}
+
+export async function getPageByUrl(url: string) {
+  try {
+    // Get authenticated user
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser()
+
+    if (authError) {
       return {
         success: false,
         error: {
@@ -80,103 +235,25 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
         }
       }
     }
-    console.log("[connectPageToAllyship] Authenticated user:", user.id)
 
-    // Verify website ownership and get domain
-    const { data: website, error: websiteError } = await supabase
-      .from("Website")
-      .select("url, user_id")
-      .eq("id", websiteId)
-      .single()
-
-    if (websiteError || !website) {
-      console.error("[connectPageToAllyship] Website error:", websiteError)
-      return {
-        success: false,
-        error: {
-          message: "Website not found",
-          code: "WEBSITE_NOT_FOUND"
-        }
-      }
-    }
-    console.log("[connectPageToAllyship] Found website:", website)
-
-    if (website.user_id !== user.id) {
-      console.error("[connectPageToAllyship] User mismatch:", {
-        websiteUserId: website.user_id,
-        userId: user.id
-      })
-      return {
-        success: false,
-        error: {
-          message: "Not authorized to create pages for this website",
-          code: "NOT_WEBSITE_OWNER"
-        }
-      }
-    }
-
-    // Validate URL domain matches website domain
-    if (!compareHostnames(url, website.url)) {
-      console.error("[connectPageToAllyship] Domain mismatch:", {
-        pageUrl: url,
-        websiteUrl: website.url
-      })
-      return {
-        success: false,
-        error: {
-          message: "Page URL must be from the same domain as the website",
-          code: "DOMAIN_MISMATCH"
-        }
-      }
-    }
-    console.log("[connectPageToAllyship] Domain validation passed")
-
-    const normalized_url = normalizeUrlUtil(url)
-    const path = extractPath(url)
-    console.log("[connectPageToAllyship] Normalized data:", {
-      normalized_url,
-      path
-    })
-
-    // Create the page
-    const { data: page, error: pageError } = await supabase
-      .from("Page")
-      .insert({
-        url,
-        website_id: websiteId,
-        path,
-        normalized_url
-      })
+    // Get user's personal space
+    const { data: space, error: spaceError } = await supabase
+      .from("Space")
       .select()
+      .eq("owner_id", user.id)
+      .eq("is_personal", true)
       .single()
 
-    if (pageError) {
-      console.error("[connectPageToAllyship] Page creation error:", pageError)
+    if (spaceError) {
       return {
         success: false,
         error: {
-          message: "Failed to create page",
-          code: "CREATE_FAILED"
+          message: "Personal space not found",
+          code: "SPACE_NOT_FOUND"
         }
       }
     }
 
-    console.log("[connectPageToAllyship] Successfully created page:", page)
-    return { success: true, data: page }
-  } catch (error) {
-    console.error("[connectPageToAllyship] Unexpected error:", error)
-    return {
-      success: false,
-      error: {
-        message: "Invalid URL or connection failed",
-        code: "CONNECTION_FAILED"
-      }
-    }
-  }
-}
-
-export async function getPageByUrl(url: string) {
-  try {
     const normalizedUrl = normalizeUrlUtil(url)
 
     const { data: page, error } = await supabase
@@ -184,10 +261,11 @@ export async function getPageByUrl(url: string) {
       .select(
         `
         *,
-        website:Website(*)
+        website:Website!inner(*)
       `
       )
       .eq("normalized_url", normalizedUrl)
+      .eq("website.space_id", space.id)
       .single()
 
     if (error) {

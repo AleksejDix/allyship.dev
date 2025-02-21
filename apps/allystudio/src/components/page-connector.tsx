@@ -88,7 +88,7 @@ export function PageConnector({
   const handleAddPage = async () => {
     setIsLoading(true)
     try {
-      await connectPageToAllyship(currentUrl, pageData?.website.id)
+      await connectPageToAllyship(currentUrl)
       await onAddPage?.()
     } catch (error) {
       console.error("Failed to track page:", error)

@@ -107,7 +107,7 @@ function IndexSidePanel() {
   const handleAddPage = async () => {
     if (!websiteId || !currentUrl) return
 
-    const result = await connectPageToAllyship(currentUrl, websiteId)
+    const result = await connectPageToAllyship(currentUrl)
     if (result.success) {
       // Refresh page data after connection
       const pageResult = await getPageByUrl(currentUrl)
