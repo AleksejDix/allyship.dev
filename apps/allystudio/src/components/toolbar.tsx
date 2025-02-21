@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
+import { FileHeader } from "./file-header"
 import { Button } from "./ui/button"
 import {
   Tooltip,
@@ -254,6 +255,9 @@ interface ToolbarProps {
   onToolChange?: (tool: string) => void
   currentFile?: string
   isConnected?: boolean
+  onAddPage?: () => Promise<void>
+  pageData?: any
+  scanStatus?: "pending" | "completed" | "failed" | "queued"
 }
 
 export function Toolbar({
@@ -272,37 +276,7 @@ export function Toolbar({
   return (
     <TooltipProvider>
       <div className="flex w-full flex-col border-b bg-muted/50">
-        {/* File Header */}
-        <div className="flex h-[32px] items-center gap-2 border-b px-3">
-          <div className="flex items-center gap-1.5">
-            {isConnected ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span className="text-[10px] font-medium">Connected</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  Connected to allyship.dev
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Link2Off className="h-3.5 w-3.5" />
-                    <span className="text-[10px] font-medium">Local</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Working locally</TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-          <div className="flex-1">
-            <h1 className="truncate text-sm font-medium">{currentFile}</h1>
-          </div>
-        </div>
+        <FileHeader currentFile={currentFile} isConnected={isConnected} />
 
         {/* Tool Groups */}
         <div className="flex h-[24px] gap-1 border-b px-1 text-[10px]">
