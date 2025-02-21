@@ -136,6 +136,7 @@ function IndexSidePanel() {
             onAddPage={handleAddPage}
             pageData={pageData}
             currentUrl={currentUrl}
+            websiteId={websiteId}
           />
           <div className="flex-1 p-4 space-y-4">
             {activeTool === "headings" && <HeadingAnalysis />}
