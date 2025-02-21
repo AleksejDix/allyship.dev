@@ -8,11 +8,13 @@ import { Header } from "@/components/header"
 import { HeadingAnalysis } from "@/components/heading-analysis"
 import { Layout } from "@/components/layout"
 import { LoadingState } from "@/components/loading-state"
+import { Toolbar } from "@/components/toolbar"
 import { supabase } from "@/core/supabase"
 
 function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTool, setActiveTool] = useState("")
 
   useEffect(() => {
     // Get initial session
@@ -42,8 +44,12 @@ function IndexSidePanel() {
   return (
     <Layout>
       <div className="flex h-screen flex-col">
-        <div className="flex-1 p-4 space-y-4">
-          <HeadingAnalysis />
+        <div className="flex flex-1 flex-col">
+          <Toolbar onToolChange={setActiveTool} />
+          <div className="flex-1 p-4 space-y-4">
+            {activeTool === "headings" && <HeadingAnalysis />}
+            {/* Add other tool components here */}
+          </div>
         </div>
         <Header session={session} />
       </div>
