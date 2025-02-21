@@ -25,10 +25,10 @@ import {
   Timer,
   Video,
   Wand2,
-  Zap,
-  type LucideIcon
+  Zap
 } from "lucide-react"
-import { useState } from "react"
+import type { LucideIcon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { PageConnector } from "./page-connector"
 import { Button } from "./ui/button"
@@ -46,6 +46,8 @@ type ToolGroup = {
   name: string
   icon: LucideIcon
   tools: Tool[]
+  description: string
+  wcagPrinciple?: WCAGPrinciple
 }
 
 type Tool = {
@@ -57,6 +59,8 @@ type Tool = {
   wcagLevel: WCAGLevel
   wcagCriteria: string
   category: WCAGPrinciple
+  isNew?: boolean
+  isExperimental?: boolean
 }
 
 type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
@@ -67,6 +71,8 @@ const toolGroups: ToolGroup[] = [
   {
     name: "Visual Perception",
     icon: Eye,
+    description: "Tools for analyzing visual accessibility",
+    wcagPrinciple: "perceivable",
     tools: [
       {
         id: "text-alternatives",
@@ -93,7 +99,19 @@ const toolGroups: ToolGroup[] = [
   {
     name: "Media & Structure",
     icon: LayoutTemplate,
+    description: "Tools for checking media and content structure",
+    wcagPrinciple: "perceivable",
     tools: [
+      {
+        id: "headings",
+        name: "Headings",
+        icon: FileText,
+        shortcut: "H",
+        description: "Analyze heading structure and hierarchy",
+        wcagLevel: "A",
+        wcagCriteria: "1.3.1",
+        category: "perceivable"
+      },
       {
         id: "time-based-media",
         name: "Media",
@@ -119,6 +137,8 @@ const toolGroups: ToolGroup[] = [
   {
     name: "Input & Control",
     icon: Gamepad2,
+    description: "Tools for testing input methods and controls",
+    wcagPrinciple: "operable",
     tools: [
       {
         id: "keyboard",
@@ -148,13 +168,16 @@ const toolGroups: ToolGroup[] = [
         description: "Check pointer and touch interactions",
         wcagLevel: "A",
         wcagCriteria: "2.5.1-2.5.6",
-        category: "operable"
+        category: "operable",
+        isNew: true
       }
     ]
   },
   {
     name: "Navigation & Motion",
     icon: Navigation,
+    description: "Tools for testing navigation and motion effects",
+    wcagPrinciple: "operable",
     tools: [
       {
         id: "navigation",
@@ -181,6 +204,8 @@ const toolGroups: ToolGroup[] = [
   {
     name: "Understanding",
     icon: Brain,
+    description: "Tools for testing content understanding",
+    wcagPrinciple: "understandable",
     tools: [
       {
         id: "readable",
@@ -217,6 +242,8 @@ const toolGroups: ToolGroup[] = [
   {
     name: "Technical",
     icon: Code2,
+    description: "Tools for technical accessibility testing",
+    wcagPrinciple: "robust",
     tools: [
       {
         id: "compatible",
@@ -243,6 +270,7 @@ const toolGroups: ToolGroup[] = [
   {
     name: "Auto Check",
     icon: Wand2,
+    description: "Automated accessibility testing tools",
     tools: [
       {
         id: "quick-check",
@@ -252,7 +280,8 @@ const toolGroups: ToolGroup[] = [
         description: "Run automated accessibility checks",
         wcagLevel: "A",
         wcagCriteria: "All",
-        category: "robust"
+        category: "robust",
+        isExperimental: true
       }
     ]
   }
@@ -280,9 +309,45 @@ export function Toolbar({
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Only handle if not in an input/textarea
+      if (e.target instanceof HTMLElement) {
+        if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
+          return
+        }
+      }
+
+      // Find tool matching shortcut
+      const tool = toolGroups
+        .flatMap((g) => g.tools)
+        .find((t) => t.shortcut.toLowerCase() === e.key.toLowerCase())
+
+      if (tool) {
+        handleToolClick(tool.id)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyPress)
+    return () => window.removeEventListener("keydown", handleKeyPress)
+  }, [])
+
   const handleToolClick = (toolId: string) => {
-    setActiveTool(toolId === activeTool ? null : toolId)
-    onToolChange?.(toolId === activeTool ? "" : toolId)
+    // Toggle tool off if already active, otherwise activate it
+    const newToolId = toolId === activeTool ? null : toolId
+    setActiveTool(newToolId)
+    onToolChange?.(newToolId || "")
+
+    // If activating a tool, ensure its group is active
+    if (newToolId) {
+      const group = toolGroups.find((g) =>
+        g.tools.some((t) => t.id === newToolId)
+      )
+      if (group) {
+        setActiveGroup(group.name)
+      }
+    }
   }
 
   return (
@@ -302,19 +367,48 @@ export function Toolbar({
           {toolGroups.map((group) => {
             const GroupIcon = group.icon
             return (
-              <button
-                key={group.name}
-                onClick={() =>
-                  setActiveGroup(group.name === activeGroup ? null : group.name)
-                }
-                className={cn(
-                  "flex items-center gap-1 px-2 capitalize",
-                  activeGroup === group.name &&
-                    "bg-primary text-primary-foreground rounded-t"
-                )}>
-                <GroupIcon className="h-3 w-3" />
-                <span className="hidden sm:inline">{group.name}</span>
-              </button>
+              <Tooltip key={group.name}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() =>
+                      setActiveGroup(
+                        group.name === activeGroup ? null : group.name
+                      )
+                    }
+                    className={cn(
+                      "flex items-center gap-1 px-2 capitalize relative",
+                      activeGroup === group.name &&
+                        "bg-primary text-primary-foreground rounded-t"
+                    )}>
+                    <GroupIcon className="h-3 w-3" />
+                    <span className="hidden sm:inline">{group.name}</span>
+                    {group.wcagPrinciple && (
+                      <span
+                        className={cn(
+                          "absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full",
+                          group.wcagPrinciple === "perceivable" &&
+                            "bg-green-500",
+                          group.wcagPrinciple === "operable" && "bg-blue-500",
+                          group.wcagPrinciple === "understandable" &&
+                            "bg-purple-500",
+                          group.wcagPrinciple === "robust" && "bg-orange-500"
+                        )}
+                      />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-sm font-medium">{group.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {group.description}
+                  </p>
+                  {group.wcagPrinciple && (
+                    <p className="text-xs mt-1 capitalize">
+                      WCAG Principle: {group.wcagPrinciple}
+                    </p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
             )
           })}
         </div>
@@ -331,7 +425,7 @@ export function Toolbar({
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         className={cn(
                           "h-8 w-8 rounded relative",
                           activeTool === tool.id &&
@@ -340,6 +434,7 @@ export function Toolbar({
                         onClick={() => handleToolClick(tool.id)}>
                         <span className="sr-only">{tool.name}</span>
                         <Icon className="h-4 w-4" />
+                        {/* WCAG Level Indicator */}
                         <span
                           className={cn(
                             "absolute -top-0.5 -right-0.5 text-[8px] font-bold",
@@ -352,12 +447,20 @@ export function Toolbar({
                           )}>
                           {tool.wcagLevel}
                         </span>
+                        {/* New Feature Indicator */}
+                        {tool.isNew && (
+                          <span className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                        )}
+                        {/* Experimental Feature Indicator */}
+                        {tool.isExperimental && (
+                          <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" />
+                        )}
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent
                       side="bottom"
-                      className="flex items-center gap-2 py-1.5 px-2">
-                      <div>
+                      className="flex items-start gap-2 py-1.5 px-2">
+                      <div className="flex-1">
                         <div className="flex items-center gap-1">
                           <p className="text-sm font-medium leading-none">
                             {tool.name}
@@ -365,6 +468,16 @@ export function Toolbar({
                           <span className="rounded bg-primary/10 px-1 text-[10px] font-medium">
                             {tool.wcagCriteria}
                           </span>
+                          {tool.isNew && (
+                            <span className="rounded bg-blue-500 px-1 text-[10px] font-medium text-white">
+                              New
+                            </span>
+                          )}
+                          {tool.isExperimental && (
+                            <span className="rounded bg-yellow-500 px-1 text-[10px] font-medium text-white">
+                              Beta
+                            </span>
+                          )}
                         </div>
                         <p className="text-[10px] leading-tight text-muted-foreground">
                           {tool.description}

@@ -139,7 +139,7 @@ function IndexSidePanel() {
             websiteId={websiteId}
           />
           <div className="flex-1 p-4 space-y-4">
-            {activeTool === "headings" && <HeadingAnalysis />}
+            {activeTool === "headings" && <HeadingAnalysis isActive={true} />}
             {/* Add other tool components here */}
           </div>
         </div>
