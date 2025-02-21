@@ -30,6 +30,14 @@ function IndexSidePanel() {
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [websiteId, setWebsiteId] = useState<string | null>(null)
 
+  // Function to update current tab info
+  const updateCurrentTab = (tab: chrome.tabs.Tab) => {
+    if (tab.url) {
+      setCurrentUrl(tab.url)
+      setCurrentTitle(tab.title || "Untitled Page")
+    }
+  }
+
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -47,20 +55,27 @@ function IndexSidePanel() {
     // Get current tab URL and title
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
-        setCurrentUrl(tabs[0].url || "")
-        setCurrentTitle(tabs[0].title || "Untitled Page")
+        updateCurrentTab(tabs[0])
       }
     })
 
-    // Listen for tab title changes
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-      if (changeInfo.title) {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]?.id === tabId) {
-            setCurrentTitle(changeInfo.title || "Untitled Page")
+    // Listen for tab URL and title changes
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.id === tabId) {
+          // If URL changed or title changed, update current tab info
+          if (changeInfo.url || changeInfo.title) {
+            updateCurrentTab(tab)
           }
-        })
-      }
+        }
+      })
+    })
+
+    // Listen for tab activation changes
+    chrome.tabs.onActivated.addListener((activeInfo) => {
+      chrome.tabs.get(activeInfo.tabId, (tab) => {
+        updateCurrentTab(tab)
+      })
     })
 
     return () => subscription.unsubscribe()
@@ -76,10 +91,13 @@ function IndexSidePanel() {
         setPageData(result.data)
         setWebsiteId(result.data.website_id)
       } else {
+        setPageData(null)
         // If page doesn't exist, get website ID for potential connection
         getWebsiteForUrl(currentUrl).then((websiteResult) => {
           if (websiteResult.success) {
             setWebsiteId(websiteResult.data.id)
+          } else {
+            setWebsiteId(null)
           }
         })
       }
