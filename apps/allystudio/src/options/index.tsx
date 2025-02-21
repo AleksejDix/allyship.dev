@@ -4,8 +4,9 @@ import { useEffect, useState } from "react"
 import "@/styles/globals.css"
 
 import { Layout } from "@/components/layout"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeSelector } from "@/components/theme-selector"
 import { supabase } from "@/core/supabase"
+import { cn } from "@/lib/utils"
 
 function IndexOptions() {
   const [session, setSession] = useState<Session | null>(null)
@@ -134,10 +135,15 @@ function IndexOptions() {
       <div className="flex min-h-screen flex-col">
         <header className="flex items-center justify-between border-b p-4">
           <h1 className="text-xl font-bold">Allyship Studio</h1>
-          <ThemeToggle />
         </header>
         <main className="flex-1 p-4">
-          <div className="flex min-h-screen items-center justify-center p-4">
+          {/* Theme Settings Section */}
+          <div className="mx-auto max-w-md rounded-lg border bg-card p-6">
+            <ThemeSelector />
+          </div>
+
+          {/* Auth Section */}
+          <div className="mt-8 flex min-h-[400px] items-center justify-center p-4">
             <div className="w-full max-w-md space-y-4 rounded-lg border p-6 shadow-lg">
               {error && (
                 <div
