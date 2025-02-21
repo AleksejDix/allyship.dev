@@ -265,6 +265,7 @@ interface ToolbarProps {
   onAddPage?: () => Promise<void>
   pageData?: PageData | null
   currentUrl: string
+  websiteId?: string
 }
 
 export function Toolbar({
@@ -273,7 +274,8 @@ export function Toolbar({
   isConnected,
   onAddPage,
   pageData,
-  currentUrl
+  currentUrl,
+  websiteId
 }: ToolbarProps) {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
@@ -292,6 +294,7 @@ export function Toolbar({
           onAddPage={onAddPage}
           pageData={pageData}
           currentUrl={currentUrl}
+          websiteId={websiteId}
         />
 
         {/* Tool Groups */}

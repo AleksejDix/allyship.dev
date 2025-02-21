@@ -3,9 +3,10 @@
 import { connectPageToAllyship } from "@/core/pages"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
+import { extractDomain, extractPath } from "@/utils/url"
+import { Link2, Link2Off, Plus } from "lucide-react"
 import { useState } from "react"
 
-import { Icons } from "./icons"
 import { Button } from "./ui/button"
 import {
   Tooltip,
@@ -24,30 +25,14 @@ interface PageConnectorProps {
   onAddPage?: () => Promise<void>
   pageData?: PageData | null
   currentUrl: string
+  websiteId?: string
 }
 
 function StatusIcon({ isConnected }: { isConnected: boolean }) {
-  const Connected = Icons.connected
-  const Disconnected = Icons.disconnected
-
-  return (
-    <div className="relative h-4 w-4">
-      <div
-        className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-300",
-          isConnected ? "scale-100 opacity-100" : "scale-0 opacity-0"
-        )}>
-        <Connected className="w-5 h-5" aria-hidden="true" />
-      </div>
-      <div
-        className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-300",
-          !isConnected ? "scale-100 opacity-100" : "scale-0 opacity-0"
-        )}>
-        <Disconnected className="w-5 h-5" aria-hidden="true" />
-      </div>
-    </div>
-  )
+  if (isConnected) {
+    return <Link2 className="h-3 w-3 text-green-600 dark:text-green-400" />
+  }
+  return <Link2Off className="h-3 w-3 text-red-600 dark:text-red-400" />
 }
 
 function StatusTooltip({
@@ -80,10 +65,10 @@ export function PageConnector({
   isConnected,
   onAddPage,
   pageData,
-  currentUrl
+  currentUrl,
+  websiteId
 }: PageConnectorProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const Add = Icons.add
 
   const handleAddPage = async () => {
     setIsLoading(true)
@@ -97,6 +82,14 @@ export function PageConnector({
     }
   }
 
+  // Extract domain and path from URL
+  const domain = extractDomain(currentUrl)
+  const path = extractPath(currentUrl)
+
+  // Determine what parts we know
+  const knownWebsite = !!websiteId // Green if we have a website ID
+  const knownPage = !!pageData // Green if we have page data
+
   return (
     <TooltipProvider>
       <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
@@ -108,19 +101,29 @@ export function PageConnector({
                   <div className="transition-transform duration-200 ease-in-out hover:scale-110">
                     <StatusIcon isConnected={isConnected} />
                   </div>
-                  {isConnected && (
-                    <span className="text-[10px] text-muted-foreground">
-                      {pageData?.website.url}
+                  <div className="text-[10px] font-medium">
+                    <span
+                      className={cn(
+                        knownWebsite
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      )}>
+                      {domain}
                     </span>
-                  )}
+                    <span
+                      className={cn(
+                        knownPage
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      )}>
+                      {path}
+                    </span>
+                  </div>
                 </div>
               </TooltipTrigger>
               <StatusTooltip isConnected={isConnected} pageData={pageData} />
             </Tooltip>
           </div>
-          <h1 className="min-w-0 truncate text-sm font-medium">
-            {currentFile}
-          </h1>
         </div>
 
         <div
@@ -139,7 +142,7 @@ export function PageConnector({
                   )}
                   onClick={handleAddPage}
                   disabled={isLoading}>
-                  <Add
+                  <Plus
                     className={`mr-1 h-3 w-3 ${isLoading && "animate-spin"}`}
                     aria-hidden="true"
                   />
