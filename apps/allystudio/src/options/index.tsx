@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import "@/styles/globals.css"
 
 import { Layout } from "@/components/layout"
+import { OptionsHeader } from "@/components/options-header"
 import { ThemeSelector } from "@/components/theme-selector"
 import { supabase } from "@/core/supabase"
 import { cn } from "@/lib/utils"
@@ -43,76 +44,36 @@ function IndexOptions() {
     password: string
   ) => {
     try {
-      setIsLoading(true)
       setError(null)
-
       const { error } =
         type === "LOGIN"
           ? await supabase.auth.signInWithPassword({
               email,
               password
             })
-          : await supabase.auth.signUp({ email, password })
+          : await supabase.auth.signUp({
+              email,
+              password
+            })
 
-      if (error) {
-        setError(error.message)
-      } else if (type === "SIGNUP") {
-        setError("Signup successful, confirmation mail should be sent soon!")
-      } else {
-        // Successfully logged in
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true
-        })
-        if (tab?.windowId) {
-          chrome.runtime.sendMessage({
-            type: "LOGIN_SUCCESS",
-            windowId: tab.windowId
-          })
-        }
-      }
-    } catch (err) {
-      console.error("Authentication error:", err)
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred"
-      setError(errorMessage)
-    } finally {
-      setIsLoading(false)
+      if (error) throw error
+    } catch (error) {
+      setError(error.message)
     }
   }
 
   const handleOAuthLogin = async (provider: Provider) => {
     try {
-      setIsLoading(true)
       setError(null)
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: location.href
+          redirectTo: chrome.runtime.getURL("options.html")
         }
       })
-
-      if (!error) {
-        // Will handle in onAuthStateChange since OAuth redirects
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          currentWindow: true
-        })
-        if (tab?.windowId) {
-          chrome.runtime.sendMessage({
-            type: "LOGIN_SUCCESS",
-            windowId: tab.windowId
-          })
-        }
-      } else {
-        throw error
-      }
-    } catch (err) {
-      console.error("OAuth error:", err)
-      setError("Failed to initialize OAuth login")
-    } finally {
-      setIsLoading(false)
+      if (error) throw error
+    } catch (error) {
+      setError(error.message)
     }
   }
 
@@ -133,9 +94,7 @@ function IndexOptions() {
   return (
     <Layout>
       <div className="flex min-h-screen flex-col">
-        <header className="flex items-center justify-between border-b p-4">
-          <h1 className="text-xl font-bold">Allyship Studio</h1>
-        </header>
+        <OptionsHeader session={session} />
         <main className="flex-1 p-4">
           {/* Theme Settings Section */}
           <div className="mx-auto max-w-md rounded-lg border bg-card p-6">
@@ -150,24 +109,6 @@ function IndexOptions() {
                   role="alert"
                   className="rounded-md bg-red-50 p-4 text-red-700">
                   {error}
-                </div>
-              )}
-
-              {session?.user && (
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <h3 className="text-lg font-medium">
-                      Welcome, {session.user.email}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      ID: {session.user.id}
-                    </p>
-                  </div>
-                  <button
-                    className="w-full rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                    onClick={handleSignOut}>
-                    Logout
-                  </button>
                 </div>
               )}
 
