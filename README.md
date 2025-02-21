@@ -1,39 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web Accessibility Audit Toolset
 
-## Getting Started
+A Chrome extension built with Plasmo that accelerates web accessibility audits by providing Photoshop-style tools for DOM analysis.
 
-First, run the development server:
+## Core Purpose
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Enable web accessibility auditors to complete thorough audits in under 1 hour by providing:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Quick DOM analysis tools
+- Automated accessibility checks
+- Efficient reporting mechanisms
+- Visual inspection aids
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Core Requirements
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Chrome Extension using Plasmo framework
+- State management with XState 5 (actor model)
+- Accessibility-focused DOM analysis tools for the active tab
+- Photoshop-style tool selection system for rapid switching between audit tools
 
-## Learn More
+## Development Plan
 
-To learn more about Next.js, take a look at the following resources:
+Building in small, incremental steps with Git commits for each change:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Basic extension setup
+2. Tool selection system with focus on audit workflow
+3. Core accessibility audit tools:
+   - ARIA attribute inspector
+   - Color contrast analyzer
+   - Heading structure validator
+   - Focus order checker
+4. State management with XState
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech Stack
 
-## Deploy on Vercel
+- Plasmo (@Web @https://docs.plasmo.com/)
+- XState 5 (@Web @https://stately.ai/docs/quick-start)
+- TypeScript
+- React
+- shadcn/ui components (from existing @ui implementation)
+  - Using pre-built components like:
+    - Dropdown menu
+    - Tooltips
+    - Toggle groups
+    - Command palette
+    - And more...
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-https://zsa.vercel.app/docs/introduction
-https://tailwindcss.com/
+Initial planning phase - preparing for incremental development with focus on building efficient accessibility audit tools.
