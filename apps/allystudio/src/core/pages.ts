@@ -21,6 +21,9 @@ export function normalizeUrl(url: string): string {
 export async function getWebsiteForUrl(url: string) {
   try {
     const hostname = extractDomain(url)
+    console.group("Website Check")
+    console.log("URL:", url)
+    console.log("Hostname:", hostname)
 
     // Special case for allyship.dev
     if (hostname === "allyship.dev") {
@@ -31,6 +34,8 @@ export async function getWebsiteForUrl(url: string) {
         .single()
 
       if (website) {
+        console.log("✅ Matched allyship.dev")
+        console.groupEnd()
         return { success: true, data: website }
       }
     }
@@ -43,6 +48,8 @@ export async function getWebsiteForUrl(url: string) {
       .single()
 
     if (error) {
+      console.log("❌ No website found for domain")
+      console.groupEnd()
       return {
         success: false,
         error: {
@@ -52,8 +59,12 @@ export async function getWebsiteForUrl(url: string) {
       }
     }
 
+    console.log("✅ Matched website:", website.url)
+    console.groupEnd()
     return { success: true, data: website }
   } catch (error) {
+    console.error("Website check failed:", error)
+    console.groupEnd()
     return {
       success: false,
       error: {
@@ -82,6 +93,11 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
     }
 
     const normalizedUrl = normalizeUrlUtil(url)
+    console.group("Connecting Page")
+    console.log("Original URL:", url)
+    console.log("Normalized URL:", normalizedUrl)
+    console.log("Website ID:", websiteId)
+    console.log("Path:", extractPath(url))
 
     // Create the page
     const { data: page, error: pageError } = await supabase
@@ -96,6 +112,8 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
       .single()
 
     if (pageError) {
+      console.log("❌ Failed to create page:", pageError)
+      console.groupEnd()
       return {
         success: false,
         error: {
@@ -105,8 +123,16 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
       }
     }
 
+    console.log("✅ Page created:", {
+      url: page.url,
+      normalized_url: page.normalized_url,
+      path: page.path
+    })
+    console.groupEnd()
     return { success: true, data: page }
   } catch (error) {
+    console.error("Page connection failed:", error)
+    console.groupEnd()
     return {
       success: false,
       error: {
@@ -120,6 +146,11 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
 export async function getPageByUrl(url: string) {
   try {
     const normalizedUrl = normalizeUrlUtil(url)
+    console.group("URL Comparison")
+    console.log("Original URL:", url)
+    console.log("Normalized URL:", normalizedUrl)
+    console.log("Domain:", extractDomain(url))
+    console.log("Path:", extractPath(url))
 
     // Get page by normalized URL match
     const { data: page, error } = await supabase
@@ -134,6 +165,8 @@ export async function getPageByUrl(url: string) {
       .single()
 
     if (error) {
+      console.log("❌ No match found in database")
+      console.groupEnd()
       return {
         success: false,
         error: {
@@ -143,8 +176,16 @@ export async function getPageByUrl(url: string) {
       }
     }
 
+    console.log("✅ Matched database entry:", {
+      url: page.url,
+      normalized_url: page.normalized_url,
+      path: page.path
+    })
+    console.groupEnd()
     return { success: true, data: page }
   } catch (error) {
+    console.error("URL check failed:", error)
+    console.groupEnd()
     return {
       success: false,
       error: {
