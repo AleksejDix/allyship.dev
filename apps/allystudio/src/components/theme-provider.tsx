@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 
+import { Storage } from "@plasmohq/storage"
+
 type Theme = "dark" | "light" | "system"
 
 type ThemeProviderProps = {
@@ -20,6 +22,9 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
+// Initialize storage outside component to be shared
+const storage = new Storage()
+
 export function ThemeProvider({
   children,
   defaultTheme = "system",
@@ -28,29 +33,24 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => defaultTheme)
 
-  // Initialize theme from Chrome storage
+  // Initialize theme from storage
   useEffect(() => {
-    chrome.storage.sync.get([storageKey]).then((result) => {
-      if (result[storageKey]) {
-        setTheme(result[storageKey] as Theme)
+    storage.get<Theme>(storageKey).then((savedTheme) => {
+      if (savedTheme) {
+        setTheme(savedTheme)
       }
     })
   }, [storageKey])
 
   // Listen for theme changes from other contexts
   useEffect(() => {
-    const handleStorageChange = (changes: {
-      [key: string]: chrome.storage.StorageChange
-    }) => {
-      if (changes[storageKey]?.newValue) {
-        setTheme(changes[storageKey].newValue as Theme)
+    storage.watch({
+      [storageKey]: ({ newValue }) => {
+        if (newValue) {
+          setTheme(newValue as Theme)
+        }
       }
-    }
-
-    chrome.storage.sync.onChanged.addListener(handleStorageChange)
-    return () => {
-      chrome.storage.sync.onChanged.removeListener(handleStorageChange)
-    }
+    })
   }, [storageKey])
 
   // Update document classes when theme changes
@@ -82,9 +82,9 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (newTheme: Theme) => {
-      // Store in Chrome storage to sync across contexts
-      chrome.storage.sync.set({ [storageKey]: newTheme })
+    setTheme: async (newTheme: Theme) => {
+      // Store in Plasmo storage to sync across contexts and browsers
+      await storage.set(storageKey, newTheme)
       setTheme(newTheme)
     }
   }
