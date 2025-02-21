@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import type { Database } from "@/types/database"
 import {
   AlertCircle,
   Bell,
@@ -56,6 +57,10 @@ type Tool = {
   wcagLevel: WCAGLevel
   wcagCriteria: string
   category: WCAGPrinciple
+}
+
+type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
+  website: Database["public"]["Tables"]["Website"]["Row"]
 }
 
 const toolGroups: ToolGroup[] = [
@@ -254,19 +259,21 @@ const toolGroups: ToolGroup[] = [
 ]
 
 interface ToolbarProps {
-  onToolChange?: (tool: string) => void
-  currentFile?: string
-  isConnected?: boolean
+  onToolChange: (tool: string) => void
+  currentFile: string
+  isConnected: boolean
   onAddPage?: () => Promise<void>
-  pageData?: any
+  pageData?: PageData | null
+  currentUrl: string
 }
 
 export function Toolbar({
   onToolChange,
-  currentFile = "Untitled Page",
-  isConnected = false,
+  currentFile,
+  isConnected,
   onAddPage,
-  pageData
+  pageData,
+  currentUrl
 }: ToolbarProps) {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
@@ -284,6 +291,7 @@ export function Toolbar({
           isConnected={isConnected}
           onAddPage={onAddPage}
           pageData={pageData}
+          currentUrl={currentUrl}
         />
 
         {/* Tool Groups */}

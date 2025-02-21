@@ -1,8 +1,11 @@
 "use client"
 
+import { connectPageToAllyship } from "@/core/pages"
+import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
-import { Link2, Link2Off, Plus } from "lucide-react"
+import { useState } from "react"
 
+import { Icons } from "./icons"
 import { Button } from "./ui/button"
 import {
   Tooltip,
@@ -20,27 +23,29 @@ interface PageConnectorProps {
   isConnected: boolean
   onAddPage?: () => Promise<void>
   pageData?: PageData | null
+  currentUrl: string
 }
 
 function StatusIcon({ isConnected }: { isConnected: boolean }) {
+  const Connected = Icons.connected
+  const Disconnected = Icons.disconnected
+
   return (
     <div className="relative h-4 w-4">
-      <Link2
-        className={`absolute h-4 w-4 transform transition-all duration-300 ${
-          isConnected
-            ? "scale-100 opacity-100 text-green-600 dark:text-green-400"
-            : "scale-75 opacity-0"
-        }`}
-        aria-hidden="true"
-      />
-      <Link2Off
-        className={`absolute h-4 w-4 transform transition-all duration-300 ${
-          !isConnected
-            ? "scale-100 opacity-100 text-red-600 dark:text-red-400"
-            : "scale-75 opacity-0"
-        }`}
-        aria-hidden="true"
-      />
+      <div
+        className={cn(
+          "absolute inset-0 flex items-center justify-center transition-all duration-300",
+          isConnected ? "scale-100 opacity-100" : "scale-0 opacity-0"
+        )}>
+        <Connected className="w-5 h-5" aria-hidden="true" />
+      </div>
+      <div
+        className={cn(
+          "absolute inset-0 flex items-center justify-center transition-all duration-300",
+          !isConnected ? "scale-100 opacity-100" : "scale-0 opacity-0"
+        )}>
+        <Disconnected className="w-5 h-5" aria-hidden="true" />
+      </div>
     </div>
   )
 }
@@ -63,7 +68,7 @@ function StatusTooltip({
         </>
       ) : (
         <p className="text-xs text-muted-foreground">
-          Connect this page to track accessibility issues
+          Start tracking accessibility issues on this page
         </p>
       )}
     </TooltipContent>
@@ -74,8 +79,24 @@ export function PageConnector({
   currentFile,
   isConnected,
   onAddPage,
-  pageData
+  pageData,
+  currentUrl
 }: PageConnectorProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const Add = Icons.add
+
+  const handleAddPage = async () => {
+    setIsLoading(true)
+    try {
+      await connectPageToAllyship(currentUrl, pageData?.website.id)
+      await onAddPage?.()
+    } catch (error) {
+      console.error("Failed to track page:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <TooltipProvider>
       <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
@@ -112,15 +133,22 @@ export function PageConnector({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 transition-all duration-200 ease-in-out hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400"
-                  onClick={onAddPage}>
-                  <Plus className="mr-1 h-3 w-3" aria-hidden="true" />
-                  Connect
+                  className={cn(
+                    "h-6 px-2 transition-all duration-200 ease-in-out hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400",
+                    isConnected && "opacity-0"
+                  )}
+                  onClick={handleAddPage}
+                  disabled={isLoading}>
+                  <Add
+                    className={`mr-1 h-3 w-3 ${isLoading && "animate-spin"}`}
+                    aria-hidden="true"
+                  />
+                  {isLoading ? "Adding..." : "Track"}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 <p className="text-xs text-muted-foreground">
-                  Track and monitor accessibility issues
+                  Monitor and analyze accessibility issues
                 </p>
               </TooltipContent>
             </Tooltip>

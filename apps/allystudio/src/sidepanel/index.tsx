@@ -135,6 +135,7 @@ function IndexSidePanel() {
             isConnected={!!pageData}
             onAddPage={handleAddPage}
             pageData={pageData}
+            currentUrl={currentUrl}
           />
           <div className="flex-1 p-4 space-y-4">
             {activeTool === "headings" && <HeadingAnalysis />}
