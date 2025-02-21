@@ -1,8 +1,39 @@
+import {
+  extractDomain,
+  extractPath,
+  normalizeUrl as normalizeUrlUtil
+} from "@/utils/url"
+
 import { supabase } from "./supabase"
+
+// Normalize URL by removing protocol, www, trailing slashes, and converting to lowercase
+export function normalizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    let normalized = parsed.hostname.replace(/^www\./, "") + parsed.pathname
+    normalized = normalized.replace(/\/$/, "") // Remove trailing slash
+    return normalized.toLowerCase()
+  } catch (error) {
+    return url.toLowerCase()
+  }
+}
 
 export async function getWebsiteForUrl(url: string) {
   try {
-    const hostname = new URL(url).hostname
+    const hostname = extractDomain(url)
+
+    // Special case for allyship.dev
+    if (hostname === "allyship.dev") {
+      const { data: website } = await supabase
+        .from("Website")
+        .select()
+        .eq("url", "allyship.dev")
+        .single()
+
+      if (website) {
+        return { success: true, data: website }
+      }
+    }
 
     // Get website by domain
     const { data: website, error } = await supabase
@@ -50,14 +81,16 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
       }
     }
 
+    const normalizedUrl = normalizeUrlUtil(url)
+
     // Create the page
     const { data: page, error: pageError } = await supabase
       .from("Page")
       .insert({
         url,
         website_id: websiteId,
-        path: new URL(url).pathname,
-        normalized_url: url.toLowerCase()
+        path: extractPath(url),
+        normalized_url: normalizedUrl
       })
       .select()
       .single()
@@ -79,6 +112,44 @@ export async function connectPageToAllyship(url: string, websiteId: string) {
       error: {
         message: "Invalid URL or connection failed",
         code: "CONNECTION_FAILED"
+      }
+    }
+  }
+}
+
+export async function getPageByUrl(url: string) {
+  try {
+    const normalizedUrl = normalizeUrlUtil(url)
+
+    // Get page by normalized URL match
+    const { data: page, error } = await supabase
+      .from("Page")
+      .select(
+        `
+        *,
+        website:Website(*)
+      `
+      )
+      .eq("normalized_url", normalizedUrl)
+      .single()
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: "Page not found",
+          code: "PAGE_NOT_FOUND"
+        }
+      }
+    }
+
+    return { success: true, data: page }
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to check page",
+        code: "CHECK_FAILED"
       }
     }
   }
