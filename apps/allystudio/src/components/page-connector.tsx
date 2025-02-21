@@ -90,72 +90,99 @@ export function PageConnector({
   const knownWebsite = !!websiteId // Green if we have a website ID
   const knownPage = !!pageData // Green if we have page data
 
+  const buttonClasses = cn(
+    "h-6 px-2 flex items-center gap-1 w-full",
+    "hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400"
+  )
+
   return (
     <TooltipProvider>
       <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="flex shrink-0 items-center gap-1">
+        <div className="flex min-w-0 items-center gap-2 w-full">
+          <div className="flex shrink-0 items-center gap-1 w-full">
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-1">
-                  <div className="transition-transform duration-200 ease-in-out hover:scale-110">
-                    <StatusIcon isConnected={isConnected} />
-                  </div>
-                  <div className="text-[10px] font-medium">
-                    <span
-                      className={cn(
-                        knownWebsite
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      )}>
-                      {domain}
-                    </span>
-                    <span
-                      className={cn(
-                        knownPage
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      )}>
-                      {path}
-                    </span>
-                  </div>
-                </div>
+                {!isConnected && onAddPage ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={buttonClasses}
+                    onClick={handleAddPage}
+                    disabled={isLoading}>
+                    <div className="flex items-center gap-1 min-w-0 flex-1">
+                      <div className="transition-transform duration-200 ease-in-out shrink-0">
+                        <StatusIcon isConnected={isConnected} />
+                      </div>
+                      <div className="text-[10px] font-medium flex items-center min-w-0 flex-1">
+                        <span
+                          className={cn(
+                            "shrink-0",
+                            knownWebsite
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                          )}>
+                          {domain}
+                        </span>
+                        <span
+                          className={cn(
+                            "truncate",
+                            knownPage
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                          )}>
+                          {path}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-[10px] shrink-0 ml-2">
+                      {isLoading ? "Adding..." : "Track"}
+                    </div>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={buttonClasses}
+                    asChild>
+                    <a
+                      href={`https://allyship.dev/spaces/${pageData?.website.space_id}/${pageData?.website_id}/pages/${pageData?.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      <div className="flex items-center gap-1 min-w-0 flex-1">
+                        <div className="transition-transform duration-200 ease-in-out shrink-0">
+                          <StatusIcon isConnected={isConnected} />
+                        </div>
+                        <div className="text-[10px] font-medium flex items-center min-w-0 flex-1">
+                          <span
+                            className={cn(
+                              "shrink-0",
+                              knownWebsite
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-red-600 dark:text-red-400"
+                            )}>
+                            {domain}
+                          </span>
+                          <span
+                            className={cn(
+                              "truncate",
+                              knownPage
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-red-600 dark:text-red-400"
+                            )}>
+                            {path}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-[10px] shrink-0 ml-2">
+                        View in Dashboard
+                      </div>
+                    </a>
+                  </Button>
+                )}
               </TooltipTrigger>
               <StatusTooltip isConnected={isConnected} pageData={pageData} />
             </Tooltip>
           </div>
-        </div>
-
-        <div
-          className={`shrink-0 transition-all duration-300 ${
-            !isConnected ? "opacity-100" : "invisible opacity-0"
-          }`}>
-          {!isConnected && onAddPage && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "h-6 px-2 transition-all duration-200 ease-in-out hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400",
-                    isConnected && "opacity-0"
-                  )}
-                  onClick={handleAddPage}
-                  disabled={isLoading}>
-                  <Plus
-                    className={`mr-1 h-3 w-3 ${isLoading && "animate-spin"}`}
-                    aria-hidden="true"
-                  />
-                  {isLoading ? "Adding..." : "Track"}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p className="text-xs text-muted-foreground">
-                  Monitor and analyze accessibility issues
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          )}
         </div>
       </div>
     </TooltipProvider>
