@@ -5,7 +5,6 @@ import "@/styles/globals.css"
 
 import { AuthRequired } from "@/components/auth-required"
 import { Header } from "@/components/header"
-import { HeadingAnalysis } from "@/components/heading-analysis"
 import { Layout } from "@/components/layout"
 import { LoadingState } from "@/components/loading-state"
 import { Toolbar } from "@/components/toolbar"
@@ -25,18 +24,84 @@ function IndexSidePanel() {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTool, setActiveTool] = useState("")
+  const [isActive, setIsActive] = useState(false)
   const [currentUrl, setCurrentUrl] = useState("")
   const [currentTitle, setCurrentTitle] = useState("Untitled Page")
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [websiteId, setWebsiteId] = useState<string | null>(null)
 
   // Function to update current tab info
-  const updateCurrentTab = (tab: chrome.tabs.Tab) => {
+  const updateCurrentTab = async (tab: chrome.tabs.Tab) => {
     if (tab.url) {
       setCurrentUrl(tab.url)
       setCurrentTitle(tab.title || "Untitled Page")
+
+      // Inject content script into new tab
+      if (tab.id) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ["contents/heading-analysis.js"]
+          })
+          // If tool is active, send activation message
+          if (activeTool === "headings") {
+            chrome.tabs.sendMessage(tab.id, {
+              type: "HEADING_ANALYSIS_STATE",
+              isActive: true
+            })
+          }
+        } catch (error) {
+          console.error("Failed to inject heading analysis:", error)
+        }
+      }
     }
   }
+
+  // Inject content scripts on initial load
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      if (tabs[0]?.id) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            files: ["contents/heading-analysis.js"]
+          })
+        } catch (error) {
+          console.error("Failed to inject heading analysis:", error)
+        }
+      }
+    })
+  }, [])
+
+  // Effect to handle heading analysis state
+  useEffect(() => {
+    if (!activeTool) {
+      setIsActive(false)
+      // Notify content script to deactivate
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: "HEADING_ANALYSIS_STATE",
+            isActive: false
+          })
+        }
+      })
+      return
+    }
+
+    if (activeTool === "headings") {
+      setIsActive(true)
+      // Notify content script to activate
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: "HEADING_ANALYSIS_STATE",
+            isActive: true
+          })
+        }
+      })
+    }
+  }, [activeTool])
 
   useEffect(() => {
     // Get initial session
@@ -139,7 +204,15 @@ function IndexSidePanel() {
             websiteId={websiteId}
           />
           <div className="flex-1 p-4 space-y-4">
-            {activeTool === "headings" && <HeadingAnalysis isActive={true} />}
+            {activeTool === "headings" && (
+              <div className="card p-4 bg-card">
+                <p className="text-sm">
+                  {isActive
+                    ? "Headings are now highlighted on the page. Click again to hide."
+                    : "Click to highlight all headings on the page."}
+                </p>
+              </div>
+            )}
             {/* Add other tool components here */}
           </div>
         </div>
