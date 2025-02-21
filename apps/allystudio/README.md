@@ -289,3 +289,279 @@ apps/allystudio/
 This software is proprietary and confidential. Unauthorized copying, distribution, or use of this software is strictly prohibited. All rights reserved.
 
 Copyright (c) 2024 Allyship.dev
+
+## Accessibility Testing Architecture
+
+### 1. WCAG Principles Integration
+
+The toolbar is organized around the four fundamental WCAG principles, each with distinct visual indicators:
+
+```typescript
+type WCAGPrinciple = "perceivable" | "operable" | "understandable" | "robust"
+
+interface ToolGroup {
+  name: string
+  icon: LucideIcon
+  description: string
+  wcagPrinciple?: WCAGPrinciple
+  tools: Tool[]
+}
+```
+
+**Visual Coding System:**
+
+- 🟢 Perceivable (Green): Visual and auditory content tools
+- 🔵 Operable (Blue): Keyboard and input method tools
+- 🟣 Understandable (Purple): Readability and predictability tools
+- 🟡 Robust (Orange): Compatibility and parsing tools
+
+### 2. Tool Categories
+
+#### Visual Perception Tools
+
+- Text Alternatives (WCAG 1.1.1)
+- Color Contrast (WCAG 1.4.1-1.4.13)
+- Visual Presentation
+
+#### Media & Structure Tools
+
+- Time-based Media (WCAG 1.2.1-1.2.9)
+- Content Structure (WCAG 1.3.1-1.3.6)
+- Adaptable Content
+
+#### Input & Control Tools
+
+- Keyboard Access (WCAG 2.1.1-2.1.4)
+- Timing Controls (WCAG 2.2.1-2.2.6)
+- Input Modalities (WCAG 2.5.1-2.5.6)
+
+#### Navigation & Motion Tools
+
+- Navigation Paths (WCAG 2.4.1-2.4.10)
+- Motion Control (WCAG 2.3.1-2.3.3)
+- Wayfinding
+
+#### Understanding Tools
+
+- Language (WCAG 3.1.1-3.1.6)
+- Behavior (WCAG 3.2.1-3.2.5)
+- Forms (WCAG 3.3.1-3.3.6)
+
+#### Technical Tools
+
+- Parsing (WCAG 4.1.1-4.1.3)
+- Status Messages (WCAG 4.1.3)
+- Compatibility
+
+### 3. Tool Implementation
+
+Each tool follows a consistent structure:
+
+```typescript
+interface Tool {
+  id: string
+  name: string
+  icon: LucideIcon
+  shortcut: string
+  description: string
+  wcagLevel: "A" | "AA" | "AAA"
+  wcagCriteria: string
+  category: WCAGPrinciple
+  isNew?: boolean
+  isExperimental?: boolean
+}
+```
+
+### 4. Keyboard Navigation
+
+The toolbar implements a comprehensive keyboard shortcut system:
+
+```typescript
+useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    // Skip if in input/textarea
+    if (e.target instanceof HTMLElement) {
+      if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return
+    }
+
+    // Find matching tool
+    const tool = toolGroups
+      .flatMap((g) => g.tools)
+      .find((t) => t.shortcut.toLowerCase() === e.key.toLowerCase())
+
+    if (tool) handleToolClick(tool.id)
+  }
+
+  window.addEventListener("keydown", handleKeyPress)
+  return () => window.removeEventListener("keydown", handleKeyPress)
+}, [])
+```
+
+### 5. Visual Feedback System
+
+The toolbar provides rich visual feedback through multiple indicators:
+
+1. **WCAG Level Indicators**
+
+   - A: Green (Essential)
+   - AA: Blue (Enhanced)
+   - AAA: Purple (Optimal)
+
+2. **Feature Status**
+
+   - 🔵 Pulsing Blue Dot: New features
+   - 🟡 Yellow Dot: Experimental features
+
+3. **Tool States**
+   - Active/Selected state
+   - Hover feedback
+   - Disabled state
+   - Loading state
+
+### 6. Accessibility Features
+
+The toolbar itself follows strict accessibility guidelines:
+
+```typescript
+<button
+  onClick={() => handleToolClick(toolId)}
+  className={buttonClasses}
+  aria-label={`${tool.name} (${tool.wcagCriteria})`}
+  aria-pressed={isActive}
+  data-state={isActive ? "active" : "inactive"}
+  disabled={isDisabled}>
+  <span className="sr-only">{tool.name}</span>
+  <Icon className="h-4 w-4" aria-hidden="true" />
+  {/* Status indicators */}
+</button>
+```
+
+### 7. Tooltips and Documentation
+
+Each tool provides comprehensive information through tooltips:
+
+```typescript
+<TooltipContent side="bottom" className="flex items-start gap-2">
+  <div className="flex-1">
+    <div className="flex items-center gap-1">
+      <p className="font-medium">{tool.name}</p>
+      <span className="bg-primary/10 px-1 rounded text-[10px]">
+        {tool.wcagCriteria}
+      </span>
+    </div>
+    <p className="text-muted-foreground text-[10px]">
+      {tool.description}
+    </p>
+  </div>
+  <kbd className="text-[10px] bg-muted px-1 rounded">
+    {tool.shortcut}
+  </kbd>
+</TooltipContent>
+```
+
+## Usage Examples
+
+### 1. Quick Accessibility Check
+
+```typescript
+// Example of using the quick check tool
+async function runQuickCheck() {
+  const results = await quickCheck({
+    url: currentUrl,
+    tests: ["contrast", "aria", "keyboard"]
+  })
+
+  return {
+    score: results.score,
+    issues: results.issues,
+    recommendations: results.recommendations
+  }
+}
+```
+
+### 2. Keyboard Testing
+
+```typescript
+// Example of keyboard navigation test
+async function testKeyboardNavigation() {
+  const results = await keyboardTest({
+    focusOrder: true,
+    trapFocus: true,
+    shortcuts: true
+  })
+
+  return {
+    focusableElements: results.elements,
+    focusTraps: results.traps,
+    missingHandlers: results.missing
+  }
+}
+```
+
+### 3. Color Contrast Analysis
+
+```typescript
+// Example of contrast checking
+async function checkContrast() {
+  const results = await contrastAnalyzer({
+    elements: document.querySelectorAll("*"),
+    includeImages: true
+  })
+
+  return {
+    failures: results.failures,
+    warnings: results.warnings,
+    recommendations: results.fixes
+  }
+}
+```
+
+## Best Practices for Tool Development
+
+1. **Consistency**
+
+   - Follow established naming conventions
+   - Use consistent visual indicators
+   - Maintain uniform keyboard shortcuts
+
+2. **Performance**
+
+   - Lazy load tools when possible
+   - Cache results appropriately
+   - Minimize DOM operations
+
+3. **Accessibility**
+
+   - Ensure tools are keyboard accessible
+   - Provide clear visual feedback
+   - Include proper ARIA attributes
+
+4. **Error Handling**
+   - Graceful degradation
+   - Clear error messages
+   - Recovery options
+
+## Future Enhancements
+
+1. **AI-Powered Testing**
+
+   - Automated WCAG compliance checking
+   - Smart recommendations
+   - Pattern recognition
+
+2. **Advanced Visualization**
+
+   - DOM tree visualization
+   - Accessibility flow mapping
+   - Issue heat maps
+
+3. **Collaboration Features**
+
+   - Team sharing
+   - Issue tracking
+   - Progress monitoring
+
+4. **Custom Tools**
+   - Tool creation framework
+   - Custom rule sets
+   - Plugin system
