@@ -3,51 +3,55 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 const COLORS = {
   light: {
-    h1: { bg: "#fef3c7", outline: "#d97706" },
-    h2: { bg: "#e0f2fe", outline: "#0284c7" },
-    h3: { bg: "#f3e8ff", outline: "#7c3aed" },
-    h4: { bg: "#dcfce7", outline: "#16a34a" },
-    h5: { bg: "#fae8ff", outline: "#c026d3" },
-    h6: { bg: "#fff1f2", outline: "#e11d48" }
+    bg: "rgba(59, 130, 246, 0.1)", // Light blue background
+    outline: "#3b82f6" // Blue outline
   },
   dark: {
-    h1: { bg: "#374151", outline: "#9ca3af" },
-    h2: { bg: "#374151", outline: "#9ca3af" },
-    h3: { bg: "#374151", outline: "#9ca3af" },
-    h4: { bg: "#374151", outline: "#9ca3af" },
-    h5: { bg: "#374151", outline: "#9ca3af" },
-    h6: { bg: "#374151", outline: "#9ca3af" }
+    bg: "rgba(59, 130, 246, 0.2)", // Darker blue background
+    outline: "#60a5fa" // Lighter blue outline
   }
+}
+
+interface HeadingData {
+  element: HTMLElement
+  level: number
 }
 
 function HeadingIndicator({
   level,
   isDark
 }: {
-  level: string
+  level: number
   isDark: boolean
 }) {
   const colors = COLORS[isDark ? "dark" : "light"]
   const style = {
     position: "absolute" as const,
-    top: "-1rem",
+    top: "-1.25rem",
     left: "-0.25rem",
     padding: "0.125rem 0.25rem",
     borderRadius: "0.25rem",
     fontSize: "0.75rem",
     fontWeight: "bold",
-    backgroundColor: colors[level as keyof typeof colors].outline,
-    color: isDark ? "#1f2937" : "#ffffff",
-    zIndex: 10001
+    backgroundColor: colors.outline,
+    color: "#ffffff",
+    zIndex: 10001,
+    display: "flex",
+    alignItems: "center",
+    gap: "0.25rem"
   }
 
-  return <div style={style}>{level.toUpperCase()}</div>
+  return (
+    <div style={style}>
+      <span>H{level}</span>
+    </div>
+  )
 }
 
 export default function HeadingAnalysisOverlay() {
   const { theme } = useTheme()
   const [isActive, setIsActive] = useState(false)
-  const [headings, setHeadings] = useState<HTMLElement[]>([])
+  const [headings, setHeadings] = useState<HeadingData[]>([])
   const [forceUpdate, setForceUpdate] = useState(0)
   const isDark = theme === "dark"
   const colors = COLORS[isDark ? "dark" : "light"]
@@ -83,7 +87,13 @@ export default function HeadingAnalysisOverlay() {
       return style.display !== "none" && style.visibility !== "hidden"
     })
 
-    setHeadings(visibleHeadings)
+    // Map to heading data
+    const headingData = visibleHeadings.map((element) => ({
+      element,
+      level: parseInt(element.tagName[1])
+    }))
+
+    setHeadings(headingData)
     setForceUpdate((prev) => prev + 1)
   }, [isActive])
 
@@ -215,13 +225,11 @@ export default function HeadingAnalysisOverlay() {
 
   return (
     <>
-      {headings.map((heading, index) => {
-        const rect = heading.getBoundingClientRect()
-        const level = heading.tagName.toLowerCase() as keyof typeof colors
-        const color = colors[level]
+      {headings.map(({ element, level }, index) => {
+        const rect = element.getBoundingClientRect()
 
         // Expanded viewport check with dynamic buffer during resize
-        const buffer = isResizingRef.current ? 200 : 100 // Larger buffer during resize
+        const buffer = isResizingRef.current ? 200 : 100
         if (
           rect.bottom < -buffer ||
           rect.top > window.innerHeight + buffer ||
@@ -240,8 +248,8 @@ export default function HeadingAnalysisOverlay() {
               left: `${rect.left}px`,
               width: `${rect.width}px`,
               height: `${rect.height}px`,
-              backgroundColor: color.bg,
-              outline: `2px solid ${color.outline}`,
+              backgroundColor: colors.bg,
+              outline: `2px solid ${colors.outline}`,
               pointerEvents: "none",
               zIndex: 10000,
               transform: `translate3d(0, ${window.scrollY}px, 0)`,

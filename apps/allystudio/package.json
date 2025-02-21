@@ -91,7 +91,8 @@
       {
         "resources": [
           "options.html",
-          "sidepanel.html"
+          "sidepanel.html",
+          "contents/heading-analysis.js"
         ],
         "matches": [
           "<all_urls>"
