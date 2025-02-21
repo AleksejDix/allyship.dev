@@ -79,22 +79,31 @@ export function PageConnector({
   return (
     <TooltipProvider>
       <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
-        <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1">
-                <div className="transition-transform duration-200 ease-in-out hover:scale-110">
-                  <StatusIcon isConnected={isConnected} />
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1">
+                  <div className="transition-transform duration-200 ease-in-out hover:scale-110">
+                    <StatusIcon isConnected={isConnected} />
+                  </div>
+                  {isConnected && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {pageData?.website.url}
+                    </span>
+                  )}
                 </div>
-              </div>
-            </TooltipTrigger>
-            <StatusTooltip isConnected={isConnected} pageData={pageData} />
-          </Tooltip>
-          <h1 className="truncate text-sm font-medium ">{currentFile}</h1>
+              </TooltipTrigger>
+              <StatusTooltip isConnected={isConnected} pageData={pageData} />
+            </Tooltip>
+          </div>
+          <h1 className="min-w-0 truncate text-sm font-medium">
+            {currentFile}
+          </h1>
         </div>
 
         <div
-          className={`transition-all duration-300 ${
+          className={`shrink-0 transition-all duration-300 ${
             !isConnected ? "opacity-100" : "invisible opacity-0"
           }`}>
           {!isConnected && onAddPage && (
