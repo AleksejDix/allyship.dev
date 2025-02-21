@@ -302,6 +302,46 @@ export function HeadingAnalysis({ isActive }: HeadingAnalysisProps) {
     }
   }, [])
 
+  useEffect(() => {
+    // Inject or remove the CSUI script based on isActive state
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      if (!tabs[0]?.id) return
+
+      if (isActive) {
+        // Inject CSUI script
+        await chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          files: ["contents/heading-analysis.js"]
+        })
+
+        // Send active state to CSUI
+        await chrome.tabs.sendMessage(tabs[0].id, {
+          type: "HEADING_ANALYSIS_STATE",
+          isActive: true
+        })
+      } else {
+        // Send inactive state to CSUI
+        await chrome.tabs.sendMessage(tabs[0].id, {
+          type: "HEADING_ANALYSIS_STATE",
+          isActive: false
+        })
+
+        // Remove CSUI after transition
+        setTimeout(async () => {
+          await chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            func: () => {
+              const root = document.getElementById("plasmo-shadow-container")
+              if (root) {
+                root.remove()
+              }
+            }
+          })
+        }, 200) // Match transition duration
+      }
+    })
+  }, [isActive])
+
   return (
     <Card>
       <CardHeader>
