@@ -55,8 +55,8 @@
     "clsx": "2.1.1",
     "lucide-react": "0.474.0",
     "plasmo": "0.90.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "1.0.7",
     "xstate": "^5.6.0"
@@ -67,8 +67,8 @@
     "@ianvs/prettier-plugin-sort-imports": "4.1.1",
     "@types/chrome": "0.0.258",
     "@types/node": "20.11.5",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "autoprefixer": "10.4.17",
     "postcss": "8.4.33",
     "prettier": "3.2.4",
@@ -98,15 +98,6 @@
           "<all_urls>"
         ]
       }
-    ],
-    "browser_specific_settings": {
-      "gecko": {
-        "id": "{allystudio@allyship.dev}",
-        "strict_min_version": "109.0"
-      },
-      "safari": {
-        "strict_min_version": "14.0"
-      }
-    }
+    ]
   }
 }
