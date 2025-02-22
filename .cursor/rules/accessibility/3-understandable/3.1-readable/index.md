@@ -2,18 +2,47 @@
 title: "Guideline 3.1 – Readable"
 description: "Make text content readable and understandable"
 category: "Understandable"
-tags: ["language", "readability", "text", "content"]
+tags: ["readability", "language", "content", "understanding"]
+reflection:
+  {
+    validationPrompts:
+      [
+        "Is the language properly declared and identified?",
+        "Are language changes clearly marked?",
+        "Is content understandable for the target audience?",
+        "Are technical terms and abbreviations properly explained?",
+        "Is the reading level appropriate for the audience?",
+      ],
+    successCriteria:
+      [
+        "All pages have valid language declarations",
+        "Language changes are programmatically determined",
+        "Content follows plain language principles",
+        "Technical terms have clear explanations",
+        "Reading level matches target audience",
+      ],
+    impactAssessment:
+      [
+        "How does this affect screen reader pronunciation?",
+        "What is the impact on translation tools?",
+        "How does this support cognitive accessibility?",
+        "What is the effect on international users?",
+        "How does this impact content maintainability?",
+      ],
+  }
 ai_instruction:
   {
     manager_agent:
       {
-        role: "Coordinates and distributes readability validation tasks",
+        role: "Coordinates, prioritizes, and aggregates readability validation tasks",
         process:
           [
             "Analyze document for readability requirements",
-            "Identify applicable validation categories",
+            "Identify and prioritize validation categories",
             "Distribute tasks to specialized Detection Agents",
+            "Track agent performance and validation accuracy",
             "Aggregate findings into structured report",
+            "Monitor historical trends and improvements",
           ],
         responsibilities:
           [
@@ -21,7 +50,105 @@ ai_instruction:
             "Result Aggregation and Prioritization",
             "Detection Agent Management",
             "Validation Coverage Verification",
+            "Agent Performance Tracking",
+            "Issue Prioritization and Ranking",
+            "Historical Trend Analysis",
+            "Agent Registration Management",
           ],
+        historical_tracking:
+          {
+            issue_trends:
+              {
+                tracking_period: "rolling_90_days",
+                metrics:
+                  [
+                    "Issue frequency by type",
+                    "Resolution time by severity",
+                    "Recurring issues by site",
+                    "False positive/negative rates",
+                    "Agent confidence trends",
+                  ],
+                analysis:
+                  [
+                    "Identify common failure patterns",
+                    "Track improvement over time",
+                    "Monitor agent accuracy trends",
+                    "Assess validation coverage",
+                  ],
+              },
+            site_performance:
+              {
+                metrics:
+                  [
+                    "Total issues over time",
+                    "Resolution rate",
+                    "Regression frequency",
+                    "Validation coverage",
+                  ],
+                tracking:
+                  {
+                    frequency: "weekly",
+                    retention: "1_year",
+                    aggregation: "by_guideline",
+                  },
+              },
+          },
+        agent_registration:
+          {
+            requirements:
+              [
+                "Define validation scope and capabilities",
+                "Specify supported WCAG criteria",
+                "Implement standardized output format",
+                "Provide accuracy metrics",
+              ],
+            validation:
+              {
+                required_fields:
+                  [
+                    "agent_id",
+                    "guideline_support",
+                    "validation_capabilities",
+                    "output_format_version",
+                  ],
+                performance_metrics:
+                  [
+                    "accuracy_score",
+                    "confidence_threshold",
+                    "false_positive_rate",
+                    "processing_speed",
+                  ],
+              },
+            dynamic_loading:
+              {
+                supported_types:
+                  ["language", "readability", "structure", "semantics"],
+                loading_strategy: "on_demand",
+                version_management: "semantic_versioning",
+              },
+          },
+        task_priority:
+          {
+            critical:
+              [
+                "Missing language declarations",
+                "Invalid language codes",
+                "Inaccessible content structure",
+              ],
+            high:
+              [
+                "Unmarked language changes",
+                "Incorrect language inheritance",
+                "Poor content readability",
+              ],
+            medium:
+              [
+                "Inconsistent language usage",
+                "Suboptimal language codes",
+                "Minor formatting issues",
+              ],
+            low: ["Style inconsistencies", "Optional enhancements"],
+          },
         detection_agents:
           [
             {
@@ -100,6 +227,35 @@ ai_instruction:
                     elements_checked: "number",
                     coverage_percentage: "number",
                   },
+                agent_performance:
+                  {
+                    total_validations: "number",
+                    false_positives: "number",
+                    false_negatives: "number",
+                    average_confidence: "number",
+                    confidence_trend: "increasing | decreasing | stable",
+                    historical_accuracy:
+                      {
+                        last_30_days: "number",
+                        last_90_days: "number",
+                        trend: "improving | stable | declining",
+                      },
+                  },
+                historical_trends:
+                  {
+                    issue_frequency:
+                      {
+                        by_type: "Record<string, number>",
+                        by_severity: "Record<string, number>",
+                        by_guideline: "Record<string, number>",
+                      },
+                    resolution_metrics:
+                      {
+                        average_time: "number",
+                        by_severity: "Record<string, number>",
+                        trend: "improving | stable | declining",
+                      },
+                  },
               },
             findings:
               {
@@ -107,21 +263,23 @@ ai_instruction:
                 format:
                   {
                     issue_id: "string",
-                    guideline: "string",
+                    rule_id: "string",
                     agent_id: "string",
+                    step_id: "string",
                     location:
                       {
                         xpath: "string",
                         selector: "string",
-                        element: "string",
+                        element_type: "string",
+                        attribute: "string",
                         context: "string",
                       },
                     severity: "Critical | High | Medium | Low",
                     confidence: "number",
                     evidence:
                       {
-                        found: "string",
-                        expected: "string",
+                        found_value: "string",
+                        expected_value: "string",
                         snippet: "string",
                       },
                     impact:
@@ -134,7 +292,14 @@ ai_instruction:
                       {
                         description: "string",
                         code_example: "string",
-                        resources: "string[]",
+                        related_resources: "string[]",
+                      },
+                    history:
+                      {
+                        first_detected: "string",
+                        last_detected: "string",
+                        occurrence_count: "number",
+                        resolution_attempts: "number",
                       },
                   },
               },
