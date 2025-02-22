@@ -2,6 +2,7 @@ import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { createClient } from "@supabase/supabase-js"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { createRoot } from "react-dom/client"
 
 // Common color system moved to a shared location
 export const COLORS = {
@@ -169,9 +170,27 @@ export class HeadingTool extends BaseTool {
   }
 
   getElementXPath(element: HTMLElement): string {
-    const allElements = this.getVisibleElements()
-    const index = allElements.indexOf(element)
-    return `//${element.tagName.toLowerCase()}[${index + 1}]`
+    // Get all headings
+    const headings = document.querySelectorAll<HTMLElement>(this.getSelector())
+    let count = 0
+    let found = false
+
+    // Count headings of the same level that come before this one
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i]
+      if (heading === element) {
+        found = true
+        break
+      }
+      if (heading.tagName === element.tagName) {
+        count++
+      }
+    }
+
+    if (!found) return ""
+
+    // XPath format: //h1[1], //h2[3], etc.
+    return `//${element.tagName.toLowerCase()}[${count + 1}]`
   }
 
   collectIssues(): AccessibilityIssue[] {
@@ -277,6 +296,10 @@ export class HeadingTool extends BaseTool {
         }))
       )
     }
+
+    // Update shared state and notify sidepanel
+    currentIssues = issues
+    notifySidepanelOfIssues(issues)
 
     return issues
   }
@@ -426,6 +449,103 @@ async function sendIssuesToBackend(issues: AccessibilityIssue[]) {
   }
 }
 
+// Shared state for issues
+let currentIssues: AccessibilityIssue[] = []
+
+// Function to notify sidepanel of issues
+function notifySidepanelOfIssues(issues: AccessibilityIssue[]) {
+  chrome.runtime.sendMessage({
+    type: "HEADING_ISSUES_UPDATE",
+    issues: issues.map((issue) => ({
+      ...issue,
+      // Include only necessary data for the panel
+      id: issue.issue_id,
+      severity: issue.severity,
+      message: issue.fix_suggestion.description,
+      element: issue.evidence.found_value,
+      expected: issue.evidence.expected_value,
+      location: issue.location,
+      text: issue.evidence.snippet
+    }))
+  })
+}
+
+// Function to scroll to element
+function scrollToElement(xpath: string) {
+  try {
+    console.log("Trying to find element with XPath:", xpath)
+
+    // First try by XPath
+    let element = document.evaluate(
+      xpath,
+      document,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null
+    ).singleNodeValue as HTMLElement
+
+    // If XPath fails, try finding by heading level and index
+    if (!element) {
+      const matches = xpath.match(/\/\/(h[1-6])\[(\d+)\]/)
+      if (matches) {
+        const [, tag, index] = matches
+        const headings = Array.from(
+          document.getElementsByTagName(tag)
+        ) as HTMLElement[]
+        element = headings[parseInt(index) - 1]
+      }
+    }
+
+    if (element) {
+      console.log("Found element:", element)
+
+      // Ensure element is in view
+      const rect = element.getBoundingClientRect()
+      const isInViewport =
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <=
+          (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <=
+          (window.innerWidth || document.documentElement.clientWidth)
+
+      // Scroll into view if not visible
+      if (!isInViewport) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+
+      // Create a temporary highlight overlay
+      const tempHighlight = document.createElement("div")
+      document.body.appendChild(tempHighlight)
+
+      // Render the highlight overlay
+      const root = createRoot(tempHighlight)
+      root.render(
+        <ElementHighlightBox
+          element={element}
+          isValid={true}
+          isDark={window.matchMedia("(prefers-color-scheme: dark)").matches}>
+          <ElementIndicator
+            label={headingTool.getLabel(element)}
+            isValid={true}
+            isDark={window.matchMedia("(prefers-color-scheme: dark)").matches}
+          />
+        </ElementHighlightBox>
+      )
+
+      // Remove the highlight after delay
+      setTimeout(() => {
+        root.unmount()
+        tempHighlight.remove()
+      }, 2000)
+    } else {
+      console.error("Element not found for XPath:", xpath)
+    }
+  } catch (error) {
+    console.error("Error scrolling to element:", error)
+  }
+}
+
 // React component for heading analysis overlay
 export default function HeadingAnalysisOverlay() {
   const { theme } = useTheme()
@@ -437,27 +557,54 @@ export default function HeadingAnalysisOverlay() {
   const rafRef = useRef<number | null>(null)
   const isResizingRef = useRef(false)
 
-  // Listen for activation messages
+  // Function to send issues to sidepanel
+  const sendIssuesToSidepanel = useCallback(() => {
+    const issues = headingTool.collectIssues()
+    if (issues.length > 0) {
+      console.log("Sending issues to sidepanel:", issues)
+      chrome.runtime.sendMessage({
+        type: "HEADING_ISSUES_UPDATE",
+        issues: issues.map((issue) => ({
+          id: issue.issue_id,
+          severity: issue.severity,
+          message: issue.fix_suggestion.description,
+          element: issue.evidence.found_value,
+          expected: issue.evidence.expected_value,
+          location: issue.location,
+          text: issue.evidence.snippet
+        }))
+      })
+    }
+  }, [])
+
+  // Listen for activation messages and issue requests
   useEffect(() => {
     const handleMessage = (message: any) => {
+      console.log("Received message in content script:", message)
       if (message.type === "HEADING_ANALYSIS_STATE") {
         setIsActive(message.isActive)
         if (message.isActive) {
-          // When activated, send initial analysis
           const issues = headingTool.collectIssues()
           if (issues.length > 0) {
             setIsSending(true)
             sendIssuesToBackend(issues)
               .catch(console.error)
               .finally(() => setIsSending(false))
+            // Also send to sidepanel
+            sendIssuesToSidepanel()
           }
         }
+      } else if (message.type === "REQUEST_HEADING_ISSUES") {
+        // Respond with current issues
+        sendIssuesToSidepanel()
+      } else if (message.type === "NAVIGATE_TO_HEADING_ISSUE") {
+        scrollToElement(message.xpath)
       }
     }
 
     chrome.runtime.onMessage.addListener(handleMessage)
     return () => chrome.runtime.onMessage.removeListener(handleMessage)
-  }, [])
+  }, [sendIssuesToSidepanel])
 
   const updateElements = useCallback(() => {
     if (!isActive) return
@@ -472,8 +619,10 @@ export default function HeadingAnalysisOverlay() {
       sendIssuesToBackend(issues)
         .catch(console.error)
         .finally(() => setIsSending(false))
+      // Also send to sidepanel
+      sendIssuesToSidepanel()
     }
-  }, [isActive])
+  }, [isActive, sendIssuesToSidepanel])
 
   // RAF-based resize handler
   const handleResize = useCallback(() => {
