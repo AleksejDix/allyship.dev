@@ -1,0 +1,276 @@
+---
+description: "Guidelines for creating robust and maintainable cursor rules with built-in self-reflection"
+globs:
+---
+
+# Self-Reflection Guidelines for Cursor Rules
+
+## Overview
+
+These guidelines help ensure that cursor rules are robust, maintainable, and effective through structured self-reflection. Each rule should include validation mechanisms, success criteria, and impact assessments.
+
+## Rule Structure
+
+### Basic Interface
+
+```typescript
+interface CursorRule {
+  name: string
+  description: string
+  category: string
+  version: string
+  reflection: {
+    validationPrompts: string[]
+    successCriteria: string[]
+    impactAssessment: string[]
+  }
+  validate(): {
+    isValid: boolean
+    feedback: string[]
+  }
+}
+```
+
+### Required Components
+
+1. **Metadata**
+
+   - Clear, descriptive name
+   - Detailed description
+   - Appropriate categorization
+   - Version tracking
+
+2. **Reflection Properties**
+
+   - Validation prompts for implementation
+   - Measurable success criteria
+   - Impact assessment questions
+   - Feedback mechanisms
+
+3. **Documentation**
+   - Usage examples
+   - Edge cases
+   - Implementation notes
+   - Maintenance guidelines
+
+## Examples
+
+### Basic Rule Implementation
+
+```typescript
+// ❌ Avoid: Rules without reflection
+const basicRule = {
+  name: "Check function names",
+  check: (code: string) => {
+    return code.includes("function") ? "pass" : "error"
+  },
+}
+
+// ✅ Do: Include reflection and validation
+const robustRule: CursorRule = {
+  name: "Function Naming Convention",
+  description: "Ensure function names follow project conventions",
+  category: "Style",
+  version: "1.0",
+  reflection: {
+    validationPrompts: [
+      "Does the name clearly indicate the function's purpose?",
+      "Is the naming consistent with project patterns?",
+      "Are special cases properly handled?",
+    ],
+    successCriteria: [
+      "Names use camelCase format",
+      "Names are descriptive and meaningful",
+      "Special characters are properly handled",
+    ],
+    impactAssessment: [
+      "How does this affect code readability?",
+      "What is the maintenance impact?",
+      "Are there IDE integration considerations?",
+    ],
+  },
+  validate() {
+    return {
+      isValid: true,
+      feedback: ["Function naming conventions verified"],
+    }
+  },
+}
+```
+
+### Rule with Examples
+
+```typescript
+const documentedRule: CursorRule = {
+  name: "Import Organization",
+  description: "Ensure imports are properly organized and grouped",
+  category: "Style",
+  version: "1.0",
+  reflection: {
+    validationPrompts: [
+      "Are imports grouped logically?",
+      "Is the ordering consistent?",
+      "Are unused imports identified?",
+    ],
+    successCriteria: [
+      "External imports come first",
+      "Internal imports are grouped",
+      "Type imports are separated",
+    ],
+    impactAssessment: [
+      "How does this affect bundle size?",
+      "What is the impact on code organization?",
+      "Are there performance implications?",
+    ],
+  },
+  examples: {
+    good: [
+      {
+        code: `
+          // External imports
+          import React from 'react'
+          import { useState } from 'react'
+
+          // Internal imports
+          import { Button } from '@/components'
+          import { useAuth } from '@/hooks'
+
+          // Type imports
+          import type { User } from '@/types'
+        `,
+        explanation: "Properly organized imports with clear grouping",
+      },
+    ],
+    bad: [
+      {
+        code: `
+          import { Button } from '@/components'
+          import React from 'react'
+          import type { User } from '@/types'
+          import { useState } from 'react'
+        `,
+        explanation: "Mixed imports without logical grouping",
+      },
+    ],
+  },
+  validate() {
+    return {
+      isValid: true,
+      feedback: ["Import organization verified"],
+    }
+  },
+}
+```
+
+### Evolving Rules
+
+```typescript
+const evolvableRule: CursorRule = {
+  name: "Code Complexity",
+  version: "2.0",
+  description: "Monitor and control code complexity metrics",
+  category: "Quality",
+  changelog: [
+    {
+      version: "2.0",
+      changes: [
+        "Added cognitive complexity measurement",
+        "Updated threshold calculations",
+        "Added function size metrics",
+      ],
+    },
+    {
+      version: "1.0",
+      changes: ["Initial cyclomatic complexity check"],
+    },
+  ],
+  reflection: {
+    validationPrompts: [
+      "Are all complexity metrics considered?",
+      "Do thresholds match project needs?",
+      "How are edge cases handled?",
+    ],
+    successCriteria: [
+      "Cyclomatic complexity within limits",
+      "Cognitive complexity acceptable",
+      "Function size reasonable",
+    ],
+    impactAssessment: [
+      "How does this affect code maintainability?",
+      "What is the impact on code review?",
+      "Are there performance implications?",
+    ],
+  },
+  validate() {
+    return {
+      isValid: true,
+      feedback: ["Complexity metrics within acceptable ranges"],
+    }
+  },
+}
+```
+
+## Best Practices
+
+1. **Validation Design**
+
+   - Make success criteria measurable
+   - Include specific test cases
+   - Consider edge cases
+   - Provide clear feedback
+
+2. **Documentation Quality**
+
+   - Write clear descriptions
+   - Include practical examples
+   - Document edge cases
+   - Maintain changelog
+
+3. **Maintenance Strategy**
+
+   - Version rules appropriately
+   - Track changes effectively
+   - Plan for updates
+   - Consider deprecation
+
+4. **Impact Consideration**
+   - Assess performance impact
+   - Consider maintainability
+   - Evaluate user experience
+   - Check tool integration
+
+## Common Mistakes
+
+1. **Reflection Issues**
+
+   - Missing validation prompts
+   - Vague success criteria
+   - Incomplete impact assessment
+   - Poor feedback quality
+
+2. **Documentation Problems**
+
+   - Unclear requirements
+   - Missing examples
+   - Poor explanation of impact
+   - Incomplete changelog
+
+3. **Implementation Gaps**
+
+   - No validation logic
+   - Missing edge cases
+   - Poor error messages
+   - Incomplete testing
+
+4. **Maintenance Challenges**
+   - No versioning strategy
+   - Missing update process
+   - Poor dependency management
+   - Unclear deprecation path
+
+## Resources
+
+- [Cursor Documentation](mdc:https:/cursor.sh/docs)
+- [TypeScript Interface Documentation](mdc:https:/www.typescriptlang.org/docs/handbook/interfaces.html)
+- [Jest Testing Framework](mdc:https:/jestjs.io/docs/getting-started)
+- [Self Operating Computer Project](mdc:https:/github.com/OthersideAI/self-operating-computer)
