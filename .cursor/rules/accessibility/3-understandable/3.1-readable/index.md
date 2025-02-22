@@ -3,6 +3,144 @@ title: "Guideline 3.1 – Readable"
 description: "Make text content readable and understandable"
 category: "Understandable"
 tags: ["language", "readability", "text", "content"]
+ai_instruction:
+  {
+    manager_agent:
+      {
+        role: "Coordinates and distributes readability validation tasks",
+        process:
+          [
+            "Analyze document for readability requirements",
+            "Identify applicable validation categories",
+            "Distribute tasks to specialized Detection Agents",
+            "Aggregate findings into structured report",
+          ],
+        responsibilities:
+          [
+            "Task Distribution and Coordination",
+            "Result Aggregation and Prioritization",
+            "Detection Agent Management",
+            "Validation Coverage Verification",
+          ],
+        detection_agents:
+          [
+            {
+              id: "document_language_validator",
+              name: "Document Language Validator",
+              guideline: "3.1.1",
+              scope: "document-level",
+              validation_rules:
+                [
+                  {
+                    id: "html_lang_presence",
+                    check: "Verify <html> element has lang attribute",
+                    severity: "Critical",
+                  },
+                  {
+                    id: "lang_code_format",
+                    check: "Validate BCP 47 language code format",
+                    severity: "High",
+                  },
+                  {
+                    id: "lang_code_case",
+                    check: "Ensure language code is lowercase",
+                    severity: "Medium",
+                  },
+                ],
+              output_format:
+                {
+                  findings: "Array<LanguageIssue>",
+                  coverage:
+                    { elements_checked: "number", issues_found: "number" },
+                },
+            },
+            {
+              id: "content_language_validator",
+              name: "Content Language Validator",
+              guideline: "3.1.2",
+              scope: "inline-content",
+              validation_rules:
+                [
+                  {
+                    id: "inline_lang_changes",
+                    check: "Detect content in different languages",
+                    severity: "High",
+                  },
+                  {
+                    id: "lang_attribute_presence",
+                    check: "Verify lang attribute on language changes",
+                    severity: "High",
+                  },
+                  {
+                    id: "lang_inheritance",
+                    check: "Validate language inheritance in DOM",
+                    severity: "Medium",
+                  },
+                ],
+              output_format:
+                {
+                  findings: "Array<LanguageIssue>",
+                  coverage:
+                    { elements_checked: "number", issues_found: "number" },
+                },
+            },
+          ],
+        output_format:
+          {
+            summary:
+              {
+                total_issues: "number",
+                critical_issues: "number",
+                high_priority_issues: "number",
+                medium_priority_issues: "number",
+                low_priority_issues: "number",
+                validation_coverage:
+                  {
+                    total_elements: "number",
+                    elements_checked: "number",
+                    coverage_percentage: "number",
+                  },
+              },
+            findings:
+              {
+                type: "Array<ValidationFinding>",
+                format:
+                  {
+                    issue_id: "string",
+                    guideline: "string",
+                    agent_id: "string",
+                    location:
+                      {
+                        xpath: "string",
+                        selector: "string",
+                        element: "string",
+                        context: "string",
+                      },
+                    severity: "Critical | High | Medium | Low",
+                    confidence: "number",
+                    evidence:
+                      {
+                        found: "string",
+                        expected: "string",
+                        snippet: "string",
+                      },
+                    impact:
+                      {
+                        user_groups: "string[]",
+                        assistive_tech: "string[]",
+                        functionality: "string[]",
+                      },
+                    fix_suggestion:
+                      {
+                        description: "string",
+                        code_example: "string",
+                        resources: "string[]",
+                      },
+                  },
+              },
+          },
+      },
+  }
 ---
 
 # Guideline 3.1 – Readable
