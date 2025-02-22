@@ -32,6 +32,17 @@ function IndexSidePanel() {
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [websiteId, setWebsiteId] = useState<string | null>(null)
   const injectedTabsRef = useRef<Set<number>>(new Set())
+  const lastUrlRef = useRef<string>("")
+
+  // Check initial tool state
+  useEffect(() => {
+    chrome.storage.local.get("headingToolActive", (result) => {
+      if (result.headingToolActive) {
+        setActiveTool("headings")
+        setIsActive(true)
+      }
+    })
+  }, [])
 
   // Function to inject content script if not already injected
   const injectContentScript = async (tabId: number) => {
@@ -52,22 +63,39 @@ function IndexSidePanel() {
     }
   }
 
+  // Function to activate tool
+  const activateCurrentTool = async (tabId: number) => {
+    if (activeTool === "headings") {
+      console.log("Activating heading analysis for tab:", tabId)
+      chrome.tabs.sendMessage(tabId, {
+        type: "HEADING_ANALYSIS_STATE",
+        isActive: true
+      })
+    }
+  }
+
   // Function to update current tab info
   const updateCurrentTab = async (tab: chrome.tabs.Tab) => {
-    if (tab.url) {
-      setCurrentUrl(tab.url)
-      setCurrentTitle(tab.title || "Untitled Page")
+    if (!tab.url) return
 
-      // Inject content script if needed
-      if (tab.id) {
-        await injectContentScript(tab.id)
-        // If tool is active, send activation message
-        if (activeTool === "headings") {
-          chrome.tabs.sendMessage(tab.id, {
-            type: "HEADING_ANALYSIS_STATE",
-            isActive: true
-          })
-        }
+    const isNewUrl = tab.url !== lastUrlRef.current
+    lastUrlRef.current = tab.url
+    setCurrentUrl(tab.url)
+    setCurrentTitle(tab.title || "Untitled Page")
+
+    // Inject content script if needed
+    if (tab.id) {
+      await injectContentScript(tab.id)
+
+      // If URL changed and tool is active, reactivate it to trigger reanalysis
+      if (isNewUrl && isActive) {
+        console.log("URL changed, rerunning analysis")
+        // Small delay to ensure DOM is ready
+        setTimeout(() => activateCurrentTool(tab.id!), 500)
+      }
+      // If tool is active but not a new URL, just ensure it's running
+      else if (isActive) {
+        activateCurrentTool(tab.id)
       }
     }
   }
@@ -77,6 +105,9 @@ function IndexSidePanel() {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (tabs[0]?.id) {
         await injectContentScript(tabs[0].id)
+        if (isActive) {
+          activateCurrentTool(tabs[0].id)
+        }
       }
     })
 
@@ -90,7 +121,8 @@ function IndexSidePanel() {
   useEffect(() => {
     if (!activeTool) {
       setIsActive(false)
-      // Notify content script to deactivate
+      // Store tool state and notify content script
+      chrome.storage.local.set({ headingToolActive: false })
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
           chrome.tabs.sendMessage(tabs[0].id, {
@@ -104,13 +136,11 @@ function IndexSidePanel() {
 
     if (activeTool === "headings") {
       setIsActive(true)
-      // Notify content script to activate
+      // Store tool state and notify content script
+      chrome.storage.local.set({ headingToolActive: true })
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            type: "HEADING_ANALYSIS_STATE",
-            isActive: true
-          })
+          activateCurrentTool(tabs[0].id)
         }
       })
     }
