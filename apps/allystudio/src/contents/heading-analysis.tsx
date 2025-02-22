@@ -324,7 +324,7 @@ export function ElementHighlightBox({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute transition-all duration-200 ease-in-out will-change-[transform,opacity,width,height]"
+        "absolute transition-all duration-200 ease-in-out will-change-[transform,opacity,width,height]"
       )}
       style={{
         position: "absolute",
@@ -334,7 +334,8 @@ export function ElementHighlightBox({
         height: `${rect.height}px`,
         backgroundColor: boxColors.bg,
         outline: `2px solid ${boxColors.outline}`,
-        opacity: 1
+        opacity: 1,
+        pointerEvents: "none"
       }}>
       {children}
     </div>
