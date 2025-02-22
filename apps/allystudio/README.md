@@ -6,45 +6,249 @@ A premium Chrome extension built with [Plasmo](https://docs.plasmo.com/) and [sh
 
 ### Core Components
 
-1. **Authentication System**
+1. **Extension Architecture**
 
-   - Built on Supabase Auth with auto-login support
-   - Multi-step session validation and refresh
-   - Supports email/password and OAuth (GitHub) login
-   - Persistent session management using `@plasmohq/storage`
-   - Secure token handling and refresh mechanism
+   - **Background Service (`background/`)**
 
-2. **Extension UI**
+     - Handles extension lifecycle events
+     - Manages authentication state
+     - Controls sidepanel visibility
+     - Coordinates message passing between components
 
-   - Options Page: Full-screen authentication interface with auto-login
-   - Side Panel: Main accessibility tools interface
-   - Theme Support: System/light/dark mode using shadcn/ui
+   - **Content Scripts (`contents/`)**
 
-3. **Background Service**
-   - Handles message passing between components
-   - Manages side panel state
-   - Coordinates with content scripts
+     - Implements accessibility analysis tools
+     - Injects overlay UI components
+     - Handles DOM manipulation and monitoring
+     - Real-time accessibility validation
 
-### Technical Stack
+   - **Sidepanel UI (`sidepanel/`)**
+
+     - Main user interface for accessibility tools
+     - Real-time issue reporting
+     - Tool activation controls
+     - Results visualization
+
+   - **Options Page (`options/`)**
+     - Authentication interface
+     - User settings management
+     - Extension configuration
+
+2. **Tool System Architecture**
+
+   ```typescript
+   // Base Tool Structure
+   abstract class BaseTool {
+     abstract getSelector(): string
+     abstract validateElement(el: HTMLElement): ValidationResult
+     abstract getLabel(el: HTMLElement): string
+
+     getElements(): NodeListOf<HTMLElement>
+     getVisibleElements(): HTMLElement[]
+     validateElements(): ElementData[]
+   }
+   ```
+
+   - **Tool Implementation Pattern**
+     - Abstract base class for all tools
+     - Standardized validation interface
+     - Common utility methods
+     - Consistent result format
+
+3. **UI Component Architecture**
+
+   - **Component Layers**
+
+     - Base UI components (`components/ui/`)
+     - Tool-specific components (`components/tools/`)
+     - Shared layouts and containers (`components/layout/`)
+     - Utility components (`components/common/`)
+
+   - **Overlay System**
+     ```typescript
+     // Overlay Component Pattern
+     function ElementHighlightBox({ element, isValid, children, isDark }) {
+       // Non-intrusive DOM highlighting
+       // Plasmo-managed overlay system
+       // Theme-aware styling
+     }
+     ```
+
+4. **State Management**
+
+   - **Local State**
+
+     - React hooks for component state
+     - Tool-specific state management
+     - UI state coordination
+
+   - **Global State**
+     - Supabase for backend state
+     - Chrome storage for extension state
+     - Message passing for cross-context state
+
+5. **Communication Architecture**
+
+   ```typescript
+   // Message Types
+   type Message =
+     | { type: "TOOL_STATE_UPDATE"; data: ToolState }
+     | { type: "ISSUE_REPORT"; data: IssueData }
+     | { type: "AUTH_STATE"; data: AuthState }
+   ```
+
+   - **Internal Communication**
+
+     - Chrome message passing
+     - Event-based communication
+     - State synchronization
+
+   - **External Communication**
+     - Supabase real-time updates
+     - REST API integration
+     - Beacon API for analytics
+
+6. **Data Flow Architecture**
+
+   ```mermaid
+   graph TD
+     A[Content Script] --> B[Tool System]
+     B --> C[Issue Collection]
+     C --> D[State Management]
+     D --> E[UI Updates]
+     D --> F[Backend Sync]
+   ```
+
+   - **Validation Flow**
+
+     1. Tool activation
+     2. DOM analysis
+     3. Issue collection
+     4. State update
+     5. UI refresh
+
+   - **Data Persistence**
+     1. Local caching
+     2. Backend synchronization
+     3. State restoration
+
+7. **Security Architecture**
+
+   - **Authentication**
+
+     - Supabase JWT handling
+     - Secure token storage
+     - Session management
+
+   - **Data Protection**
+     - Content script isolation
+     - Secure message passing
+     - Permission boundaries
+
+8. **Performance Optimizations**
+
+   - **DOM Operations**
+
+     ```typescript
+     // Performance Pattern
+     const rafRef = useRef<number | null>(null)
+     const handleResize = useCallback(() => {
+       if (rafRef.current) cancelAnimationFrame(rafRef.current)
+       rafRef.current = requestAnimationFrame(updateElements)
+     }, [])
+     ```
+
+   - **Resource Management**
+     - RAF-based updates
+     - Lazy loading
+     - Event debouncing
+     - Memory cleanup
+
+9. **Error Handling**
+
+   - **Error Boundaries**
+
+     - Component-level isolation
+     - Graceful degradation
+     - User feedback
+
+   - **Recovery Strategies**
+     - State reset capabilities
+     - Fallback UI
+     - Error reporting
+
+10. **Testing Architecture**
+
+    - **Unit Testing**
+
+      - Component tests
+      - Tool validation tests
+      - Utility function tests
+
+    - **Integration Testing**
+      - Tool interaction tests
+      - State management tests
+      - Communication tests
+
+### Directory Structure
 
 ```
-Frontend:
-├── React 18
-├── TypeScript
-├── shadcn/ui (Radix UI + Tailwind)
-└── Plasmo Framework
-
-Backend:
-└── Supabase
-    ├── Auth
-    ├── Database
-    └── Storage
-
-Build Tools:
-├── pnpm (Package Manager)
-├── PostCSS
-└── Tailwind CSS
+src/
+├── background/        # Extension background service
+├── contents/         # Content scripts and tools
+├── sidepanel/        # Main UI components
+├── options/          # Settings and auth UI
+├── components/       # Shared React components
+├── core/            # Core business logic
+├── lib/             # Utility functions
+├── types/           # TypeScript definitions
+├── utils/           # Helper functions
+└── styles/          # Global styles
 ```
+
+### Best Practices
+
+1. **Code Organization**
+
+   - Feature-based directory structure
+   - Clear separation of concerns
+   - Consistent naming conventions
+
+2. **Performance**
+
+   - Minimal DOM operations
+   - Efficient state updates
+   - Resource cleanup
+
+3. **Security**
+
+   - Content script isolation
+   - Secure communication
+   - Data validation
+
+4. **Accessibility**
+   - WCAG compliance
+   - Keyboard navigation
+   - Screen reader support
+
+### Future Considerations
+
+1. **Scalability**
+
+   - Tool plugin system
+   - Custom rule definitions
+   - Performance optimization
+
+2. **Integration**
+
+   - CI/CD pipeline
+   - Automated testing
+   - Documentation generation
+
+3. **Features**
+   - Additional accessibility tools
+   - Advanced reporting
+   - Team collaboration
 
 ## How It Works
 
