@@ -556,6 +556,18 @@ export default function HeadingAnalysisOverlay() {
   const isDark = theme === "dark"
   const rafRef = useRef<number | null>(null)
   const isResizingRef = useRef(false)
+  const lastUrlRef = useRef(window.location.href)
+  const isInitialLoadRef = useRef(true)
+
+  // Check initial state on mount
+  useEffect(() => {
+    chrome.storage.local.get("headingToolActive", (result) => {
+      if (result.headingToolActive) {
+        setIsActive(true)
+        updateElements()
+      }
+    })
+  }, [])
 
   // Function to send issues to sidepanel
   const sendIssuesToSidepanel = useCallback(() => {
@@ -577,21 +589,90 @@ export default function HeadingAnalysisOverlay() {
     }
   }, [])
 
+  // Function to handle URL changes
+  const handleUrlChange = useCallback(() => {
+    const currentUrl = window.location.href
+    if (currentUrl !== lastUrlRef.current) {
+      console.log("URL changed in content script:", currentUrl)
+      lastUrlRef.current = currentUrl
+      if (isActive) {
+        // For classic navigation, we need to wait for the DOM to be ready
+        if (document.readyState === "loading") {
+          console.log("Waiting for DOM to be ready...")
+          document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+              console.log("DOM ready, revalidating...")
+              updateElements()
+              // Highlight first critical or high severity issue
+              const issues = headingTool.collectIssues()
+              const firstImportantIssue = issues.find(
+                (issue) =>
+                  issue.severity === "Critical" || issue.severity === "High"
+              )
+              if (firstImportantIssue) {
+                scrollToElement(firstImportantIssue.location.xpath)
+              }
+            },
+            { once: true }
+          )
+        } else {
+          // For SPA navigation, use a small delay
+          setTimeout(() => {
+            console.log("Revalidating after URL change")
+            updateElements()
+            // Highlight first critical or high severity issue
+            const issues = headingTool.collectIssues()
+            const firstImportantIssue = issues.find(
+              (issue) =>
+                issue.severity === "Critical" || issue.severity === "High"
+            )
+            if (firstImportantIssue) {
+              scrollToElement(firstImportantIssue.location.xpath)
+            }
+          }, 500)
+        }
+      }
+    }
+  }, [isActive])
+
   // Listen for activation messages and issue requests
   useEffect(() => {
     const handleMessage = (message: any) => {
       console.log("Received message in content script:", message)
       if (message.type === "HEADING_ANALYSIS_STATE") {
         setIsActive(message.isActive)
+        // Store the active state
+        chrome.storage.local.set({ headingToolActive: message.isActive })
+
         if (message.isActive) {
-          const issues = headingTool.collectIssues()
-          if (issues.length > 0) {
-            setIsSending(true)
-            sendIssuesToBackend(issues)
-              .catch(console.error)
-              .finally(() => setIsSending(false))
-            // Also send to sidepanel
-            sendIssuesToSidepanel()
+          // For initial page load, wait for DOM to be ready
+          if (document.readyState === "loading") {
+            console.log("Waiting for initial DOM load...")
+            document.addEventListener(
+              "DOMContentLoaded",
+              () => {
+                console.log("DOM ready, running initial analysis...")
+                const issues = headingTool.collectIssues()
+                if (issues.length > 0) {
+                  setIsSending(true)
+                  sendIssuesToBackend(issues)
+                    .catch(console.error)
+                    .finally(() => setIsSending(false))
+                  sendIssuesToSidepanel()
+                }
+              },
+              { once: true }
+            )
+          } else {
+            const issues = headingTool.collectIssues()
+            if (issues.length > 0) {
+              setIsSending(true)
+              sendIssuesToBackend(issues)
+                .catch(console.error)
+                .finally(() => setIsSending(false))
+              sendIssuesToSidepanel()
+            }
           }
         }
       } else if (message.type === "REQUEST_HEADING_ISSUES") {
@@ -608,6 +689,31 @@ export default function HeadingAnalysisOverlay() {
 
   const updateElements = useCallback(() => {
     if (!isActive) return
+
+    // Ensure DOM is ready
+    if (document.readyState === "loading") {
+      document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+          const validatedElements = headingTool.validateElements()
+          setElements(validatedElements)
+          setForceUpdate((prev) => prev + 1)
+
+          // Send updated issues when elements change
+          const issues = headingTool.collectIssues()
+          if (issues.length > 0) {
+            setIsSending(true)
+            sendIssuesToBackend(issues)
+              .catch(console.error)
+              .finally(() => setIsSending(false))
+            sendIssuesToSidepanel()
+          }
+        },
+        { once: true }
+      )
+      return
+    }
+
     const validatedElements = headingTool.validateElements()
     setElements(validatedElements)
     setForceUpdate((prev) => prev + 1)
@@ -619,7 +725,6 @@ export default function HeadingAnalysisOverlay() {
       sendIssuesToBackend(issues)
         .catch(console.error)
         .finally(() => setIsSending(false))
-      // Also send to sidepanel
       sendIssuesToSidepanel()
     }
   }, [isActive, sendIssuesToSidepanel])
@@ -648,8 +753,37 @@ export default function HeadingAnalysisOverlay() {
   useEffect(() => {
     if (!isActive) return
 
-    updateElements()
+    // Initial analysis
+    if (isInitialLoadRef.current) {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", updateElements, {
+          once: true
+        })
+      } else {
+        updateElements()
+      }
+      isInitialLoadRef.current = false
+    } else {
+      updateElements()
+    }
 
+    // Set up URL change monitoring
+    const urlObserver = new MutationObserver(() => {
+      handleUrlChange()
+    })
+
+    // Watch for URL changes through DOM mutations
+    urlObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    })
+
+    // Also listen for history changes
+    window.addEventListener("popstate", handleUrlChange)
+    window.addEventListener("pushstate", handleUrlChange)
+    window.addEventListener("replacestate", handleUrlChange)
+
+    // Set up DOM change monitoring
     const observer = new MutationObserver((mutations) => {
       if (isResizingRef.current) return
 
@@ -683,14 +817,22 @@ export default function HeadingAnalysisOverlay() {
 
     window.addEventListener("resize", handleResize, { passive: true })
 
+    // Also listen for page load events
+    window.addEventListener("load", updateElements)
+
     return () => {
+      urlObserver.disconnect()
       observer.disconnect()
       window.removeEventListener("resize", handleResize)
+      window.removeEventListener("popstate", handleUrlChange)
+      window.removeEventListener("pushstate", handleUrlChange)
+      window.removeEventListener("replacestate", handleUrlChange)
+      window.removeEventListener("load", updateElements)
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [isActive, handleResize, updateElements])
+  }, [isActive, handleResize, updateElements, handleUrlChange])
 
   if (!isActive) return null
 
