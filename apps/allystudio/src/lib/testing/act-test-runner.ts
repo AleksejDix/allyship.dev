@@ -1,20 +1,13 @@
 import { eventBus } from "@/lib/events/event-bus"
 
-export interface ACTTestCase {
-  id: string
-  description: string
-  evaluate: (element: HTMLElement) => {
-    passed: boolean
-    message: string
-  }
-}
+import type { ACTSuite } from "./act-test-suite"
 
 export interface ACTTestResult {
   id: string
   selector: string
   passed: boolean
   message: string
-  severity: "Critical" | "High" | "Medium"
+  severity: "Critical" | "High" | "Medium" | "Low"
   element: {
     tagName: string
     textContent: string
@@ -22,21 +15,14 @@ export interface ACTTestResult {
   }
 }
 
-export interface ACTTestSuite {
-  name: string
-  description: string
-  applicability: string
-  testCases: ACTTestCase[]
-}
-
 export class ACTTestRunner {
-  private suites: ACTTestSuite[] = []
+  private suites: ACTSuite[] = []
 
   clearSuites() {
     this.suites = []
   }
 
-  addSuite(suite: ACTTestSuite) {
+  addSuite(suite: ACTSuite) {
     // Clear existing suites of the same type to prevent duplicates
     this.suites = this.suites.filter((s) => s.name !== suite.name)
     this.suites.push(suite)
@@ -126,7 +112,7 @@ export class ACTTestRunner {
               selector,
               passed,
               message: `${suite.name}: ${message}`,
-              severity: "High",
+              severity: testCase.severity || "High",
               element: {
                 tagName: element.tagName,
                 textContent: element.textContent || "",
