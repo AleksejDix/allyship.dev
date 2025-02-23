@@ -1,6 +1,7 @@
 import { eventBus } from "@/lib/events/event-bus"
 import type { HeadingHighlightRequestEvent } from "@/lib/events/types"
 import { useEffect, useMemo, useRef, useState } from "react"
+import type { CSSProperties } from "react"
 
 interface HighlightStyles {
   border: string
@@ -29,15 +30,67 @@ const DEFAULT_HIGHLIGHT_STYLES = {
   }
 } as const
 
+// CSS classes for highlight elements
+const elementStyles = {
+  highlightBox: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    pointerEvents: "none",
+    willChange: "transform",
+    zIndex: 9999
+  },
+  tooltip: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    padding: "4px 8px",
+    fontSize: "12px",
+    lineHeight: "1.4",
+    borderRadius: "4px",
+    whiteSpace: "nowrap",
+    willChange: "transform",
+    zIndex: 9999
+  }
+} as const satisfies Record<string, CSSProperties>
+
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<HighlightData[]>([])
   const ticking = useRef(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Handle scroll and resize updates
   useEffect(() => {
     const updatePositions = () => {
       requestAnimationFrame(() => {
-        setHighlights((prev) => [...prev]) // Force re-render to get new positions
+        if (!containerRef.current) return
+
+        const container = containerRef.current
+        const boxes = container.querySelectorAll("[data-highlight-box]")
+        const tooltips = container.querySelectorAll("[data-highlight-tooltip]")
+
+        boxes.forEach((box, index) => {
+          const element = highlights[index]?.element
+          if (!element) return
+
+          const rect = element.getBoundingClientRect()
+          const style = box as HTMLElement
+          style.style.setProperty("--x", `${rect.left}px`)
+          style.style.setProperty("--y", `${rect.top}px`)
+          style.style.width = `${rect.width}px`
+          style.style.height = `${rect.height}px`
+        })
+
+        tooltips.forEach((tooltip, index) => {
+          const element = highlights[index]?.element
+          if (!element) return
+
+          const rect = element.getBoundingClientRect()
+          const style = tooltip as HTMLElement
+          style.style.setProperty("--x", `${rect.left}px`)
+          style.style.setProperty("--y", `${rect.top - 24}px`)
+        })
+
         ticking.current = false
       })
     }
@@ -58,11 +111,14 @@ const PlasmoOverlay = () => {
     const resizeObserver = new ResizeObserver(updatePositions)
     resizeObserver.observe(document.body)
 
+    // Initial position update
+    updatePositions()
+
     return () => {
       document.removeEventListener("scroll", onScroll, { capture: true })
       resizeObserver.disconnect()
     }
-  }, [])
+  }, [highlights])
 
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event) => {
@@ -116,37 +172,25 @@ const PlasmoOverlay = () => {
           aria-label={`${validityLabel} highlight for ${message}`}>
           {/* Highlight box */}
           <div
+            data-highlight-box
             role="presentation"
             style={{
-              position: "fixed",
-              top: rect.top,
-              left: rect.left,
-              width: rect.width,
-              height: rect.height,
+              ...elementStyles.highlightBox,
+              transform: "translate3d(var(--x), var(--y), 0)",
               border: `2px solid ${highlightStyles.border}`,
-              backgroundColor: highlightStyles.background,
-              pointerEvents: "none",
-              willChange: "transform",
-              zIndex: 9999
+              backgroundColor: highlightStyles.background
             }}
           />
           {/* Message tooltip */}
           <div
+            data-highlight-tooltip
             role="tooltip"
             id={`highlight-tooltip-${selector}`}
             style={{
-              position: "fixed",
-              top: rect.top - 24,
-              left: rect.left,
+              ...elementStyles.tooltip,
+              transform: "translate3d(var(--x), var(--y), 0)",
               background: highlightStyles.messageBackground,
-              color: "white",
-              padding: "4px 8px",
-              fontSize: "12px",
-              lineHeight: "1.4",
-              borderRadius: "4px",
-              whiteSpace: "nowrap",
-              willChange: "transform",
-              zIndex: 9999
+              color: "white"
             }}>
             {message}
           </div>
@@ -157,10 +201,17 @@ const PlasmoOverlay = () => {
 
   return (
     <div
+      ref={containerRef}
       role="region"
       aria-label="Element highlights overlay"
       className="fixed inset-0 pointer-events-none"
       style={{ zIndex: 9998 }}>
+      <style>{`
+        [data-highlight-box], [data-highlight-tooltip] {
+          --x: 0px;
+          --y: 0px;
+        }
+      `}</style>
       {highlightElements}
     </div>
   )
