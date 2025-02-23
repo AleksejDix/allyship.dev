@@ -769,3 +769,139 @@ async function checkContrast() {
    - Tool creation framework
    - Custom rule sets
    - Plugin system
+
+## Event-Based Communication System
+
+### Message Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant Werkzeug
+    participant EventBus
+    participant HeadingCheck
+    participant PlasmoStorage
+    participant SidePanel
+
+    Note over Werkzeug,SidePanel: Tool Activation Flow
+    Werkzeug->>EventBus: TOOL_STATE_CHANGE {enabled: true}
+    EventBus->>HeadingCheck: TOOL_STATE_CHANGE {enabled: true}
+    HeadingCheck->>HeadingCheck: analyzeHeadings()
+
+    par Parallel Events
+        HeadingCheck->>EventBus: HEADING_HIGHLIGHT_REQUEST
+        EventBus->>PlasmoStorage: HEADING_HIGHLIGHT_REQUEST
+        HeadingCheck->>EventBus: HEADING_ANALYSIS_COMPLETE
+        EventBus->>SidePanel: HEADING_ANALYSIS_COMPLETE
+    end
+
+    Note over Werkzeug,SidePanel: Navigation Flow
+    SidePanel->>EventBus: HEADING_NAVIGATE_REQUEST
+    EventBus->>HeadingCheck: HEADING_NAVIGATE_REQUEST
+
+    Note over Werkzeug,SidePanel: Tool Deactivation Flow
+    Werkzeug->>EventBus: TOOL_STATE_CHANGE {enabled: false}
+    EventBus->>HeadingCheck: TOOL_STATE_CHANGE {enabled: false}
+    HeadingCheck->>EventBus: HEADING_ANALYSIS_COMPLETE {issues: []}
+    par Cleanup Events
+        EventBus->>PlasmoStorage: Clear highlights
+        EventBus->>SidePanel: Clear issues
+    end
+```
+
+### Event Types and Flow
+
+1. **Tool State Events**
+
+   - `TOOL_STATE_CHANGE`: Triggered by Werkzeug to enable/disable tools
+
+   ```typescript
+   {
+     type: "TOOL_STATE_CHANGE",
+     data: { tool: "headings", enabled: boolean }
+   }
+   ```
+
+2. **Analysis Events**
+
+   - `HEADING_ANALYSIS_REQUEST`: Request new analysis
+   - `HEADING_ANALYSIS_COMPLETE`: Analysis results with issues
+
+   ```typescript
+   {
+     type: "HEADING_ANALYSIS_COMPLETE",
+     data: {
+       issues: HeadingIssue[],
+       stats: { total: number, invalid: number }
+     }
+   }
+   ```
+
+3. **UI Events**
+   - `HEADING_HIGHLIGHT_REQUEST`: Visual overlay management
+   ```typescript
+   {
+     type: "HEADING_HIGHLIGHT_REQUEST",
+     data: {
+       selector: string,
+       message: string,
+       isValid: boolean
+     }
+   }
+   ```
+   - `HEADING_NAVIGATE_REQUEST`: Issue navigation
+   ```typescript
+   {
+     type: "HEADING_NAVIGATE_REQUEST",
+     data: { xpath: string }
+   }
+   ```
+
+### Component Responsibilities
+
+1. **Werkzeug (`components/werkzeug.tsx`)**
+
+   - Manages tool state
+   - Triggers analysis
+   - Shows statistics
+
+2. **HeadingCheck (`contents/heading-check.ts`)**
+
+   - Performs heading analysis
+   - Generates issue reports
+   - Sends highlight requests
+
+3. **PlasmoStorage (`contents/plasmo-storage.tsx`)**
+
+   - Manages visual overlays
+   - Handles highlight styling
+   - Responds to state changes
+
+4. **SidePanel (`sidepanel/index.tsx`)**
+   - Displays issue list
+   - Handles issue navigation
+   - Shows tool status
+
+### Benefits of Event-Based Architecture
+
+1. **Decoupled Components**
+
+   - Components communicate through events
+   - No direct dependencies
+   - Easy to extend
+
+2. **Real-time Updates**
+
+   - Immediate UI feedback
+   - Synchronized state
+   - Consistent experience
+
+3. **Type Safety**
+
+   - All events are typed
+   - Compile-time checks
+   - Predictable data flow
+
+4. **Performance**
+   - Efficient updates
+   - Minimal overhead
+   - Parallel processing
