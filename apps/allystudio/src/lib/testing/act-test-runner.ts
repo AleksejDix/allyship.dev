@@ -77,7 +77,7 @@ export class ACTTestRunner {
   }
 
   async *runTests(
-    type: "headings" | "links"
+    type: "headings" | "links" | "alt"
   ): AsyncGenerator<TestUpdate, void, unknown> {
     // Create new abort controller for this test run
     this.abortController = new AbortController()
@@ -96,7 +96,11 @@ export class ACTTestRunner {
         data: {
           selector: "*",
           message:
-            type === "headings" ? "Heading Structure" : "Link Accessibility",
+            type === "headings"
+              ? "Heading Structure"
+              : type === "links"
+                ? "Link Accessibility"
+                : "Alt Text Analysis",
           isValid: true,
           clear: true
         }
@@ -104,7 +108,11 @@ export class ACTTestRunner {
 
       // Log suite start
       this.logger.logSuiteStart(
-        type === "headings" ? "Heading Structure" : "Link Accessibility"
+        type === "headings"
+          ? "Heading Structure"
+          : type === "links"
+            ? "Link Accessibility"
+            : "Alt Text Analysis"
       )
 
       // First calculate total tests
@@ -274,7 +282,9 @@ export class ACTTestRunner {
           type:
             type === "headings"
               ? "HEADING_ANALYSIS_COMPLETE"
-              : "LINK_ANALYSIS_COMPLETE",
+              : type === "links"
+                ? "LINK_ANALYSIS_COMPLETE"
+                : "ALT_ANALYSIS_COMPLETE",
           timestamp: Date.now(),
           data: {
             issues: results.filter((r) => !r.passed), // Only send failed results

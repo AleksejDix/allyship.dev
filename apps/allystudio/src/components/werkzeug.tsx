@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { eventBus } from "@/lib/events/event-bus"
 import type {
+  AltAnalysisCompleteEvent,
   HeadingAnalysisCompleteEvent,
   LinkAnalysisCompleteEvent
 } from "@/lib/events/types"
@@ -9,8 +10,10 @@ import { useEffect, useState } from "react"
 export function Werkzeug() {
   const [isHeadingEnabled, setIsHeadingEnabled] = useState(false)
   const [isLinkEnabled, setIsLinkEnabled] = useState(false)
+  const [isAltEnabled, setIsAltEnabled] = useState(false)
   const [headingStats, setHeadingStats] = useState({ total: 0, invalid: 0 })
   const [linkStats, setLinkStats] = useState({ total: 0, invalid: 0 })
+  const [altStats, setAltStats] = useState({ total: 0, invalid: 0 })
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
@@ -24,13 +27,17 @@ export function Werkzeug() {
         const analysisEvent = event as LinkAnalysisCompleteEvent
         setLinkStats(analysisEvent.data.stats)
         setIsAnalyzing(false)
+      } else if (event.type === "ALT_ANALYSIS_COMPLETE") {
+        const analysisEvent = event as AltAnalysisCompleteEvent
+        setAltStats(analysisEvent.data.stats)
+        setIsAnalyzing(false)
       }
     })
 
     return unsubscribe
   }, [])
 
-  const clearHighlights = (tool: "headings" | "links") => {
+  const clearHighlights = (tool: "headings" | "links" | "alt") => {
     // Clear highlights for specific tool
     eventBus.publish({
       type: "HIGHLIGHT",
@@ -38,7 +45,11 @@ export function Werkzeug() {
       data: {
         selector: "*",
         message:
-          tool === "headings" ? "Heading Structure" : "Link Accessibility",
+          tool === "headings"
+            ? "Heading Structure"
+            : tool === "links"
+              ? "Link Accessibility"
+              : "Alt Text Analysis",
         isValid: true,
         clear: true
       }
@@ -113,6 +124,40 @@ export function Werkzeug() {
     }
   }
 
+  const toggleAltTest = async () => {
+    const newState = !isAltEnabled
+    setIsAltEnabled(newState)
+
+    // Get current tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+    if (!tab?.id) return
+
+    // First send tool state change event
+    eventBus.publish({
+      type: "TOOL_STATE_CHANGE",
+      timestamp: Date.now(),
+      tabId: tab.id,
+      data: {
+        tool: "alt",
+        enabled: newState
+      }
+    })
+
+    if (newState) {
+      // Request initial analysis
+      setIsAnalyzing(true)
+      eventBus.publish({
+        type: "ALT_ANALYSIS_REQUEST",
+        timestamp: Date.now(),
+        tabId: tab.id
+      })
+    } else {
+      // Clear highlights when disabling
+      clearHighlights("alt")
+      setAltStats({ total: 0, invalid: 0 })
+    }
+  }
+
   return (
     <div className="p-4 space-y-4">
       <div>
@@ -142,7 +187,24 @@ export function Werkzeug() {
         </Button>
         {isLinkEnabled && (
           <div className="text-sm mt-2">
-            Found {linkStats.invalid} empty links in {linkStats.total} links
+            Found {linkStats.invalid} issues in {linkStats.total} links
+          </div>
+        )}
+      </div>
+
+      <div>
+        <Button
+          onClick={toggleAltTest}
+          aria-pressed={isAltEnabled}
+          variant={isAltEnabled ? "secondary" : "outline"}
+          disabled={isAnalyzing && !isAltEnabled}>
+          {isAltEnabled
+            ? "Disable Alt Text Analysis"
+            : "Enable Alt Text Analysis"}
+        </Button>
+        {isAltEnabled && (
+          <div className="text-sm mt-2">
+            Found {altStats.invalid} issues in {altStats.total} images
           </div>
         )}
       </div>
@@ -158,7 +220,11 @@ export function Werkzeug() {
                 type: "TOOL_STATE_CHANGE",
                 timestamp: Date.now(),
                 data: {
-                  tool: isHeadingEnabled ? "headings" : "links",
+                  tool: isHeadingEnabled
+                    ? "headings"
+                    : isLinkEnabled
+                      ? "links"
+                      : "alt",
                   enabled: false
                 }
               })
@@ -170,6 +236,10 @@ export function Werkzeug() {
               if (isLinkEnabled) {
                 setIsLinkEnabled(false)
                 setLinkStats({ total: 0, invalid: 0 })
+              }
+              if (isAltEnabled) {
+                setIsAltEnabled(false)
+                setAltStats({ total: 0, invalid: 0 })
               }
             }}>
             Stop Analysis
