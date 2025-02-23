@@ -94,20 +94,31 @@ export class ACTTestRunner {
       totalTests += elementsWithSelectors.length * suite.testCases.length
 
       for (const { element, selector } of elementsWithSelectors) {
+        let elementHasFailure = false
+
         for (const testCase of suite.testCases) {
           const { passed, message } = testCase.evaluate(element)
-          if (!passed) failedTests++
+          if (!passed) {
+            failedTests++
+            elementHasFailure = true
+          }
 
-          // Highlight the element with suite name prefix
-          eventBus.publish({
-            type: "HIGHLIGHT",
-            timestamp: Date.now(),
-            data: {
-              selector,
-              message: `${suite.name}: ${message}`,
-              isValid: passed
-            }
-          })
+          // Only publish highlight if this is the first failure or if all tests passed
+          if (
+            (passed && !elementHasFailure) ||
+            (!passed && elementHasFailure)
+          ) {
+            // Highlight the element with suite name prefix
+            eventBus.publish({
+              type: "HIGHLIGHT",
+              timestamp: Date.now(),
+              data: {
+                selector,
+                message: `${suite.name}: ${message}`,
+                isValid: passed
+              }
+            })
+          }
 
           if (!passed) {
             results.push({
