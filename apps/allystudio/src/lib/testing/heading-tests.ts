@@ -112,6 +112,111 @@ export const headingTests = suite(
           severity: "High"
         }
       )
+
+      test(
+        "Only one h1 heading per page",
+        (element: HTMLElement) => {
+          const level = element.getAttribute("aria-level")
+            ? parseInt(element.getAttribute("aria-level")!, 10)
+            : parseInt(element.tagName.charAt(1), 10)
+
+          if (level !== 1) {
+            return {
+              passed: true,
+              message: "Not an h1 heading"
+            }
+          }
+
+          // Find all h1 headings
+          const h1Headings = Array.from(
+            document.querySelectorAll("h1, [role='heading'][aria-level='1']")
+          )
+
+          return {
+            passed: h1Headings.length === 1,
+            message:
+              h1Headings.length === 1
+                ? "Page has exactly one h1 heading"
+                : `Page has ${h1Headings.length} h1 headings - should have exactly one`
+          }
+        },
+        {
+          description: "Each page should have exactly one h1 heading",
+          severity: "High"
+        }
+      )
+    })
+
+    describe("Heading Content", () => {
+      test(
+        "Heading length is appropriate",
+        (element: HTMLElement) => {
+          const accessibleName = getAccessibleName(element)
+          const words = accessibleName.trim().split(/\s+/).length
+
+          // Check if heading is too long (more than 20 words)
+          if (words > 20) {
+            return {
+              passed: false,
+              message: `Heading is too long (${words} words) - consider breaking it up`
+            }
+          }
+
+          // Check if heading is too short (less than 2 characters)
+          if (accessibleName.length < 2) {
+            return {
+              passed: false,
+              message: "Heading is too short - should be meaningful"
+            }
+          }
+
+          return {
+            passed: true,
+            message: "Heading length is appropriate"
+          }
+        },
+        {
+          description: "Headings should be concise and meaningful",
+          severity: "Medium"
+        }
+      )
+
+      test(
+        "No duplicate headings at same level",
+        (element: HTMLElement) => {
+          const currentLevel = element.getAttribute("aria-level")
+            ? parseInt(element.getAttribute("aria-level")!, 10)
+            : parseInt(element.tagName.charAt(1), 10)
+
+          const currentText = getAccessibleName(element).toLowerCase().trim()
+
+          // Find all headings at the same level
+          const sameLevel = Array.from(
+            document.querySelectorAll(
+              `h${currentLevel}, [role='heading'][aria-level='${currentLevel}']`
+            )
+          ) as HTMLElement[]
+
+          // Check for duplicates
+          const duplicates = sameLevel.filter(
+            (h) =>
+              h !== element &&
+              getAccessibleName(h).toLowerCase().trim() === currentText
+          )
+
+          return {
+            passed: duplicates.length === 0,
+            message:
+              duplicates.length === 0
+                ? "Heading text is unique at this level"
+                : `Duplicate heading text "${currentText}" found at level ${currentLevel}`
+          }
+        },
+        {
+          description: "Headings at the same level should have unique text",
+          severity: "Medium"
+        }
+      )
     })
   }
 )
