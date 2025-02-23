@@ -1,22 +1,22 @@
-import * as React from "react"
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-} from "@workspace/ui/components/command"
-import { Input } from "@workspace/ui/components/input"
+  CommandList
+} from "@/components/ui/command"
+import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
-} from "@workspace/ui/components/popover"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { cn } from "@workspace/ui/lib/utils"
+  PopoverTrigger
+} from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronsUpDown } from "lucide-react"
+import * as React from "react"
 import * as RPNInput from "react-phone-number-input"
 import flags from "react-phone-number-input/flags"
 
@@ -81,7 +81,7 @@ const CountrySelect = ({
   disabled,
   value: selectedCountry,
   options: countryList,
-  onChange,
+  onChange
 }: CountrySelectProps) => {
   return (
     <Popover>
@@ -90,8 +90,7 @@ const CountrySelect = ({
           type="button"
           variant="outline"
           className="flex gap-1 rounded-e-none rounded-s-lg border-r-0 px-3 focus:z-10"
-          disabled={disabled}
-        >
+          disabled={disabled}>
           <FlagComponent
             country={selectedCountry}
             countryName={selectedCountry}
@@ -140,7 +139,7 @@ const CountrySelectOption = ({
   country,
   countryName,
   selectedCountry,
-  onChange,
+  onChange
 }: CountrySelectOptionProps) => {
   return (
     <CommandItem className="gap-2" onSelect={() => onChange(country)}>

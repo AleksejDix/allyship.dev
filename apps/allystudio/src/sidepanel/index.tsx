@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { Werkzeug } from "@/components/werkzeug"
 import type { Session } from "@supabase/supabase-js"
 import { useEffect, useRef, useState } from "react"
 
@@ -54,7 +54,7 @@ function IndexSidePanel() {
     try {
       await chrome.scripting.executeScript({
         target: { tabId },
-        files: ["contents/heading-analysis.js"]
+        files: ["contents/heading-order.js"]
       })
       injectedTabsRef.current.add(tabId)
       console.log("Content script injected in tab:", tabId)
@@ -237,6 +237,7 @@ function IndexSidePanel() {
     <Layout>
       <div className="flex h-screen flex-col">
         <div className="flex flex-1 flex-col">
+          <Werkzeug />
           <Toolbar
             onToolChange={setActiveTool}
             currentFile={currentTitle}

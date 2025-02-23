@@ -2,7 +2,14 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["cuid", "dbgenerated", "supabase", "Timestamptz"],
+  "cSpell.words": [
+    "cuid",
+    "dbgenerated",
+    "supabase",
+    "Timestamptz",
+    "uidotdev",
+    "usehooks"
+  ],
   "deno.enablePaths": ["supabase/functions"],
   "deno.lint": true,
   "deno.unstable": [

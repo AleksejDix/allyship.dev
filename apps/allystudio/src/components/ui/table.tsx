@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
+import { cn } from "@/lib/utils"
 import * as React from "react"
-import { cn } from "@workspace/ui/lib/utils"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -113,5 +113,5 @@ export {
   TableHead,
   TableRow,
   TableCell,
-  TableCaption,
+  TableCaption
 }

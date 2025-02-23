@@ -1,5 +1,6 @@
-import React, { ComponentPropsWithoutRef, CSSProperties } from "react"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "@/lib/utils"
+import type { ComponentPropsWithoutRef, CSSProperties } from "react"
+import * as React from "react"
 
 interface RippleProps extends ComponentPropsWithoutRef<"div"> {
   mainCircleSize?: number
@@ -20,8 +21,7 @@ export const Ripple = React.memo(function Ripple({
         "pointer-events-none absolute inset-0 select-none [mask-image:linear-gradient(to_bottom,white,transparent)]",
         className
       )}
-      {...props}
-    >
+      {...props}>
       {Array.from({ length: numCircles }, (_, i) => {
         const size = mainCircleSize + i * 70
         const opacity = mainCircleOpacity - i * 0.03
@@ -44,7 +44,7 @@ export const Ripple = React.memo(function Ripple({
                 borderColor: `hsl(var(--foreground), ${borderOpacity / 100})`,
                 top: "50%",
                 left: "50%",
-                transform: "translate(-50%, -50%) scale(1)",
+                transform: "translate(-50%, -50%) scale(1)"
               } as CSSProperties
             }
           />

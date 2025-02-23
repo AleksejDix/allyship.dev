@@ -9,6 +9,13 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
 
   await supabase.auth.setSession(req.body)
 
+  // Send the focus change data to all extension views
+  chrome.runtime.sendMessage({
+    type: "FOCUS_CHANGE",
+    data: req.body
+  })
+
+  // Respond to confirm receipt
   res.send({ success: true })
 }
 
