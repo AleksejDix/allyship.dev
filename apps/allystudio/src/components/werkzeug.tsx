@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { eventBus } from "@/lib/events/event-bus"
 import type { HeadingAnalysisCompleteEvent } from "@/lib/events/types"
 import { useEffect, useState } from "react"
@@ -51,13 +52,12 @@ export function Werkzeug() {
 
   return (
     <div className="p-4 space-y-4">
-      <button
+      <Button
         onClick={toggleTest}
-        className={`px-4 py-2 rounded ${
-          isEnabled ? "bg-blue-500 text-white" : "bg-gray-200"
-        }`}>
+        aria-pressed={isEnabled}
+        variant={isEnabled ? "secondary" : "outline"}>
         {isEnabled ? "Disable Heading Analysis" : "Enable Heading Analysis"}
-      </button>
+      </Button>
       {isEnabled && (
         <div className="text-sm">
           Found {stats.invalid} issues in {stats.total} headings
