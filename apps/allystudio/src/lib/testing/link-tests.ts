@@ -1,28 +1,28 @@
-import type { ACTTestSuite } from "./act-test-runner"
-import { getAccessibleName, getUniqueSelector } from "./act-test-runner"
+import { getAccessibleName } from "./act-test-runner"
+import { describe, suite, test } from "./act-test-suite"
 
-export const linkTests: ACTTestSuite = {
-  name: "Link Accessibility",
-  description: "Tests for proper link accessibility",
-  applicability: "a, [role='link']",
-  testCases: [
-    {
-      id: "link-accessible-name",
-      description: "Links must have an accessible name",
-      evaluate: (element: HTMLElement) => {
-        const accessibleName = getAccessibleName(element)
-        return {
-          passed: !!accessibleName,
-          message: accessibleName
-            ? `Link has accessible name: "${accessibleName}"`
-            : "Link has no accessible name"
-        }
+export const linkTests = suite("Link Accessibility", "a, [role='link']", () => {
+  test(
+    "Link must have accessible name",
+    (element: HTMLElement) => {
+      const accessibleName = getAccessibleName(element)
+      return {
+        passed: !!accessibleName,
+        message: accessibleName
+          ? `Link has accessible name: "${accessibleName}"`
+          : "Link has no accessible name"
       }
     },
     {
-      id: "link-unique-accessible-name",
-      description: "Links with same accessible name must have same destination",
-      evaluate: (element: HTMLElement) => {
+      description: "Links must have an accessible name",
+      severity: "High"
+    }
+  )
+
+  describe("Link Text", () => {
+    test(
+      "Links with same text must have same destination",
+      (element: HTMLElement) => {
         const accessibleName = getAccessibleName(element)
         if (!accessibleName) {
           return {
@@ -59,12 +59,19 @@ export const linkTests: ACTTestSuite = {
             ? `Links with text "${accessibleName}" go to different URLs`
             : `Links with text "${accessibleName}" go to same URL`
         }
+      },
+      {
+        description:
+          "Links with same accessible name must have same destination",
+        severity: "High"
       }
-    },
-    {
-      id: "link-new-window",
-      description: "Links that open in new window must indicate this",
-      evaluate: (element: HTMLElement) => {
+    )
+  })
+
+  describe("New Window Behavior", () => {
+    test(
+      "New window must be indicated",
+      (element: HTMLElement) => {
         const target = element.getAttribute("target")
         if (target !== "_blank") {
           return {
@@ -87,7 +94,11 @@ export const linkTests: ACTTestSuite = {
             ? `Link "${accessibleName}" properly indicates it opens in new window`
             : `Link "${accessibleName}" opens in new window without indication`
         }
+      },
+      {
+        description: "Links that open in new window must indicate this",
+        severity: "High"
       }
-    }
-  ]
-}
+    )
+  })
+})
