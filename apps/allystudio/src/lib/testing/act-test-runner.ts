@@ -1,6 +1,7 @@
 import { eventBus } from "@/lib/events/event-bus"
 
 import type { ACTSuite, TestResult } from "./act-test-suite"
+import { TestLogger } from "./test-logger"
 
 export interface ACTTestResult {
   id: string
@@ -37,6 +38,11 @@ export type TestUpdate = ACTTestResult | TestProgress | TestComplete
 export class ACTTestRunner {
   private suites: ACTSuite[] = []
   private abortController: AbortController | null = null
+  private logger: TestLogger
+
+  constructor() {
+    this.logger = new TestLogger()
+  }
 
   clearSuites() {
     this.suites = []
@@ -95,6 +101,11 @@ export class ACTTestRunner {
           clear: true
         }
       })
+
+      // Log suite start
+      this.logger.logSuiteStart(
+        type === "headings" ? "Heading Structure" : "Link Accessibility"
+      )
 
       // First calculate total tests
       for (const suite of this.suites) {
@@ -199,30 +210,31 @@ export class ACTTestRunner {
             completedTests++
             const { passed, message } = testResult
 
+            const fullTestResult: ACTTestResult = {
+              id: testCase.id,
+              selector,
+              passed,
+              message: `${suite.name}: ${message}`,
+              severity: testCase.meta?.severity || "High",
+              element: {
+                tagName: element.tagName,
+                textContent: element.textContent || "",
+                xpath: element.id ? `//*[@id="${element.id}"]` : ""
+              }
+            }
+
             if (!passed) {
               failedTests++
               elementResult.failures.push(`${suite.name}: ${message}`)
-
-              const testResult: ACTTestResult = {
-                id: testCase.id,
-                selector,
-                passed,
-                message: `${suite.name}: ${message}`,
-                severity: testCase.meta?.severity || "High",
-                element: {
-                  tagName: element.tagName,
-                  textContent: element.textContent || "",
-                  xpath: element.id ? `//*[@id="${element.id}"]` : ""
-                }
-              }
-
-              results.push(testResult)
-              yield testResult
             } else {
               elementResult.successes.push(`${suite.name}: ${message}`)
             }
 
-            // Yield progress update
+            // Add to results and yield
+            results.push(fullTestResult)
+            yield fullTestResult
+
+            // Yield progress update only
             yield {
               type: "progress",
               total: totalTests,
@@ -251,6 +263,12 @@ export class ACTTestRunner {
       }
 
       if (!signal.aborted) {
+        // Log suite completion
+        this.logger.logSuiteEnd({
+          total: totalTests,
+          failed: failedTests
+        })
+
         // Publish analysis complete event
         eventBus.publish({
           type:
@@ -259,7 +277,7 @@ export class ACTTestRunner {
               : "LINK_ANALYSIS_COMPLETE",
           timestamp: Date.now(),
           data: {
-            issues: results,
+            issues: results.filter((r) => !r.passed), // Only send failed results
             stats: {
               total: totalTests,
               invalid: failedTests
@@ -270,7 +288,7 @@ export class ACTTestRunner {
         // Yield final complete update
         yield {
           type: "complete",
-          results,
+          results: results.filter((r) => !r.passed), // Only send failed results
           stats: {
             total: totalTests,
             failed: failedTests

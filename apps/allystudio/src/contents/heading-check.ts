@@ -2,6 +2,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import { ACTTestRunner } from "@/lib/testing/act-test-runner"
 import type { TestUpdate } from "@/lib/testing/act-test-runner"
 import { headingTests } from "@/lib/testing/heading-tests"
+import { TestLogger } from "@/lib/testing/test-logger"
 import type { PlasmoCSConfig } from "plasmo"
 
 export const config: PlasmoCSConfig = {
@@ -9,6 +10,7 @@ export const config: PlasmoCSConfig = {
 }
 
 const testRunner = new ACTTestRunner()
+const logger = new TestLogger()
 
 const analyzeHeadings = async () => {
   // Add suite fresh each time to ensure we're using the latest test definitions
@@ -37,8 +39,8 @@ const analyzeHeadings = async () => {
           break
       }
     } else {
-      // Individual test result
-      // No need to do anything here as highlights are handled by the test runner
+      // Log individual test result
+      logger.logTestResult(update)
     }
   }
 }
