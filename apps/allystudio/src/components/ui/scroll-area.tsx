@@ -1,8 +1,8 @@
 "use client"
 
-import * as React from "react"
+import { cn } from "@/lib/utils"
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
-import { cn } from "@workspace/ui/lib/utils"
+import * as React from "react"
 
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
@@ -11,8 +11,7 @@ const ScrollArea = React.forwardRef<
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn("relative overflow-hidden", className)}
-    {...props}
-  >
+    {...props}>
     <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
       {children}
     </ScrollAreaPrimitive.Viewport>
@@ -37,8 +36,7 @@ const ScrollBar = React.forwardRef<
         "h-2.5 flex-col border-t border-t-transparent p-[1px]",
       className
     )}
-    {...props}
-  >
+    {...props}>
     <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ))

@@ -1,5 +1,9 @@
 import { supabase } from "@/core/supabase"
 
+import { Storage } from "@plasmohq/storage"
+
+const storage = new Storage()
+
 // Handle browser action click
 chrome.action.onClicked.addListener(async () => {
   // Check if user is already logged in

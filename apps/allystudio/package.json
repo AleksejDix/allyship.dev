@@ -23,6 +23,7 @@
     "setup": "sh scripts/copy-ui.sh"
   },
   "dependencies": {
+    "@uidotdev/usehooks": "2.4.1",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -77,27 +78,15 @@
     "typescript": "5.3.3"
   },
   "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ],
     "permissions": [
       "sidePanel",
-      "tabs",
       "activeTab",
-      "windows",
-      "scripting"
+      "tabs",
+      "scripting",
+      "storage"
     ],
-    "web_accessible_resources": [
-      {
-        "resources": [
-          "options.html",
-          "sidepanel.html",
-          "contents/heading-analysis.js"
-        ],
-        "matches": [
-          "<all_urls>"
-        ]
-      }
+    "host_permissions": [
+      "<all_urls>"
     ]
   }
 }

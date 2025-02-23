@@ -1,6 +1,5 @@
 import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import { createClient } from "@supabase/supabase-js"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { createRoot } from "react-dom/client"
 
