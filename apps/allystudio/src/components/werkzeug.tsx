@@ -27,6 +27,21 @@ export function Werkzeug() {
     return unsubscribe
   }, [])
 
+  const clearHighlights = (tool: "headings" | "links") => {
+    // Clear highlights for specific tool
+    eventBus.publish({
+      type: "HIGHLIGHT",
+      timestamp: Date.now(),
+      data: {
+        selector: "*",
+        message:
+          tool === "headings" ? "Heading Structure" : "Link Accessibility",
+        isValid: true,
+        clear: true
+      }
+    })
+  }
+
   const toggleHeadingTest = async () => {
     const newState = !isHeadingEnabled
     setIsHeadingEnabled(newState)
@@ -35,7 +50,7 @@ export function Werkzeug() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     if (!tab?.id) return
 
-    // Publish tool state change event
+    // First send tool state change event
     eventBus.publish({
       type: "TOOL_STATE_CHANGE",
       timestamp: Date.now(),
@@ -53,6 +68,10 @@ export function Werkzeug() {
         timestamp: Date.now(),
         tabId: tab.id
       })
+    } else {
+      // Clear highlights when disabling
+      clearHighlights("headings")
+      setHeadingStats({ total: 0, invalid: 0 })
     }
   }
 
@@ -64,7 +83,7 @@ export function Werkzeug() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     if (!tab?.id) return
 
-    // Publish tool state change event
+    // First send tool state change event
     eventBus.publish({
       type: "TOOL_STATE_CHANGE",
       timestamp: Date.now(),
@@ -82,6 +101,10 @@ export function Werkzeug() {
         timestamp: Date.now(),
         tabId: tab.id
       })
+    } else {
+      // Clear highlights when disabling
+      clearHighlights("links")
+      setLinkStats({ total: 0, invalid: 0 })
     }
   }
 

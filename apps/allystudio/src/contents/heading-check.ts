@@ -8,9 +8,10 @@ export const config: PlasmoCSConfig = {
 }
 
 const testRunner = new ACTTestRunner()
-testRunner.addSuite(headingTests)
 
 const analyzeHeadings = () => {
+  // Add suite fresh each time to ensure we're using the latest test definitions
+  testRunner.addSuite(headingTests)
   testRunner.runTests("headings")
 }
 

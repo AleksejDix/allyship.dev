@@ -63,13 +63,16 @@ export interface HeadingIssueFoundEvent extends BaseEvent {
 }
 
 // UI Events
+export interface HighlightRequestData {
+  selector: string
+  message: string
+  isValid: boolean
+  clear?: boolean
+}
+
 export interface HeadingHighlightRequestEvent extends BaseEvent {
   type: "HIGHLIGHT"
-  data: {
-    selector: string
-    message: string
-    isValid: boolean
-  }
+  data: HighlightRequestData
 }
 
 export interface HeadingNavigateRequestEvent extends BaseEvent {

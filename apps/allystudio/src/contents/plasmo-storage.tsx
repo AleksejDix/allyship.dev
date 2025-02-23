@@ -17,6 +17,13 @@ interface HighlightData {
   styles?: HighlightStyles
 }
 
+interface HighlightEvent {
+  selector: string
+  message: string
+  isValid: boolean
+  clear?: boolean
+}
+
 const DEFAULT_HIGHLIGHT_STYLES = {
   valid: {
     border: "#16A34A",
@@ -57,6 +64,21 @@ const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<HighlightData[]>([])
   const ticking = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Helper to validate selector and element
+  const validateHighlight = (selector: string): HTMLElement | null => {
+    try {
+      if (!selector || selector === "*") return null
+      const element = document.querySelector(selector) as HTMLElement
+      if (!element || !element.isConnected) return null
+      const rect = element.getBoundingClientRect()
+      if (!rect || rect.width === 0 || rect.height === 0) return null
+      return element
+    } catch (error) {
+      console.error("Invalid selector:", selector, error)
+      return null
+    }
+  }
 
   // Handle scroll and resize updates
   useEffect(() => {
@@ -123,33 +145,80 @@ const PlasmoOverlay = () => {
     const unsubscribe = eventBus.subscribe((event) => {
       if (event.type === "HIGHLIGHT") {
         setHighlights((current) => {
-          const highlightEvent = event as HeadingHighlightRequestEvent
-          const { selector, message, isValid } = highlightEvent.data
-          const element = document.querySelector(selector) as HTMLElement
+          const highlightEvent = event.data as HighlightEvent
+
+          // Clear highlights based on message prefix if clear flag is set
+          if (highlightEvent.clear) {
+            if (highlightEvent.message.startsWith("Heading Structure")) {
+              return current.filter(
+                (h) => !h.message.startsWith("Heading Structure")
+              )
+            } else if (
+              highlightEvent.message.startsWith("Link Accessibility")
+            ) {
+              return current.filter(
+                (h) => !h.message.startsWith("Link Accessibility")
+              )
+            }
+            return []
+          }
+
+          const { selector, message, isValid } = highlightEvent
+          const element = validateHighlight(selector)
           if (!element) return current
 
           const styles = isValid
             ? DEFAULT_HIGHLIGHT_STYLES.valid
             : DEFAULT_HIGHLIGHT_STYLES.invalid
 
-          return current.some((h) => h.selector === selector)
-            ? current.map((h) =>
-                h.selector === selector
-                  ? { selector, message, element, isValid, styles }
-                  : h
-              )
-            : [...current, { selector, message, element, isValid, styles }]
+          // Create new highlight data
+          const newHighlight = { selector, message, element, isValid, styles }
+
+          // If the selector already exists, replace it
+          const existingIndex = current.findIndex(
+            (h) => h.selector === selector
+          )
+          if (existingIndex !== -1) {
+            const newHighlights = [...current]
+            newHighlights[existingIndex] = newHighlight
+            return newHighlights
+          }
+
+          // Otherwise add new highlight
+          return [...current, newHighlight]
         })
-      } else if (
-        event.type === "TOOL_STATE_CHANGE" &&
-        event.data.tool === "headings" &&
-        !event.data.enabled
-      ) {
-        setHighlights([])
+      } else if (event.type === "TOOL_STATE_CHANGE") {
+        const { tool, enabled } = event.data
+        if (!enabled) {
+          // Only clear highlights for the specific tool being disabled
+          if (tool === "headings") {
+            setHighlights((current) =>
+              current.filter((h) => !h.message.startsWith("Heading Structure"))
+            )
+          } else if (tool === "links") {
+            setHighlights((current) =>
+              current.filter((h) => !h.message.startsWith("Link Accessibility"))
+            )
+          }
+        }
       }
     })
 
     return unsubscribe
+  }, [])
+
+  // Clean up stale highlights periodically
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      setHighlights((current) =>
+        current.filter((h) => {
+          const element = validateHighlight(h.selector)
+          return element !== null
+        })
+      )
+    }, 1000)
+
+    return () => clearInterval(cleanupInterval)
   }, [])
 
   const highlightElements = useMemo(() => {
