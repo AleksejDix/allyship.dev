@@ -11,6 +11,7 @@ export function Werkzeug() {
   const [isLinkEnabled, setIsLinkEnabled] = useState(false)
   const [headingStats, setHeadingStats] = useState({ total: 0, invalid: 0 })
   const [linkStats, setLinkStats] = useState({ total: 0, invalid: 0 })
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
     // Subscribe to analysis complete events
@@ -18,9 +19,11 @@ export function Werkzeug() {
       if (event.type === "HEADING_ANALYSIS_COMPLETE") {
         const analysisEvent = event as HeadingAnalysisCompleteEvent
         setHeadingStats(analysisEvent.data.stats)
+        setIsAnalyzing(false)
       } else if (event.type === "LINK_ANALYSIS_COMPLETE") {
         const analysisEvent = event as LinkAnalysisCompleteEvent
         setLinkStats(analysisEvent.data.stats)
+        setIsAnalyzing(false)
       }
     })
 
@@ -63,6 +66,7 @@ export function Werkzeug() {
 
     if (newState) {
       // Request initial analysis
+      setIsAnalyzing(true)
       eventBus.publish({
         type: "HEADING_ANALYSIS_REQUEST",
         timestamp: Date.now(),
@@ -96,6 +100,7 @@ export function Werkzeug() {
 
     if (newState) {
       // Request initial analysis
+      setIsAnalyzing(true)
       eventBus.publish({
         type: "LINK_ANALYSIS_REQUEST",
         timestamp: Date.now(),
@@ -114,7 +119,8 @@ export function Werkzeug() {
         <Button
           onClick={toggleHeadingTest}
           aria-pressed={isHeadingEnabled}
-          variant={isHeadingEnabled ? "secondary" : "outline"}>
+          variant={isHeadingEnabled ? "secondary" : "outline"}
+          disabled={isAnalyzing && !isHeadingEnabled}>
           {isHeadingEnabled
             ? "Disable Heading Analysis"
             : "Enable Heading Analysis"}
@@ -130,7 +136,8 @@ export function Werkzeug() {
         <Button
           onClick={toggleLinkTest}
           aria-pressed={isLinkEnabled}
-          variant={isLinkEnabled ? "secondary" : "outline"}>
+          variant={isLinkEnabled ? "secondary" : "outline"}
+          disabled={isAnalyzing && !isLinkEnabled}>
           {isLinkEnabled ? "Disable Link Analysis" : "Enable Link Analysis"}
         </Button>
         {isLinkEnabled && (
@@ -139,6 +146,36 @@ export function Werkzeug() {
           </div>
         )}
       </div>
+
+      {isAnalyzing && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Analyzing...</span>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              eventBus.publish({
+                type: "TOOL_STATE_CHANGE",
+                timestamp: Date.now(),
+                data: {
+                  tool: isHeadingEnabled ? "headings" : "links",
+                  enabled: false
+                }
+              })
+              setIsAnalyzing(false)
+              if (isHeadingEnabled) {
+                setIsHeadingEnabled(false)
+                setHeadingStats({ total: 0, invalid: 0 })
+              }
+              if (isLinkEnabled) {
+                setIsLinkEnabled(false)
+                setLinkStats({ total: 0, invalid: 0 })
+              }
+            }}>
+            Stop Analysis
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

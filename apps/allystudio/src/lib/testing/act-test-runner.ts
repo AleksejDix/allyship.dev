@@ -29,12 +29,14 @@ export interface TestComplete {
     total: number
     failed: number
   }
+  cancelled?: boolean
 }
 
 export type TestUpdate = ACTTestResult | TestProgress | TestComplete
 
 export class ACTTestRunner {
   private suites: ACTSuite[] = []
+  private abortController: AbortController | null = null
 
   clearSuites() {
     this.suites = []
@@ -44,6 +46,13 @@ export class ACTTestRunner {
     // Clear existing suites of the same type to prevent duplicates
     this.suites = this.suites.filter((s) => s.name !== suite.name)
     this.suites.push(suite)
+  }
+
+  stopTests() {
+    if (this.abortController) {
+      this.abortController.abort()
+      this.abortController = null
+    }
   }
 
   private getValidSelector(element: HTMLElement): string | null {
@@ -64,172 +73,239 @@ export class ACTTestRunner {
   async *runTests(
     type: "headings" | "links"
   ): AsyncGenerator<TestUpdate, void, unknown> {
+    // Create new abort controller for this test run
+    this.abortController = new AbortController()
+    const signal = this.abortController.signal
+
     const results: ACTTestResult[] = []
     let totalTests = 0
     let completedTests = 0
     let failedTests = 0
 
-    // Clear existing highlights before running tests
-    eventBus.publish({
-      type: "HIGHLIGHT",
-      timestamp: Date.now(),
-      data: {
-        selector: "*",
-        message:
-          type === "headings" ? "Heading Structure" : "Link Accessibility",
-        isValid: true,
-        clear: true
-      }
-    })
-
-    // First calculate total tests
-    for (const suite of this.suites) {
-      const elements = Array.from(
-        document.querySelectorAll(suite.applicability)
-      ) as HTMLElement[]
-      const validElements = elements.filter(
-        (el) => this.getValidSelector(el) !== null
-      )
-      totalTests += validElements.length * suite.testCases.length
-    }
-
-    // Yield initial progress
-    yield {
-      type: "progress",
-      total: totalTests,
-      completed: 0,
-      failed: 0
-    }
-
-    // Keep track of element results to aggregate messages
-    const elementResults = new Map<
-      string,
-      {
-        failures: string[]
-        successes: string[]
-        selector: string
-        element: HTMLElement
-      }
-    >()
-
-    for (const suite of this.suites) {
-      const elements = Array.from(
-        document.querySelectorAll(suite.applicability)
-      ) as HTMLElement[]
-
-      // Filter out elements that we can't generate valid selectors for
-      const elementsWithSelectors = elements
-        .map((element) => ({
-          element,
-          selector: this.getValidSelector(element)
-        }))
-        .filter(
-          (item): item is { element: HTMLElement; selector: string } =>
-            item.selector !== null
-        )
-
-      for (const { element, selector } of elementsWithSelectors) {
-        // Initialize or get element results
-        if (!elementResults.has(selector)) {
-          elementResults.set(selector, {
-            failures: [],
-            successes: [],
-            selector,
-            element
-          })
+    try {
+      // Clear existing highlights before running tests
+      eventBus.publish({
+        type: "HIGHLIGHT",
+        timestamp: Date.now(),
+        data: {
+          selector: "*",
+          message:
+            type === "headings" ? "Heading Structure" : "Link Accessibility",
+          isValid: true,
+          clear: true
         }
-        const elementResult = elementResults.get(selector)!
+      })
 
-        for (const testCase of suite.testCases) {
-          // Handle both sync and async test evaluation
-          let testResult: TestResult
-          try {
-            const result = await Promise.resolve(testCase.evaluate(element))
-            testResult = result
-          } catch (error) {
-            console.error(`Test "${testCase.name}" failed with error:`, error)
-            testResult = {
-              passed: false,
-              message: `Test failed with error: ${error instanceof Error ? error.message : String(error)}`
-            }
+      // First calculate total tests
+      for (const suite of this.suites) {
+        if (signal.aborted) {
+          throw new Error("Test run cancelled")
+        }
+
+        const elements = Array.from(
+          document.querySelectorAll(suite.applicability)
+        ) as HTMLElement[]
+        const validElements = elements.filter(
+          (el) => this.getValidSelector(el) !== null
+        )
+        totalTests += validElements.length * suite.testCases.length
+      }
+
+      // Yield initial progress
+      yield {
+        type: "progress",
+        total: totalTests,
+        completed: 0,
+        failed: 0
+      }
+
+      // Keep track of element results to aggregate messages
+      const elementResults = new Map<
+        string,
+        {
+          failures: string[]
+          successes: string[]
+          selector: string
+          element: HTMLElement
+        }
+      >()
+
+      for (const suite of this.suites) {
+        if (signal.aborted) {
+          throw new Error("Test run cancelled")
+        }
+
+        const elements = Array.from(
+          document.querySelectorAll(suite.applicability)
+        ) as HTMLElement[]
+
+        // Filter out elements that we can't generate valid selectors for
+        const elementsWithSelectors = elements
+          .map((element) => ({
+            element,
+            selector: this.getValidSelector(element)
+          }))
+          .filter(
+            (item): item is { element: HTMLElement; selector: string } =>
+              item.selector !== null
+          )
+
+        for (const { element, selector } of elementsWithSelectors) {
+          if (signal.aborted) {
+            throw new Error("Test run cancelled")
           }
 
-          completedTests++
-          const { passed, message } = testResult
-
-          if (!passed) {
-            failedTests++
-            elementResult.failures.push(`${suite.name}: ${message}`)
-
-            const testResult: ACTTestResult = {
-              id: testCase.id,
+          // Initialize or get element results
+          if (!elementResults.has(selector)) {
+            elementResults.set(selector, {
+              failures: [],
+              successes: [],
               selector,
-              passed,
-              message: `${suite.name}: ${message}`,
-              severity: testCase.meta?.severity || "High",
-              element: {
-                tagName: element.tagName,
-                textContent: element.textContent || "",
-                xpath: element.id ? `//*[@id="${element.id}"]` : ""
+              element
+            })
+          }
+          const elementResult = elementResults.get(selector)!
+
+          for (const testCase of suite.testCases) {
+            if (signal.aborted) {
+              throw new Error("Test run cancelled")
+            }
+
+            // Handle both sync and async test evaluation
+            let testResult: TestResult
+            try {
+              if (!signal) {
+                throw new Error("Test execution was cancelled")
+              }
+              const result = await Promise.resolve(
+                testCase.evaluate(element, signal)
+              )
+              testResult = result
+            } catch (error) {
+              if (
+                error instanceof Error &&
+                (error.message === "Test cancelled" ||
+                  error.message === "Test execution was cancelled")
+              ) {
+                throw error
+              }
+              console.error(`Test "${testCase.name}" failed with error:`, error)
+              testResult = {
+                passed: false,
+                message: `Test failed with error: ${error instanceof Error ? error.message : String(error)}`
               }
             }
 
-            results.push(testResult)
-            yield testResult
-          } else {
-            elementResult.successes.push(`${suite.name}: ${message}`)
+            completedTests++
+            const { passed, message } = testResult
+
+            if (!passed) {
+              failedTests++
+              elementResult.failures.push(`${suite.name}: ${message}`)
+
+              const testResult: ACTTestResult = {
+                id: testCase.id,
+                selector,
+                passed,
+                message: `${suite.name}: ${message}`,
+                severity: testCase.meta?.severity || "High",
+                element: {
+                  tagName: element.tagName,
+                  textContent: element.textContent || "",
+                  xpath: element.id ? `//*[@id="${element.id}"]` : ""
+                }
+              }
+
+              results.push(testResult)
+              yield testResult
+            } else {
+              elementResult.successes.push(`${suite.name}: ${message}`)
+            }
+
+            // Yield progress update
+            yield {
+              type: "progress",
+              total: totalTests,
+              completed: completedTests,
+              failed: failedTests
+            }
           }
 
-          // Yield progress update
-          yield {
-            type: "progress",
+          // After all tests for this element, publish highlight with aggregated messages
+          if (!signal.aborted) {
+            const allMessages = [
+              ...elementResult.failures,
+              ...elementResult.successes
+            ]
+            eventBus.publish({
+              type: "HIGHLIGHT",
+              timestamp: Date.now(),
+              data: {
+                selector,
+                message: allMessages.join("\n"),
+                isValid: elementResult.failures.length === 0
+              }
+            })
+          }
+        }
+      }
+
+      if (!signal.aborted) {
+        // Publish analysis complete event
+        eventBus.publish({
+          type:
+            type === "headings"
+              ? "HEADING_ANALYSIS_COMPLETE"
+              : "LINK_ANALYSIS_COMPLETE",
+          timestamp: Date.now(),
+          data: {
+            issues: results,
+            stats: {
+              total: totalTests,
+              invalid: failedTests
+            }
+          }
+        })
+
+        // Yield final complete update
+        yield {
+          type: "complete",
+          results,
+          stats: {
             total: totalTests,
-            completed: completedTests,
             failed: failedTests
           }
         }
-
-        // After all tests for this element, publish highlight with aggregated messages
-        const allMessages = [
-          ...elementResult.failures,
-          ...elementResult.successes
-        ]
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === "Test cancelled") {
+        // Clean up on cancellation
         eventBus.publish({
           type: "HIGHLIGHT",
           timestamp: Date.now(),
           data: {
-            selector,
-            message: allMessages.join("\n"),
-            isValid: elementResult.failures.length === 0
+            selector: "*",
+            message: "",
+            isValid: true,
+            clear: true
           }
         })
-      }
-    }
 
-    // Publish analysis complete event
-    eventBus.publish({
-      type:
-        type === "headings"
-          ? "HEADING_ANALYSIS_COMPLETE"
-          : "LINK_ANALYSIS_COMPLETE",
-      timestamp: Date.now(),
-      data: {
-        issues: results,
-        stats: {
-          total: totalTests,
-          invalid: failedTests
+        // Send cancelled complete event
+        yield {
+          type: "complete",
+          results,
+          stats: {
+            total: totalTests,
+            failed: failedTests
+          },
+          cancelled: true
         }
+      } else {
+        throw error
       }
-    })
-
-    // Yield final complete update
-    yield {
-      type: "complete",
-      results,
-      stats: {
-        total: totalTests,
-        failed: failedTests
-      }
+    } finally {
+      this.abortController = null
     }
   }
 }

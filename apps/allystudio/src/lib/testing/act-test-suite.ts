@@ -3,7 +3,10 @@ export interface TestResult {
   message: string
 }
 
-type TestEvaluator = (element: HTMLElement) => TestResult | Promise<TestResult>
+type TestEvaluator = (
+  element: HTMLElement,
+  signal: AbortSignal
+) => TestResult | Promise<TestResult>
 
 export interface ACTTest {
   name: string
@@ -88,7 +91,12 @@ export function test(
   context.currentSuite.testCases.push({
     id: `test-${context.currentTestId}`,
     name,
-    evaluate,
+    evaluate: async (element: HTMLElement, signal: AbortSignal) => {
+      if (!signal) {
+        throw new Error("Test execution was cancelled")
+      }
+      return evaluate(element, signal)
+    },
     meta
   })
 }
