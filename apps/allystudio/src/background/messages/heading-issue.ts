@@ -5,23 +5,29 @@ import { storage } from "@/storage"
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
-  console.log("📌 Received new issues from content script:", req.body)
+  if (req.body.type === "HEADING_DATA_UPDATE") {
+    const { overlayData, issues } = req.body.data
 
-  const currentUrl = req.sender?.url
-  const issues = req.body
+    // Broadcast updates to all components
+    chrome.runtime.sendMessage({
+      type: "HEADING_DATA_UPDATE",
+      data: { overlayData, issues }
+    })
 
-  if (!issues || !currentUrl) {
-    console.warn("⚠️ Missing issues or URL. Skipping storage.")
-    return res.send({ success: false })
+    // Also send to content scripts in active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+    if (tab?.id) {
+      chrome.tabs.sendMessage(tab.id, {
+        type: "HEADING_DATA_UPDATE",
+        data: { overlayData, issues }
+      })
+    }
+
+    res.send({ success: true })
+    return
   }
 
-  // ✅ Store issues locally in Plasmo Storage
-  await storage.set("heading_issues", issues)
-
-  // ✅ Notify the sidebar & overlay to update
-  chrome.runtime.sendMessage({ type: "new-issues", body: issues })
-
-  res.send({ success: true })
+  res.send({ success: false, error: "Unknown message type" })
 }
 
 export default handler

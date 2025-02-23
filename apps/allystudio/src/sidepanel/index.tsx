@@ -16,6 +16,11 @@ import {
   getWebsiteForUrl
 } from "@/core/pages"
 import { supabase } from "@/core/supabase"
+import { eventBus } from "@/lib/events/event-bus"
+import type {
+  HeadingAnalysisCompleteEvent,
+  HeadingIssue
+} from "@/lib/events/types"
 import type { Database } from "@/types/database"
 
 type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
@@ -33,6 +38,7 @@ function IndexSidePanel() {
   const [websiteId, setWebsiteId] = useState<string | null>(null)
   const injectedTabsRef = useRef<Set<number>>(new Set())
   const lastUrlRef = useRef<string>("")
+  const [headingIssues, setHeadingIssues] = useState<HeadingIssue[]>([])
 
   // Check initial tool state
   useEffect(() => {
@@ -225,6 +231,32 @@ function IndexSidePanel() {
     }
   }
 
+  // Subscribe to heading analysis events
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe((event) => {
+      if (event.type === "HEADING_ANALYSIS_COMPLETE") {
+        const analysisEvent = event as HeadingAnalysisCompleteEvent
+        setHeadingIssues(analysisEvent.data.issues)
+      }
+    })
+
+    return unsubscribe
+  }, [])
+
+  // Function to navigate to issue
+  const navigateToIssue = (xpath: string) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        eventBus.publish({
+          type: "HEADING_NAVIGATE_REQUEST",
+          timestamp: Date.now(),
+          tabId: tabs[0].id,
+          data: { xpath }
+        })
+      }
+    })
+  }
+
   if (isLoading) {
     return <LoadingState />
   }
@@ -249,15 +281,54 @@ function IndexSidePanel() {
           />
           <div className="flex-1 p-4 space-y-4">
             {activeTool === "headings" && (
-              <div className="card p-4 bg-card">
-                <p className="text-sm">
-                  {isActive
-                    ? "Headings are now highlighted on the page. Click again to hide."
-                    : "Click to highlight all headings on the page."}
-                </p>
-              </div>
+              <>
+                <div className="card p-4 bg-card">
+                  <p className="text-sm">
+                    {isActive
+                      ? "Headings are now highlighted on the page. Click again to hide."
+                      : "Click to highlight all headings on the page."}
+                  </p>
+                </div>
+                {headingIssues.length > 0 ? (
+                  <div className="space-y-2">
+                    {headingIssues.map((issue) => (
+                      <div
+                        key={issue.id}
+                        className="card p-4 bg-card hover:bg-card/80 cursor-pointer"
+                        onClick={() =>
+                          issue.element?.xpath &&
+                          navigateToIssue(issue.element.xpath)
+                        }>
+                        <div className="flex items-start gap-2">
+                          <span
+                            className={`px-2 py-1 text-xs rounded ${
+                              issue.severity === "Critical"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}>
+                            {issue.severity}
+                          </span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              {issue.message}
+                            </p>
+                            {issue.element?.textContent && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {issue.element.textContent}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground p-4">
+                    No heading issues found
+                  </div>
+                )}
+              </>
             )}
-            <HeadingIssuesPanel />
           </div>
         </div>
         <Header session={session} />

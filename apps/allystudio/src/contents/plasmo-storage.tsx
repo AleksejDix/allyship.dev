@@ -1,51 +1,51 @@
-import { storage } from "@/storage"
+import { eventBus } from "@/lib/events/event-bus"
+import type { HeadingHighlightRequestEvent } from "@/lib/events/types"
 import { useEffect, useState } from "react"
 
-interface Issue {
+interface HighlightData {
   selector: string
   message: string
-  element?: HTMLElement
-}
-
-interface IssueWithElement extends Issue {
   element: HTMLElement
 }
 
 export default function PlasmoContent() {
-  const [issues, setIssues] = useState<IssueWithElement[]>([])
+  const [highlights, setHighlights] = useState<HighlightData[]>([])
 
   useEffect(() => {
-    const updateOverlay = async ({ newValue }: { newValue: Issue[] }) => {
-      const storedIssues = newValue || []
-      console.log("🔄 Updating overlay with issues:", storedIssues)
+    const unsubscribe = eventBus.subscribe((event) => {
+      if (event.type === "HEADING_HIGHLIGHT_REQUEST") {
+        const highlightEvent = event as HeadingHighlightRequestEvent
+        const { selector, message } = highlightEvent.data
 
-      // Ensure elements still exist in the DOM and attach element references
-      setIssues(
-        storedIssues
-          .map((issue) => {
-            const element = document.querySelector(
-              issue.selector
-            ) as HTMLElement
-            return element ? { ...issue, element } : null
-          })
-          .filter((issue): issue is IssueWithElement => issue !== null)
-      )
-    }
-
-    // ✅ Watch for storage chang es
-    storage.watch({
-      issues: updateOverlay
+        // Find element and create highlight
+        const element = document.querySelector(selector) as HTMLElement
+        if (element) {
+          setHighlights((current) => [
+            ...current.filter((h) => h.selector !== selector), // Remove existing highlight for this selector
+            { selector, message, element }
+          ])
+        }
+      } else if (
+        event.type === "TOOL_STATE_CHANGE" &&
+        event.data.tool === "headings" &&
+        !event.data.enabled
+      ) {
+        // Clear all highlights when tool is disabled
+        setHighlights([])
+      }
     })
+
+    return unsubscribe
   }, [])
 
   return (
     <>
-      {issues.map(({ element, message }, index) => {
+      {highlights.map(({ element, message, selector }, index) => {
         const rect = element.getBoundingClientRect()
 
         return (
           <div
-            key={index}
+            key={selector}
             style={{
               position: "absolute",
               top: `${rect.top + window.scrollY}px`,
