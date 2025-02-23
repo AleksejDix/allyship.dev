@@ -4,7 +4,10 @@ import { describe, suite, test } from "./act-test-suite"
 export const linkTests = suite("Link Accessibility", "a, [role='link']", () => {
   test(
     "Link must have accessible name",
-    (element: HTMLElement) => {
+    (element: HTMLElement, signal: AbortSignal) => {
+      if (signal.aborted) {
+        throw new Error("Test cancelled")
+      }
       const accessibleName = getAccessibleName(element)
       return {
         passed: !!accessibleName,
@@ -22,7 +25,10 @@ export const linkTests = suite("Link Accessibility", "a, [role='link']", () => {
   describe("Link Text", () => {
     test(
       "Links with same text must have same destination",
-      (element: HTMLElement) => {
+      (element: HTMLElement, signal: AbortSignal) => {
+        if (signal.aborted) {
+          throw new Error("Test cancelled")
+        }
         const accessibleName = getAccessibleName(element)
         if (!accessibleName) {
           return {
@@ -66,53 +72,15 @@ export const linkTests = suite("Link Accessibility", "a, [role='link']", () => {
         severity: "High"
       }
     )
-
-    // Example async test that checks if the link destination is reachable
-    test(
-      "Link destination must be reachable",
-      async (element: HTMLElement) => {
-        if (!(element instanceof HTMLAnchorElement)) {
-          return {
-            passed: true,
-            message: "Element is not an anchor tag"
-          }
-        }
-
-        const href = element.href
-        if (!href || href.startsWith("javascript:") || href === "#") {
-          return {
-            passed: true,
-            message: "Link is not an external URL"
-          }
-        }
-
-        try {
-          const response = await fetch(href, { method: "HEAD" })
-          const isValid = response.ok
-          return {
-            passed: isValid,
-            message: isValid
-              ? `Link destination is reachable: ${href}`
-              : `Link destination returns ${response.status}: ${href}`
-          }
-        } catch (error) {
-          return {
-            passed: false,
-            message: `Failed to reach link destination: ${error instanceof Error ? error.message : String(error)}`
-          }
-        }
-      },
-      {
-        description: "Link destinations should be reachable",
-        severity: "High"
-      }
-    )
   })
 
   describe("New Window Behavior", () => {
     test(
       "New window must be indicated",
-      (element: HTMLElement) => {
+      (element: HTMLElement, signal: AbortSignal) => {
+        if (signal.aborted) {
+          throw new Error("Test cancelled")
+        }
         const target = element.getAttribute("target")
         if (target !== "_blank") {
           return {
