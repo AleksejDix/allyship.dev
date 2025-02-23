@@ -65,6 +65,7 @@ export interface HeadingHighlightRequestEvent extends BaseEvent {
   data: {
     selector: string
     message: string
+    isValid: boolean
   }
 }
 

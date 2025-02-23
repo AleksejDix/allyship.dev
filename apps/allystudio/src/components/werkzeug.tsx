@@ -7,11 +7,6 @@ export function Werkzeug() {
   const [stats, setStats] = useState({ total: 0, invalid: 0 })
 
   useEffect(() => {
-    // Check initial state
-    chrome.storage.local.get("test_enabled_headings", (result) => {
-      setIsEnabled(!!result.test_enabled_headings)
-    })
-
     // Subscribe to analysis complete events
     const unsubscribe = eventBus.subscribe((event) => {
       if (event.type === "HEADING_ANALYSIS_COMPLETE") {
@@ -28,7 +23,6 @@ export function Werkzeug() {
     setIsEnabled(newState)
 
     // Store state
-    await chrome.storage.local.set({ test_enabled_headings: newState })
 
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })

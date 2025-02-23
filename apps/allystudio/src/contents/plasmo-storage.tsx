@@ -6,6 +6,7 @@ interface HighlightData {
   selector: string
   message: string
   element: HTMLElement
+  isValid: boolean
 }
 
 export default function PlasmoContent() {
@@ -15,14 +16,14 @@ export default function PlasmoContent() {
     const unsubscribe = eventBus.subscribe((event) => {
       if (event.type === "HEADING_HIGHLIGHT_REQUEST") {
         const highlightEvent = event as HeadingHighlightRequestEvent
-        const { selector, message } = highlightEvent.data
+        const { selector, message, isValid } = highlightEvent.data
 
         // Find element and create highlight
         const element = document.querySelector(selector) as HTMLElement
         if (element) {
           setHighlights((current) => [
             ...current.filter((h) => h.selector !== selector), // Remove existing highlight for this selector
-            { selector, message, element }
+            { selector, message, element, isValid }
           ])
         }
       } else if (
@@ -40,7 +41,7 @@ export default function PlasmoContent() {
 
   return (
     <>
-      {highlights.map(({ element, message, selector }, index) => {
+      {highlights.map(({ element, message, selector, isValid }) => {
         const rect = element.getBoundingClientRect()
 
         return (
@@ -52,8 +53,10 @@ export default function PlasmoContent() {
               left: `${rect.left}px`,
               width: `${rect.width}px`,
               height: `${rect.height}px`,
-              border: "2px solid red",
-              backgroundColor: "rgba(255, 0, 0, 0.2)",
+              border: `2px solid ${isValid ? "#22c55e" : "#ef4444"}`,
+              backgroundColor: `${
+                isValid ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)"
+              }`,
               zIndex: 9999,
               pointerEvents: "none"
             }}>
@@ -62,7 +65,7 @@ export default function PlasmoContent() {
                 position: "absolute",
                 top: "-20px",
                 left: "0",
-                background: "red",
+                background: isValid ? "#22c55e" : "#ef4444",
                 color: "white",
                 padding: "2px 5px",
                 fontSize: "12px",
