@@ -71,6 +71,51 @@ function getXPath(element: HTMLElement): string {
   return ""
 }
 
+// Helper function to get accessible name
+const getAccessibleName = (element: HTMLElement): string => {
+  // Check aria-labelledby first
+  const labelledBy = element.getAttribute("aria-labelledby")
+  if (labelledBy) {
+    const labelElements = labelledBy
+      .split(" ")
+      .map((id) => document.getElementById(id))
+    const labelText = labelElements
+      .filter((el) => el && !el.hidden)
+      .map((el) => el?.textContent || "")
+      .join(" ")
+    if (labelText.trim()) return labelText
+  }
+
+  // Check aria-label
+  const ariaLabel = element.getAttribute("aria-label")
+  if (ariaLabel?.trim()) return ariaLabel
+
+  // Check for img alt text
+  const img = element.querySelector("img")
+  if (img && !img.matches('[role="presentation"], [role="none"]')) {
+    const altText = img.getAttribute("alt")
+    if (altText?.trim()) return altText
+  }
+
+  // Check visible text content
+  const visibleText = Array.from(element.childNodes)
+    .filter((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement
+        return (
+          !el.hasAttribute("aria-hidden") ||
+          el.getAttribute("aria-hidden") !== "true"
+        )
+      }
+      return node.nodeType === Node.TEXT_NODE
+    })
+    .map((node) => node.textContent || "")
+    .join(" ")
+    .trim()
+
+  return visibleText
+}
+
 const analyzeHeadings = () => {
   const headings = Array.from(
     document.querySelectorAll(
@@ -87,7 +132,8 @@ const analyzeHeadings = () => {
       level,
       selector: getUniqueSelector(heading),
       element: heading,
-      index
+      index,
+      accessibleName: getAccessibleName(heading)
     }
   })
 
@@ -98,16 +144,36 @@ const analyzeHeadings = () => {
   headingData.forEach((heading, index) => {
     let isValid = true
     let message = `H${heading.level} Heading`
+    let severity: "Critical" | "High" | "Medium" = "High"
+
+    // Check for empty accessible name
+    if (!heading.accessibleName) {
+      isValid = false
+      message = `Heading has empty accessible name`
+      severity = "High"
+      issues.push({
+        id: `heading-${index}-empty-name`,
+        selector: heading.selector,
+        message,
+        severity,
+        element: {
+          tagName: heading.element.tagName,
+          textContent: heading.element.textContent || "",
+          xpath: getXPath(heading.element)
+        }
+      })
+    }
 
     // First heading should be H1
     if (index === 0 && heading.level !== 1) {
       isValid = false
       message = `First heading should be H1, found H${heading.level}`
+      severity = "Critical"
       issues.push({
         id: `heading-${index}`,
         selector: heading.selector,
         message,
-        severity: "Critical",
+        severity,
         element: {
           tagName: heading.element.tagName,
           textContent: heading.element.textContent || "",
@@ -119,11 +185,12 @@ const analyzeHeadings = () => {
     else if (index > 0 && heading.level > previousLevel + 1) {
       isValid = false
       message = `Invalid heading order: H${heading.level} after H${previousLevel}`
+      severity = "High"
       issues.push({
         id: `heading-${index}`,
         selector: heading.selector,
         message,
-        severity: "High",
+        severity,
         element: {
           tagName: heading.element.tagName,
           textContent: heading.element.textContent || "",
