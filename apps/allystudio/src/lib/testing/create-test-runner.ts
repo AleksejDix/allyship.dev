@@ -4,7 +4,7 @@ import { ACTTestRunner } from "./act-test-runner"
 import type { ACTSuite } from "./act-test-suite"
 import { TestLogger } from "./test-logger"
 
-type TestType = "headings" | "links" | "alt"
+type TestType = "headings" | "links" | "alt" | "interactive"
 
 interface TestConfig {
   type: TestType
@@ -14,10 +14,12 @@ interface TestConfig {
       | "HEADING_ANALYSIS_COMPLETE"
       | "LINK_ANALYSIS_COMPLETE"
       | "ALT_ANALYSIS_COMPLETE"
+      | "INTERACTIVE_ANALYSIS_COMPLETE"
     request:
       | "HEADING_ANALYSIS_REQUEST"
       | "LINK_ANALYSIS_REQUEST"
       | "ALT_ANALYSIS_REQUEST"
+      | "INTERACTIVE_ANALYSIS_REQUEST"
   }
   displayName: string
 }

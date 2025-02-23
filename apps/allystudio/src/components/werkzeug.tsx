@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button"
 import { eventBus } from "@/lib/events/event-bus"
-import type {
-  AltAnalysisCompleteEvent,
-  HeadingAnalysisCompleteEvent,
-  LinkAnalysisCompleteEvent
-} from "@/lib/events/types"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { useEffect, useState } from "react"
 
@@ -21,7 +16,8 @@ export function Werkzeug() {
   const [testStates, setTestStates] = useState<Record<TestType, TestState>>({
     headings: { enabled: false, stats: { total: 0, invalid: 0 } },
     links: { enabled: false, stats: { total: 0, invalid: 0 } },
-    alt: { enabled: false, stats: { total: 0, invalid: 0 } }
+    alt: { enabled: false, stats: { total: 0, invalid: 0 } },
+    interactive: { enabled: false, stats: { total: 0, invalid: 0 } }
   })
 
   useEffect(() => {
@@ -32,14 +28,29 @@ export function Werkzeug() {
         event.type === "LINK_ANALYSIS_COMPLETE" ||
         event.type === "ALT_ANALYSIS_COMPLETE"
       ) {
-        const type = event.type.split("_")[0].toLowerCase() as TestType
-        setTestStates((current) => ({
-          ...current,
-          [type]: {
-            ...current[type],
-            stats: event.data.stats
+        // Map event type to test type
+        const type =
+          event.type === "HEADING_ANALYSIS_COMPLETE"
+            ? "headings"
+            : event.type === "LINK_ANALYSIS_COMPLETE"
+              ? "links"
+              : "alt"
+
+        setTestStates((current) => {
+          // Only update if the test is still enabled
+          if (!current[type].enabled) return current
+
+          return {
+            ...current,
+            [type]: {
+              ...current[type],
+              stats: {
+                total: event.data.stats.total,
+                invalid: event.data.stats.invalid
+              }
+            }
           }
-        }))
+        })
         setIsAnalyzing(false)
       }
     })
@@ -62,19 +73,33 @@ export function Werkzeug() {
 
   const toggleTest = async (type: TestType) => {
     const newState = !testStates[type].enabled
-    setTestStates((current) => ({
-      ...current,
-      [type]: {
-        ...current[type],
-        enabled: newState
-      }
-    }))
+
+    if (!newState) {
+      // If disabling, update state immediately
+      setTestStates((current) => ({
+        ...current,
+        [type]: {
+          enabled: false,
+          stats: { total: 0, invalid: 0 }
+        }
+      }))
+      clearHighlights(type)
+    } else {
+      // If enabling, just update enabled state
+      setTestStates((current) => ({
+        ...current,
+        [type]: {
+          ...current[type],
+          enabled: true
+        }
+      }))
+    }
 
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     if (!tab?.id) return
 
-    // First send tool state change event
+    // Send tool state change event
     eventBus.publish({
       type: "TOOL_STATE_CHANGE",
       timestamp: Date.now(),
@@ -93,44 +118,43 @@ export function Werkzeug() {
         timestamp: Date.now(),
         tabId: tab.id
       })
-    } else {
-      // Clear highlights when disabling
-      clearHighlights(type)
-      setTestStates((current) => ({
-        ...current,
-        [type]: {
-          ...current[type],
-          stats: { total: 0, invalid: 0 }
-        }
-      }))
     }
   }
 
   return (
     <div className="p-4 space-y-4">
-      {Object.entries(TEST_CONFIGS).map(([type, config]) => (
-        <div key={type}>
-          <Button
-            onClick={() => toggleTest(type as TestType)}
-            aria-pressed={testStates[type as TestType].enabled}
-            variant={
-              testStates[type as TestType].enabled ? "secondary" : "outline"
-            }
-            disabled={isAnalyzing && !testStates[type as TestType].enabled}>
-            {testStates[type as TestType].enabled
-              ? config.buttonText.disable
-              : config.buttonText.enable}
-          </Button>
-          {testStates[type as TestType].enabled && (
-            <div className="text-sm mt-2">
-              {config.statsText.label}{" "}
-              {testStates[type as TestType].stats.invalid} issues in{" "}
-              {testStates[type as TestType].stats.total}{" "}
-              {config.statsText.itemName}
+      {Object.entries(TEST_CONFIGS).map(([type, config]) => {
+        // Ensure type is a valid TestType
+        const testType = type as TestType
+        // Get state with fallback for safety
+        const state = testStates[testType] || {
+          enabled: false,
+          stats: { total: 0, invalid: 0 }
+        }
+
+        return (
+          <div key={type} className="min-h-[64px]">
+            <Button
+              onClick={() => toggleTest(testType)}
+              aria-pressed={state.enabled}
+              variant={state.enabled ? "secondary" : "outline"}
+              disabled={isAnalyzing && !state.enabled}
+              className="w-full">
+              {state.enabled
+                ? config.buttonText.disable
+                : config.buttonText.enable}
+            </Button>
+            <div className="h-8 text-sm mt-2">
+              {state.enabled && (
+                <span>
+                  {config.statsText.label} {state.stats.invalid} issues in{" "}
+                  {state.stats.total} {config.statsText.itemName}
+                </span>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        )
+      })}
 
       {isAnalyzing && (
         <div className="flex items-center justify-between">
@@ -141,7 +165,7 @@ export function Werkzeug() {
             onClick={() => {
               // Find the active test type
               const activeType = Object.entries(testStates).find(
-                ([, state]) => state.enabled
+                ([, state]) => state?.enabled
               )?.[0] as TestType
 
               if (activeType) {
