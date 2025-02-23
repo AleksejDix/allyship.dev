@@ -1,21 +1,28 @@
 import { altTests } from "./alt-tests"
 import { headingTests } from "./heading-tests"
+import { interactiveTests } from "./interactive-tests"
 import { linkTests } from "./link-tests"
 
-export type TestType = "headings" | "links" | "alt"
+export type TestType = "headings" | "links" | "alt" | "interactive"
 
 export interface TestConfig {
   type: TestType
-  suite: typeof headingTests | typeof linkTests | typeof altTests
+  suite:
+    | typeof headingTests
+    | typeof linkTests
+    | typeof altTests
+    | typeof interactiveTests
   events: {
     complete:
       | "HEADING_ANALYSIS_COMPLETE"
       | "LINK_ANALYSIS_COMPLETE"
       | "ALT_ANALYSIS_COMPLETE"
+      | "INTERACTIVE_ANALYSIS_COMPLETE"
     request:
       | "HEADING_ANALYSIS_REQUEST"
       | "LINK_ANALYSIS_REQUEST"
       | "ALT_ANALYSIS_REQUEST"
+      | "INTERACTIVE_ANALYSIS_REQUEST"
   }
   displayName: string
   buttonText: {
@@ -78,6 +85,23 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "images"
+    }
+  },
+  interactive: {
+    type: "interactive",
+    suite: interactiveTests,
+    events: {
+      complete: "INTERACTIVE_ANALYSIS_COMPLETE",
+      request: "INTERACTIVE_ANALYSIS_REQUEST"
+    },
+    displayName: "Interactive Elements",
+    buttonText: {
+      enable: "Enable Interactive Analysis",
+      disable: "Disable Interactive Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "elements"
     }
   }
 }

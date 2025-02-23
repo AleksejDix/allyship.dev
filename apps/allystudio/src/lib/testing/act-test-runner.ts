@@ -1,6 +1,7 @@
 import { eventBus } from "@/lib/events/event-bus"
 
 import type { ACTSuite, TestResult } from "./act-test-suite"
+import type { TestType } from "./test-config"
 import { TestLogger } from "./test-logger"
 
 export interface ACTTestResult {
@@ -76,9 +77,7 @@ export class ACTTestRunner {
     }
   }
 
-  async *runTests(
-    type: "headings" | "links" | "alt"
-  ): AsyncGenerator<TestUpdate, void, unknown> {
+  async *runTests(type: TestType): AsyncGenerator<TestUpdate, void, unknown> {
     // Create new abort controller for this test run
     this.abortController = new AbortController()
     const signal = this.abortController.signal
@@ -100,7 +99,9 @@ export class ACTTestRunner {
               ? "Heading Structure"
               : type === "links"
                 ? "Link Accessibility"
-                : "Alt Text Analysis",
+                : type === "alt"
+                  ? "Alt Text Analysis"
+                  : "Interactive Elements",
           isValid: true,
           clear: true
         }
@@ -112,7 +113,9 @@ export class ACTTestRunner {
           ? "Heading Structure"
           : type === "links"
             ? "Link Accessibility"
-            : "Alt Text Analysis"
+            : type === "alt"
+              ? "Alt Text Analysis"
+              : "Interactive Elements"
       )
 
       // First calculate total tests
@@ -278,22 +281,14 @@ export class ACTTestRunner {
         })
 
         // Publish analysis complete event
-        eventBus.publish({
-          type:
-            type === "headings"
-              ? "HEADING_ANALYSIS_COMPLETE"
-              : type === "links"
-                ? "LINK_ANALYSIS_COMPLETE"
-                : "ALT_ANALYSIS_COMPLETE",
-          timestamp: Date.now(),
-          data: {
-            issues: results.filter((r) => !r.passed), // Only send failed results
-            stats: {
-              total: totalTests,
-              invalid: failedTests
-            }
+        publishResults(
+          type,
+          results.filter((r) => !r.passed),
+          {
+            total: totalTests,
+            failed: failedTests
           }
-        })
+        )
 
         // Yield final complete update
         yield {
@@ -400,4 +395,31 @@ export function getAccessibleName(element: HTMLElement): string {
 
   // Check visible text content
   return element.textContent?.trim() || ""
+}
+
+function publishResults(
+  type: TestType,
+  results: ACTTestResult[],
+  stats: { total: number; failed: number }
+) {
+  const eventType =
+    type === "headings"
+      ? "HEADING_ANALYSIS_COMPLETE"
+      : type === "links"
+        ? "LINK_ANALYSIS_COMPLETE"
+        : type === "alt"
+          ? "ALT_ANALYSIS_COMPLETE"
+          : "INTERACTIVE_ANALYSIS_COMPLETE"
+
+  eventBus.publish({
+    type: eventType,
+    timestamp: Date.now(),
+    data: {
+      issues: results.filter((r) => !r.passed),
+      stats: {
+        total: stats.total,
+        invalid: stats.failed
+      }
+    }
+  })
 }
