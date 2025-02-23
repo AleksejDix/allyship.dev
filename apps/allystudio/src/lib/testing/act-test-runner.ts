@@ -1,7 +1,7 @@
 import { eventBus } from "@/lib/events/event-bus"
+import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 
 import type { ACTSuite, TestResult } from "./act-test-suite"
-import type { TestType } from "./test-config"
 import { TestLogger } from "./test-logger"
 
 export interface ACTTestResult {
@@ -40,6 +40,16 @@ export class ACTTestRunner {
   private suites: ACTSuite[] = []
   private abortController: AbortController | null = null
   private logger: TestLogger
+  private elementResults: Map<
+    string,
+    {
+      failures: string[]
+      successes: string[]
+      selector: string
+      element: HTMLElement
+    }
+  > = new Map()
+  private currentTestType: TestType | null = null
 
   constructor() {
     this.logger = new TestLogger()
@@ -47,6 +57,8 @@ export class ACTTestRunner {
 
   clearSuites() {
     this.suites = []
+    this.elementResults.clear()
+    this.currentTestType = null
   }
 
   addSuite(suite: ACTSuite) {
@@ -77,59 +89,76 @@ export class ACTTestRunner {
     }
   }
 
+  private clearHighlights() {
+    eventBus.publish({
+      type: "HIGHLIGHT",
+      timestamp: Date.now(),
+      data: {
+        selector: "*",
+        message: "",
+        isValid: true,
+        clear: true,
+        layer: this.currentTestType || ""
+      }
+    })
+  }
+
+  private updateHighlights() {
+    // Publish all highlights in one batch
+    for (const elementResult of this.elementResults.values()) {
+      // Only show highlights for failures
+      if (elementResult.failures.length > 0) {
+        eventBus.publish({
+          type: "HIGHLIGHT",
+          timestamp: Date.now(),
+          data: {
+            selector: elementResult.selector,
+            message: elementResult.failures.join("\n"),
+            isValid: false, // Always false since we only show failures
+            layer: this.currentTestType || ""
+          }
+        })
+      }
+    }
+  }
+
   async *runTests(type: TestType): AsyncGenerator<TestUpdate, void, unknown> {
-    // Create new abort controller for this test run
-    this.abortController = new AbortController()
-    const signal = this.abortController.signal
-
-    const results: ACTTestResult[] = []
-    let totalTests = 0
-    let completedTests = 0
-    let failedTests = 0
-
     try {
-      // Clear existing highlights before running tests
-      eventBus.publish({
-        type: "HIGHLIGHT",
-        timestamp: Date.now(),
-        data: {
-          selector: "*",
-          message:
-            type === "headings"
-              ? "Heading Structure"
-              : type === "links"
-                ? "Link Accessibility"
-                : type === "alt"
-                  ? "Alt Text Analysis"
-                  : "Interactive Elements",
-          isValid: true,
-          clear: true
-        }
-      })
+      // Clear existing state
+      this.clearSuites()
+      this.currentTestType = type
+      this.clearHighlights()
+      this.addSuite(TEST_CONFIGS[type].suite)
+
+      // Create new abort controller for this test run
+      this.abortController = new AbortController()
+      const signal = this.abortController.signal
+
+      const results: ACTTestResult[] = []
+      let totalTests = 0
+      let completedTests = 0
+      let failedTests = 0
 
       // Log suite start
-      this.logger.logSuiteStart(
-        type === "headings"
-          ? "Heading Structure"
-          : type === "links"
-            ? "Link Accessibility"
-            : type === "alt"
-              ? "Alt Text Analysis"
-              : "Interactive Elements"
-      )
+      this.logger.logSuiteStart(TEST_CONFIGS[type].displayName)
+      console.log(`Starting ${type} tests`) // Debug log
 
       // First calculate total tests
       for (const suite of this.suites) {
-        if (signal.aborted) {
-          throw new Error("Test run cancelled")
-        }
+        if (signal.aborted) throw new Error("Test run cancelled")
 
         const elements = Array.from(
           document.querySelectorAll(suite.applicability)
         ) as HTMLElement[]
+        console.log(`Found ${elements.length} elements for ${suite.name}`) // Debug log
+
         const validElements = elements.filter(
           (el) => this.getValidSelector(el) !== null
         )
+        console.log(
+          `Found ${validElements.length} valid elements for ${suite.name}`
+        ) // Debug log
+
         totalTests += validElements.length * suite.testCases.length
       }
 
@@ -141,21 +170,8 @@ export class ACTTestRunner {
         failed: 0
       }
 
-      // Keep track of element results to aggregate messages
-      const elementResults = new Map<
-        string,
-        {
-          failures: string[]
-          successes: string[]
-          selector: string
-          element: HTMLElement
-        }
-      >()
-
       for (const suite of this.suites) {
-        if (signal.aborted) {
-          throw new Error("Test run cancelled")
-        }
+        if (signal.aborted) throw new Error("Test run cancelled")
 
         const elements = Array.from(
           document.querySelectorAll(suite.applicability)
@@ -173,32 +189,26 @@ export class ACTTestRunner {
           )
 
         for (const { element, selector } of elementsWithSelectors) {
-          if (signal.aborted) {
-            throw new Error("Test run cancelled")
-          }
+          if (signal.aborted) throw new Error("Test run cancelled")
 
           // Initialize or get element results
-          if (!elementResults.has(selector)) {
-            elementResults.set(selector, {
+          if (!this.elementResults.has(selector)) {
+            this.elementResults.set(selector, {
               failures: [],
               successes: [],
               selector,
               element
             })
           }
-          const elementResult = elementResults.get(selector)!
+          const elementResult = this.elementResults.get(selector)!
 
           for (const testCase of suite.testCases) {
-            if (signal.aborted) {
-              throw new Error("Test run cancelled")
-            }
+            if (signal.aborted) throw new Error("Test run cancelled")
 
             // Handle both sync and async test evaluation
             let testResult: TestResult
             try {
-              if (!signal) {
-                throw new Error("Test execution was cancelled")
-              }
+              if (!signal) throw new Error("Test execution was cancelled")
               const result = await Promise.resolve(
                 testCase.evaluate(element, signal)
               )
@@ -241,11 +251,8 @@ export class ACTTestRunner {
               elementResult.successes.push(`${suite.name}: ${message}`)
             }
 
-            // Add to results and yield
+            // Add to results and yield progress
             results.push(fullTestResult)
-            yield fullTestResult
-
-            // Yield progress update only
             yield {
               type: "progress",
               total: totalTests,
@@ -254,21 +261,9 @@ export class ACTTestRunner {
             }
           }
 
-          // After all tests for this element, publish highlight with aggregated messages
+          // Update highlights after each element is fully tested
           if (!signal.aborted) {
-            const allMessages = [
-              ...elementResult.failures,
-              ...elementResult.successes
-            ]
-            eventBus.publish({
-              type: "HIGHLIGHT",
-              timestamp: Date.now(),
-              data: {
-                selector,
-                message: allMessages.join("\n"),
-                isValid: elementResult.failures.length === 0
-              }
-            })
+            this.updateHighlights()
           }
         }
       }
@@ -280,20 +275,18 @@ export class ACTTestRunner {
           failed: failedTests
         })
 
-        // Publish analysis complete event
-        publishResults(
-          type,
-          results.filter((r) => !r.passed),
-          {
-            total: totalTests,
-            failed: failedTests
-          }
-        )
+        // Log results for debugging
+        console.log(`Completing ${type} tests:`, {
+          total: totalTests,
+          failed: failedTests,
+          results: results.length,
+          failedResults: results.filter((r) => !r.passed).length
+        })
 
-        // Yield final complete update
+        // Yield final complete update with failed results only
         yield {
           type: "complete",
-          results: results.filter((r) => !r.passed), // Only send failed results
+          results: results.filter((r) => !r.passed),
           stats: {
             total: totalTests,
             failed: failedTests
@@ -301,26 +294,15 @@ export class ACTTestRunner {
         }
       }
     } catch (error) {
-      if (error instanceof Error && error.message === "Test cancelled") {
-        // Clean up on cancellation
-        eventBus.publish({
-          type: "HIGHLIGHT",
-          timestamp: Date.now(),
-          data: {
-            selector: "*",
-            message: "",
-            isValid: true,
-            clear: true
-          }
-        })
-
-        // Send cancelled complete event
+      if (error instanceof Error && error.message === "Test run cancelled") {
+        this.clearHighlights()
+        // Send cancelled complete event with failed results only
         yield {
           type: "complete",
-          results,
+          results: [],
           stats: {
-            total: totalTests,
-            failed: failedTests
+            total: 0,
+            failed: 0
           },
           cancelled: true
         }
@@ -395,31 +377,4 @@ export function getAccessibleName(element: HTMLElement): string {
 
   // Check visible text content
   return element.textContent?.trim() || ""
-}
-
-function publishResults(
-  type: TestType,
-  results: ACTTestResult[],
-  stats: { total: number; failed: number }
-) {
-  const eventType =
-    type === "headings"
-      ? "HEADING_ANALYSIS_COMPLETE"
-      : type === "links"
-        ? "LINK_ANALYSIS_COMPLETE"
-        : type === "alt"
-          ? "ALT_ANALYSIS_COMPLETE"
-          : "INTERACTIVE_ANALYSIS_COMPLETE"
-
-  eventBus.publish({
-    type: eventType,
-    timestamp: Date.now(),
-    data: {
-      issues: results.filter((r) => !r.passed),
-      stats: {
-        total: stats.total,
-        invalid: stats.failed
-      }
-    }
-  })
 }

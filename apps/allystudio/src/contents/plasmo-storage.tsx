@@ -1,6 +1,12 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import type { HeadingHighlightRequestEvent } from "@/lib/events/types"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type JSX } from "react"
 import type { CSSProperties } from "react"
 
 interface HighlightStyles {
@@ -15,6 +21,7 @@ interface HighlightData {
   element: HTMLElement
   isValid: boolean
   styles?: HighlightStyles
+  layer: string
 }
 
 interface HighlightEvent {
@@ -22,6 +29,7 @@ interface HighlightEvent {
   message: string
   isValid: boolean
   clear?: boolean
+  layer: string
 }
 
 const DEFAULT_HIGHLIGHT_STYLES = {
@@ -47,21 +55,21 @@ const elementStyles = {
     willChange: "transform",
     zIndex: 9999
   },
-  tooltip: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    padding: "4px 8px",
-    fontSize: "12px",
-    lineHeight: "1.4",
-    whiteSpace: "nowrap",
-    willChange: "transform",
-    zIndex: 9999
+  tooltipTrigger: {
+    position: "absolute",
+    top: "-24px",
+    left: "0",
+    width: "100%",
+    height: "24px",
+    pointerEvents: "auto",
+    cursor: "pointer"
   }
 } as const satisfies Record<string, CSSProperties>
 
 const PlasmoOverlay = () => {
-  const [highlights, setHighlights] = useState<HighlightData[]>([])
+  const [highlights, setHighlights] = useState<
+    Map<string, Map<string, HighlightData>>
+  >(new Map())
   const ticking = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -86,12 +94,24 @@ const PlasmoOverlay = () => {
       requestAnimationFrame(() => {
         if (!containerRef.current) return
 
-        const container = containerRef.current
-        const boxes = container.querySelectorAll("[data-highlight-box]")
-        const tooltips = container.querySelectorAll("[data-highlight-tooltip]")
+        const boxes = containerRef.current.querySelectorAll(
+          "[data-highlight-box]"
+        )
 
-        boxes.forEach((box, index) => {
-          const element = highlights[index]?.element
+        boxes.forEach((box) => {
+          const selector = box.getAttribute("data-selector")
+          if (!selector) return
+
+          // Find the element in our highlights map
+          let element: HTMLElement | undefined
+          for (const [, layerHighlights] of highlights) {
+            const highlight = layerHighlights.get(selector)
+            if (highlight?.element) {
+              element = highlight.element
+              break
+            }
+          }
+
           if (!element) return
 
           const rect = element.getBoundingClientRect()
@@ -100,16 +120,6 @@ const PlasmoOverlay = () => {
           style.style.setProperty("--y", `${rect.top}px`)
           style.style.width = `${rect.width}px`
           style.style.height = `${rect.height}px`
-        })
-
-        tooltips.forEach((tooltip, index) => {
-          const element = highlights[index]?.element
-          if (!element) return
-
-          const rect = element.getBoundingClientRect()
-          const style = tooltip as HTMLElement
-          style.style.setProperty("--x", `${rect.left}px`)
-          style.style.setProperty("--y", `${rect.top - 24}px`)
         })
 
         ticking.current = false
@@ -145,22 +155,18 @@ const PlasmoOverlay = () => {
     const unsubscribe = eventBus.subscribe((event) => {
       if (event.type === "HIGHLIGHT") {
         setHighlights((current) => {
+          const newHighlights = new Map(current)
           const highlightEvent = event.data as HighlightEvent
+          const { layer } = highlightEvent
 
-          // Clear highlights based on message prefix if clear flag is set
+          // Clear highlights based on layer if clear flag is set
           if (highlightEvent.clear) {
-            if (highlightEvent.message.startsWith("Heading Structure")) {
-              return current.filter(
-                (h) => !h.message.startsWith("Heading Structure")
-              )
-            } else if (
-              highlightEvent.message.startsWith("Link Accessibility")
-            ) {
-              return current.filter(
-                (h) => !h.message.startsWith("Link Accessibility")
-              )
+            if (layer) {
+              newHighlights.delete(layer)
+            } else {
+              newHighlights.clear()
             }
-            return []
+            return newHighlights
           }
 
           const { selector, message, isValid } = highlightEvent
@@ -171,35 +177,37 @@ const PlasmoOverlay = () => {
             ? DEFAULT_HIGHLIGHT_STYLES.valid
             : DEFAULT_HIGHLIGHT_STYLES.invalid
 
-          // Create new highlight data
-          const newHighlight = { selector, message, element, isValid, styles }
-
-          // If the selector already exists, replace it
-          const existingIndex = current.findIndex(
-            (h) => h.selector === selector
-          )
-          if (existingIndex !== -1) {
-            const newHighlights = [...current]
-            newHighlights[existingIndex] = newHighlight
-            return newHighlights
+          // Get or create layer map
+          let layerHighlights = newHighlights.get(layer)
+          if (!layerHighlights) {
+            layerHighlights = new Map()
+            newHighlights.set(layer, layerHighlights)
           }
 
-          // Otherwise add new highlight
-          return [...current, newHighlight]
+          // Create new highlight data
+          const newHighlight = {
+            selector,
+            message,
+            element,
+            isValid,
+            styles,
+            layer
+          }
+
+          // Update highlight in layer
+          layerHighlights.set(selector, newHighlight)
+
+          return newHighlights
         })
       } else if (event.type === "TOOL_STATE_CHANGE") {
         const { tool, enabled } = event.data
         if (!enabled) {
           // Only clear highlights for the specific tool being disabled
-          if (tool === "headings") {
-            setHighlights((current) =>
-              current.filter((h) => !h.message.startsWith("Heading Structure"))
-            )
-          } else if (tool === "links") {
-            setHighlights((current) =>
-              current.filter((h) => !h.message.startsWith("Link Accessibility"))
-            )
-          }
+          setHighlights((current) => {
+            const newHighlights = new Map(current)
+            newHighlights.delete(tool)
+            return newHighlights
+          })
         }
       }
     })
@@ -210,61 +218,96 @@ const PlasmoOverlay = () => {
   // Clean up stale highlights periodically
   useEffect(() => {
     const cleanupInterval = setInterval(() => {
-      setHighlights((current) =>
-        current.filter((h) => {
-          const element = validateHighlight(h.selector)
-          return element !== null
+      setHighlights((current) => {
+        const newHighlights = new Map()
+        let hasChanges = false
+
+        // Check each layer
+        current.forEach((layerHighlights, layer) => {
+          const newLayerHighlights = new Map()
+
+          // Check each highlight in layer
+          layerHighlights.forEach((highlight, selector) => {
+            const element = validateHighlight(selector)
+            if (element !== null) {
+              newLayerHighlights.set(selector, highlight)
+            } else {
+              hasChanges = true
+            }
+          })
+
+          if (newLayerHighlights.size > 0) {
+            newHighlights.set(layer, newLayerHighlights)
+          } else {
+            hasChanges = true
+          }
         })
-      )
+
+        return hasChanges ? newHighlights : current
+      })
     }, 1000)
 
     return () => clearInterval(cleanupInterval)
   }, [])
 
   const highlightElements = useMemo(() => {
-    return highlights.map(({ element, message, selector, isValid, styles }) => {
-      const rect = element.getBoundingClientRect()
-      if (!rect || rect.width === 0) return null
+    const elements: JSX.Element[] = []
 
-      const validityLabel = isValid ? "Valid" : "Invalid"
-      const highlightStyles =
-        styles ||
-        (isValid
-          ? DEFAULT_HIGHLIGHT_STYLES.valid
-          : DEFAULT_HIGHLIGHT_STYLES.invalid)
+    // Render highlights from each layer
+    highlights.forEach((layerHighlights, layer) => {
+      layerHighlights.forEach(
+        ({ element, message, selector, isValid, styles }) => {
+          const rect = element.getBoundingClientRect()
+          if (!rect || rect.width === 0) return
 
-      return (
-        <div
-          key={selector}
-          role="group"
-          aria-label={`${validityLabel} highlight for ${message}`}>
-          {/* Highlight box */}
-          <div
-            data-highlight-box
-            role="presentation"
-            style={{
-              ...elementStyles.highlightBox,
-              transform: "translate3d(var(--x), var(--y), 0)",
-              border: `2px solid ${highlightStyles.border}`,
-              backgroundColor: highlightStyles.background
-            }}
-          />
-          {/* Message tooltip */}
-          <div
-            data-highlight-tooltip
-            role="tooltip"
-            id={`highlight-tooltip-${selector}`}
-            style={{
-              ...elementStyles.tooltip,
-              transform: "translate3d(var(--x), var(--y), 0)",
-              background: highlightStyles.messageBackground,
-              color: "white"
-            }}>
-            {message}
-          </div>
-        </div>
+          const validityLabel = isValid ? "Valid" : "Invalid"
+          const highlightStyles =
+            styles ||
+            (isValid
+              ? DEFAULT_HIGHLIGHT_STYLES.valid
+              : DEFAULT_HIGHLIGHT_STYLES.invalid)
+
+          elements.push(
+            <div
+              key={`${layer}-${selector}`}
+              role="group"
+              aria-label={`${validityLabel} highlight for ${message}`}>
+              <div
+                data-highlight-box
+                data-selector={selector}
+                role="presentation"
+                style={{
+                  ...elementStyles.highlightBox,
+                  transform: "translate3d(var(--x), var(--y), 0)",
+                  border: `2px solid ${highlightStyles.border}`,
+                  backgroundColor: highlightStyles.background
+                }}>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div style={elementStyles.tooltipTrigger} />
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="z-[9999]"
+                      style={{
+                        backgroundColor: highlightStyles.messageBackground,
+                        color: "white",
+                        maxWidth: "300px",
+                        whiteSpace: "pre-wrap"
+                      }}>
+                      {message}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          )
+        }
       )
     })
+
+    return elements
   }, [highlights])
 
   return (
@@ -275,7 +318,7 @@ const PlasmoOverlay = () => {
       className="fixed inset-0 pointer-events-none"
       style={{ zIndex: 9998 }}>
       <style>{`
-        [data-highlight-box], [data-highlight-tooltip] {
+        [data-highlight-box] {
           --x: 0px;
           --y: 0px;
         }

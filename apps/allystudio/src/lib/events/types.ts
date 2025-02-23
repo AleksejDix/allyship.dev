@@ -72,6 +72,7 @@ export interface HighlightRequestData {
   message: string
   isValid: boolean
   clear?: boolean
+  layer?: string
 }
 
 export interface HeadingHighlightRequestEvent extends BaseEvent {
