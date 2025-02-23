@@ -139,17 +139,18 @@ const analyzeHeadings = () => {
 
   let previousLevel = headingData[0]?.level ?? 0
   let issues: HeadingIssue[] = []
+  let hierarchyBroken = false
 
   // Analyze and highlight all headings
   headingData.forEach((heading, index) => {
-    let isValid = true
-    let message = `H${heading.level} Heading`
+    let isValid = !hierarchyBroken
+    let message = `${heading.level}`
     let severity: "Critical" | "High" | "Medium" = "High"
 
     // Check for empty accessible name
     if (!heading.accessibleName) {
       isValid = false
-      message = `Heading has empty accessible name`
+      message = `${heading.level}`
       severity = "High"
       issues.push({
         id: `heading-${index}-empty-name`,
@@ -167,7 +168,8 @@ const analyzeHeadings = () => {
     // First heading should be H1
     if (index === 0 && heading.level !== 1) {
       isValid = false
-      message = `First heading should be H1, found H${heading.level}`
+      hierarchyBroken = true
+      message = `${heading.level}`
       severity = "Critical"
       issues.push({
         id: `heading-${index}`,
@@ -184,7 +186,25 @@ const analyzeHeadings = () => {
     // Check subsequent headings
     else if (index > 0 && heading.level > previousLevel + 1) {
       isValid = false
-      message = `Invalid heading order: H${heading.level} after H${previousLevel}`
+      hierarchyBroken = true
+      message = `${heading.level}`
+      severity = "High"
+      issues.push({
+        id: `heading-${index}`,
+        selector: heading.selector,
+        message,
+        severity,
+        element: {
+          tagName: heading.element.tagName,
+          textContent: heading.element.textContent || "",
+          xpath: getXPath(heading.element)
+        }
+      })
+    }
+    // If hierarchy is broken, mark subsequent headings as invalid
+    else if (hierarchyBroken) {
+      isValid = false
+      message = `${heading.level}`
       severity = "High"
       issues.push({
         id: `heading-${index}`,
@@ -201,7 +221,7 @@ const analyzeHeadings = () => {
 
     // Publish highlight request for every heading
     eventBus.publish({
-      type: "HEADING_HIGHLIGHT_REQUEST",
+      type: "HIGHLIGHT",
       timestamp: Date.now(),
       data: {
         selector: heading.selector,

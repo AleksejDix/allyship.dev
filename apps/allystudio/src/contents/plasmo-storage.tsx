@@ -19,14 +19,14 @@ interface HighlightData {
 
 const DEFAULT_HIGHLIGHT_STYLES = {
   valid: {
-    border: "#22c55e",
-    background: "rgba(34, 197, 94, 0.1)",
-    messageBackground: "#22c55e"
+    border: "#16A34A",
+    background: "rgba(22, 163, 74, 0.1)",
+    messageBackground: "#16A34A"
   },
   invalid: {
-    border: "#ef4444",
-    background: "rgba(239, 68, 68, 0.1)",
-    messageBackground: "#ef4444"
+    border: "#DC2626",
+    background: "rgba(220, 38, 38, 0.1)",
+    messageBackground: "#DC2626"
   }
 } as const
 
@@ -47,7 +47,6 @@ const elementStyles = {
     padding: "4px 8px",
     fontSize: "12px",
     lineHeight: "1.4",
-    borderRadius: "4px",
     whiteSpace: "nowrap",
     willChange: "transform",
     zIndex: 9999
@@ -122,7 +121,7 @@ const PlasmoOverlay = () => {
 
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event) => {
-      if (event.type === "HEADING_HIGHLIGHT_REQUEST") {
+      if (event.type === "HIGHLIGHT") {
         setHighlights((current) => {
           const highlightEvent = event as HeadingHighlightRequestEvent
           const { selector, message, isValid } = highlightEvent.data
