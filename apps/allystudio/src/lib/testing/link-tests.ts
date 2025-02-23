@@ -14,8 +14,8 @@ export const linkTests: ACTTestSuite = {
         return {
           passed: !!accessibleName,
           message: accessibleName
-            ? "Link has accessible name"
-            : "Empty link text"
+            ? `Link has accessible name: "${accessibleName}"`
+            : "Link has no accessible name"
         }
       }
     },
@@ -27,7 +27,7 @@ export const linkTests: ACTTestSuite = {
         if (!accessibleName) {
           return {
             passed: false,
-            message: "Empty link text"
+            message: "Link has no accessible name"
           }
         }
 
@@ -43,7 +43,7 @@ export const linkTests: ACTTestSuite = {
         if (similarLinks.length === 0) {
           return {
             passed: true,
-            message: "Unique link text"
+            message: `Unique link text: "${accessibleName}"`
           }
         }
 
@@ -56,8 +56,8 @@ export const linkTests: ACTTestSuite = {
         return {
           passed: !differentDestinations,
           message: differentDestinations
-            ? "Same link text points to different destinations"
-            : "Link text and destination are consistent"
+            ? `Links with text "${accessibleName}" go to different URLs`
+            : `Links with text "${accessibleName}" go to same URL`
         }
       }
     },
@@ -84,8 +84,8 @@ export const linkTests: ACTTestSuite = {
         return {
           passed: hasNewWindowIndicator,
           message: hasNewWindowIndicator
-            ? "Link properly indicates it opens in new window"
-            : "Link opens in new window without indication"
+            ? `Link "${accessibleName}" properly indicates it opens in new window`
+            : `Link "${accessibleName}" opens in new window without indication`
         }
       }
     }
