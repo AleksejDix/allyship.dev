@@ -4,8 +4,11 @@ export type EventType =
   | "HEADING_ANALYSIS_REQUEST"
   | "HEADING_ANALYSIS_COMPLETE"
   | "HEADING_ISSUE_FOUND"
-  | "HEADING_HIGHLIGHT_REQUEST"
+  | "HIGHLIGHT"
   | "HEADING_NAVIGATE_REQUEST"
+  | "LINK_ANALYSIS_REQUEST"
+  | "LINK_ANALYSIS_COMPLETE"
+  | "LINK_HIGHLIGHT_REQUEST"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -61,7 +64,7 @@ export interface HeadingIssueFoundEvent extends BaseEvent {
 
 // UI Events
 export interface HeadingHighlightRequestEvent extends BaseEvent {
-  type: "HEADING_HIGHLIGHT_REQUEST"
+  type: "HIGHLIGHT"
   data: {
     selector: string
     message: string
@@ -76,6 +79,43 @@ export interface HeadingNavigateRequestEvent extends BaseEvent {
   }
 }
 
+// Link Events
+export interface LinkAnalysisRequestEvent extends BaseEvent {
+  type: "LINK_ANALYSIS_REQUEST"
+}
+
+export interface LinkAnalysisCompleteEvent extends BaseEvent {
+  type: "LINK_ANALYSIS_COMPLETE"
+  data: {
+    issues: LinkIssue[]
+    stats: {
+      total: number
+      invalid: number
+    }
+  }
+}
+
+export interface LinkIssue {
+  id: string
+  selector: string
+  message: string
+  severity: "Critical" | "High" | "Medium" | "Low"
+  element?: {
+    tagName: string
+    textContent: string
+    xpath: string
+  }
+}
+
+export interface LinkHighlightRequestEvent extends BaseEvent {
+  type: "LINK_HIGHLIGHT_REQUEST"
+  data: {
+    selector: string
+    message: string
+    isValid: boolean
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -84,6 +124,9 @@ export type AllyStudioEvent =
   | HeadingIssueFoundEvent
   | HeadingHighlightRequestEvent
   | HeadingNavigateRequestEvent
+  | LinkAnalysisRequestEvent
+  | LinkAnalysisCompleteEvent
+  | LinkHighlightRequestEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void
