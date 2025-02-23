@@ -6,7 +6,7 @@ storage.watch({
   test_enabled_headings: ({ newValue }) => {
     console.log("test", newValue)
   },
-  heading_issues: ({ newValue }) => {
+  issues: ({ newValue }) => {
     console.table(newValue)
   }
 })
