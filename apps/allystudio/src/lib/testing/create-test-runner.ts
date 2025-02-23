@@ -1,100 +1,96 @@
 import { eventBus } from "@/lib/events/event-bus"
+import type {
+  AltAnalysisCompleteEvent,
+  HeadingAnalysisCompleteEvent,
+  InteractiveAnalysisCompleteEvent,
+  LinkAnalysisCompleteEvent
+} from "@/lib/events/types"
 
 import { ACTTestRunner } from "./act-test-runner"
-import type { ACTSuite } from "./act-test-suite"
+import type { TestType } from "./test-config"
 import { TestLogger } from "./test-logger"
 
-type TestType = "headings" | "links" | "alt" | "interactive"
+type AnalysisCompleteEvent =
+  | HeadingAnalysisCompleteEvent
+  | LinkAnalysisCompleteEvent
+  | AltAnalysisCompleteEvent
+  | InteractiveAnalysisCompleteEvent
 
-interface TestConfig {
-  type: TestType
-  suite: ACTSuite
-  events: {
-    complete:
-      | "HEADING_ANALYSIS_COMPLETE"
-      | "LINK_ANALYSIS_COMPLETE"
-      | "ALT_ANALYSIS_COMPLETE"
-      | "INTERACTIVE_ANALYSIS_COMPLETE"
-    request:
-      | "HEADING_ANALYSIS_REQUEST"
-      | "LINK_ANALYSIS_REQUEST"
-      | "ALT_ANALYSIS_REQUEST"
-      | "INTERACTIVE_ANALYSIS_REQUEST"
-  }
-  displayName: string
-}
-
-export function createTestRunner(config: TestConfig) {
-  const testRunner = new ACTTestRunner()
-  const logger = new TestLogger()
-
-  const analyze = async () => {
-    // Add suite fresh each time to ensure we're using the latest test definitions
-    testRunner.addSuite(config.suite)
-
-    // Run tests and handle results as they come in
-    for await (const update of testRunner.runTests(config.type)) {
-      if ("type" in update) {
-        switch (update.type) {
-          case "progress":
-            // Could emit progress events if needed
-            break
-          case "complete":
-            // Final completion event
-            eventBus.publish({
-              type: config.events.complete,
-              timestamp: Date.now(),
-              data: {
-                issues: update.results,
-                stats: {
-                  total: update.stats.total,
-                  invalid: update.stats.failed
-                }
-              }
-            })
-            break
-        }
-      } else {
-        // Log individual test result
-        logger.logTestResult(update)
+// Map test types to their event creators
+const createCompleteEvent = (
+  type: TestType,
+  results: any[],
+  stats: { total: number; failed: number }
+): AnalysisCompleteEvent => {
+  const baseEvent = {
+    timestamp: Date.now(),
+    data: {
+      issues: results,
+      stats: {
+        total: stats.total,
+        invalid: stats.failed
       }
     }
   }
 
+  switch (type) {
+    case "headings":
+      return { ...baseEvent, type: "HEADING_ANALYSIS_COMPLETE" }
+    case "links":
+      return { ...baseEvent, type: "LINK_ANALYSIS_COMPLETE" }
+    case "alt":
+      return { ...baseEvent, type: "ALT_ANALYSIS_COMPLETE" }
+    case "interactive":
+      return { ...baseEvent, type: "INTERACTIVE_ANALYSIS_COMPLETE" }
+  }
+}
+
+export function createTestRunner() {
+  const testRunner = new ACTTestRunner()
+  const logger = new TestLogger()
+
   // Event listeners
   eventBus.subscribe((event) => {
-    if (event.type === "TOOL_STATE_CHANGE" && event.data.tool === config.type) {
-      if (event.data.enabled) {
-        analyze()
-      } else {
-        // Clear highlights by sending empty analysis
-        eventBus.publish({
-          type: config.events.complete,
-          timestamp: Date.now(),
-          data: {
-            issues: [],
-            stats: { total: 0, invalid: 0 }
-          }
-        })
-        // Clear all highlights
+    if (event.type === "TOOL_STATE_CHANGE") {
+      if (!event.data.enabled) {
+        testRunner.stopTests()
+        // Clear highlights
         eventBus.publish({
           type: "HIGHLIGHT",
           timestamp: Date.now(),
           data: {
-            selector: "",
+            selector: "*",
             message: "",
             isValid: true,
             clear: true
           }
         })
       }
-    } else if (event.type === config.events.request) {
-      analyze()
     }
   })
 
   return {
-    analyze,
+    runTest: async (type: TestType) => {
+      // Run tests and handle results as they come in
+      for await (const update of testRunner.runTests(type)) {
+        if ("type" in update) {
+          switch (update.type) {
+            case "complete":
+              // Final completion event
+              const completeEvent = createCompleteEvent(
+                type,
+                update.results,
+                update.stats
+              )
+              eventBus.publish(completeEvent)
+              break
+          }
+        } else {
+          // Log individual test result
+          logger.logTestResult(update)
+        }
+      }
+    },
     stop: () => testRunner.stopTests()
   }
 }

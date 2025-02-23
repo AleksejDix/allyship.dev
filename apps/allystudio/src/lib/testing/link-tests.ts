@@ -214,41 +214,5 @@ export const linkTests = suite("Link Accessibility", "a[href]", () => {
         severity: "High"
       }
     )
-
-    test(
-      "Link is not empty or too small",
-      (element: HTMLElement) => {
-        // Check if link has dimensions
-        const rect = element.getBoundingClientRect()
-        const minSize = 44 // Minimum recommended touch target size
-
-        if (rect.width === 0 || rect.height === 0) {
-          return {
-            passed: false,
-            message: "Link has no dimensions - should be visible and clickable"
-          }
-        }
-
-        // Check if link is too small
-        if (rect.width < minSize || rect.height < minSize) {
-          return {
-            passed: false,
-            message: `Link is too small (${Math.round(rect.width)}x${Math.round(
-              rect.height
-            )}px) - should be at least ${minSize}x${minSize}px for touch targets`
-          }
-        }
-
-        return {
-          passed: true,
-          message: "Link has appropriate dimensions"
-        }
-      },
-      {
-        description:
-          "Links should have sufficient size to be easily clickable on touch devices",
-        severity: "Medium"
-      }
-    )
   })
 })

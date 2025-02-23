@@ -333,6 +333,7 @@ export function AccessibilityToolbar() {
           <DropdownMenu key={group.id}>
             <DropdownMenuTrigger asChild>
               <Button
+                type="button"
                 variant={activeTools[group.id] ? 'default' : 'ghost'}
                 size="icon"
                 className="relative w-full h-8"
