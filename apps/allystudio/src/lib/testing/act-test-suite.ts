@@ -1,9 +1,13 @@
+export interface TestResult {
+  passed: boolean
+  message: string
+}
+
+type TestEvaluator = (element: HTMLElement) => TestResult | Promise<TestResult>
+
 export interface ACTTest {
   name: string
-  evaluate: (element: HTMLElement) => {
-    passed: boolean
-    message: string
-  }
+  evaluate: TestEvaluator
   meta?: {
     description?: string
     severity?: "Critical" | "High" | "Medium" | "Low"
@@ -16,10 +20,7 @@ export interface ACTSuite {
   testCases: {
     id: string
     name: string
-    evaluate: (element: HTMLElement) => {
-      passed: boolean
-      message: string
-    }
+    evaluate: TestEvaluator
     meta?: {
       description?: string
       severity?: "Critical" | "High" | "Medium" | "Low"
@@ -73,7 +74,7 @@ export function describe(name: string, fn: () => void) {
 
 export function test(
   name: string,
-  evaluate: (element: HTMLElement) => { passed: boolean; message: string },
+  evaluate: TestEvaluator,
   meta?: {
     description?: string
     severity?: "Critical" | "High" | "Medium" | "Low"

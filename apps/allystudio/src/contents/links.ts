@@ -1,5 +1,6 @@
 import { eventBus } from "@/lib/events/event-bus"
 import { ACTTestRunner } from "@/lib/testing/act-test-runner"
+import type { TestUpdate } from "@/lib/testing/act-test-runner"
 import { linkTests } from "@/lib/testing/link-tests"
 import type { PlasmoCSConfig } from "plasmo"
 
@@ -9,10 +10,37 @@ export const config: PlasmoCSConfig = {
 
 const testRunner = new ACTTestRunner()
 
-const analyzeLinks = () => {
+const analyzeLinks = async () => {
   // Add suite fresh each time to ensure we're using the latest test definitions
   testRunner.addSuite(linkTests)
-  testRunner.runTests("links")
+
+  // Run tests and handle results as they come in
+  for await (const update of testRunner.runTests("links")) {
+    if ("type" in update) {
+      switch (update.type) {
+        case "progress":
+          // Could emit progress events if needed
+          break
+        case "complete":
+          // Final completion event
+          eventBus.publish({
+            type: "LINK_ANALYSIS_COMPLETE",
+            timestamp: Date.now(),
+            data: {
+              issues: update.results,
+              stats: {
+                total: update.stats.total,
+                invalid: update.stats.failed
+              }
+            }
+          })
+          break
+      }
+    } else {
+      // Individual test result
+      // No need to do anything here as highlights are handled by the test runner
+    }
+  }
 }
 
 // Event listeners
@@ -37,7 +65,8 @@ eventBus.subscribe((event) => {
         data: {
           selector: "",
           message: "",
-          isValid: true
+          isValid: true,
+          clear: true
         }
       })
     }

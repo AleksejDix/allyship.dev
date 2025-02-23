@@ -1,6 +1,6 @@
 import { eventBus } from "@/lib/events/event-bus"
 
-import type { ACTSuite } from "./act-test-suite"
+import type { ACTSuite, TestResult } from "./act-test-suite"
 
 export interface ACTTestResult {
   id: string
@@ -14,6 +14,24 @@ export interface ACTTestResult {
     xpath: string
   }
 }
+
+export interface TestProgress {
+  type: "progress"
+  total: number
+  completed: number
+  failed: number
+}
+
+export interface TestComplete {
+  type: "complete"
+  results: ACTTestResult[]
+  stats: {
+    total: number
+    failed: number
+  }
+}
+
+export type TestUpdate = ACTTestResult | TestProgress | TestComplete
 
 export class ACTTestRunner {
   private suites: ACTSuite[] = []
@@ -43,9 +61,12 @@ export class ACTTestRunner {
     }
   }
 
-  async runTests(type: "headings" | "links") {
+  async *runTests(
+    type: "headings" | "links"
+  ): AsyncGenerator<TestUpdate, void, unknown> {
     const results: ACTTestResult[] = []
     let totalTests = 0
+    let completedTests = 0
     let failedTests = 0
 
     // Clear existing highlights before running tests
@@ -60,6 +81,36 @@ export class ACTTestRunner {
         clear: true
       }
     })
+
+    // First calculate total tests
+    for (const suite of this.suites) {
+      const elements = Array.from(
+        document.querySelectorAll(suite.applicability)
+      ) as HTMLElement[]
+      const validElements = elements.filter(
+        (el) => this.getValidSelector(el) !== null
+      )
+      totalTests += validElements.length * suite.testCases.length
+    }
+
+    // Yield initial progress
+    yield {
+      type: "progress",
+      total: totalTests,
+      completed: 0,
+      failed: 0
+    }
+
+    // Keep track of element results to aggregate messages
+    const elementResults = new Map<
+      string,
+      {
+        failures: string[]
+        successes: string[]
+        selector: string
+        element: HTMLElement
+      }
+    >()
 
     for (const suite of this.suites) {
       const elements = Array.from(
@@ -77,50 +128,81 @@ export class ACTTestRunner {
             item.selector !== null
         )
 
-      totalTests += elementsWithSelectors.length * suite.testCases.length
-
       for (const { element, selector } of elementsWithSelectors) {
-        let elementHasFailure = false
+        // Initialize or get element results
+        if (!elementResults.has(selector)) {
+          elementResults.set(selector, {
+            failures: [],
+            successes: [],
+            selector,
+            element
+          })
+        }
+        const elementResult = elementResults.get(selector)!
 
         for (const testCase of suite.testCases) {
-          const { passed, message } = testCase.evaluate(element)
+          // Handle both sync and async test evaluation
+          let testResult: TestResult
+          try {
+            const result = await Promise.resolve(testCase.evaluate(element))
+            testResult = result
+          } catch (error) {
+            console.error(`Test "${testCase.name}" failed with error:`, error)
+            testResult = {
+              passed: false,
+              message: `Test failed with error: ${error instanceof Error ? error.message : String(error)}`
+            }
+          }
+
+          completedTests++
+          const { passed, message } = testResult
+
           if (!passed) {
             failedTests++
-            elementHasFailure = true
-          }
+            elementResult.failures.push(`${suite.name}: ${message}`)
 
-          // Only publish highlight if this is the first failure or if all tests passed
-          if (
-            (passed && !elementHasFailure) ||
-            (!passed && elementHasFailure)
-          ) {
-            // Highlight the element with suite name prefix
-            eventBus.publish({
-              type: "HIGHLIGHT",
-              timestamp: Date.now(),
-              data: {
-                selector,
-                message: `${suite.name}: ${message}`,
-                isValid: passed
-              }
-            })
-          }
-
-          if (!passed) {
-            results.push({
+            const testResult: ACTTestResult = {
               id: testCase.id,
               selector,
               passed,
               message: `${suite.name}: ${message}`,
-              severity: testCase.severity || "High",
+              severity: testCase.meta?.severity || "High",
               element: {
                 tagName: element.tagName,
                 textContent: element.textContent || "",
                 xpath: element.id ? `//*[@id="${element.id}"]` : ""
               }
-            })
+            }
+
+            results.push(testResult)
+            yield testResult
+          } else {
+            elementResult.successes.push(`${suite.name}: ${message}`)
+          }
+
+          // Yield progress update
+          yield {
+            type: "progress",
+            total: totalTests,
+            completed: completedTests,
+            failed: failedTests
           }
         }
+
+        // After all tests for this element, publish highlight with aggregated messages
+        const allMessages = [
+          ...elementResult.failures,
+          ...elementResult.successes
+        ]
+        eventBus.publish({
+          type: "HIGHLIGHT",
+          timestamp: Date.now(),
+          data: {
+            selector,
+            message: allMessages.join("\n"),
+            isValid: elementResult.failures.length === 0
+          }
+        })
       }
     }
 
@@ -140,7 +222,9 @@ export class ACTTestRunner {
       }
     })
 
-    return {
+    // Yield final complete update
+    yield {
+      type: "complete",
       results,
       stats: {
         total: totalTests,
