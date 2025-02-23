@@ -32,8 +32,29 @@ export interface ACTTestSuite {
 export class ACTTestRunner {
   private suites: ACTTestSuite[] = []
 
+  clearSuites() {
+    this.suites = []
+  }
+
   addSuite(suite: ACTTestSuite) {
+    // Clear existing suites of the same type to prevent duplicates
+    this.suites = this.suites.filter((s) => s.name !== suite.name)
     this.suites.push(suite)
+  }
+
+  private getValidSelector(element: HTMLElement): string | null {
+    try {
+      const selector = getUniqueSelector(element)
+      // Verify the selector works and returns the same element
+      const found = document.querySelector(selector) as HTMLElement
+      if (found && found === element) {
+        return selector
+      }
+      return null
+    } catch (error) {
+      console.error("Error generating selector:", error)
+      return null
+    }
   }
 
   async runTests(type: "headings" | "links") {
@@ -41,25 +62,48 @@ export class ACTTestRunner {
     let totalTests = 0
     let failedTests = 0
 
+    // Clear existing highlights before running tests
+    eventBus.publish({
+      type: "HIGHLIGHT",
+      timestamp: Date.now(),
+      data: {
+        selector: "*",
+        message:
+          type === "headings" ? "Heading Structure" : "Link Accessibility",
+        isValid: true,
+        clear: true
+      }
+    })
+
     for (const suite of this.suites) {
       const elements = Array.from(
         document.querySelectorAll(suite.applicability)
-      )
-      totalTests += elements.length * suite.testCases.length
+      ) as HTMLElement[]
 
-      for (const element of elements) {
-        const elementSelector = getUniqueSelector(element as HTMLElement)
+      // Filter out elements that we can't generate valid selectors for
+      const elementsWithSelectors = elements
+        .map((element) => ({
+          element,
+          selector: this.getValidSelector(element)
+        }))
+        .filter(
+          (item): item is { element: HTMLElement; selector: string } =>
+            item.selector !== null
+        )
 
+      totalTests += elementsWithSelectors.length * suite.testCases.length
+
+      for (const { element, selector } of elementsWithSelectors) {
         for (const testCase of suite.testCases) {
-          const { passed, message } = testCase.evaluate(element as HTMLElement)
+          const { passed, message } = testCase.evaluate(element)
           if (!passed) failedTests++
 
-          // Highlight the element
+          // Highlight the element with suite name prefix
           eventBus.publish({
             type: "HIGHLIGHT",
             timestamp: Date.now(),
             data: {
-              selector: elementSelector,
+              selector,
               message: `${suite.name}: ${message}`,
               isValid: passed
             }
@@ -68,9 +112,9 @@ export class ACTTestRunner {
           if (!passed) {
             results.push({
               id: testCase.id,
-              selector: elementSelector,
+              selector,
               passed,
-              message,
+              message: `${suite.name}: ${message}`,
               severity: "High",
               element: {
                 tagName: element.tagName,
