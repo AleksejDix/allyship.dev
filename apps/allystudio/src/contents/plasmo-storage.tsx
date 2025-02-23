@@ -1,6 +1,6 @@
 import { eventBus } from "@/lib/events/event-bus"
 import type { HeadingHighlightRequestEvent } from "@/lib/events/types"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 interface HighlightStyles {
   border: string
@@ -31,24 +31,54 @@ const DEFAULT_HIGHLIGHT_STYLES = {
 
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<HighlightData[]>([])
+  const highlightRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const tooltipRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const ticking = useRef(false)
 
   // Handle scroll and resize updates
   useEffect(() => {
-    const forceUpdate = () => {
-      setHighlights((prev) => [...prev])
+    const updatePositions = () => {
+      highlights.forEach(({ element, selector }) => {
+        const highlightEl = highlightRefs.current.get(selector)
+        const tooltipEl = tooltipRefs.current.get(selector)
+        if (!highlightEl || !tooltipEl) return
+
+        const rect = element.getBoundingClientRect()
+        if (rect.width === 0) return
+
+        const scrollY = window.scrollY
+
+        // Update highlight position
+        highlightEl.style.transform = `translate3d(${rect.left}px, ${rect.top + scrollY}px, 0)`
+        highlightEl.style.width = `${rect.width}px`
+        highlightEl.style.height = `${rect.height}px`
+
+        // Update tooltip position
+        tooltipEl.style.transform = `translate3d(${rect.left}px, ${rect.top + scrollY - 24}px, 0)`
+      })
+
+      ticking.current = false
     }
 
-    const resizeObserver = new ResizeObserver(forceUpdate)
-    resizeObserver.observe(document.body)
+    const onScroll = () => {
+      if (!ticking.current) {
+        requestAnimationFrame(updatePositions)
+        ticking.current = true
+      }
+    }
 
-    // Handle scroll events
-    window.addEventListener("scroll", forceUpdate, { passive: true })
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(updatePositions)
+    })
+
+    resizeObserver.observe(document.body)
+    window.addEventListener("scroll", onScroll, { passive: true })
 
     return () => {
       resizeObserver.disconnect()
-      window.removeEventListener("scroll", forceUpdate)
+      window.removeEventListener("scroll", onScroll)
     }
-  }, [])
+  }, [highlights])
 
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event) => {
@@ -102,27 +132,38 @@ const PlasmoOverlay = () => {
           aria-label={`${validityLabel} highlight for ${message}`}>
           {/* Highlight box */}
           <div
+            ref={(el) => {
+              if (el) highlightRefs.current.set(selector, el)
+              else highlightRefs.current.delete(selector)
+            }}
             role="presentation"
             style={{
               position: "absolute",
-              top: rect.top + window.scrollY,
-              left: rect.left,
+              top: 0,
+              left: 0,
+              transform: `translate3d(${rect.left}px, ${rect.top + window.scrollY}px, 0)`,
               width: rect.width,
               height: rect.height,
               border: `2px solid ${highlightStyles.border}`,
               backgroundColor: highlightStyles.background,
               pointerEvents: "none",
-              transition: "all 150ms ease-in-out"
+              willChange: "transform",
+              backfaceVisibility: "hidden"
             }}
           />
           {/* Message tooltip */}
           <div
+            ref={(el) => {
+              if (el) tooltipRefs.current.set(selector, el)
+              else tooltipRefs.current.delete(selector)
+            }}
             role="tooltip"
             id={`highlight-tooltip-${selector}`}
             style={{
               position: "absolute",
-              top: rect.top + window.scrollY - 24,
-              left: rect.left,
+              top: 0,
+              left: 0,
+              transform: `translate3d(${rect.left}px, ${rect.top + window.scrollY - 24}px, 0)`,
               background: highlightStyles.messageBackground,
               color: "white",
               padding: "4px 8px",
@@ -130,14 +171,15 @@ const PlasmoOverlay = () => {
               lineHeight: "1.4",
               borderRadius: "4px",
               whiteSpace: "nowrap",
-              transition: "all 150ms ease-in-out"
+              willChange: "transform",
+              backfaceVisibility: "hidden"
             }}>
             {message}
           </div>
         </div>
       )
     })
-  }, [highlights]) // Only depend on highlights changes
+  }, [highlights])
 
   return (
     <div
