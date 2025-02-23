@@ -9,6 +9,8 @@ export type EventType =
   | "LINK_ANALYSIS_REQUEST"
   | "LINK_ANALYSIS_COMPLETE"
   | "LINK_HIGHLIGHT_REQUEST"
+  | "ALT_ANALYSIS_REQUEST"
+  | "ALT_ANALYSIS_COMPLETE"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -119,6 +121,34 @@ export interface LinkHighlightRequestEvent extends BaseEvent {
   }
 }
 
+// Alt Text Events
+export interface AltAnalysisRequestEvent extends BaseEvent {
+  type: "ALT_ANALYSIS_REQUEST"
+}
+
+export interface AltAnalysisCompleteEvent extends BaseEvent {
+  type: "ALT_ANALYSIS_COMPLETE"
+  data: {
+    issues: AltIssue[]
+    stats: {
+      total: number
+      invalid: number
+    }
+  }
+}
+
+export interface AltIssue {
+  id: string
+  selector: string
+  message: string
+  severity: "Critical" | "High" | "Medium" | "Low"
+  element?: {
+    tagName: string
+    textContent: string
+    xpath: string
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -130,6 +160,8 @@ export type AllyStudioEvent =
   | LinkAnalysisRequestEvent
   | LinkAnalysisCompleteEvent
   | LinkHighlightRequestEvent
+  | AltAnalysisRequestEvent
+  | AltAnalysisCompleteEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void
