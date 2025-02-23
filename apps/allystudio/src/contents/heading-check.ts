@@ -41,35 +41,41 @@ interface HeadingIssue {
   selector: string
   level: number
   url: string
+  message: string
+  isValid: boolean
 }
 
 const getUniqueSelector = (element: HTMLElement): string => {
-  // Try using existing ID
+  // Try using existing ID first as it's most reliable
   if (element.id) {
-    return `#${element.id}`
+    return `#${CSS.escape(element.id)}`
   }
 
-  // Generate path using classes and nth-child
+  // Get the element's tag name and position among siblings
+  const getElementSelector = (el: Element): string => {
+    const tag = el.tagName.toLowerCase()
+    const parent = el.parentElement
+    if (!parent) return tag
+
+    // Get the element's position among siblings of the same type
+    const sameTypeSiblings = Array.from(parent.children).filter(
+      (child) => child.tagName === el.tagName
+    )
+    const index = sameTypeSiblings.indexOf(el) + 1
+
+    return `${tag}:nth-of-type(${index})`
+  }
+
+  // Build the path from the element to the root
   const path: string[] = []
   let current: Element | null = element
 
-  while (current && current !== document.body) {
-    let selector = current.tagName.toLowerCase()
-
-    // Add classes if they exist (limit to first 2 classes to keep selector manageable)
-    const classes = Array.from(current.classList).slice(0, 2)
-    if (classes.length) {
-      selector += `.${classes.join(".")}`
-    }
-
-    // Add nth-child for uniqueness
-    const parent = current.parentElement
-    if (parent) {
-      const index = Array.from(parent.children).indexOf(current) + 1
-      selector += `:nth-child(${index})`
-    }
-
-    path.unshift(selector)
+  while (
+    current &&
+    current !== document.body &&
+    current !== document.documentElement
+  ) {
+    path.unshift(getElementSelector(current))
     current = current.parentElement
   }
 
@@ -107,8 +113,6 @@ const validateHeadingOrder = (headings: HeadingData[]): HeadingData[] => {
 }
 
 const collectHeadingData = () => {
-  console.log("Collecting heading data...")
-
   const url = window.location.href
   const normalizedUrl = normalizeUrl(url)
 
@@ -136,7 +140,7 @@ const collectHeadingData = () => {
       level,
       id: heading.id || `ally-heading-${index}-${Date.now()}`,
       selector: getUniqueSelector(heading),
-      status: "valid", // Default status
+      status: "valid",
       element: heading
     }
   })
@@ -144,49 +148,15 @@ const collectHeadingData = () => {
   // Validate order in a single pass
   headingData = validateHeadingOrder(headingData)
 
-  // Get invalid headings
-  const invalidHeadings = headingData.filter((h) => h.status === "invalid")
+  // Store all headings for visualization with proper message
+  const overlayData = headingData.map((heading) => ({
+    selector: heading.selector,
+    message: `${heading.status === "valid" ? "Valid" : "Invalid"} H${heading.level} Heading`,
+    element: heading.element
+  }))
 
-  // Enhanced logging with element references and accessibility
-  console.group("Heading Analysis")
-
-  // Log all headings in order with status indicators
-  headingData.forEach((h) => {
-    const isValid = h.status === "valid"
-    console.log(
-      `%c${isValid ? "■" : "▲"} L${h.level} %o`,
-      `color: ${isValid ? "#22c55e" : "#ef4444"}`,
-      h.element
-    )
-
-    // Auto-scroll to first invalid heading
-    if (!isValid && h === invalidHeadings[0]) {
-      h.element.scrollIntoView({ behavior: "smooth" })
-    }
-  })
-
-  // Summary
-  console.log(
-    `%c${headingData.length} headings, ${invalidHeadings.length} issues`,
-    "font-weight: bold"
-  )
-  console.groupEnd()
-
-  // Send each invalid heading separately
-  invalidHeadings.forEach((heading) => {
-    const issue: HeadingIssue = {
-      selector: heading.selector,
-      level: heading.level,
-      url: normalizedUrl
-    }
-
-    sendToBackground({
-      name: "heading-issue",
-      body: issue
-    }).catch((err) => {
-      console.error("Failed to send heading issue:", err)
-    })
-  })
+  // Store in storage for overlay
+  storage.set("issues", overlayData)
 }
 
 // Watch for test activation

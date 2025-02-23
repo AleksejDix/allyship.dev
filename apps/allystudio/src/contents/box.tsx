@@ -1,18 +1,25 @@
+import ElementOverlay from "@/components/element-overlay/ElementOverlay"
+import type { OverlayElement } from "@/components/element-overlay/ElementOverlay"
 import { storage } from "@/storage"
 import { memo, useEffect, useState } from "react"
 
-const HighlightBoxComponent = ({ message }: { message: string }) => {
-  const [positions, setPositions] = useState<
-    { top: number; left: number; width: number; height: number }[]
-  >([])
+interface HeadingIssue {
+  selector: string
+  level: number
+  isValid: boolean
+  message: string
+}
+
+const HighlightBoxComponent = () => {
+  const [elements, setElements] = useState<OverlayElement[]>([])
 
   const updateHighlights = async () => {
-    const issues = (await storage.get("heading_issues")) || []
+    const issues = ((await storage.get("heading_issues")) ||
+      []) as HeadingIssue[]
 
-    console.log("🔍 Retrieved issues from storage:", issues)
+    console.log("🔍 Retrieved heading issues:", issues)
 
-    const issueElements = issues
-      .filter((issue) => issue.message === message)
+    const overlayElements = issues
       .map((issue) => {
         const element = document.querySelector(issue.selector) as HTMLElement
         if (!element) {
@@ -20,24 +27,23 @@ const HighlightBoxComponent = ({ message }: { message: string }) => {
           return null
         }
 
-        const rect = element.getBoundingClientRect()
         return {
-          top: rect.top + window.scrollY,
-          left: rect.left + window.scrollX,
-          width: rect.width,
-          height: rect.height
+          element,
+          isValid: issue.isValid,
+          label: `H${issue.level}`,
+          message: issue.message
         }
       })
-      .filter(Boolean)
+      .filter(Boolean) as OverlayElement[]
 
-    console.log("✅ Updated highlight positions:", issueElements)
-    setPositions(issueElements as any)
+    console.log("✅ Updated overlay elements:", overlayElements)
+    setElements(overlayElements)
   }
 
   useEffect(() => {
     updateHighlights() // Initial update
 
-    // ✅ Watch for storage updates
+    // Watch for storage updates
     storage.watch({
       heading_issues: () => {
         console.log("🔄 Storage updated, refreshing highlights...")
@@ -46,29 +52,9 @@ const HighlightBoxComponent = ({ message }: { message: string }) => {
     })
   }, [])
 
-  if (positions.length === 0) return null
+  if (elements.length === 0) return null
 
-  return (
-    <>
-      {positions.map((pos, index) => (
-        <div
-          key={index}
-          style={{
-            position: "absolute",
-            top: `${pos.top}px`,
-            left: `${pos.left}px`,
-            width: `${pos.width}px`,
-            height: `${pos.height}px`,
-            border: "2px solid red",
-            background: "rgba(255, 0, 0, 0.2)",
-            zIndex: 9999,
-            pointerEvents: "none"
-          }}>
-          {message}
-        </div>
-      ))}
-    </>
-  )
+  return <ElementOverlay elements={elements} />
 }
 
 export const HighlightBox = memo(HighlightBoxComponent)
