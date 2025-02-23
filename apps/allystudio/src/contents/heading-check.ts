@@ -94,14 +94,35 @@ const analyzeHeadings = () => {
   let previousLevel = headingData[0]?.level ?? 0
   let issues: HeadingIssue[] = []
 
+  // Analyze and highlight all headings
   headingData.forEach((heading, index) => {
-    if (index === 0) return // First heading is always valid
+    let isValid = true
+    let message = `H${heading.level} Heading`
 
-    if (heading.level > previousLevel + 1) {
+    // First heading should be H1
+    if (index === 0 && heading.level !== 1) {
+      isValid = false
+      message = `First heading should be H1, found H${heading.level}`
       issues.push({
         id: `heading-${index}`,
         selector: heading.selector,
-        message: `Invalid heading order: H${heading.level} after H${previousLevel}`,
+        message,
+        severity: "Critical",
+        element: {
+          tagName: heading.element.tagName,
+          textContent: heading.element.textContent || "",
+          xpath: getXPath(heading.element)
+        }
+      })
+    }
+    // Check subsequent headings
+    else if (index > 0 && heading.level > previousLevel + 1) {
+      isValid = false
+      message = `Invalid heading order: H${heading.level} after H${previousLevel}`
+      issues.push({
+        id: `heading-${index}`,
+        selector: heading.selector,
+        message,
         severity: "High",
         element: {
           tagName: heading.element.tagName,
@@ -109,17 +130,18 @@ const analyzeHeadings = () => {
           xpath: getXPath(heading.element)
         }
       })
-
-      // Publish highlight request
-      eventBus.publish({
-        type: "HEADING_HIGHLIGHT_REQUEST",
-        timestamp: Date.now(),
-        data: {
-          selector: heading.selector,
-          message: `Invalid H${heading.level} after H${previousLevel}`
-        }
-      })
     }
+
+    // Publish highlight request for every heading
+    eventBus.publish({
+      type: "HEADING_HIGHLIGHT_REQUEST",
+      timestamp: Date.now(),
+      data: {
+        selector: heading.selector,
+        message,
+        isValid
+      }
+    })
 
     previousLevel = heading.level
   })
