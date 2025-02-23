@@ -1,5 +1,6 @@
 import { supabase } from "@/core/supabase"
 
+import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
 const storage = new Storage()
@@ -73,4 +74,84 @@ supabase.auth.onAuthStateChange((event, session) => {
     event,
     session
   })
+})
+
+// Message types for type safety
+type HeadingMessage = {
+  type:
+    | "HEADING_DATA_UPDATE"
+    | "HEADING_ANALYSIS_STATE"
+    | "HEADING_ISSUES_UPDATE"
+  data: {
+    overlayData?: Array<{
+      selector: string
+      message: string
+      element?: HTMLElement
+    }>
+    issues?: Array<any>
+    isActive?: boolean
+  }
+}
+
+// Keep track of active tabs
+const activeTabs = new Set<number>()
+
+// Central message handler
+chrome.runtime.onMessage.addListener(
+  async (message: HeadingMessage, sender, sendResponse) => {
+    const senderTabId = sender.tab?.id
+
+    switch (message.type) {
+      case "HEADING_DATA_UPDATE": {
+        // Forward overlay data to plasmo-storage in the same tab
+        if (senderTabId) {
+          chrome.tabs.sendMessage(senderTabId, {
+            type: "HEADING_DATA_UPDATE",
+            data: {
+              overlayData: message.data.overlayData
+            }
+          })
+        }
+
+        // Forward issues to heading-order in the same tab
+        if (senderTabId) {
+          chrome.tabs.sendMessage(senderTabId, {
+            type: "HEADING_ISSUES_UPDATE",
+            data: {
+              issues: message.data.issues
+            }
+          })
+        }
+        break
+      }
+
+      case "HEADING_ANALYSIS_STATE": {
+        // Track active tabs
+        if (message.data.isActive && senderTabId) {
+          activeTabs.add(senderTabId)
+        } else if (senderTabId) {
+          activeTabs.delete(senderTabId)
+        }
+
+        // Forward state change to all components in the tab
+        if (senderTabId) {
+          chrome.tabs.sendMessage(senderTabId, {
+            type: "HEADING_ANALYSIS_STATE",
+            data: {
+              isActive: message.data.isActive
+            }
+          })
+        }
+        break
+      }
+    }
+
+    // Always send a response to avoid connection errors
+    sendResponse({ success: true })
+  }
+)
+
+// Clean up when tabs are closed
+chrome.tabs.onRemoved.addListener((tabId) => {
+  activeTabs.delete(tabId)
 })
