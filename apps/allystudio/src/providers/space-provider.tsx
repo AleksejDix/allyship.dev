@@ -158,61 +158,6 @@ function Empty() {
   )
 }
 
-// Single space component
-function Single() {
-  return (
-    <SpaceContext.Consumer>
-      {(context) => {
-        if (!context?.actor) return null
-        const snapshot = context.actor.getSnapshot()
-        if (
-          !snapshot?.matches({ loaded: { count: "one" } }) ||
-          !context.currentSpace
-        )
-          return null
-
-        return (
-          <div className="flex h-screen items-center justify-center bg-background p-4">
-            <div className="w-full max-w-sm space-y-4">
-              <div className="text-center">
-                <h2 className="text-lg font-semibold">Current Space</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  You are working in your only space
-                </p>
-              </div>
-              <div className="rounded-lg border bg-card p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{context.currentSpace.name}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Created{" "}
-                      {new Date(
-                        context.currentSpace.created_at
-                      ).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <svg
-                    className="h-5 w-5 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }}
-    </SpaceContext.Consumer>
-  )
-}
-
 // Space selection component
 function Selection() {
   return (
@@ -280,7 +225,9 @@ function Content({ children }: PropsWithChildren) {
         if (!context?.actor) return null
         const snapshot = context.actor.getSnapshot()
 
-        // Show content when we have a selected space (either in one or some.selected state)
+        // Show content when:
+        // 1. We have exactly one space (it's auto-selected and auto-marked as selected)
+        // 2. We have multiple spaces and one is selected
         if (
           !snapshot?.matches({ loaded: { count: "one" } }) &&
           !snapshot?.matches({
@@ -290,9 +237,13 @@ function Content({ children }: PropsWithChildren) {
           return null
         }
 
-        if (!context.currentSpace) return null
+        // Safety check - we should always have a currentSpace in these states
+        if (!context.currentSpace) {
+          console.error("No current space in a selected state")
+          return null
+        }
 
-        return children
+        return <div className="flex-1">{children}</div>
       }}
     </SpaceContext.Consumer>
   )
@@ -306,7 +257,7 @@ function Debug() {
         if (!context || process.env.NODE_ENV !== "development") return null
 
         return (
-          <div className="fixed border border-red-400 bottom-4 right-4 z-50 rounded-lg border bg-card p-2 text-xs">
+          <div className="fixed border border-red-400 bottom-4 right-4 z-50 rounded-lg bg-card p-2 text-xs">
             <div className="font-medium">Space Machine: {context.state}</div>
 
             <pre>{JSON.stringify(context, null, 2)}</pre>
@@ -371,7 +322,6 @@ export const Spaces = {
   Loading,
   Error,
   Empty,
-  Single,
   Selection,
   Content,
   Debug
@@ -385,10 +335,9 @@ export function SpaceProvider({ children }: PropsWithChildren) {
         <Spaces.Loading />
         <Spaces.Error />
         <Spaces.Empty />
-        <Spaces.Single />
         <Spaces.Selection />
         <Spaces.Content>{children}</Spaces.Content>
-        <Spaces.Debug />
+        {/* <Spaces.Debug /> */}
       </div>
     </Spaces.Root>
   )
