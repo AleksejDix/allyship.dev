@@ -1,38 +1,12 @@
-import type { Session } from "@supabase/supabase-js"
-import { useEffect, useState } from "react"
-
 import "@/styles/globals.css"
 
 import { Layout } from "@/components/layout"
 import { OptionsHeader } from "@/components/options-header"
 import { ThemeSelector } from "@/components/theme-selector"
-import { supabase } from "@/core/supabase"
+import { useAuth } from "@/providers/auth-provider"
 
 function IndexOptions() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setIsLoading(false)
-    })
-
-    // Listen for auth changes from Supabase
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      // Notify background of auth change
-      chrome.runtime.sendMessage({
-        type: "AUTH_STATE_CHANGE",
-        session
-      })
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const { session, isLoading } = useAuth()
 
   if (isLoading) {
     return (

@@ -1,5 +1,4 @@
 import { Werkzeug } from "@/components/werkzeug"
-import type { Session } from "@supabase/supabase-js"
 import { useEffect, useRef, useState } from "react"
 
 import "@/styles/globals.css"
@@ -14,21 +13,21 @@ import {
   getPageByUrl,
   getWebsiteForUrl
 } from "@/core/pages"
-import { supabase } from "@/core/supabase"
 import { eventBus } from "@/lib/events/event-bus"
 import type {
   HeadingAnalysisCompleteEvent,
   HeadingIssue
 } from "@/lib/events/types"
+import { useAuth } from "@/providers/auth-provider"
 import type { Database } from "@/types/database"
 
 type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
   website: Database["public"]["Tables"]["Website"]["Row"]
 }
 
-function IndexSidePanel() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+// Inner component that uses useAuth
+function SidePanelContent() {
+  const { session, isLoading } = useAuth()
   const [activeTool, setActiveTool] = useState("")
   const [currentUrl, setCurrentUrl] = useState("")
   const [currentTitle, setCurrentTitle] = useState("Untitled Page")
@@ -93,19 +92,6 @@ function IndexSidePanel() {
   }, [activeTool])
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setIsLoading(false)
-    })
-
-    // Listen for auth changes from Supabase
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-
     // Get current tab URL and title
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
@@ -131,8 +117,6 @@ function IndexSidePanel() {
         updateCurrentTab(tab)
       })
     })
-
-    return () => subscription.unsubscribe()
   }, [])
 
   // Check if page exists and get website ID when URL changes
@@ -206,74 +190,79 @@ function IndexSidePanel() {
   }
 
   return (
-    <Layout>
-      <div className="flex h-screen flex-col">
-        <div className="flex flex-1 flex-col">
-          <div className="flex w-full flex-col border-b bg-muted/50">
-            <PageConnector
-              currentFile={currentTitle}
-              isConnected={!!pageData}
-              onAddPage={handleAddPage}
-              pageData={pageData}
-              currentUrl={currentUrl}
-              websiteId={websiteId}
-            />
-          </div>
-          <Werkzeug />
-          <div className="flex-1 p-4 space-y-4">
-            {activeTool === "headings" && (
-              <>
-                <div className="card p-4 bg-card">
-                  <p className="text-sm">
-                    {activeTool
-                      ? "Headings are now highlighted on the page. Click again to hide."
-                      : "Click to highlight all headings on the page."}
-                  </p>
-                </div>
-                {headingIssues.length > 0 ? (
-                  <div className="space-y-2">
-                    {headingIssues.map((issue) => (
-                      <div
-                        key={issue.id}
-                        className="card p-4 bg-card hover:bg-card/80 cursor-pointer"
-                        onClick={() =>
-                          issue.element?.xpath &&
-                          navigateToIssue(issue.element.xpath)
-                        }>
-                        <div className="flex items-start gap-2">
-                          <span
-                            className={`px-2 py-1 text-xs rounded ${
-                              issue.severity === "Critical"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}>
-                            {issue.severity}
-                          </span>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">
-                              {issue.message}
+    <div className="flex h-screen flex-col">
+      <div className="flex flex-1 flex-col">
+        <div className="flex w-full flex-col border-b bg-muted/50">
+          <PageConnector
+            currentFile={currentTitle}
+            isConnected={!!pageData}
+            onAddPage={handleAddPage}
+            pageData={pageData}
+            currentUrl={currentUrl}
+            websiteId={websiteId}
+          />
+        </div>
+        <Werkzeug />
+        <div className="flex-1 p-4 space-y-4">
+          {activeTool === "headings" && (
+            <>
+              <div className="card p-4 bg-card">
+                <p className="text-sm">
+                  {activeTool
+                    ? "Headings are now highlighted on the page. Click again to hide."
+                    : "Click to highlight all headings on the page."}
+                </p>
+              </div>
+              {headingIssues.length > 0 ? (
+                <div className="space-y-2">
+                  {headingIssues.map((issue) => (
+                    <div
+                      key={issue.id}
+                      className="card p-4 bg-card hover:bg-card/80 cursor-pointer"
+                      onClick={() =>
+                        issue.element?.xpath &&
+                        navigateToIssue(issue.element.xpath)
+                      }>
+                      <div className="flex items-start gap-2">
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${
+                            issue.severity === "Critical"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}>
+                          {issue.severity}
+                        </span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{issue.message}</p>
+                          {issue.element?.textContent && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {issue.element.textContent}
                             </p>
-                            {issue.element?.textContent && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {issue.element.textContent}
-                              </p>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground p-4">
-                    No heading issues found
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground p-4">
+                  No heading issues found
+                </div>
+              )}
+            </>
+          )}
         </div>
-        <Header session={session} />
       </div>
+      <Header session={session} />
+    </div>
+  )
+}
+
+// Outer component that provides Layout
+function IndexSidePanel() {
+  return (
+    <Layout>
+      <SidePanelContent />
     </Layout>
   )
 }

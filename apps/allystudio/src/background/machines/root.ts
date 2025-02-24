@@ -1,11 +1,12 @@
 import { supabase } from "@/core/supabase"
+import type { AuthError, Session } from "@supabase/supabase-js"
 import { assign, createActor, fromPromise, setup } from "xstate"
 
 // Event types
 export type AuthEvent = {
   type: "AUTH_STATE_CHANGE"
   event: string
-  session: any
+  session: Session | null
 }
 
 export type TabEvent = {
@@ -13,12 +14,18 @@ export type TabEvent = {
   tabId: number
 }
 
-export type RootEvent = AuthEvent | TabEvent
+export type ErrorEvent = {
+  type: "error"
+  error: AuthError
+}
+
+export type RootEvent = AuthEvent | TabEvent | ErrorEvent
 
 // Types for our state context
 export interface RootContext {
   activeTabs: Set<number>
-  session: any | null
+  session: Session | null
+  error: AuthError | null
 }
 
 // Create the root machine
@@ -29,7 +36,8 @@ export const rootMachine = setup({
   },
   actors: {
     checkInitialAuth: fromPromise(async () => {
-      const { data } = await supabase.auth.getSession()
+      const { data, error } = await supabase.auth.getSession()
+      if (error) throw error
       return data
     })
   },
@@ -38,7 +46,15 @@ export const rootMachine = setup({
       session: ({ event }) => {
         if (event.type !== "AUTH_STATE_CHANGE") return null
         return event.session
-      }
+      },
+      error: null
+    }),
+    handleError: assign({
+      error: ({ event }) => {
+        if (event.type !== "error") return null
+        return event.error
+      },
+      session: null
     }),
     cleanupClosedTab: assign(({ context, event }) => {
       if (event.type !== "TAB_CLOSED") return context
@@ -55,7 +71,8 @@ export const rootMachine = setup({
   initial: "initializing",
   context: {
     activeTabs: new Set<number>(),
-    session: null
+    session: null,
+    error: null
   },
   states: {
     initializing: {
@@ -65,10 +82,19 @@ export const rootMachine = setup({
         onDone: {
           target: "ready",
           actions: assign({
-            session: ({ event }) => event.output.session
+            session: ({ event }) => event.output.session,
+            error: null
           })
         },
-        onError: "ready"
+        onError: {
+          target: "ready",
+          actions: [
+            assign({
+              error: ({ event }) => event.error as AuthError,
+              session: null
+            })
+          ]
+        }
       }
     },
     ready: {
