@@ -2,8 +2,14 @@ import type { AllyStudioEvent, EventHandler } from "./types"
 
 class ChromeEventBus {
   private handlers: Set<EventHandler> = new Set()
+  private isContentScript: boolean
 
   constructor() {
+    // Determine if we're in a content script context
+    this.isContentScript =
+      chrome.runtime?.getManifest !== undefined &&
+      window.location.protocol !== "chrome-extension:"
+
     // Listen for Chrome runtime messages
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (this.isAllyStudioEvent(message)) {
@@ -22,6 +28,11 @@ class ChromeEventBus {
       }
       return true // Keep message channel open for async responses
     })
+
+    console.log(
+      "[EventBus] Initialized in",
+      this.isContentScript ? "content script" : "extension"
+    )
   }
 
   private isAllyStudioEvent(message: any): message is AllyStudioEvent {
@@ -47,20 +58,27 @@ class ChromeEventBus {
       timestamp: event.timestamp ?? Date.now()
     }
 
-    // Send to all contexts via Chrome messaging
-    chrome.runtime.sendMessage(fullEvent).catch((error) => {
-      console.error("Failed to publish event:", error)
-    })
+    // Always notify local handlers first
+    this.handlers.forEach((handler) => handler(fullEvent))
 
-    // If we have a tabId, also send to content scripts
-    if (fullEvent.tabId) {
-      chrome.tabs.sendMessage(fullEvent.tabId, fullEvent).catch((error) => {
-        console.error("Failed to send event to tab:", error)
+    // If we're in the sidepanel, send to content script
+    if (!this.isContentScript) {
+      // Send to active tab's content script
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+        if (tab?.id) {
+          chrome.tabs.sendMessage(tab.id, fullEvent).catch((error) => {
+            console.error("[EventBus] Failed to send to content script:", error)
+          })
+        }
       })
     }
 
-    // Notify local handlers
-    this.handlers.forEach((handler) => handler(fullEvent))
+    // If we're in content script, send to extension
+    if (this.isContentScript) {
+      chrome.runtime.sendMessage(fullEvent).catch((error) => {
+        console.error("[EventBus] Failed to send to extension:", error)
+      })
+    }
   }
 }
 

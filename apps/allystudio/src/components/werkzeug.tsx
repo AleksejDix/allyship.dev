@@ -58,33 +58,46 @@ export function Werkzeug() {
   }, [])
 
   const toggleLayer = (layerName: string) => {
+    // Map test types to layer names first
+    const layerMap = {
+      headings: "headings",
+      links: "links",
+      alt: "images",
+      interactive: "interactive"
+    } as const
+
+    console.log("[Werkzeug] Toggle requested for layer:", layerName)
+
+    // Get the mapped layer name
+    const mappedLayer =
+      layerMap[layerName as keyof typeof layerMap] || layerName
+    console.log("[Werkzeug] Mapped layer name:", mappedLayer)
+
     setHiddenLayers((current) => {
       const newHidden = new Set(current)
-      if (newHidden.has(layerName)) {
-        newHidden.delete(layerName)
+      if (newHidden.has(mappedLayer)) {
+        console.log(
+          "[Werkzeug] Showing layer (removing from hidden):",
+          mappedLayer
+        )
+        newHidden.delete(mappedLayer)
       } else {
-        newHidden.add(layerName)
+        console.log("[Werkzeug] Hiding layer (adding to hidden):", mappedLayer)
+        newHidden.add(mappedLayer)
       }
 
-      // Map test types to layer names
-      const layerMap = {
-        headings: "headings",
-        links: "links",
-        alt: "images",
-        interactive: "interactive"
-      } as const
-
-      // Publish event to sync with PlasmoOverlay
-      const mappedLayer =
-        layerMap[layerName as keyof typeof layerMap] || layerName
-      console.log("Toggling layer:", mappedLayer)
+      const isVisible = !newHidden.has(mappedLayer)
+      console.log("[Werkzeug] Publishing LAYER_TOGGLE_REQUEST:", {
+        layer: mappedLayer,
+        visible: isVisible
+      })
 
       eventBus.publish({
         type: "LAYER_TOGGLE_REQUEST",
         timestamp: Date.now(),
         data: {
           layer: mappedLayer,
-          visible: !newHidden.has(layerName)
+          visible: isVisible
         }
       })
 
