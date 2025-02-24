@@ -1,592 +1,222 @@
 # Allyship Studio
 
-A Chrome extension for real-time accessibility testing and analysis, built with [Plasmo](https://docs.plasmo.com/) and [shadcn/ui](https://ui.shadcn.com/).
+A Chrome extension for real-time accessibility testing and analysis, built with [Plasmo](https://docs.plasmo.com/), [shadcn/ui](https://ui.shadcn.com/), and [XState](https://xstate.js.org/).
 
 ## Core Architecture
 
 ```mermaid
 graph TB
-    subgraph Extension["Extension Components"]
+    subgraph Extension["Extension Core"]
+        direction TB
         B[Background Service]
-        CS[Content Scripts]
         SP[Side Panel]
         OP[Options Page]
+        CS[Content Scripts]
+    end
+
+    subgraph State["State Management"]
+        direction TB
+        SM[State Machine]
+        EB[Event Bus]
+        ST[Storage]
     end
 
     subgraph Testing["Testing System"]
+        direction TB
         TR[Test Runner]
         TS[Test Suites]
         TL[Test Logger]
     end
 
     subgraph UI["UI Components"]
+        direction TB
         W[Werkzeug]
-        PO[Plasmo Overlay]
         H[Highlights]
+        O[Overlays]
     end
 
-    subgraph State["State Management"]
-        EB[Event Bus]
-        ST[Storage]
-    end
-
-    B --> EB
-    CS --> EB
-    SP --> EB
+    B --> SM
+    SM --> EB
+    EB --> CS
+    EB --> SP
     EB --> W
-    EB --> PO
+    W --> TR
     TR --> TS
     TS --> TL
-    W --> TR
     TR --> H
-    H --> PO
+    H --> O
+    ST --> SM
 ```
 
 ### Component Communication Flow
 
 ```mermaid
 sequenceDiagram
-    participant SidePanel as Side Panel
-    participant TestRunner as Test Runner
-    participant UI as UI Layers
-    participant Options as Options Page
-    participant Storage as Storage (Settings/Auth)
-    participant Logger as Logger (Test & Event Logs)
+    participant SP as Side Panel
+    participant EB as Event Bus
+    participant SM as State Machine
+    participant CS as Content Script
+    participant TR as Test Runner
+    participant UI as UI Layer
 
-    %% Test Execution Flow
-    SidePanel->>TestRunner: RUN_TEST_SUITE { suiteId }
-    TestRunner->>Logger: LOG { event: "Test Started", suiteId }
-    TestRunner->>SidePanel: TEST_STATUS { running: true }
-    TestRunner->>UI: HIGHLIGHT_BUGS { elements: [...] }
-    TestRunner->>SidePanel: TEST_RESULTS { issues: [...] }
-    SidePanel->>UI: TOGGLE_HIGHLIGHTS { layer: true/false }
-    Logger->>Storage: SAVE_LOG { type: "test", data: {...} }
+    %% Tool Activation Flow
+    SP->>EB: TOOL_STATE_CHANGE
+    EB->>SM: Update Tool State
+    SM->>CS: Execute Tool
+    CS->>TR: Run Analysis
+    TR->>EB: ANALYSIS_COMPLETE
+    EB->>SP: Update UI
+    EB->>UI: Update Highlights
 
-    %% Stopping a test
-    SidePanel->>TestRunner: STOP_TEST_SUITE
-    TestRunner->>Logger: LOG { event: "Test Stopped" }
-    TestRunner->>SidePanel: TEST_STATUS { running: false }
-    TestRunner->>UI: CLEAR_HIGHLIGHTS
+    %% Navigation Flow
+    SP->>EB: NAVIGATE_REQUEST
+    EB->>CS: Navigate to Element
+    CS->>UI: Highlight Element
 
-    %% Restarting a test
-    SidePanel->>TestRunner: RUN_TEST_SUITE { suiteId }
-    Logger->>Storage: SAVE_LOG { type: "restart", data: {...} }
-
-    %% Changing Global Settings
-    Options->>Storage: UPDATE_SETTINGS { key, value }
-    Logger->>Storage: SAVE_LOG { type: "settings", data: {...} }
-    SidePanel->>Storage: GET_SETTINGS
-    Storage->>SidePanel: SETTINGS_DATA { ... }
-
-    %% User Login
-    Options->>Storage: LOGIN { credentials }
-    Storage->>Logger: LOG { event: "User Login Attempt" }
-    Storage->>Options: AUTH_STATUS { success/fail }
-    Logger->>Storage: SAVE_LOG { type: "auth", data: {...} }
+    %% State Changes
+    SP->>SM: AUTH_STATE_CHANGE
+    SM->>EB: Broadcast State
+    EB->>SP: Update Auth UI
 ```
 
-This communication flow demonstrates several key improvements:
+### State Machine Flow
 
-1. **Clear Message Patterns**
+```mermaid
+stateDiagram-v2
+    [*] --> initializing
+    initializing --> ready: checkInitialAuth
 
-   - Commands: `RUN_TEST_SUITE`, `STOP_TEST_SUITE`, `UPDATE_SETTINGS`
-   - Events: `TEST_STATUS`, `HIGHLIGHT_BUGS`, `TEST_RESULTS`
-   - Queries: `GET_SETTINGS`, `AUTH_STATUS`
+    state ready {
+        [*] --> idle
+        idle --> analyzing: TOOL_STATE_CHANGE
+        analyzing --> idle: ANALYSIS_COMPLETE
+    }
 
-2. **Separation of Concerns**
-
-   - Side Panel: User interaction and test control
-   - Test Runner: Test execution and result management
-   - UI Layers: Visual feedback and highlighting
-   - Storage: Settings and authentication persistence
-   - Logger: Comprehensive event tracking
-
-3. **Logging Integration**
-
-   - Every significant action is logged
-   - Logs are persisted for debugging
-   - Clear audit trail of user actions
-
-4. **State Management**
-
-   ```typescript
-   // Message type definitions
-   interface TestMessage {
-     type: "RUN_TEST_SUITE" | "STOP_TEST_SUITE" | "TEST_STATUS" | "TEST_RESULTS"
-     payload: {
-       suiteId?: string
-       running?: boolean
-       issues?: TestIssue[]
-     }
-   }
-
-   interface UIMessage {
-     type: "HIGHLIGHT_BUGS" | "TOGGLE_HIGHLIGHTS" | "CLEAR_HIGHLIGHTS"
-     payload: {
-       elements?: Element[]
-       layer?: boolean
-     }
-   }
-
-   interface StorageMessage {
-     type: "UPDATE_SETTINGS" | "GET_SETTINGS" | "SETTINGS_DATA"
-     payload: {
-       key?: string
-       value?: unknown
-       settings?: AppSettings
-     }
-   }
-
-   interface LogMessage {
-     type: "LOG"
-     payload: {
-       event: string
-       type: "test" | "restart" | "settings" | "auth"
-       data: Record<string, unknown>
-     }
-   }
-   ```
-
-5. **Error Handling**
-
-   - Clear failure paths
-   - Status reporting
-   - Error logging
-   - Recovery flows
-
-6. **Settings Management**
-   - Centralized storage
-   - Real-time updates
-   - Persistence
-   - Access control
-
-This communication pattern provides several benefits:
-
-- Predictable data flow
-- Clear responsibility boundaries
-- Comprehensive logging
-- Type-safe messages
-- Easy debugging
-- Testable components
+    ready --> [*]: AUTH_STATE_CHANGE
+```
 
 ## Directory Structure
 
 ```
 src/
-├── background/        # Chrome extension background service
-├── components/        # React components and UI elements
-├── contents/         # Content scripts for page analysis
-├── core/            # Core business logic and services
-├── lib/             # Shared utilities and test runners
-├── sidepanel/        # Extension side panel UI
-├── storage/         # State persistence
-├── types/           # TypeScript type definitions
-└── utils/           # Helper functions
+├── background/           # Chrome extension background service
+│   ├── handlers/        # Event and message handlers
+│   ├── machines/        # State machines
+│   └── layers.ts        # Background script layers
+├── components/          # React components
+├── contents/           # Content scripts
+├── core/              # Core business logic
+├── lib/               # Shared utilities
+│   ├── events/        # Event system
+│   └── testing/       # Test runners
+├── sidepanel/         # Extension side panel
+└── types/             # TypeScript definitions
 ```
 
 ## Key Components
 
-### 1. Test Runner System
+### 1. State Machine
 
-The test runner orchestrates accessibility tests and manages results:
+The root state machine manages global application state:
 
 ```typescript
-class ACTTestRunner {
-  private suites: ACTSuite[] = []
-  private elementResults: Map<string, ElementResult> = new Map()
-  private currentTestType: TestType | null = null
-
-  async *runTests(type: TestType): AsyncGenerator<TestUpdate, void, unknown> {
-    // Test execution logic
-  }
+interface RootContext {
+  activeTabs: Set<number>
+  session: any | null
 }
-```
 
-### 1.1 Test Execution State Machine
+type RootEvent =
+  | { type: "AUTH_STATE_CHANGE"; event: string; session: any }
+  | { type: "TAB_CLOSED"; tabId: number }
 
-The test execution flow is managed by a precise XState state machine, inspired by the Casio F-91W implementation:
-
-```typescript
-// Guard conditions
-const isValidPage = (context) => !!context.url && !context.url.startsWith('chrome://');
-const hasResults = (context) => context.results.length > 0;
-const hasErrors = (context) => context.errors.length > 0;
-const isTestComplete = (context, event) => event.type === 'TEST_COMPLETE';
-
-// Helper functions
-const normalizeResults = (results) => {
-  return results.map(result => ({
-    ...result,
-    timestamp: Date.now(),
-    id: generateUUID()
-  }));
-};
-
-const categorizeResults = (results) => {
-  return {
-    errors: results.filter(r => r.type === 'error'),
-    warnings: results.filter(r => r.type === 'warning'),
-    info: results.filter(r => r.type === 'info')
-  };
-};
-
-// State machine definition
-export const accessibilityMachine = createMachine({
-  id: 'accessibility',
-  initial: 'idle',
+const rootMachine = createMachine({
+  id: "rootMachine",
+  initial: "initializing",
   context: {
-    url: undefined,
-    results: [],
-    errors: [],
-    currentTest: null,
-    testQueue: [],
-    highlights: new Map()
+    activeTabs: new Set<number>(),
+    session: null
   },
   states: {
-    idle: {
+    initializing: {
+      invoke: {
+        src: "checkInitialAuth",
+        onDone: { target: "ready" }
+      }
+    },
+    ready: {
       on: {
-        START_SCAN: [
-          {
-            cond: 'isValidPage',
-            target: 'preparing',
-            actions: ['recordURL', 'initializeTestQueue']
-          },
-          {
-            target: 'error',
-            actions: ['recordInvalidPageError']
-          }
-        ]
+        AUTH_STATE_CHANGE: { actions: "updateSession" },
+        TAB_CLOSED: { actions: "cleanupClosedTab" }
       }
-    },
-    preparing: {
-      entry: ['resetResults', 'clearHighlights'],
-      on: {
-        TESTS_READY: 'scanning.structure',
-        ERROR: 'error'
-      }
-    },
-    scanning: {
-      states: {
-        structure: {
-          entry: ['startStructureTests'],
-          on: {
-            TEST_COMPLETE: {
-              target: 'headings',
-              actions: ['appendResults']
-            },
-            ERROR: '#accessibility.error'
-          }
-        },
-        headings: {
-          entry: ['startHeadingTests'],
-          on: {
-            TEST_COMPLETE: {
-              target: 'links',
-              actions: ['appendResults']
-            },
-            ERROR: '#accessibility.error'
-          }
-        },
-        links: {
-          entry: ['startLinkTests'],
-          on: {
-            TEST_COMPLETE: {
-              target: 'interactive',
-              actions: ['appendResults']
-            },
-            ERROR: '#accessibility.error'
-          }
-        },
-        interactive: {
-          entry: ['startInteractiveTests'],
-          on: {
-            TEST_COMPLETE: {
-              target: 'media',
-              actions: ['appendResults']
-            },
-            ERROR: '#accessibility.error'
-          }
-        },
-        media: {
-          entry: ['startMediaTests'],
-          on: {
-            TEST_COMPLETE: [
-              {
-                cond: 'hasResults',
-                target: '#accessibility.analyzing'
-              },
-              {
-                target: '#accessibility.complete'
-              }
-            ],
-            ERROR: '#accessibility.error'
-          }
-        }
-      }
-    },
-    analyzing: {
-      entry: ['categorizeResults'],
-      on: {
-        ANALYSIS_COMPLETE: [
-          {
-            cond: 'hasErrors',
-            target: 'error_summary'
-          },
-          {
-            target: 'complete'
-          }
-        ]
-      }
-    },
-    error_summary: {
-      entry: ['prepareErrorSummary'],
-      on: {
-        VIEW_DETAILS: 'complete',
-        RESTART: 'preparing'
-      }
-    },
-    complete: {
-      entry: ['notifyComplete', 'updateHighlights'],
-      on: {
-        TOGGLE_HIGHLIGHT: {
-          actions: ['toggleHighlight']
-        },
-        NEW_SCAN: 'preparing',
-        EXPORT: {
-          actions: ['exportResults']
-        }
-      }
-    },
-    error: {
-      entry: ['logError'],
-      on: {
-        RETRY: 'preparing',
-        RESET: 'idle'
-      }
-    }
-  }
-}, {
-  guards: {
-    isValidPage,
-    hasResults,
-    hasErrors,
-    isTestComplete
-  },
-  actions: {
-    recordURL: assign({
-      url: (_, event) => event.url
-    }),
-    initializeTestQueue: assign({
-      testQueue: (context) => [
-        'structure',
-        'headings',
-        'links',
-        'interactive',
-        'media'
-      ]
-    }),
-    resetResults: assign({
-      results: [],
-      errors: []
-    }),
-    clearHighlights: assign({
-      highlights: new Map()
-    }),
-    appendResults: assign({
-      results: (context, event) => [
-        ...context.results,
-        ...normalizeResults(event.results)
-      ]
-    }),
-    categorizeResults: assign({
-      results: (context) => categorizeResults(context.results)
-    }),
-    toggleHighlight: assign({
-      highlights: (context, event) => {
-        const newHighlights = new Map(context.highlights);
-        const id = event.elementId;
-        newHighlights.set(id, !newHighlights.get(id));
-        return newHighlights;
-      }
-    }),
-    updateHighlights: (context) => {
-      // Update DOM highlights
-      context.results.forEach(result => {
-        updateElementHighlight(result);
-      });
-    },
-    exportResults: (context) => {
-      const report = generateAccessibilityReport(context.results);
-      downloadReport(report);
-    }
-  }
-});
-
-// Example usage in a React component:
-function AccessibilityScanner() {
-  const [state, send] = useMachine(accessibilityMachine);
-
-  return (
-    <div>
-      {state.matches('idle') && (
-        <button
-          onClick={() => send('START_SCAN', { url: window.location.href })}
-          disabled={!isValidPage(window.location.href)}
-        >
-          Start Accessibility Scan
-        </button>
-      )}
-
-      {state.matches('scanning') && (
-        <ScanProgress
-          phase={state.value.scanning}
-          results={state.context.results}
-        />
-      )}
-
-      {state.matches('complete') && (
-        <ResultsView
-          results={state.context.results}
-          highlights={state.context.highlights}
-          onToggleHighlight={(id) => send('TOGGLE_HIGHLIGHT', { elementId: id })}
-          onExport={() => send('EXPORT')}
-        />
-      )}
-
-      {state.matches('error') && (
-        <ErrorView
-          error={state.context.errors[0]}
-          onRetry={() => send('RETRY')}
-          onReset={() => send('RESET')}
-        />
-      )}
-    </div>
-  );
-}
-```
-
-This state machine provides:
-
-- Precise control over the testing lifecycle
-- Clear separation of test phases
-- Robust error handling
-- Type-safe state transitions
-- Granular control over highlights
-- Built-in support for result categorization
-- Export capabilities
-
-The key improvements over the previous design:
-
-1. Clear separation of scanning phases
-2. Explicit error handling paths
-3. Granular control over highlights
-4. Support for test queueing
-5. Built-in result normalization
-6. Export functionality
-7. Progress tracking per test type
-
-### 2. Event Bus Communication
-
-The event bus implements a CQRS pattern for test execution and results:
-
-```mermaid
-flowchart LR
-    subgraph Commands
-        TR[Test Run Command]
-        HL[Highlight Command]
-        ST[State Change Command]
-    end
-
-    subgraph Queries
-        TRes[Test Results Query]
-        HRes[Highlight Results Query]
-        SRes[State Query]
-    end
-
-    subgraph Components
-        W[Werkzeug]
-        PO[PlasmoOverlay]
-        TS[Test Suites]
-    end
-
-    W --> Commands
-    Commands --> TS
-    TS --> Queries
-    Queries --> PO
-```
-
-```typescript
-// Command handlers
-interface TestCommand {
-  type: "RUN_TEST" | "UPDATE_HIGHLIGHT" | "CHANGE_STATE"
-  payload: unknown
-}
-
-// Query handlers
-interface TestQuery {
-  type: "GET_TEST_RESULTS" | "GET_HIGHLIGHTS" | "GET_STATE"
-  filter?: unknown
-}
-
-// Example usage
-commandBus.dispatch({
-  type: "RUN_TEST",
-  payload: {
-    testType: "HEADINGS",
-    options: {
-      /* ... */
     }
   }
 })
-
-const results = await queryBus.execute({
-  type: "GET_TEST_RESULTS",
-  filter: {
-    testType: "HEADINGS"
-  }
-})
 ```
 
-This pattern provides:
+### 2. Event System
 
-- Clear separation between commands (actions) and queries (data retrieval)
-- Better testability through command/query handlers
-- Improved scalability for future test types
-- Foundation for event sourcing if needed later
-
-### 3. Highlight System
-
-The highlight system visualizes test results:
+The event bus implements a publish/subscribe pattern:
 
 ```typescript
-interface HighlightData {
-  selector: string
-  message: string
-  element: HTMLElement
-  isValid: boolean
-  layer: string
+interface AllyStudioEvent {
+  type: string
+  timestamp: number
+  tabId?: number
+  data?: unknown
+}
+
+class EventBus {
+  publish(event: AllyStudioEvent): void
+  subscribe(handler: (event: AllyStudioEvent) => void): () => void
 }
 ```
 
-## Test Categories
+### 3. Message Handlers
 
-### 1. Heading Structure Tests
+Dedicated handlers for different message types:
 
-- Hierarchy validation
-- Accessibility names
-- Document structure
+```typescript
+// Auth Handler
+export function setupAuthHandlers() {
+  supabase.auth.onAuthStateChange((event, session) => {
+    rootActor.send({
+      type: "AUTH_STATE_CHANGE",
+      event,
+      session
+    })
+  })
+}
 
-### 2. Link Accessibility Tests
+// Message Handler
+export function setupMessageHandlers() {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "AUTH_STATE_CHECK") {
+      const snapshot = rootActor.getSnapshot()
+      sendResponse({ session: snapshot.context.session })
+      return true
+    }
+    // ... other message handling
+  })
+}
+```
 
-- Valid references
-- Descriptive text
-- Navigation patterns
+## Event Types
 
-### 3. Interactive Element Tests
+### Core Events
 
-- Keyboard access
-- ARIA attributes
-- Focus management
+1. State Events
+
+   - `AUTH_STATE_CHANGE`
+   - `TOOL_STATE_CHANGE`
+
+2. Analysis Events
+
+   - `HEADING_ANALYSIS_COMPLETE`
+   - `HEADING_NAVIGATE_REQUEST`
+
+3. UI Events
+   - `HIGHLIGHT`
+   - `NAVIGATE_REQUEST`
 
 ## Development
 
@@ -604,93 +234,37 @@ interface HighlightData {
 pnpm install
 ```
 
-2. Set up environment:
-
-```bash
-cp .env.example .env
-```
-
-3. Development mode:
+2. Development mode:
 
 ```bash
 pnpm dev
 ```
 
-### Testing Flow
+### Build
 
-```mermaid
-stateDiagram-v2
-    [*] --> Initialize
-    Initialize --> Running: Start Analysis
-    Running --> Testing: Per Category
-    Testing --> Results: Complete
-    Results --> [*]: End
-
-    state Testing {
-        [*] --> HeadingTests
-        HeadingTests --> LinkTests
-        LinkTests --> AltTests
-        AltTests --> InteractiveTests
-        InteractiveTests --> [*]
-    }
-```
-
-## Event System
-
-### Core Events
-
-1. Test Control Events
-
-   - `TOOL_STATE_CHANGE`
-   - `*_ANALYSIS_REQUEST`
-   - `*_ANALYSIS_COMPLETE`
-
-2. UI Events
-   - `HIGHLIGHT`
-   - `NAVIGATE_REQUEST`
-
-### Event Flow Example
-
-```typescript
-// Event publication
-eventBus.publish({
-  type: "HIGHLIGHT",
-  timestamp: Date.now(),
-  data: {
-    selector: string,
-    message: string,
-    isValid: boolean,
-    layer: string
-  }
-})
-
-// Event subscription
-eventBus.subscribe((event) => {
-  if (event.type === "HIGHLIGHT") {
-    // Handle highlight updates
-  }
-})
+```bash
+pnpm build
 ```
 
 ## Best Practices
 
-### 1. Component Development
+### 1. State Management
 
-- Use TypeScript for type safety
-- Follow React best practices
+- Use state machines for complex state
 - Implement proper cleanup
+- Handle edge cases
 
-### 2. Testing
+### 2. Event Handling
 
-- Write unit tests for utilities
-- Test accessibility features
-- Validate event handling
+- Use typed events
+- Implement proper unsubscribe
+- Handle errors gracefully
 
-### 3. Performance
+### 3. Testing
 
-- Optimize highlight rendering
-- Manage event subscriptions
-- Clean up resources
+- Write unit tests
+- Test state transitions
+- Validate event flows
 
 ## License
 
