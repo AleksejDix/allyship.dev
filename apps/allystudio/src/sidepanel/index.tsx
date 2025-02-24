@@ -34,28 +34,8 @@ function IndexSidePanel() {
   const [currentTitle, setCurrentTitle] = useState("Untitled Page")
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [websiteId, setWebsiteId] = useState<string | null>(null)
-  const injectedTabsRef = useRef<Set<number>>(new Set())
   const lastUrlRef = useRef<string>("")
   const [headingIssues, setHeadingIssues] = useState<HeadingIssue[]>([])
-
-  // Function to inject content script if not already injected
-  const injectContentScript = async (tabId: number) => {
-    if (injectedTabsRef.current.has(tabId)) {
-      console.log("Content script already injected in tab:", tabId)
-      return
-    }
-
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId },
-        files: ["contents/heading-order.js"]
-      })
-      injectedTabsRef.current.add(tabId)
-      console.log("Content script injected in tab:", tabId)
-    } catch (error) {
-      console.error("Failed to inject heading analysis:", error)
-    }
-  }
 
   // Function to trigger analysis
   const triggerAnalysis = (tabId: number) => {
@@ -81,11 +61,8 @@ function IndexSidePanel() {
     setCurrentUrl(tab.url)
     setCurrentTitle(tab.title || "Untitled Page")
 
-    // Inject content script if needed
+    // If URL changed and tool is active, rerun analysis
     if (tab.id) {
-      await injectContentScript(tab.id)
-
-      // If URL changed and tool is active, rerun analysis
       if (isNewUrl && activeTool) {
         console.log("URL changed, rerunning analysis")
         // Small delay to ensure DOM is ready
@@ -97,23 +74,6 @@ function IndexSidePanel() {
       }
     }
   }
-
-  // Inject content scripts on initial load
-  useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      if (tabs[0]?.id) {
-        await injectContentScript(tabs[0].id)
-        if (activeTool) {
-          triggerAnalysis(tabs[0].id)
-        }
-      }
-    })
-
-    // Clean up injected tabs tracking when the panel is closed
-    return () => {
-      injectedTabsRef.current.clear()
-    }
-  }, [])
 
   // Effect to handle tool state changes
   useEffect(() => {
