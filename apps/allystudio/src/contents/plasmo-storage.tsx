@@ -4,7 +4,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import type { AllyStudioEvent } from "@/lib/events/types"
 import type { HighlightData, HighlightEvent } from "@/lib/highlight-types"
 import { DEFAULT_HIGHLIGHT_STYLES } from "@/lib/highlight-types"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const DEBOUNCE_MS = 100 // Wait 100ms for batching updates
 
@@ -25,29 +25,6 @@ const PlasmoOverlay = () => {
   const [testsComplete, setTestsComplete] = useState(false)
   const completedTestsRef = useRef<Set<string>>(new Set())
 
-  // Subscribe to test completion events
-  useEffect(() => {
-    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
-      // Track test completions
-      if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
-        completedTestsRef.current.add(event.type)
-
-        // Check if all required tests are complete
-        const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
-          completedTestsRef.current.has(testType)
-        )
-
-        if (allComplete) {
-          setTestsComplete(true)
-        }
-      }
-    })
-    return () => {
-      completedTestsRef.current.clear()
-      unsubscribe()
-    }
-  }, [])
-
   // Ref to store pending updates
   const pendingUpdatesRef = useRef<Map<string, Map<string, HighlightData>>>(
     new Map([])
@@ -56,35 +33,6 @@ const PlasmoOverlay = () => {
 
   // Track layer visibility
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
-
-  // Layer counter box styles
-  const layerCounterStyles = {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    color: "white",
-    padding: "12px",
-    borderRadius: "8px",
-    fontSize: "14px",
-    zIndex: 999999,
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "8px",
-    minWidth: "240px"
-  } as const
-
-  const layerItemStyles = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "8px",
-    width: "100%"
-  } as const
-
-  // Get active layer count and names
-  const activeLayerCount = useMemo(() => highlights.size, [highlights])
-  const layerNames = useMemo(() => Array.from(highlights.keys()), [highlights])
 
   // Toggle layer visibility
   const toggleLayer = (layerName: string) => {
@@ -130,6 +78,29 @@ const PlasmoOverlay = () => {
     }
     updateTimeoutRef.current = setTimeout(applyUpdates, DEBOUNCE_MS)
   }
+
+  // Subscribe to test completion events
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+      // Track test completions
+      if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
+        completedTestsRef.current.add(event.type)
+
+        // Check if all required tests are complete
+        const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
+          completedTestsRef.current.has(testType)
+        )
+
+        if (allComplete) {
+          setTestsComplete(true)
+        }
+      }
+    })
+    return () => {
+      completedTestsRef.current.clear()
+      unsubscribe()
+    }
+  }, [])
 
   // Subscribe to highlight events
   useEffect(() => {
