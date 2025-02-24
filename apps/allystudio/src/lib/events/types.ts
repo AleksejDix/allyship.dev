@@ -13,6 +13,7 @@ export type EventType =
   | "ALT_ANALYSIS_COMPLETE"
   | "INTERACTIVE_ANALYSIS_REQUEST"
   | "INTERACTIVE_ANALYSIS_COMPLETE"
+  | "TESTS_COMPLETE"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -180,6 +181,10 @@ export interface InteractiveIssue {
   }
 }
 
+export interface TestsCompleteEvent extends BaseEvent {
+  type: "TESTS_COMPLETE"
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -195,6 +200,7 @@ export type AllyStudioEvent =
   | AltAnalysisCompleteEvent
   | InteractiveAnalysisRequestEvent
   | InteractiveAnalysisCompleteEvent
+  | TestsCompleteEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void

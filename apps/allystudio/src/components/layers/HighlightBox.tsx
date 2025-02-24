@@ -4,9 +4,9 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip"
+import type { HighlightData } from "@/lib/highlight-types"
+import { DEFAULT_HIGHLIGHT_STYLES } from "@/lib/highlight-types"
 
-import type { HighlightData } from "../../contents/types"
-import { DEFAULT_HIGHLIGHT_STYLES } from "../../contents/types"
 import { elementStyles } from "./constants"
 
 interface HighlightBoxProps {

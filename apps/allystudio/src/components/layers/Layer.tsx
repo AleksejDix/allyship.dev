@@ -1,4 +1,4 @@
-import type { HighlightData } from "@/contents/types"
+import type { HighlightData } from "@/lib/highlight-types"
 import { memo } from "react"
 
 import { HighlightBox } from "./HighlightBox"
