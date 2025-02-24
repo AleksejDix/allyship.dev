@@ -1,10 +1,15 @@
 import { supabase } from "@/core/supabase"
-import { assign, createActor, createMachine, fromPromise, setup } from "xstate"
+import { assign, createActor, fromPromise, setup } from "xstate"
 
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
 import "./layers" // Import layers script to execute it
+
+// Configure sidebar to open on action click
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error("Failed to set panel behavior:", error))
 
 const storage = new Storage()
 
@@ -13,14 +18,6 @@ type AuthEvent = {
   type: "AUTH_STATE_CHANGE"
   event: string
   session: any
-}
-
-type HeadingAnalysisEvent = {
-  type: "HEADING_ANALYSIS_STATE"
-  tabId: number
-  data: {
-    isActive: boolean
-  }
 }
 
 type HeadingDataEvent = {
@@ -40,7 +37,7 @@ type TabEvent = {
   tabId: number
 }
 
-type RootEvent = AuthEvent | HeadingAnalysisEvent | HeadingDataEvent | TabEvent
+type RootEvent = AuthEvent | HeadingDataEvent | TabEvent
 
 // Types for our state context
 interface RootContext {
@@ -48,7 +45,6 @@ interface RootContext {
   session: any | null
   headingAnalysis: {
     [tabId: number]: {
-      isActive: boolean
       overlayData?: Array<{
         selector: string
         message: string
@@ -65,9 +61,58 @@ const rootMachine = setup({
     events: {} as RootEvent
   },
   actors: {
-    checkAuth: fromPromise(async () => {
+    checkInitialAuth: fromPromise(async () => {
       const { data } = await supabase.auth.getSession()
       return data
+    })
+  },
+  actions: {
+    updateSession: assign({
+      session: ({ event }) => {
+        if (event.type !== "AUTH_STATE_CHANGE") return null
+        return event.session
+      }
+    }),
+    updateHeadingData: assign({
+      headingAnalysis: ({ context, event }) => {
+        if (event.type !== "HEADING_DATA_UPDATE") return context.headingAnalysis
+        return {
+          ...context.headingAnalysis,
+          [event.tabId]: {
+            overlayData: event.data.overlayData,
+            issues: event.data.issues
+          }
+        }
+      }
+    }),
+    notifyHeadingDataUpdate: ({ context, event }) => {
+      if (event.type !== "HEADING_DATA_UPDATE") return
+      chrome.tabs.sendMessage(event.tabId, {
+        type: "HEADING_DATA_UPDATE",
+        data: {
+          overlayData: context.headingAnalysis[event.tabId]?.overlayData
+        }
+      })
+    },
+    notifyHeadingIssuesUpdate: ({ context, event }) => {
+      if (event.type !== "HEADING_DATA_UPDATE") return
+      chrome.tabs.sendMessage(event.tabId, {
+        type: "HEADING_ISSUES_UPDATE",
+        data: {
+          issues: context.headingAnalysis[event.tabId]?.issues
+        }
+      })
+    },
+    cleanupClosedTab: assign(({ context, event }) => {
+      if (event.type !== "TAB_CLOSED") return context
+      const newTabs = new Set(context.activeTabs)
+      newTabs.delete(event.tabId)
+      const newAnalysis = { ...context.headingAnalysis }
+      delete newAnalysis[event.tabId]
+      return {
+        activeTabs: newTabs,
+        headingAnalysis: newAnalysis
+      }
     })
   }
 }).createMachine({
@@ -81,8 +126,8 @@ const rootMachine = setup({
   states: {
     initializing: {
       invoke: {
-        id: "checkAuth",
-        src: "checkAuth",
+        id: "checkInitialAuth",
+        src: "checkInitialAuth",
         onDone: {
           target: "ready",
           actions: assign({
@@ -95,84 +140,17 @@ const rootMachine = setup({
     ready: {
       on: {
         AUTH_STATE_CHANGE: {
-          actions: assign({
-            session: ({ event }) => {
-              if (event.type !== "AUTH_STATE_CHANGE") return null
-              return event.session
-            }
-          })
-        },
-        HEADING_ANALYSIS_STATE: {
-          actions: [
-            assign({
-              headingAnalysis: ({ context, event }) => {
-                if (event.type !== "HEADING_ANALYSIS_STATE")
-                  return context.headingAnalysis
-                return {
-                  ...context.headingAnalysis,
-                  [event.tabId]: {
-                    ...context.headingAnalysis[event.tabId],
-                    isActive: event.data.isActive
-                  }
-                }
-              }
-            }),
-            ({ context, event }) => {
-              if (event.type !== "HEADING_ANALYSIS_STATE") return
-              chrome.tabs.sendMessage(event.tabId, {
-                type: "HEADING_ANALYSIS_STATE",
-                data: {
-                  isActive: context.headingAnalysis[event.tabId]?.isActive
-                }
-              })
-            }
-          ]
+          actions: "updateSession"
         },
         HEADING_DATA_UPDATE: {
           actions: [
-            assign({
-              headingAnalysis: ({ context, event }) => {
-                if (event.type !== "HEADING_DATA_UPDATE")
-                  return context.headingAnalysis
-                return {
-                  ...context.headingAnalysis,
-                  [event.tabId]: {
-                    ...context.headingAnalysis[event.tabId],
-                    overlayData: event.data.overlayData,
-                    issues: event.data.issues
-                  }
-                }
-              }
-            }),
-            ({ context, event }) => {
-              if (event.type !== "HEADING_DATA_UPDATE") return
-              chrome.tabs.sendMessage(event.tabId, {
-                type: "HEADING_DATA_UPDATE",
-                data: {
-                  overlayData: context.headingAnalysis[event.tabId]?.overlayData
-                }
-              })
-              chrome.tabs.sendMessage(event.tabId, {
-                type: "HEADING_ISSUES_UPDATE",
-                data: {
-                  issues: context.headingAnalysis[event.tabId]?.issues
-                }
-              })
-            }
+            "updateHeadingData",
+            "notifyHeadingDataUpdate",
+            "notifyHeadingIssuesUpdate"
           ]
         },
         TAB_CLOSED: {
-          actions: assign(({ context, event }) => {
-            if (event.type !== "TAB_CLOSED") return context
-            const newTabs = new Set(context.activeTabs)
-            newTabs.delete(event.tabId)
-            const newAnalysis = { ...context.headingAnalysis }
-            delete newAnalysis[event.tabId]
-            return {
-              activeTabs: newTabs,
-              headingAnalysis: newAnalysis
-            }
-          })
+          actions: "cleanupClosedTab"
         }
       }
     }
@@ -182,24 +160,6 @@ const rootMachine = setup({
 // Create and start the actor
 const rootActor = createActor(rootMachine)
 rootActor.start()
-
-// Handle browser action click
-chrome.action.onClicked.addListener(async () => {
-  const snapshot = rootActor.getSnapshot()
-
-  if (snapshot.context.session?.user) {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (tab?.windowId) {
-      await chrome.sidePanel.setOptions({
-        enabled: true,
-        path: "sidepanel.html"
-      })
-      await chrome.sidePanel.open({ windowId: tab.windowId })
-    }
-  } else {
-    chrome.runtime.openOptionsPage()
-  }
-})
 
 // Handle messages from UI components
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -214,23 +174,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "LOGIN_SUCCESS") {
     const windowId = message.windowId
     if (windowId) {
-      chrome.tabs.query(
-        { url: chrome.runtime.getURL("options.html") },
-        (tabs) => {
-          tabs.forEach((tab) => {
-            if (tab.id) chrome.tabs.remove(tab.id)
-          })
-        }
-      )
-
-      chrome.sidePanel
-        .setOptions({
-          enabled: true,
-          path: "sidepanel.html"
-        })
-        .then(() => {
-          chrome.sidePanel.open({ windowId })
-        })
+      // Just send a message to update the UI state
+      chrome.runtime.sendMessage({
+        type: "AUTH_STATE_CHANGE",
+        session: message.session
+      })
     }
     return true
   }
