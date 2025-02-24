@@ -1,27 +1,33 @@
 import { cn } from "@/lib/utils"
 import { websiteMachine } from "@/providers/website"
 import type { Database } from "@/types/database"
+import type { PostgrestError } from "@supabase/supabase-js"
 import { useActorRef, useSelector } from "@xstate/react"
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   type PropsWithChildren
 } from "react"
 import type { ActorRefFrom } from "xstate"
 
+import { useAuth } from "./auth-provider"
 import { useSpace } from "./space-provider"
+import { useCurrentDomain, useCurrentUrl } from "./url-provider"
 
 type Website = Database["public"]["Tables"]["Website"]["Row"]
 
 interface WebsiteContextValue {
   state: string
-  websites: Website[] | never[] | readonly Website[]
-  currentWebsite: Website | null | never
-  error: Error | null
-  selectWebsite: (website: Website) => void
+  websites: Website[]
+  error: PostgrestError | null
+  addWebsite: (url: string) => void
   refresh: () => void
   actor: ActorRefFrom<typeof websiteMachine>
+  currentUrl: string | null
+  matchingWebsite: Website | null
+  isLoading: boolean
 }
 
 const WebsiteContext = createContext<WebsiteContextValue | undefined>(undefined)
@@ -37,24 +43,87 @@ function useWebsiteContext() {
   return context
 }
 
-// Helper to convert state value to string
-function getStateString(value: unknown): string {
-  if (typeof value === "string") return value
-  if (value && typeof value === "object") {
-    if ("loaded" in value) {
-      const loadedValue = value as {
-        loaded: {
-          count: string
-          selection: string
-        }
-      }
-      const count = loadedValue.loaded.count
-      const selection = loadedValue.loaded.selection
-      return `loaded.${count}.${selection}`
-    }
-    return Object.keys(value)[0] || "unknown"
+// Helper to find a matching website for a domain
+function findMatchingWebsite(
+  domain: string,
+  websites: Website[]
+): Website | null {
+  if (!domain || !websites?.length) return null
+  return websites.find((website) => website.normalized_url === domain) ?? null
+}
+
+// Root component that provides context
+function Root({ children }: PropsWithChildren) {
+  const { session } = useAuth()
+  const { currentSpace } = useSpace()
+  const { currentUrl, isLoading } = useCurrentUrl()
+
+  // Don't initialize if not authenticated or no space
+  if (!session || !currentSpace?.id) {
+    return null
   }
-  return "unknown"
+
+  const actorRef = useActorRef(websiteMachine, {
+    input: {
+      spaceId: currentSpace.id
+    }
+  })
+
+  // Send URL changes to the machine
+  useEffect(() => {
+    if (currentUrl) {
+      actorRef.send({ type: "URL_CHANGED", url: currentUrl })
+    }
+  }, [currentUrl, actorRef])
+
+  const state = useSelector(actorRef, (state) => state.value)
+  const websites = useSelector(actorRef, (state) => state.context.websites)
+  const error = useSelector(actorRef, (state) => state.context.error)
+  const matchingWebsite = useSelector(
+    actorRef,
+    (state) => state.context.matchingWebsite
+  )
+
+  // Memoize callbacks
+  const addWebsite = useMemo(
+    () => (url: string) => actorRef.send({ type: "ADD_WEBSITE", url }),
+    [actorRef]
+  )
+
+  const refresh = useMemo(
+    () => () => actorRef.send({ type: "REFRESH" }),
+    [actorRef]
+  )
+
+  // Memoize the context value
+  const value = useMemo(
+    () => ({
+      state,
+      websites,
+      error,
+      addWebsite,
+      refresh,
+      actor: actorRef,
+      currentUrl,
+      matchingWebsite,
+      isLoading
+    }),
+    [
+      state,
+      websites,
+      error,
+      addWebsite,
+      refresh,
+      actorRef,
+      currentUrl,
+      matchingWebsite,
+      isLoading
+    ]
+  )
+
+  return (
+    <WebsiteContext.Provider value={value}>{children}</WebsiteContext.Provider>
+  )
 }
 
 // Loading state component
@@ -62,7 +131,9 @@ function Loading() {
   return (
     <WebsiteContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "loading") return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches("loading")) return null
 
         return (
           <div className="flex h-full items-center justify-center bg-background">
@@ -84,7 +155,9 @@ function Error() {
   return (
     <WebsiteContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "error") return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches("error")) return null
 
         const errorMessage = context.error?.message || UNKNOWN_WEBSITE_ERROR
 
@@ -115,7 +188,10 @@ function Empty() {
   return (
     <WebsiteContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "loaded.none") return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches("idle") || context.websites.length > 0)
+          return null
 
         return (
           <div className="flex h-full flex-col items-center justify-center bg-background p-4">
@@ -154,70 +230,15 @@ function Empty() {
   )
 }
 
-// Single website component
-function Single() {
+// Website list component
+function WebsiteList() {
   return (
     <WebsiteContext.Consumer>
       {(context) => {
-        if (
-          !context ||
-          !context.state.startsWith("loaded.one") ||
-          !context.currentWebsite
-        )
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches("idle") || context.websites.length === 0)
           return null
-
-        return (
-          <div className="flex h-full items-center justify-center bg-background p-4">
-            <div className="w-full max-w-sm space-y-4">
-              <div className="text-center">
-                <h2 className="text-lg font-semibold">Current Website</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  You are working with your only website
-                </p>
-              </div>
-              <div className="rounded-lg border bg-card p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{context.currentWebsite.url}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Created{" "}
-                      {new Date(
-                        context.currentWebsite.created_at
-                      ).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <svg
-                    className="h-5 w-5 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }}
-    </WebsiteContext.Consumer>
-  )
-}
-
-// Website selection component
-function Selection() {
-  return (
-    <WebsiteContext.Consumer>
-      {(context) => {
-        if (!context || !context.state.startsWith("loaded.some")) return null
-
-        const isSelected = context.state.endsWith("selected")
-        // Hide selection when a website is selected
-        if (isSelected) return null
 
         // Sort websites by creation date, newest first
         const sortedWebsites = [...context.websites].sort(
@@ -232,7 +253,7 @@ function Selection() {
                 <div>
                   <h2 className="text-lg font-semibold">Your Websites</h2>
                   <p className="text-sm text-muted-foreground">
-                    Select a website to view its accessibility status
+                    View and manage your websites
                   </p>
                 </div>
                 <button
@@ -251,14 +272,13 @@ function Selection() {
                 <div className="divide-y divide-border">
                   {sortedWebsites.map((website) => {
                     // Format URL for display
-                    const displayUrl = website.url.replace(/^https?:\/\//, "")
+                    const displayUrl = website.normalized_url
 
                     return (
-                      <button
+                      <div
                         key={website.id}
-                        onClick={() => context.selectWebsite(website)}
                         className={cn(
-                          "w-full px-4 py-3 text-left transition-colors hover:bg-muted/50",
+                          "w-full px-4 py-3 text-left",
                           "grid grid-cols-[1fr,auto,auto] gap-4 items-center"
                         )}>
                         <div>
@@ -276,7 +296,7 @@ function Selection() {
                         <div className="text-sm text-muted-foreground">
                           {new Date(website.created_at).toLocaleDateString()}
                         </div>
-                      </button>
+                      </div>
                     )
                   })}
                 </div>
@@ -289,103 +309,20 @@ function Selection() {
   )
 }
 
-// Content wrapper component
-function Content({ children }: PropsWithChildren) {
-  return (
-    <WebsiteContext.Consumer>
-      {(context) => {
-        if (!context) return null
-
-        // Check if we're in any selected state
-        const isSelected =
-          context.state.endsWith("selected") ||
-          context.state.startsWith("loaded.one")
-        if (!isSelected || !context.currentWebsite) return null
-
-        return children
-      }}
-    </WebsiteContext.Consumer>
-  )
-}
-
-// Debug component for development
+// Debug state component
 function Debug() {
   return (
     <WebsiteContext.Consumer>
       {(context) => {
-        if (!context || process.env.NODE_ENV !== "development") return null
+        const snapshot = context.actor.getSnapshot()
 
         return (
-          <div className="fixed bottom-4 right-4 z-50 max-h-[300px] overflow-y-auto rounded-lg border border-red-400 bg-card p-2 text-xs">
-            <div className="font-medium">Website Machine: {context.state}</div>
-
-            <pre>{JSON.stringify(context, null, 2)}</pre>
-            <div className="mt-1 text-muted-foreground">
-              Websites: {context.websites.length}
-              {context.currentWebsite &&
-                ` | Selected: ${context.currentWebsite.url}`}
-            </div>
+          <div className="mt-1 text-muted-foreground">
+            <pre>{JSON.stringify(snapshot, null, 2)}</pre>
           </div>
         )
       }}
     </WebsiteContext.Consumer>
-  )
-}
-
-// Root component that provides context
-function Root({ children }: PropsWithChildren) {
-  const { currentSpace } = useSpace()
-  console.log("currentSpace", currentSpace)
-  // Don't initialize the machine if we don't have a space
-  if (!currentSpace?.id) {
-    return null
-  }
-
-  const actorRef = useActorRef(websiteMachine, {
-    input: {
-      spaceId: currentSpace.id
-    }
-  })
-
-  const stateValue = useSelector(actorRef, (state) => state.value)
-  const websites = useSelector(actorRef, (state) => state.context.websites)
-  const currentWebsite = useSelector(
-    actorRef,
-    (state) => state.context.currentWebsite
-  )
-  const error = useSelector(actorRef, (state) => state.context.error)
-
-  // Convert state value to string
-  const state = useMemo(() => getStateString(stateValue), [stateValue])
-
-  // Memoize callbacks
-  const selectWebsite = useMemo(
-    () => (website: Website) =>
-      actorRef.send({ type: "WEBSITE_SELECTED", website }),
-    [actorRef]
-  )
-
-  const refresh = useMemo(
-    () => () => actorRef.send({ type: "REFRESH" }),
-    [actorRef]
-  )
-
-  // Memoize the context value
-  const value = useMemo(
-    () => ({
-      state,
-      websites,
-      currentWebsite,
-      error,
-      selectWebsite,
-      refresh,
-      actor: actorRef
-    }),
-    [state, websites, currentWebsite, error, selectWebsite, refresh, actorRef]
-  )
-
-  return (
-    <WebsiteContext.Provider value={value}>{children}</WebsiteContext.Provider>
   )
 }
 
@@ -395,22 +332,22 @@ export const Websites = {
   Loading,
   Error,
   Empty,
-  Single,
-  Selection,
-  Content,
+  WebsiteList,
   Debug
 }
 
 export function WebsiteProvider({ children }: PropsWithChildren) {
+  const { normalizedUrl } = useCurrentUrl()
+
   return (
     <Websites.Root>
+      {normalizedUrl}
       <div className="flex h-full flex-col">
         <Websites.Loading />
         <Websites.Error />
         <Websites.Empty />
-        <Websites.Single />
-        <Websites.Selection />
-        <Websites.Content>{children}</Websites.Content>
+        <Websites.WebsiteList />
+        {children}
         <Websites.Debug />
       </div>
     </Websites.Root>

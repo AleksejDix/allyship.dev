@@ -1,56 +1,56 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database"
 import type { PostgrestError } from "@supabase/supabase-js"
-import { assign, fromPromise, setup } from "xstate"
+import {
+  assign,
+  fromPromise,
+  setup,
+  type DoneActorEvent,
+  type DoneStateEvent
+} from "xstate"
 
 type Website = Database["public"]["Tables"]["Website"]["Row"]
 
-type InitialContext = {
-  websites: never[]
-  currentWebsite: never
-  error: never
-  spaceId: string
-}
-
-type LoadedContext = {
+type WebsiteContext = {
   websites: Website[]
-  currentWebsite: null
-  error: null
+  error: PostgrestError | null
   spaceId: string
+  currentUrl: string | null
+  matchingWebsite: Website | null
 }
-
-type ErrorContext = {
-  websites: never[]
-  currentWebsite: never
-  error: PostgrestError
-  spaceId: string
-}
-
-type SelectedContext = {
-  websites: Website[]
-  currentWebsite: Website
-  error: null
-  spaceId: string
-}
-
-type WebsiteContext =
-  | InitialContext
-  | LoadedContext
-  | ErrorContext
-  | SelectedContext
 
 type WebsiteEvent =
-  | { type: "WEBSITE_SELECTED"; website: Website }
   | { type: "REFRESH" }
-  | { type: "error"; error: Error }
-  | DoneEvent
+  | { type: "ADD_WEBSITE"; url: string }
+  | { type: "URL_CHANGED"; url: string }
 
-type DoneEvent = { type: "done.invoke.loadWebsites"; output: Website[] }
-type ErrorEvent = { type: "error.invoke.loadWebsites"; data: PostgrestError }
+type LoadWebsitesDone = { type: "done.invoke.loadWebsites"; output: Website[] }
+type AddWebsiteDone = { type: "done.invoke.addWebsite"; output: Website }
+type DoneEvent = LoadWebsitesDone | AddWebsiteDone
+
+type ErrorEvent =
+  | { type: "error.invoke.loadWebsites"; data: PostgrestError }
+  | { type: "error.invoke.addWebsite"; data: PostgrestError }
+
+type AllEvents = WebsiteEvent | DoneEvent | ErrorEvent
+
+// Helper to find a matching website for a URL
+function findMatchingWebsite(
+  url: string | null,
+  websites: Website[]
+): Website | null {
+  if (!url || !websites?.length) return null
+
+  try {
+    const domain = new URL(url).hostname.replace(/^www\./, "")
+    return websites.find((website) => website.normalized_url === domain) ?? null
+  } catch {
+    return null
+  }
+}
 
 const actors = {
   loadWebsites: fromPromise(({ input }: { input: { spaceId: string } }) => {
-    console.log("loadWebsites", input)
     return supabase
       .from("Website")
       .select("*")
@@ -59,49 +59,79 @@ const actors = {
         if (error) throw error
         return data ?? []
       })
-  })
+  }),
+  addWebsite: fromPromise(
+    async ({ input }: { input: { spaceId: string; url: string } }) => {
+      const { data, error } = await supabase
+        .from("Website")
+        .insert([
+          {
+            space_id: input.spaceId,
+            url: input.url,
+            normalized_url: input.url
+              .replace(/^https?:\/\//, "")
+              .replace(/^www\./, ""),
+            theme: "LIGHT"
+          }
+        ])
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
+    }
+  )
 }
 
 export const websiteMachine = setup({
   types: {
     context: {} as WebsiteContext,
-    events: {} as WebsiteEvent | DoneEvent | ErrorEvent,
+    events: {} as AllEvents,
     input: {} as { spaceId: string }
   },
   actors,
   actions: {
     setWebsites: assign({
-      websites: ({ event }: { event: DoneEvent }) => event.output
+      websites: ({ event }: { event: LoadWebsitesDone }) => event.output
     }),
     setError: assign({
-      error: ({ event }: { event: ErrorEvent }) => event.data
+      error: ({ event }) => {
+        if (!("data" in event)) return null
+        return event.data
+      }
     }),
-    setCurrentWebsite: assign({
-      currentWebsite: ({
+    addWebsiteToList: assign({
+      websites: ({
+        context,
         event
       }: {
-        event: { type: "WEBSITE_SELECTED"; website: Website }
-      }) => event.website
+        context: WebsiteContext
+        event: AddWebsiteDone
+      }) => {
+        return [...context.websites, event.output]
+      }
+    }),
+    setCurrentUrl: assign({
+      currentUrl: ({ event, context }) => {
+        if (event.type !== "URL_CHANGED") return context.currentUrl
+        return event.url
+      }
+    }),
+    updateMatchingWebsite: assign({
+      matchingWebsite: ({ context }) => {
+        return findMatchingWebsite(context.currentUrl, context.websites)
+      }
     })
-  },
-  guards: {
-    hasNone: ({ context }: { context: WebsiteContext }) => {
-      return context.websites.length === 0
-    },
-    hasSome: ({ context }: { context: WebsiteContext }) => {
-      return context.websites.length > 0
-    },
-    hasOne: ({ context }: { context: WebsiteContext }) => {
-      return context.websites.length === 1
-    }
   }
 }).createMachine({
+  id: "website",
   initial: "loading",
   context: ({ input }) => ({
     websites: [],
-    currentWebsite: null,
     error: null,
-    spaceId: input.spaceId
+    spaceId: input.spaceId,
+    currentUrl: null,
+    matchingWebsite: null
   }),
   states: {
     loading: {
@@ -111,8 +141,8 @@ export const websiteMachine = setup({
           spaceId: context.spaceId
         }),
         onDone: {
-          target: "loaded",
-          actions: ["setWebsites"]
+          target: "idle",
+          actions: ["setWebsites", "updateMatchingWebsite"]
         },
         onError: {
           target: "error",
@@ -122,67 +152,40 @@ export const websiteMachine = setup({
     },
     error: {
       on: {
-        REFRESH: {
-          target: "loading"
+        REFRESH: "loading",
+        URL_CHANGED: {
+          actions: ["setCurrentUrl"]
         }
       }
     },
-    loaded: {
-      type: "parallel",
-      states: {
-        count: {
-          initial: "unknown",
-          states: {
-            unknown: {
-              always: [
-                {
-                  guard: "hasNone",
-                  target: "none"
-                },
-                {
-                  guard: "hasOne",
-                  target: "one"
-                },
-                {
-                  guard: "hasSome",
-                  target: "some"
-                }
-              ]
-            },
-            none: {},
-            one: {
-              entry: assign({
-                currentWebsite: ({ context }) => context.websites[0]
-              })
-            },
-            some: {}
+    idle: {
+      on: {
+        REFRESH: "loading",
+        ADD_WEBSITE: {
+          target: "adding"
+        },
+        URL_CHANGED: {
+          actions: ["setCurrentUrl", "updateMatchingWebsite"]
+        }
+      }
+    },
+    adding: {
+      invoke: {
+        src: "addWebsite",
+        input: ({ context, event }) => {
+          if (event.type !== "ADD_WEBSITE") throw new Error("Invalid event")
+          return {
+            spaceId: context.spaceId,
+            url: event.url
           }
         },
-        selection: {
-          initial: "unselected",
-          states: {
-            unselected: {
-              on: {
-                WEBSITE_SELECTED: {
-                  target: "selected",
-                  actions: ["setCurrentWebsite"]
-                }
-              }
-            },
-            selected: {
-              on: {
-                WEBSITE_SELECTED: {
-                  target: "selected",
-                  actions: ["setCurrentWebsite"]
-                }
-              }
-            }
-          }
-        }
-      },
-      on: {
-        REFRESH: {
-          target: "loading"
+        onDone: {
+          target: "idle",
+          actions: ["addWebsiteToList", "updateMatchingWebsite"]
+        },
+        onError: {
+          target: "error",
+          actions: ["setError"]
         }
       }
     }

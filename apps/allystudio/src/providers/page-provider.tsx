@@ -1,168 +1,144 @@
-import { rootActor } from "@/background/machines/root"
-import {
-  connectPageToAllyship,
-  getPageByUrl,
-  getWebsiteForUrl
-} from "@/core/pages"
-import { eventBus } from "@/lib/events/event-bus"
-import type {
-  HeadingAnalysisCompleteEvent,
-  HeadingIssue
-} from "@/lib/events/types"
+import { pageMachine } from "@/providers/page"
 import type { Database } from "@/types/database"
-import { useSelector } from "@xstate/react"
+import type { PostgrestError } from "@supabase/supabase-js"
+import { useActorRef, useSelector } from "@xstate/react"
 import {
   createContext,
-  useCallback,
   useContext,
-  useEffect,
-  useState,
+  useMemo,
   type PropsWithChildren
 } from "react"
+import type { ActorRefFrom } from "xstate"
 
-type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
-  website: Database["public"]["Tables"]["Website"]["Row"]
+import { useCurrentUrl } from "./url-provider"
+import { useWebsite } from "./website-provider"
+
+type Page = Database["public"]["Tables"]["Page"]["Row"]
+type Website = Database["public"]["Tables"]["Website"]["Row"]
+
+type PageWithWebsite = Page & {
+  website: Website
 }
 
 interface PageContextValue {
-  // Current page info
-  currentUrl: string
-  currentTitle: string
-  // Page data
-  pageData: PageData | null
+  pages: PageWithWebsite[]
+  error: PostgrestError | null
   websiteId: string | null
-  isConnecting: boolean
-  // Tool state
-  activeTool: string
-  headingIssues: HeadingIssue[]
-  // Actions
-  handleAddPage: () => Promise<void>
-  setActiveTool: (tool: string) => void
-  navigateToIssue: (xpath: string) => void
+  currentUrl: string | null
+  matchingPage: PageWithWebsite | null
+  addPage: (url: string, websiteId: string) => void
+  refresh: () => void
+  setWebsiteId: (websiteId: string | null) => void
+  actor: ActorRefFrom<typeof pageMachine>
+  isLoading: boolean
 }
 
 const PageContext = createContext<PageContextValue | undefined>(undefined)
 
-export function PageProvider({ children }: PropsWithChildren) {
-  // Get current tab info from root machine
-  const currentTab = useSelector(rootActor, (state) => state.context.currentTab)
-  const currentUrl = currentTab.url ?? ""
-  const currentTitle = currentTab.title ?? "Untitled Page"
+function usePageContext() {
+  const context = useContext(PageContext)
+  if (!context) {
+    throw new Error("Page context must be used within PageProvider")
+  }
+  return context
+}
 
-  // Page state
-  const [pageData, setPageData] = useState<PageData | null>(null)
-  const [websiteId, setWebsiteId] = useState<string | null>(null)
-  const [isConnecting, setIsConnecting] = useState(false)
+// Helper to find a matching page for a URL
+function findMatchingPage(
+  url: string,
+  pages: PageWithWebsite[]
+): PageWithWebsite | null {
+  if (!url || !pages?.length) return null
+  return pages.find((page) => page.normalized_url === url) ?? null
+}
 
-  // Tool state
-  const [activeTool, setActiveTool] = useState("")
-  const [headingIssues, setHeadingIssues] = useState<HeadingIssue[]>([])
+function Root({ children }: PropsWithChildren) {
+  const { websites } = useWebsite()
+  const { normalizedUrl, isLoading: urlLoading } = useCurrentUrl()
 
-  // Effect to handle tool state changes
-  useEffect(() => {
-    if (currentTab.id) {
-      eventBus.publish({
-        type: "TOOL_STATE_CHANGE",
-        timestamp: Date.now(),
-        tabId: currentTab.id,
-        data: {
-          tool: "headings",
-          enabled: activeTool === "headings"
-        }
-      })
-    }
-  }, [activeTool, currentTab.id])
+  const actorRef = useActorRef(pageMachine)
 
-  // Check if page exists and get website ID when URL changes
-  useEffect(() => {
-    if (!currentUrl) return
+  const pages = useSelector(actorRef, (state) => state.context.pages)
+  const error = useSelector(actorRef, (state) => state.context.error)
+  const websiteId = useSelector(actorRef, (state) => state.context.websiteId)
 
-    // First check if page already exists
-    getPageByUrl(currentUrl).then((result) => {
-      if (result.success) {
-        setPageData(result.data)
-        setWebsiteId(result.data.website_id)
-      } else {
-        setPageData(null)
-        // If page doesn't exist, get website ID for potential connection
-        getWebsiteForUrl(currentUrl).then((websiteResult) => {
-          if (websiteResult.success) {
-            setWebsiteId(websiteResult.data.id)
-          } else {
-            setWebsiteId(null)
-          }
-        })
-      }
-    })
-  }, [currentUrl])
-
-  // Subscribe to heading analysis events
-  useEffect(() => {
-    const unsubscribe = eventBus.subscribe((event) => {
-      if (event.type === "HEADING_ANALYSIS_COMPLETE") {
-        const analysisEvent = event as HeadingAnalysisCompleteEvent
-        setHeadingIssues(analysisEvent.data.issues)
-      }
-    })
-
-    return unsubscribe
-  }, [])
-
-  // Actions
-  const handleAddPage = useCallback(async () => {
-    if (!websiteId || !currentUrl) return
-
-    setIsConnecting(true)
-    try {
-      const result = await connectPageToAllyship(currentUrl)
-      if (result.success) {
-        // Refresh page data after connection
-        const pageResult = await getPageByUrl(currentUrl)
-        if (pageResult.success) {
-          setPageData(pageResult.data)
-        }
-      }
-    } catch (error) {
-      console.error("Failed to track page:", error)
-    } finally {
-      setIsConnecting(false)
-    }
-  }, [websiteId, currentUrl])
-
-  const navigateToIssue = useCallback(
-    (xpath: string) => {
-      if (currentTab.id) {
-        eventBus.publish({
-          type: "HEADING_NAVIGATE_REQUEST",
-          timestamp: Date.now(),
-          tabId: currentTab.id,
-          data: { xpath }
-        })
-      }
-    },
-    [currentTab.id]
+  // Find matching page for current URL
+  const matchingPage = useMemo(
+    () => (normalizedUrl ? findMatchingPage(normalizedUrl, pages) : null),
+    [normalizedUrl, pages]
   )
 
-  const value = {
-    currentUrl,
-    currentTitle,
-    pageData,
-    websiteId,
-    isConnecting,
-    activeTool,
-    headingIssues,
-    handleAddPage,
-    setActiveTool,
-    navigateToIssue
-  }
+  // Memoize callbacks
+  const addPage = useMemo(
+    () => (url: string, websiteId: string) =>
+      actorRef.send({ type: "ADD_PAGE", url, websiteId }),
+    [actorRef]
+  )
+
+  const refresh = useMemo(
+    () => () => actorRef.send({ type: "REFRESH" }),
+    [actorRef]
+  )
+
+  const setWebsiteId = useMemo(
+    () => (websiteId: string | null) =>
+      actorRef.send({ type: "WEBSITE_CHANGED", websiteId }),
+    [actorRef]
+  )
+
+  const value = useMemo(
+    () => ({
+      pages,
+      error,
+      websiteId,
+      currentUrl: normalizedUrl,
+      matchingPage,
+      addPage,
+      refresh,
+      setWebsiteId,
+      actor: actorRef,
+      isLoading: urlLoading
+    }),
+    [
+      pages,
+      error,
+      websiteId,
+      normalizedUrl,
+      matchingPage,
+      addPage,
+      refresh,
+      setWebsiteId,
+      actorRef,
+      urlLoading
+    ]
+  )
 
   return <PageContext.Provider value={value}>{children}</PageContext.Provider>
 }
 
+export function PageProvider({ children }: PropsWithChildren) {
+  return (
+    <Root>
+      <div className="flex h-full flex-col">{children}</div>
+    </Root>
+  )
+}
+
 export function usePage() {
-  const context = useContext(PageContext)
-  if (context === undefined) {
-    throw new Error("usePage must be used within a PageProvider")
-  }
-  return context
+  return usePageContext()
+}
+
+// Helper to find a page by URL
+export function usePageByUrl(url: string) {
+  const { pages } = usePage()
+  return useMemo(() => findMatchingPage(url, pages), [pages, url])
+}
+
+// Helper to find a website by domain
+export function useWebsiteByDomain(domain: string) {
+  const { websites } = useWebsite()
+  return useMemo(
+    () => websites.find((website) => website.normalized_url === domain),
+    [websites, domain]
+  )
 }
