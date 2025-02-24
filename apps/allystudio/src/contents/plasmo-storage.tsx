@@ -1,28 +1,14 @@
+import { LayerSystem } from "@/components/layers/LayerSystem"
 import { eventBus } from "@/lib/events/event-bus"
-import { useEffect, useMemo, useRef, useState, type JSX } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
-import { HighlightBox } from "../components/layers/HighlightBox"
 import type { HighlightData, HighlightEvent } from "./types"
-
-const DEFAULT_HIGHLIGHT_STYLES = {
-  valid: {
-    border: "#16A34A",
-    background: "rgba(22, 163, 74, 0.1)",
-    messageBackground: "#16A34A"
-  },
-  invalid: {
-    border: "#DC2626",
-    background: "rgba(220, 38, 38, 0.1)",
-    messageBackground: "#DC2626"
-  }
-} as const
+import { DEFAULT_HIGHLIGHT_STYLES } from "./types"
 
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<
     Map<string, Map<string, HighlightData>>
   >(new Map())
-  const ticking = useRef(false)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   // Helper to validate selector and element
   const validateHighlight = (selector: string): HTMLElement | null => {
@@ -39,69 +25,7 @@ const PlasmoOverlay = () => {
     }
   }
 
-  // Handle scroll and resize updates
-  useEffect(() => {
-    const updatePositions = () => {
-      requestAnimationFrame(() => {
-        if (!containerRef.current) return
-
-        const boxes = containerRef.current.querySelectorAll(
-          "[data-highlight-box]"
-        )
-
-        boxes.forEach((box) => {
-          const selector = box.getAttribute("data-selector")
-          if (!selector) return
-
-          // Find the element in our highlights map
-          let element: HTMLElement | undefined
-          for (const [, layerHighlights] of highlights) {
-            const highlight = layerHighlights.get(selector)
-            if (highlight?.element) {
-              element = highlight.element
-              break
-            }
-          }
-
-          if (!element) return
-
-          const rect = element.getBoundingClientRect()
-          const style = box as HTMLElement
-          style.style.setProperty("--x", `${rect.left}px`)
-          style.style.setProperty("--y", `${rect.top}px`)
-          style.style.width = `${rect.width}px`
-          style.style.height = `${rect.height}px`
-        })
-
-        ticking.current = false
-      })
-    }
-
-    const onScroll = () => {
-      if (!ticking.current) {
-        ticking.current = true
-        updatePositions()
-      }
-    }
-
-    // Listen to all scroll events in the document
-    document.addEventListener("scroll", onScroll, {
-      capture: true,
-      passive: true
-    })
-
-    const resizeObserver = new ResizeObserver(updatePositions)
-    resizeObserver.observe(document.body)
-
-    // Initial position update
-    updatePositions()
-
-    return () => {
-      document.removeEventListener("scroll", onScroll, { capture: true })
-      resizeObserver.disconnect()
-    }
-  }, [highlights])
-
+  // Subscribe to events
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event) => {
       if (event.type === "HIGHLIGHT") {
@@ -201,41 +125,7 @@ const PlasmoOverlay = () => {
     return () => clearInterval(cleanupInterval)
   }, [])
 
-  const highlightElements = useMemo(() => {
-    const elements: JSX.Element[] = []
-
-    // Render highlights from each layer
-    highlights.forEach((layerHighlights, layer) => {
-      layerHighlights.forEach((highlight) => {
-        elements.push(
-          <HighlightBox
-            key={`${layer}-${highlight.selector}`}
-            highlight={highlight}
-            layer={layer}
-          />
-        )
-      })
-    })
-
-    return elements
-  }, [highlights])
-
-  return (
-    <div
-      ref={containerRef}
-      role="region"
-      aria-label="Element highlights overlay"
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 9998 }}>
-      <style>{`
-        [data-highlight-box] {
-          --x: 0px;
-          --y: 0px;
-        }
-      `}</style>
-      {highlightElements}
-    </div>
-  )
+  return <LayerSystem highlights={highlights} />
 }
 
 export default PlasmoOverlay
