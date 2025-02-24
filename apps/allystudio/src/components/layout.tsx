@@ -1,5 +1,5 @@
-import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/providers/auth-provider"
+import { ThemeProvider } from "@/providers/theme-provider"
 import type { PropsWithChildren } from "react"
 
 export function Layout({ children }: PropsWithChildren) {

@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
 
-import { Storage } from "@plasmohq/storage"
-
 type Theme = "dark" | "light" | "system"
 
 type ThemeProviderProps = {
@@ -22,40 +20,19 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
-// Initialize storage outside component to be shared
-const storage = new Storage()
-
 export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "ally-studio-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => defaultTheme)
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  )
 
-  // Initialize theme from storage
-  useEffect(() => {
-    storage.get<Theme>(storageKey).then((savedTheme) => {
-      if (savedTheme) {
-        setTheme(savedTheme)
-      }
-    })
-  }, [storageKey])
-
-  // Listen for theme changes from other contexts
-  useEffect(() => {
-    storage.watch({
-      [storageKey]: ({ newValue }) => {
-        if (newValue) {
-          setTheme(newValue as Theme)
-        }
-      }
-    })
-  }, [storageKey])
-
-  // Update document classes when theme changes
   useEffect(() => {
     const root = window.document.documentElement
+
     root.classList.remove("light", "dark")
 
     if (theme === "system") {
@@ -65,16 +42,7 @@ export function ThemeProvider({
         : "light"
 
       root.classList.add(systemTheme)
-
-      // Listen for system theme changes
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-      const handleChange = () => {
-        root.classList.remove("light", "dark")
-        root.classList.add(mediaQuery.matches ? "dark" : "light")
-      }
-
-      mediaQuery.addEventListener("change", handleChange)
-      return () => mediaQuery.removeEventListener("change", handleChange)
+      return
     }
 
     root.classList.add(theme)
@@ -82,10 +50,9 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: async (newTheme: Theme) => {
-      // Store in Plasmo storage to sync across contexts and browsers
-      await storage.set(storageKey, newTheme)
-      setTheme(newTheme)
+    setTheme: (theme: Theme) => {
+      localStorage.setItem(storageKey, theme)
+      setTheme(theme)
     }
   }
 
