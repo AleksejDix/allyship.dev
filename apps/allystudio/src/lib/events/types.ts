@@ -14,6 +14,7 @@ export type EventType =
   | "INTERACTIVE_ANALYSIS_REQUEST"
   | "INTERACTIVE_ANALYSIS_COMPLETE"
   | "TESTS_COMPLETE"
+  | "LAYER_TOGGLE_REQUEST"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -185,6 +186,14 @@ export interface TestsCompleteEvent extends BaseEvent {
   type: "TESTS_COMPLETE"
 }
 
+export interface LayerToggleRequestEvent extends BaseEvent {
+  type: "LAYER_TOGGLE_REQUEST"
+  data: {
+    layer: string
+    visible?: boolean // if not provided, will toggle current state
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -201,6 +210,7 @@ export type AllyStudioEvent =
   | InteractiveAnalysisRequestEvent
   | InteractiveAnalysisCompleteEvent
   | TestsCompleteEvent
+  | LayerToggleRequestEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void

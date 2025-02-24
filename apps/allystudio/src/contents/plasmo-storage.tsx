@@ -35,10 +35,15 @@ const PlasmoOverlay = () => {
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
 
   // Toggle layer visibility
-  const toggleLayer = (layerName: string) => {
+  const toggleLayer = (layerName: string, forceVisible?: boolean) => {
     setHiddenLayers((current) => {
       const newHidden = new Set(current)
-      if (newHidden.has(layerName)) {
+      const isCurrentlyHidden = newHidden.has(layerName)
+
+      // If forceVisible is provided, use that, otherwise toggle
+      const shouldShow = forceVisible ?? isCurrentlyHidden
+
+      if (shouldShow) {
         newHidden.delete(layerName)
       } else {
         newHidden.add(layerName)
@@ -167,6 +172,17 @@ const PlasmoOverlay = () => {
       }
       unsubscribe()
     }
+  }, [])
+
+  // Subscribe to layer toggle events
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+      if (event.type === "LAYER_TOGGLE_REQUEST") {
+        const { layer, visible } = event.data
+        toggleLayer(layer, visible)
+      }
+    })
+    return unsubscribe
   }, [])
 
   // Clean up stale highlights periodically
