@@ -5,30 +5,42 @@ import type { DoneActorEvent, ErrorActorEvent } from "xstate"
 
 type Space = Database["public"]["Tables"]["Space"]["Row"]
 
-// Define the context as a discriminated union
-export type SpaceContext =
+// Base context type for loading states
+type LoadingContext = {
+  spaces: never[]
+  currentSpace: null
+  error: null
+}
+
+// Error state should have never[] for spaces
+type ErrorContext = {
+  spaces: never[]
+  currentSpace: never
+  error: Error
+}
+
+// Discriminated union for the context based on spaces array shape
+type SpaceContext =
+  | LoadingContext
+  | ErrorContext
   | {
-      type: "initializing"
-      spaces: never
+      spaces: [] // Empty state
       currentSpace: null
       error: null
     }
   | {
-      type: "loading"
-      spaces: never
+      spaces: readonly [Space] // Tuple of exactly one space
+      currentSpace: Space
+      error: null
+    }
+  | {
+      spaces: readonly Space[] // Array of 2 or more spaces, no selection
       currentSpace: null
       error: null
     }
   | {
-      type: "empty"
-      spaces: Space[]
-      currentSpace: null
-      error: Error | null
-    }
-  | {
-      type: "loaded"
-      spaces: Space[]
-      currentSpace: Space | null
+      spaces: readonly Space[] // Array of 2 or more spaces, with selection
+      currentSpace: Space // Must be non-null in selected state
       error: null
     }
 
@@ -61,12 +73,30 @@ export const spaceMachine = setup({
     events: {} as SpaceEvent
   },
   actors: queries,
+  guards: {
+    // Guard for when exactly one space is loaded
+    hasSingleSpace: ({ event }) => {
+      if (!("output" in event)) return false
+      const spaces = event.output as Space[]
+      return spaces?.length === 1
+    },
+    // Guard for when multiple spaces are loaded
+    hasMultipleSpaces: ({ event }) => {
+      if (!("output" in event)) return false
+      const spaces = event.output as Space[]
+      return (spaces?.length ?? 0) > 1
+    },
+    // Guard for when no spaces are loaded
+    hasNoSpaces: ({ event }) => {
+      if (!("output" in event)) return false
+      const spaces = event.output as Space[]
+      return (spaces?.length ?? 0) === 0
+    }
+  },
   actions: {
     // Log state transitions
     logSpacesLoaded: ({ context }) => {
-      if (context.type === "loaded") {
-        console.log("📚 Spaces loaded:", context.spaces.length)
-      }
+      console.log("📚 Spaces loaded:", context.spaces.length)
     },
     logSpaceSelected: ({ event }) => {
       if (event.type === "SPACE_SELECTED") {
@@ -77,116 +107,123 @@ export const spaceMachine = setup({
       if (event.type === "error") {
         console.error("❌ Error in space machine:", event.error)
       }
-    }
+    },
+    // Assign actions with proper type narrowing
+    assignSpaces: assign(({ event }) => {
+      if (!("output" in event)) return {} as SpaceContext
+      const spaces = event.output
+      if (spaces.length === 0) {
+        return {
+          spaces: [] as const,
+          currentSpace: null,
+          error: null
+        }
+      }
+      if (spaces.length === 1) {
+        return {
+          spaces: [spaces[0]] as const,
+          currentSpace: spaces[0],
+          error: null
+        }
+      }
+      return {
+        spaces: spaces as readonly Space[],
+        currentSpace: null,
+        error: null
+      }
+    }),
+    assignSelectedSpace: assign(({ context, event }) => {
+      if (event.type !== "SPACE_SELECTED") return context
+      if (context.spaces.length <= 1) return context
+      return {
+        spaces: context.spaces,
+        currentSpace: event.space, // This will always be non-null
+        error: null
+      }
+    }),
+    assignError: assign({
+      spaces: () => [] as never[],
+      currentSpace: null as never,
+      error: ({ event }) =>
+        new Error(
+          "error" in event && event.error instanceof Error
+            ? event.error.message
+            : String("error" in event ? event.error : "Unknown error")
+        )
+    })
   }
 }).createMachine({
   id: "spaceMachine",
   initial: "initializing",
   context: {
-    type: "initializing",
-    spaces: null,
+    spaces: [],
     currentSpace: null,
     error: null
   } as SpaceContext,
   states: {
     initializing: {
-      invoke: {
-        src: "loadSpaces",
-        onDone: [
-          {
-            guard: ({ event }) => event.output?.length > 0,
-            target: "idle",
-            actions: assign(({ event }) => ({
-              type: "loaded",
-              spaces: event.output,
-              currentSpace: null,
-              error: null
-            }))
-          },
-          {
-            target: "idle",
-            actions: assign(() => ({
-              type: "empty",
-              spaces: [],
-              currentSpace: null,
-              error: null
-            }))
-          }
-        ],
-        onError: {
-          target: "idle",
-          actions: assign(({ event }) => ({
-            type: "empty",
-            spaces: [],
-            currentSpace: null,
-            error: new Error(
-              event.error instanceof Error
-                ? event.error.message
-                : String(event.error)
-            )
-          }))
-        }
+      always: {
+        target: "loading"
       }
     },
     loading: {
+      entry: assign({
+        spaces: [] as never[],
+        currentSpace: null,
+        error: null
+      }),
       invoke: {
         src: "loadSpaces",
         onDone: [
           {
-            guard: ({ event }) => event.output?.length > 0,
-            target: "idle",
-            actions: assign(({ event }) => ({
-              type: "loaded",
-              spaces: event.output,
-              currentSpace: null,
-              error: null
-            }))
+            guard: "hasSingleSpace",
+            target: "idle.single",
+            actions: ["assignSpaces", "logSpacesLoaded"]
           },
           {
-            target: "idle",
-            actions: assign(() => ({
-              type: "empty",
-              spaces: [],
-              currentSpace: null,
-              error: null
-            }))
+            guard: "hasMultipleSpaces",
+            target: "idle.selection",
+            actions: ["assignSpaces", "logSpacesLoaded"]
+          },
+          {
+            guard: "hasNoSpaces",
+            target: "idle.empty",
+            actions: "assignSpaces"
           }
         ],
         onError: {
-          target: "idle",
-          actions: assign(({ event }) => ({
-            type: "empty",
-            spaces: [],
-            currentSpace: null,
-            error: new Error(
-              event.error instanceof Error
-                ? event.error.message
-                : String(event.error)
-            )
-          }))
+          target: "idle.error",
+          actions: ["assignError", "logError"]
         }
       }
     },
     idle: {
-      on: {
-        SPACE_SELECTED: {
-          guard: ({ context }) => context.type === "loaded",
-          target: "idle",
-          actions: [
-            assign(({ context, event }) => {
-              if (
-                context.type !== "loaded" ||
-                event.type !== "SPACE_SELECTED"
-              ) {
-                return context
-              }
-              return {
-                ...context,
-                currentSpace: event.space
-              }
-            })
-          ]
+      initial: "empty",
+      states: {
+        empty: {
+          entry: assign({
+            spaces: [] as const,
+            currentSpace: null,
+            error: null
+          })
         },
+        error: {},
+        single: {
+          entry: assign(({ context }) => ({
+            currentSpace: context.spaces[0]
+          }))
+        },
+        selection: {
+          on: {
+            SPACE_SELECTED: {
+              target: "selected",
+              actions: ["assignSelectedSpace", "logSpaceSelected"]
+            }
+          }
+        },
+        selected: {}
+      },
+      on: {
         REFRESH: {
           target: "loading"
         }
