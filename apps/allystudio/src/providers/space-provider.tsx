@@ -60,7 +60,9 @@ function Loading() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "loading") return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches("loading")) return null
 
         return (
           <div className="flex h-screen items-center justify-center bg-background">
@@ -82,7 +84,9 @@ function Error() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "error") return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches("error")) return null
 
         const errorMessage = context.error?.message || UNKNOWN_SPACE_ERROR
 
@@ -113,7 +117,9 @@ function Empty() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "loaded.none") return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (!snapshot?.matches({ loaded: { count: "none" } })) return null
 
         return (
           <div className="flex h-screen flex-col items-center justify-center bg-background p-4">
@@ -157,9 +163,10 @@ function Single() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
         if (
-          !context ||
-          !context.state.startsWith("loaded.one") ||
+          !snapshot?.matches({ loaded: { count: "one" } }) ||
           !context.currentSpace
         )
           return null
@@ -211,14 +218,23 @@ function Selection() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || !context.state.startsWith("loaded.some")) return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
+        if (
+          !snapshot?.matches({
+            loaded: { count: "some", selection: "unselected" }
+          })
+        )
+          return null
 
-        const isSelected = context.state.endsWith("selected")
-        // Hide selection when a space is selected
-        if (isSelected) return null
+        // Sort spaces by creation date, newest first
+        const sortedSpaces = [...context.spaces].sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
 
         return (
-          <div className="flex flex-1 items-center justify-center bg-background p-4">
+          <div className="flex flex-1 flex-col bg-background p-4">
             <div className="w-full max-w-sm space-y-4">
               <div className="text-center">
                 <h2 className="text-lg font-semibold">Select a Space</h2>
@@ -227,7 +243,7 @@ function Selection() {
                 </p>
               </div>
               <div className="space-y-2">
-                {context.spaces.map((space) => (
+                {sortedSpaces.map((space) => (
                   <button
                     key={space.id}
                     onClick={() => context.selectSpace(space)}
@@ -261,13 +277,20 @@ function Content({ children }: PropsWithChildren) {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context) return null
+        if (!context?.actor) return null
+        const snapshot = context.actor.getSnapshot()
 
-        // Check if we're in any selected state
-        const isSelected =
-          context.state.endsWith("selected") ||
-          context.state.startsWith("loaded.one")
-        if (!isSelected || !context.currentSpace) return null
+        // Show content when we have a selected space (either in one or some.selected state)
+        if (
+          !snapshot?.matches({ loaded: { count: "one" } }) &&
+          !snapshot?.matches({
+            loaded: { count: "some", selection: "selected" }
+          })
+        ) {
+          return null
+        }
+
+        if (!context.currentSpace) return null
 
         return children
       }}
@@ -365,7 +388,7 @@ export function SpaceProvider({ children }: PropsWithChildren) {
         <Spaces.Single />
         <Spaces.Selection />
         <Spaces.Content>{children}</Spaces.Content>
-        {/* <Spaces.Debug /> */}
+        <Spaces.Debug />
       </div>
     </Spaces.Root>
   )
