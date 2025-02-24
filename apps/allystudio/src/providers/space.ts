@@ -79,6 +79,13 @@ export const spaceMachine = setup({
         console.log("WHY", event)
         return event.data
       }
+    }),
+    setCurrentSpace: assign({
+      currentSpace: ({
+        event
+      }: {
+        event: { type: "SPACE_SELECTED"; space: Space }
+      }) => event.space
     })
   },
   guards: {
@@ -121,27 +128,62 @@ export const spaceMachine = setup({
       }
     },
     loaded: {
-      initial: "unknown",
+      type: "parallel",
       states: {
-        unknown: {
-          always: [
-            {
-              guard: "hasNone",
-              target: "none"
+        count: {
+          initial: "unknown",
+          states: {
+            unknown: {
+              always: [
+                {
+                  guard: "hasNone",
+                  target: "none"
+                },
+                {
+                  guard: "hasOne",
+                  target: "one"
+                },
+                {
+                  guard: "hasSome",
+                  target: "some"
+                }
+              ]
             },
-            {
-              guard: "hasOne",
-              target: "one"
+            none: {},
+            one: {
+              entry: assign({
+                currentSpace: ({ context }) => context.spaces[0]
+              })
             },
-            {
-              guard: "hasSome",
-              target: "some"
-            }
-          ]
+            some: {}
+          }
         },
-        none: {},
-        one: {},
-        some: {}
+        selection: {
+          initial: "unselected",
+          states: {
+            unselected: {
+              on: {
+                SPACE_SELECTED: {
+                  target: "selected",
+                  actions: ["setCurrentSpace"]
+                }
+              }
+            },
+            selected: {
+              on: {
+                SPACE_SELECTED: {
+                  target: "selected",
+                  actions: ["setCurrentSpace"]
+                }
+              }
+            }
+          }
+        }
+      },
+      on: {
+        REFRESH: {
+          target: "loading"
+        }
       }
     }
   }

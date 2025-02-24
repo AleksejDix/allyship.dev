@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import { spaceMachine } from "@/providers/space"
 import type { Database } from "@/types/database"
 import { useActorRef, useSelector } from "@xstate/react"
@@ -39,8 +40,15 @@ function getStateString(value: unknown): string {
   if (typeof value === "string") return value
   if (value && typeof value === "object") {
     if ("loaded" in value) {
-      const loadedValue = (value as { loaded: string }).loaded
-      return `loaded.${loadedValue}`
+      const loadedValue = value as {
+        loaded: {
+          count: string
+          selection: string
+        }
+      }
+      const count = loadedValue.loaded.count
+      const selection = loadedValue.loaded.selection
+      return `loaded.${count}.${selection}`
     }
     return Object.keys(value)[0] || "unknown"
   }
@@ -149,7 +157,11 @@ function Single() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "loaded.one" || !context.currentSpace)
+        if (
+          !context ||
+          !context.state.startsWith("loaded.one") ||
+          !context.currentSpace
+        )
           return null
 
         return (
@@ -162,13 +174,29 @@ function Single() {
                 </p>
               </div>
               <div className="rounded-lg border bg-card p-4">
-                <p className="font-medium">{context.currentSpace.name}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Created{" "}
-                  {new Date(
-                    context.currentSpace.created_at
-                  ).toLocaleDateString()}
-                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{context.currentSpace.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Created{" "}
+                      {new Date(
+                        context.currentSpace.created_at
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <svg
+                    className="h-5 w-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -183,10 +211,14 @@ function Selection() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || context.state !== "loaded.some") return null
+        if (!context || !context.state.startsWith("loaded.some")) return null
+
+        const isSelected = context.state.endsWith("selected")
+        // Hide selection when a space is selected
+        if (isSelected) return null
 
         return (
-          <div className="flex h-screen items-center justify-center bg-background p-4">
+          <div className="flex flex-1 items-center justify-center bg-background p-4">
             <div className="w-full max-w-sm space-y-4">
               <div className="text-center">
                 <h2 className="text-lg font-semibold">Select a Space</h2>
@@ -199,15 +231,20 @@ function Selection() {
                   <button
                     key={space.id}
                     onClick={() => context.selectSpace(space)}
-                    className={`w-full rounded-lg border bg-card p-4 text-left transition-colors hover:bg-muted ${
-                      context.currentSpace?.id === space.id
-                        ? "border-primary"
-                        : ""
-                    }`}>
-                    <p className="font-medium">{space.name}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Created {new Date(space.created_at).toLocaleDateString()}
-                    </p>
+                    className={cn(
+                      "w-full rounded-lg border bg-card p-4 text-left transition-colors",
+                      "hover:bg-muted focus-visible:outline-none focus-visible:ring-2",
+                      "focus-visible:ring-ring focus-visible:ring-offset-2"
+                    )}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{space.name}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Created{" "}
+                          {new Date(space.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -224,7 +261,14 @@ function Content({ children }: PropsWithChildren) {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (!context || !context.currentSpace) return null
+        if (!context) return null
+
+        // Check if we're in any selected state
+        const isSelected =
+          context.state.endsWith("selected") ||
+          context.state.startsWith("loaded.one")
+        if (!isSelected || !context.currentSpace) return null
+
         return children
       }}
     </SpaceContext.Consumer>
@@ -314,13 +358,15 @@ export const Spaces = {
 export function SpaceProvider({ children }: PropsWithChildren) {
   return (
     <Spaces.Root>
-      <Spaces.Loading />
-      <Spaces.Error />
-      <Spaces.Empty />
-      <Spaces.Single />
-      <Spaces.Selection />
-      <Spaces.Content>{children}</Spaces.Content>
-      {/* <Spaces.Debug /> */}
+      <div className="flex min-h-screen flex-col">
+        <Spaces.Loading />
+        <Spaces.Error />
+        <Spaces.Empty />
+        <Spaces.Single />
+        <Spaces.Selection />
+        <Spaces.Content>{children}</Spaces.Content>
+        {/* <Spaces.Debug /> */}
+      </div>
     </Spaces.Root>
   )
 }
