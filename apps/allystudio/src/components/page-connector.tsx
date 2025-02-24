@@ -3,7 +3,7 @@
 import { connectPageToAllyship } from "@/core/pages"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
-import { extractDomain, extractPath } from "@/utils/url"
+import { extractDomain, extractPath, isValidPageUrl } from "@/utils/url"
 import { Link2, Link2Off, Plus } from "lucide-react"
 import { useState } from "react"
 
@@ -25,7 +25,8 @@ interface PageConnectorProps {
   onAddPage?: () => Promise<void>
   pageData?: PageData | null
   currentUrl: string
-  websiteId?: string
+  websiteId?: string | null
+  isLoading?: boolean
 }
 
 function StatusIcon({ isConnected }: { isConnected: boolean }) {
@@ -66,25 +67,37 @@ export function PageConnector({
   onAddPage,
   pageData,
   currentUrl,
-  websiteId
+  websiteId,
+  isLoading = false
 }: PageConnectorProps) {
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleAddPage = async () => {
-    setIsLoading(true)
-    try {
-      await connectPageToAllyship(currentUrl)
-      await onAddPage?.()
-    } catch (error) {
-      console.error("Failed to track page:", error)
-    } finally {
-      setIsLoading(false)
-    }
+  // Strict URL validation
+  const isValidUrl = isValidPageUrl(currentUrl)
+  if (!isValidUrl) {
+    return (
+      <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
+        <div className="text-[10px] text-muted-foreground">
+          {!currentUrl
+            ? "Open a webpage to start analyzing"
+            : "This type of page cannot be analyzed"}
+        </div>
+      </div>
+    )
   }
 
-  // Extract domain and path from URL
-  const domain = extractDomain(currentUrl)
-  const path = extractPath(currentUrl)
+  let domain: string
+  let path: string
+  try {
+    domain = extractDomain(currentUrl)
+    path = extractPath(currentUrl)
+  } catch (error) {
+    return (
+      <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
+        <div className="text-[10px] text-muted-foreground">
+          Invalid URL format
+        </div>
+      </div>
+    )
+  }
 
   // Determine what parts we know
   const knownWebsite = !!websiteId // Green if we have a website ID
@@ -107,7 +120,7 @@ export function PageConnector({
                     variant="ghost"
                     size="sm"
                     className={buttonClasses}
-                    onClick={handleAddPage}
+                    onClick={onAddPage}
                     disabled={isLoading}>
                     <div className="flex items-center gap-1 min-w-0 flex-1">
                       <div className="transition-transform duration-200 ease-in-out shrink-0">

@@ -1,86 +1,109 @@
+const INVALID_URL_PROTOCOLS = [
+  "chrome:",
+  "chrome-extension:",
+  "about:",
+  "edge:",
+  "brave:",
+  "firefox:",
+  "opera:",
+  "safari:",
+  "data:",
+  "file:",
+  "ftp:",
+  "view-source:"
+]
+
+/**
+ * Checks if a URL is valid for page tracking
+ * - Must be a valid URL
+ * - Must be HTTP/HTTPS
+ * - Must not be a browser-specific URL
+ * - Must have a valid hostname
+ */
+export function isValidPageUrl(urlString: string): boolean {
+  if (!urlString?.trim()) return false
+
+  try {
+    const url = new URL(
+      urlString.startsWith("http") ? urlString : `https://${urlString}`
+    )
+
+    // Check for invalid protocols
+    if (
+      INVALID_URL_PROTOCOLS.some((protocol) => urlString.startsWith(protocol))
+    ) {
+      return false
+    }
+
+    // Must have a valid hostname (not localhost or IP address)
+    const hostname = url.hostname.toLowerCase()
+    if (
+      hostname === "localhost" ||
+      hostname.match(/^(\d{1,3}\.){3}\d{1,3}$/) || // IPv4
+      hostname.includes("::") || // IPv6
+      !hostname.includes(".") // Must have at least one dot
+    ) {
+      return false
+    }
+
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 /**
  * Normalizes a URL using consistent rules:
+ * - Validates URL is trackable
  * - Converts to lowercase
  * - Removes protocol (http/https)
  * - Removes www.
- * - Removes default ports (80/443)
  * - Removes trailing slashes
  * - Removes fragments (#)
- * - Handles URL encoding consistently
+ * @throws {Error} If URL is invalid for page tracking
  */
-export function normalizeUrl(url: string): string {
-  try {
-    // Handle empty/invalid input
-    if (!url?.trim()) {
-      return ""
-    }
-
-    // Add protocol if missing for URL parsing
-    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
-    const urlObj = new URL(urlWithProtocol)
-
-    // Build normalized URL
-    let normalized = urlObj.hostname.toLowerCase().replace(/^www\./, "")
-    const path = urlObj.pathname === "/" ? "" : urlObj.pathname
-    normalized += path.replace(/\/$/, "") // Remove trailing slash unless it's just "/"
-
-    return normalized
-  } catch (error) {
-    console.error("URL normalization error:", error)
-    // Return cleaned but unnormalized URL as fallback
-    return url
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//, "")
-      .replace(/^www\./, "")
-      .split("?")[0]
-      .split("#")[0]
-      .replace(/\/$/, "")
+export function normalizeUrl(urlString: string): string {
+  if (!isValidPageUrl(urlString)) {
+    throw new Error("Invalid URL for page tracking")
   }
+
+  const url = new URL(
+    urlString.startsWith("http") ? urlString : `https://${urlString}`
+  )
+
+  let normalized = url.hostname.toLowerCase().replace(/^www\./, "")
+  const path = url.pathname === "/" ? "" : url.pathname
+  normalized += path.replace(/\/$/, "") // Remove trailing slash unless it's just "/"
+
+  return normalized
 }
 
 /**
- * Extracts the domain from a URL
- * Handles both normalized and unnormalized URLs
+ * Extracts the domain from a URL string
+ * @throws {Error} If URL is invalid for page tracking
  */
-export function extractDomain(url: string): string {
-  try {
-    // Add protocol if missing for URL parsing
-    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
-    const urlObj = new URL(urlWithProtocol)
-    return urlObj.hostname.toLowerCase().replace(/^www\./, "")
-  } catch (error) {
-    console.error("Domain extraction error:", error)
-    return url
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//, "")
-      .replace(/^www\./, "")
-      .split(/[/?#]/)[0]
+export function extractDomain(urlString: string): string {
+  if (!isValidPageUrl(urlString)) {
+    throw new Error("Invalid URL for page tracking")
   }
+
+  const url = new URL(
+    urlString.startsWith("http") ? urlString : `https://${urlString}`
+  )
+  return url.hostname.replace(/^www\./, "")
 }
 
 /**
- * Extracts the path from a URL, removing query parameters and fragments
- * Returns "/" for homepage
+ * Extracts the path from a URL string
+ * @throws {Error} If URL is invalid for page tracking
  */
-export function extractPath(url: string): string {
-  try {
-    // Add protocol if missing for URL parsing
-    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
-    const urlObj = new URL(urlWithProtocol)
-    const path = urlObj.pathname || "/"
-    // Remove trailing slash unless it's just "/"
-    return path === "/" ? path : path.replace(/\/$/, "")
-  } catch (error) {
-    console.error("Path extraction error:", error)
-    // Fallback: try to extract path portion after domain
-    const withoutProtocol = url.replace(/^https?:\/\//, "")
-    const pathPart = withoutProtocol
-      .split(/[?#]/)[0]
-      .split("/")
-      .slice(1)
-      .join("/")
-    return pathPart ? `/${pathPart}` : "/"
+export function extractPath(urlString: string): string {
+  if (!isValidPageUrl(urlString)) {
+    throw new Error("Invalid URL for page tracking")
   }
+
+  const url = new URL(
+    urlString.startsWith("http") ? urlString : `https://${urlString}`
+  )
+  return url.pathname || "/"
 }
