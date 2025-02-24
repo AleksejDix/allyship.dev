@@ -1,7 +1,6 @@
 "use client"
 
-import { supabase } from "@/core/supabase"
-import { type Session } from "@supabase/supabase-js"
+import { useAuth } from "@/providers/auth-provider"
 import logo from "data-base64:~assets/logo.png"
 import * as Icons from "lucide-react"
 
@@ -16,11 +15,9 @@ import {
   DropdownMenuTrigger
 } from "./ui/dropdown-menu"
 
-interface HeaderProps {
-  session: Session
-}
+export function Header() {
+  const { session, signOut } = useAuth()
 
-export function Header({ session }: HeaderProps) {
   const userInitials = session.user.email
     ?.split("@")[0]
     .slice(0, 2)
@@ -60,7 +57,7 @@ export function Header({ session }: HeaderProps) {
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => supabase.auth.signOut()}
+              onClick={signOut}
               className="text-red-600 dark:text-red-400">
               <Icons.LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>

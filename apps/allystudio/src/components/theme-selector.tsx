@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils"
-
-import { useTheme } from "./theme-provider"
+import { useTheme } from "@/providers/theme-provider"
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme()
