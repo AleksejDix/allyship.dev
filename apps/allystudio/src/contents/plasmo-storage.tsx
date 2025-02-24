@@ -84,6 +84,22 @@ const PlasmoOverlay = () => {
     updateTimeoutRef.current = setTimeout(applyUpdates, DEBOUNCE_MS)
   }
 
+  // Initialize message handling
+  useEffect(() => {
+    console.log("[PlasmoOverlay] Content script initialized")
+
+    // Notify that we're ready to receive messages
+    chrome.runtime
+      .sendMessage({ type: "CONTENT_SCRIPT_READY" })
+      .catch((error) =>
+        console.error("[PlasmoOverlay] Failed to send ready message:", error)
+      )
+
+    return () => {
+      console.log("[PlasmoOverlay] Content script cleanup")
+    }
+  }, [])
+
   // Subscribe to test completion events
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
@@ -180,26 +196,47 @@ const PlasmoOverlay = () => {
 
   // Subscribe to layer toggle events
   useEffect(() => {
+    console.log("[PlasmoOverlay] Setting up LAYER_TOGGLE_REQUEST listener")
+
     const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
       if (event.type === "LAYER_TOGGLE_REQUEST") {
-        console.log("Received layer toggle event:", event.data)
+        console.log("[PlasmoOverlay] Received LAYER_TOGGLE_REQUEST event:", {
+          type: event.type,
+          data: event.data,
+          timestamp: event.timestamp
+        })
+
         const { layer, visible } = event.data
 
         // Apply the toggle
         setHiddenLayers((current) => {
           const newHidden = new Set(current)
-          if (visible) {
-            console.log("Showing layer:", layer)
-            newHidden.delete(layer)
-          } else {
-            console.log("Hiding layer:", layer)
+          console.log(
+            "[PlasmoOverlay] Current hidden layers:",
+            Array.from(current)
+          )
+
+          if (!visible) {
+            console.log("[PlasmoOverlay] Hiding layer:", layer)
             newHidden.add(layer)
+          } else {
+            console.log("[PlasmoOverlay] Showing layer:", layer)
+            newHidden.delete(layer)
           }
+
+          console.log(
+            "[PlasmoOverlay] Updated hidden layers:",
+            Array.from(newHidden)
+          )
           return newHidden
         })
       }
     })
-    return unsubscribe
+
+    return () => {
+      console.log("[PlasmoOverlay] Cleaning up LAYER_TOGGLE_REQUEST listener")
+      unsubscribe()
+    }
   }, [])
 
   // Clean up stale highlights periodically
