@@ -1,8 +1,8 @@
 {
-  "name": "allystudio",
-  "displayName": "Allyship",
+  "name": "AllyStudio",
+  "displayName": "AllyStudio",
   "version": "0.0.1",
-  "description": "Plasmo extension using shadcn example",
+  "description": "Accessibility Auditing Tool",
   "author": "Plasmo Corp. <foss@plasmo.com>",
   "packageManager": "pnpm@8.15.3",
   "scripts": {

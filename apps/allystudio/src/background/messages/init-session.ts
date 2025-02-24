@@ -3,20 +3,33 @@ import { supabase } from "@/core/supabase"
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log(event, session)
-  })
+  try {
+    // Set the session
+    const { data, error } = await supabase.auth.setSession(req.body)
 
-  await supabase.auth.setSession(req.body)
+    if (error) {
+      throw error
+    }
 
-  // Send the focus change data to all extension views
-  chrome.runtime.sendMessage({
-    type: "FOCUS_CHANGE",
-    data: req.body
-  })
+    // Send auth state change to update UI
+    chrome.runtime.sendMessage({
+      type: "AUTH_STATE_CHANGE",
+      event: "SIGNED_IN",
+      session: data.session
+    })
 
-  // Respond to confirm receipt
-  res.send({ success: true })
+    // Respond with success and session
+    res.send({
+      success: true,
+      session: data.session
+    })
+  } catch (error) {
+    console.error("Failed to initialize session:", error)
+    res.send({
+      success: false,
+      error: error.message
+    })
+  }
 }
 
 export default handler
