@@ -3,119 +3,116 @@ import type { Database } from "@/types/database"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup } from "xstate"
 
-type Space = Database["public"]["Tables"]["Space"]["Row"]
+type Website = Database["public"]["Tables"]["Website"]["Row"]
 
 type InitialContext = {
-  spaces: never[]
-  currentSpace: never
+  websites: never[]
+  currentWebsite: never
   error: never
+  spaceId: string
 }
 
 type LoadedContext = {
-  spaces: Space[]
-  currentSpace: null
+  websites: Website[]
+  currentWebsite: null
   error: null
+  spaceId: string
 }
 
 type ErrorContext = {
-  spaces: never[]
-  currentSpace: never
+  websites: never[]
+  currentWebsite: never
   error: PostgrestError
-}
-
-type ManualContext = {
-  spaces: Space[]
-  currentSpace: null
-  error: null
+  spaceId: string
 }
 
 type SelectedContext = {
-  spaces: Space[]
-  currentSpace: Space
+  websites: Website[]
+  currentWebsite: Website
   error: null
+  spaceId: string
 }
 
-type SpaceContext =
+type WebsiteContext =
   | InitialContext
   | LoadedContext
   | ErrorContext
-  | ManualContext
   | SelectedContext
-type SpaceEvent =
-  | { type: "SPACES_LOADED"; spaces: Space[] }
-  | { type: "SPACE_SELECTED"; space: Space }
+
+type WebsiteEvent =
+  | { type: "WEBSITE_SELECTED"; website: Website }
   | { type: "REFRESH" }
   | { type: "error"; error: Error }
   | DoneEvent
 
-type DoneEvent = { type: "done.invoke.loadSpaces"; output: Space[] }
-type ErrorEvent = { type: "error.invoke.loadSpaces"; data: PostgrestError }
+type DoneEvent = { type: "done.invoke.loadWebsites"; output: Website[] }
+type ErrorEvent = { type: "error.invoke.loadWebsites"; data: PostgrestError }
 
 const actors = {
-  loadSpaces: fromPromise(() => {
+  loadWebsites: fromPromise(({ input }: { input: { spaceId: string } }) => {
+    console.log("loadWebsites", input)
     return supabase
-      .from("Space")
+      .from("Website")
       .select("*")
+      .eq("space_id", input.spaceId)
       .then(({ data, error }) => {
-        console.log(error)
-        if (error) console.log("guck of")
+        if (error) throw error
         return data ?? []
       })
   })
 }
 
-export const spaceMachine = setup({
+export const websiteMachine = setup({
   types: {
-    context: {} as SpaceContext,
-    events: {} as SpaceEvent | DoneEvent | ErrorEvent
+    context: {} as WebsiteContext,
+    events: {} as WebsiteEvent | DoneEvent | ErrorEvent,
+    input: {} as { spaceId: string }
   },
   actors,
   actions: {
-    setSpaces: assign({
-      spaces: ({ event }: { event: DoneEvent }) => event.output
+    setWebsites: assign({
+      websites: ({ event }: { event: DoneEvent }) => event.output
     }),
     setError: assign({
-      error: ({ event }: { event: ErrorEvent }) => {
-        console.log("WHY", event)
-        return event.data
-      }
+      error: ({ event }: { event: ErrorEvent }) => event.data
     }),
-    setCurrentSpace: assign({
-      currentSpace: ({
+    setCurrentWebsite: assign({
+      currentWebsite: ({
         event
       }: {
-        event: { type: "SPACE_SELECTED"; space: Space }
-      }) => event.space
-    }),
-    autoSelectSingleSpace: assign({
-      currentSpace: ({ context }) => context.spaces[0]
+        event: { type: "WEBSITE_SELECTED"; website: Website }
+      }) => event.website
     })
   },
   guards: {
-    hasNone: ({ context }: { context: SpaceContext }) => {
-      return context.spaces.length === 0
+    hasNone: ({ context }: { context: WebsiteContext }) => {
+      return context.websites.length === 0
     },
-    hasSome: ({ context }: { context: SpaceContext }) => {
-      return context.spaces.length > 0
+    hasSome: ({ context }: { context: WebsiteContext }) => {
+      return context.websites.length > 0
     },
-    hasOne: ({ context }: { context: SpaceContext }) => {
-      return context.spaces.length === 1
+    hasOne: ({ context }: { context: WebsiteContext }) => {
+      return context.websites.length === 1
     }
   }
 }).createMachine({
   initial: "loading",
-  context: {
-    spaces: [],
-    currentSpace: null,
-    error: null
-  },
+  context: ({ input }) => ({
+    websites: [],
+    currentWebsite: null,
+    error: null,
+    spaceId: input.spaceId
+  }),
   states: {
     loading: {
       invoke: {
-        src: "loadSpaces",
+        src: "loadWebsites",
+        input: ({ context }) => ({
+          spaceId: context.spaceId
+        }),
         onDone: {
           target: "loaded",
-          actions: ["setSpaces"]
+          actions: ["setWebsites"]
         },
         onError: {
           target: "error",
@@ -154,7 +151,9 @@ export const spaceMachine = setup({
             },
             none: {},
             one: {
-              entry: ["autoSelectSingleSpace"]
+              entry: assign({
+                currentWebsite: ({ context }) => context.websites[0]
+              })
             },
             some: {}
           }
@@ -163,24 +162,18 @@ export const spaceMachine = setup({
           initial: "unselected",
           states: {
             unselected: {
-              always: [
-                {
-                  guard: "hasOne",
-                  target: "selected"
-                }
-              ],
               on: {
-                SPACE_SELECTED: {
+                WEBSITE_SELECTED: {
                   target: "selected",
-                  actions: ["setCurrentSpace"]
+                  actions: ["setCurrentWebsite"]
                 }
               }
             },
             selected: {
               on: {
-                SPACE_SELECTED: {
+                WEBSITE_SELECTED: {
                   target: "selected",
-                  actions: ["setCurrentSpace"]
+                  actions: ["setCurrentWebsite"]
                 }
               }
             }

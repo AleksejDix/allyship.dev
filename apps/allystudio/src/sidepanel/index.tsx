@@ -6,6 +6,7 @@ import { Layout } from "@/components/layout"
 export default function SidePanel() {
   return (
     <Layout>
+      Aleskej
       <Header />
     </Layout>
   )
