@@ -90,6 +90,7 @@ const PlasmoOverlay = () => {
       // Track test completions
       if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
         completedTestsRef.current.add(event.type)
+        console.log("Test completed:", event.type)
 
         // Check if all required tests are complete
         const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
@@ -97,7 +98,10 @@ const PlasmoOverlay = () => {
         )
 
         if (allComplete) {
+          console.log("All tests complete, showing layer toggle")
           setTestsComplete(true)
+          // Reset hidden layers when tests complete
+          setHiddenLayers(new Set())
         }
       }
     })
@@ -178,8 +182,21 @@ const PlasmoOverlay = () => {
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
       if (event.type === "LAYER_TOGGLE_REQUEST") {
+        console.log("Received layer toggle event:", event.data)
         const { layer, visible } = event.data
-        toggleLayer(layer, visible)
+
+        // Apply the toggle
+        setHiddenLayers((current) => {
+          const newHidden = new Set(current)
+          if (visible) {
+            console.log("Showing layer:", layer)
+            newHidden.delete(layer)
+          } else {
+            console.log("Hiding layer:", layer)
+            newHidden.add(layer)
+          }
+          return newHidden
+        })
       }
     })
     return unsubscribe
