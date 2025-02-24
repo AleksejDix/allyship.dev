@@ -331,14 +331,12 @@ export const Spaces = {
 export function SpaceProvider({ children }: PropsWithChildren) {
   return (
     <Spaces.Root>
-      <div className="flex min-h-screen flex-col">
-        <Spaces.Loading />
-        <Spaces.Error />
-        <Spaces.Empty />
-        <Spaces.Selection />
-        <Spaces.Content>{children}</Spaces.Content>
-        {/* <Spaces.Debug /> */}
-      </div>
+      <Spaces.Loading />
+      <Spaces.Error />
+      <Spaces.Empty />
+      <Spaces.Selection />
+      <Spaces.Content>{children}</Spaces.Content>
+      {/* <Spaces.Debug /> */}
     </Spaces.Root>
   )
 }
