@@ -6,11 +6,12 @@ import { HighlightBox } from "./HighlightBox"
 interface LayerProps {
   layerId: string
   highlights: Map<string, HighlightData>
+  isVisible?: boolean
 }
 
-function LayerComponent({ layerId, highlights }: LayerProps) {
+function LayerComponent({ layerId, highlights, isVisible = true }: LayerProps) {
   return (
-    <>
+    <div style={{ opacity: isVisible ? 1 : 0, transition: "opacity 0.2s" }}>
       {Array.from(highlights.values()).map((highlight) => (
         <HighlightBox
           key={`${layerId}-${highlight.selector}`}
@@ -18,7 +19,7 @@ function LayerComponent({ layerId, highlights }: LayerProps) {
           layer={layerId}
         />
       ))}
-    </>
+    </div>
   )
 }
 

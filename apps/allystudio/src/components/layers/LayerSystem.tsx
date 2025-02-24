@@ -5,9 +5,13 @@ import { Layer } from "./Layer"
 
 interface LayerSystemProps {
   highlights: Map<string, Map<string, HighlightData>>
+  hiddenLayers?: Set<string>
 }
 
-export function LayerSystem({ highlights }: LayerSystemProps) {
+export function LayerSystem({
+  highlights,
+  hiddenLayers = new Set()
+}: LayerSystemProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const ticking = useRef(false)
 
@@ -88,7 +92,12 @@ export function LayerSystem({ highlights }: LayerSystemProps) {
         }
       `}</style>
       {Array.from(highlights.entries()).map(([layerId, layerHighlights]) => (
-        <Layer key={layerId} layerId={layerId} highlights={layerHighlights} />
+        <Layer
+          key={layerId}
+          layerId={layerId}
+          highlights={layerHighlights}
+          isVisible={!hiddenLayers.has(layerId)}
+        />
       ))}
     </div>
   )
