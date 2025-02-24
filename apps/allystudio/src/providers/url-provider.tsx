@@ -1,4 +1,4 @@
-import { normalizeUrl } from "@/utils/url"
+import { extractDomain, isValidPageUrl, normalizeUrl } from "@/utils/url"
 import {
   createContext,
   useContext,
@@ -206,13 +206,11 @@ export function UrlProvider({ children }: PropsWithChildren) {
     }
 
     try {
-      const url = new URL(currentUrl)
-
-      // Skip normalization for invalid URLs
-      if (!url.protocol.startsWith("http")) {
+      // Use isValidPageUrl to validate URL
+      if (!isValidPageUrl(currentUrl)) {
         setError({
           code: "INVALID_URL",
-          message: "Only HTTP/HTTPS URLs are supported"
+          message: "Invalid URL format or unsupported URL type"
         })
         return {
           normalizedUrl: null,
@@ -221,38 +219,30 @@ export function UrlProvider({ children }: PropsWithChildren) {
         }
       }
 
-      // Extract and clean domain
-      const domain = url.hostname
-        .replace(/^www\./, "") // Remove www.
-        .toLowerCase() // Normalize case
+      // Extract domain first - this is what we'll use for website matching
+      const domain = extractDomain(currentUrl)
 
-      // Skip IP addresses and localhost
-      if (
-        /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(domain) || // IPv4
-        domain === "localhost" ||
-        domain.endsWith(".local")
-      ) {
-        setError({
-          code: "INVALID_URL",
-          message: "IP addresses and localhost URLs are not supported"
-        })
-        return {
-          normalizedUrl: null,
-          normalizedDomain: null,
-          currentDomain: null
-        }
-      }
+      // Get full normalized URL for page matching
+      const fullNormalizedUrl = normalizeUrl(currentUrl)
 
-      return {
-        normalizedUrl: normalizeUrl(currentUrl),
-        normalizedDomain: normalizeUrl(domain),
+      console.log("URL Provider Normalized:", {
+        currentUrl,
+        extractedDomain: domain,
+        fullNormalizedUrl
+      })
+
+      const normalized = {
+        normalizedUrl: fullNormalizedUrl,
+        normalizedDomain: domain, // Just the domain for website matching
         currentDomain: domain
       }
+
+      return normalized
     } catch (error) {
       console.error("Error normalizing URL:", error)
       setError({
         code: "INVALID_URL",
-        message: "Failed to normalize URL"
+        message: error.message || "Failed to normalize URL"
       })
       return {
         normalizedUrl: null,
