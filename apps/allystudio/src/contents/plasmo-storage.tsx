@@ -1,5 +1,7 @@
 import { LayerSystem } from "@/components/layers/LayerSystem"
+import { Button } from "@/components/ui/button"
 import { eventBus } from "@/lib/events/event-bus"
+import { Eye, EyeOff } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import type { HighlightData, HighlightEvent } from "./types"
@@ -9,6 +11,51 @@ const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<
     Map<string, Map<string, HighlightData>>
   >(new Map())
+
+  // Track layer visibility
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+
+  // Layer counter box styles
+  const layerCounterStyles = {
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    color: "white",
+    padding: "12px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    zIndex: 999999,
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "8px",
+    minWidth: "240px"
+  } as const
+
+  const layerItemStyles = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "8px",
+    width: "100%"
+  } as const
+
+  // Get active layer count and names
+  const activeLayerCount = useMemo(() => highlights.size, [highlights])
+  const layerNames = useMemo(() => Array.from(highlights.keys()), [highlights])
+
+  // Toggle layer visibility
+  const toggleLayer = (layerName: string) => {
+    setHiddenLayers((current) => {
+      const newHidden = new Set(current)
+      if (newHidden.has(layerName)) {
+        newHidden.delete(layerName)
+      } else {
+        newHidden.add(layerName)
+      }
+      return newHidden
+    })
+  }
 
   // Helper to validate selector and element
   const validateHighlight = (selector: string): HTMLElement | null => {
@@ -125,7 +172,49 @@ const PlasmoOverlay = () => {
     return () => clearInterval(cleanupInterval)
   }, [])
 
-  return <LayerSystem highlights={highlights} />
+  return (
+    <>
+      <LayerSystem highlights={highlights} hiddenLayers={hiddenLayers} />
+      {activeLayerCount > 0 && (
+        <div style={layerCounterStyles} role="status">
+          <div
+            style={{
+              borderBottom: "1px solid rgba(255,255,255,0.2)",
+              paddingBottom: "8px",
+              marginBottom: "4px"
+            }}>
+            <span>Active Layers: {activeLayerCount}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {layerNames.map((layerName) => (
+              <div key={layerName} style={layerItemStyles}>
+                <span
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }}>
+                  {layerName}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => toggleLayer(layerName)}
+                  aria-pressed={!hiddenLayers.has(layerName)}
+                  aria-label={`Toggle ${layerName} layer visibility`}>
+                  {hiddenLayers.has(layerName) ? (
+                    <EyeOff size="16" />
+                  ) : (
+                    <Eye size="16" />
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )
 }
 
 export default PlasmoOverlay
