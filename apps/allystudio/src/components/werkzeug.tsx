@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
+import { Eye, EyeOff } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface TestResults {
@@ -20,6 +21,7 @@ export function Werkzeug() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
   const [results, setResults] = useState<TestResults[]>([])
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event) => {
@@ -55,9 +57,45 @@ export function Werkzeug() {
     return unsubscribe
   }, [])
 
+  const toggleLayer = (layerName: string) => {
+    setHiddenLayers((current) => {
+      const newHidden = new Set(current)
+      if (newHidden.has(layerName)) {
+        newHidden.delete(layerName)
+      } else {
+        newHidden.add(layerName)
+      }
+
+      // Map test types to layer names
+      const layerMap = {
+        headings: "headings",
+        links: "links",
+        alt: "images",
+        interactive: "interactive"
+      } as const
+
+      // Publish event to sync with PlasmoOverlay
+      const mappedLayer =
+        layerMap[layerName as keyof typeof layerMap] || layerName
+      console.log("Toggling layer:", mappedLayer)
+
+      eventBus.publish({
+        type: "LAYER_TOGGLE_REQUEST",
+        timestamp: Date.now(),
+        data: {
+          layer: mappedLayer,
+          visible: !newHidden.has(layerName)
+        }
+      })
+
+      return newHidden
+    })
+  }
+
   const startAnalysis = async () => {
-    // Clear previous results
+    // Clear previous results and layer states
     setResults([])
+    setHiddenLayers(new Set())
     setIsAnalyzing(true)
 
     // Get current tab
@@ -157,18 +195,33 @@ export function Werkzeug() {
             <div
               key={result.type}
               className="p-4 rounded-lg border bg-card text-card-foreground">
-              <h3 className="font-medium">
-                {TEST_CONFIGS[result.type].displayName}
-              </h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium">
+                  {TEST_CONFIGS[result.type].displayName}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => toggleLayer(result.type)}
+                  aria-pressed={!hiddenLayers.has(result.type)}
+                  aria-label={`Toggle ${TEST_CONFIGS[result.type].displayName} layer visibility`}
+                  className="h-8 w-8">
+                  {hiddenLayers.has(result.type) ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
               <p className="text-sm text-muted-foreground">
                 Found {result.stats.invalid} issues in {result.stats.total}{" "}
                 {TEST_CONFIGS[result.type].statsText.itemName}
               </p>
               {result.issues.length > 0 && (
                 <ul className="mt-2 space-y-1">
-                  {result.issues.map((issue) => (
+                  {result.issues.map((issue, index) => (
                     <li
-                      key={issue.id}
+                      key={`${result.type}-${issue.id}-${issue.severity}-${index}`}
                       className="text-sm flex items-center gap-2">
                       <span
                         className={`px-1.5 py-0.5 rounded-full text-xs ${
