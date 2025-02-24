@@ -8,7 +8,7 @@ import { AuthRequired } from "@/components/auth-required"
 import { Header } from "@/components/header"
 import { Layout } from "@/components/layout"
 import { LoadingState } from "@/components/loading-state"
-import { Toolbar } from "@/components/toolbar"
+import { PageConnector } from "@/components/page-connector"
 import {
   connectPageToAllyship,
   getPageByUrl,
@@ -209,16 +209,17 @@ function IndexSidePanel() {
     <Layout>
       <div className="flex h-screen flex-col">
         <div className="flex flex-1 flex-col">
+          <div className="flex w-full flex-col border-b bg-muted/50">
+            <PageConnector
+              currentFile={currentTitle}
+              isConnected={!!pageData}
+              onAddPage={handleAddPage}
+              pageData={pageData}
+              currentUrl={currentUrl}
+              websiteId={websiteId}
+            />
+          </div>
           <Werkzeug />
-          <Toolbar
-            onToolChange={setActiveTool}
-            currentFile={currentTitle}
-            isConnected={!!pageData}
-            onAddPage={handleAddPage}
-            pageData={pageData}
-            currentUrl={currentUrl}
-            websiteId={websiteId}
-          />
           <div className="flex-1 p-4 space-y-4">
             {activeTool === "headings" && (
               <>
