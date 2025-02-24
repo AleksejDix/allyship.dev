@@ -20,38 +20,17 @@ type AuthEvent = {
   session: any
 }
 
-type HeadingDataEvent = {
-  type: "HEADING_DATA_UPDATE"
-  tabId: number
-  data: {
-    overlayData?: Array<{
-      selector: string
-      message: string
-    }>
-    issues?: Array<any>
-  }
-}
-
 type TabEvent = {
   type: "TAB_CLOSED"
   tabId: number
 }
 
-type RootEvent = AuthEvent | HeadingDataEvent | TabEvent
+type RootEvent = AuthEvent | TabEvent
 
 // Types for our state context
 interface RootContext {
   activeTabs: Set<number>
   session: any | null
-  headingAnalysis: {
-    [tabId: number]: {
-      overlayData?: Array<{
-        selector: string
-        message: string
-      }>
-      issues?: Array<any>
-    }
-  }
 }
 
 // Create the root machine
@@ -73,45 +52,13 @@ const rootMachine = setup({
         return event.session
       }
     }),
-    updateHeadingData: assign({
-      headingAnalysis: ({ context, event }) => {
-        if (event.type !== "HEADING_DATA_UPDATE") return context.headingAnalysis
-        return {
-          ...context.headingAnalysis,
-          [event.tabId]: {
-            overlayData: event.data.overlayData,
-            issues: event.data.issues
-          }
-        }
-      }
-    }),
-    notifyHeadingDataUpdate: ({ context, event }) => {
-      if (event.type !== "HEADING_DATA_UPDATE") return
-      chrome.tabs.sendMessage(event.tabId, {
-        type: "HEADING_DATA_UPDATE",
-        data: {
-          overlayData: context.headingAnalysis[event.tabId]?.overlayData
-        }
-      })
-    },
-    notifyHeadingIssuesUpdate: ({ context, event }) => {
-      if (event.type !== "HEADING_DATA_UPDATE") return
-      chrome.tabs.sendMessage(event.tabId, {
-        type: "HEADING_ISSUES_UPDATE",
-        data: {
-          issues: context.headingAnalysis[event.tabId]?.issues
-        }
-      })
-    },
     cleanupClosedTab: assign(({ context, event }) => {
       if (event.type !== "TAB_CLOSED") return context
       const newTabs = new Set(context.activeTabs)
       newTabs.delete(event.tabId)
-      const newAnalysis = { ...context.headingAnalysis }
-      delete newAnalysis[event.tabId]
       return {
-        activeTabs: newTabs,
-        headingAnalysis: newAnalysis
+        ...context,
+        activeTabs: newTabs
       }
     })
   }
@@ -120,8 +67,7 @@ const rootMachine = setup({
   initial: "initializing",
   context: {
     activeTabs: new Set<number>(),
-    session: null,
-    headingAnalysis: {}
+    session: null
   },
   states: {
     initializing: {
@@ -141,13 +87,6 @@ const rootMachine = setup({
       on: {
         AUTH_STATE_CHANGE: {
           actions: "updateSession"
-        },
-        HEADING_DATA_UPDATE: {
-          actions: [
-            "updateHeadingData",
-            "notifyHeadingDataUpdate",
-            "notifyHeadingIssuesUpdate"
-          ]
         },
         TAB_CLOSED: {
           actions: "cleanupClosedTab"
