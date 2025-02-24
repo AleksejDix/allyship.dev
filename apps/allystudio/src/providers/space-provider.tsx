@@ -1,75 +1,50 @@
 import { spaceMachine } from "@/providers/space"
 import type { Database } from "@/types/database"
-import { useSelector } from "@xstate/react"
+import { useActorRef, useSelector } from "@xstate/react"
 import {
   createContext,
   useContext,
   useMemo,
   type PropsWithChildren
 } from "react"
-import { createActor } from "xstate"
 import type { ActorRefFrom } from "xstate"
 
 type Space = Database["public"]["Tables"]["Space"]["Row"]
 
-// Create a single actor instance at the module level
-const spaceActor = createActor(spaceMachine, {
-  systemId: "space-machine"
-}).start()
-
 interface SpaceContextValue {
-  spaces: Space[]
-  currentSpace: Space | null
-  selectSpace: (space: Space) => void
   state: string
+  spaces: Space[] | never[] | readonly Space[]
+  currentSpace: Space | null | never
+  error: Error | null
+  selectSpace: (space: Space) => void
   refresh: () => void
   actor: ActorRefFrom<typeof spaceMachine>
 }
 
 const SpaceContext = createContext<SpaceContextValue | undefined>(undefined)
 
+const SPACE_CONTEXT_ERROR = "Space context must be used within Spaces"
+const UNKNOWN_SPACE_ERROR = "Unknown error occurred while loading spaces"
+
 function useSpaceContext() {
   const context = useContext(SpaceContext)
-  if (!context) {
-    throw new Error("Space context must be used within Spaces")
+  if (context === undefined) {
+    throw SPACE_CONTEXT_ERROR
   }
   return context
 }
 
-// Root component that provides context
-function Root({ children }: PropsWithChildren) {
-  // Get current state and context using a single selector
-  const { state, spaces, currentSpace } = useSelector(
-    spaceActor,
-    (snapshot) => ({
-      state: snapshot.value,
-      spaces: snapshot.context.spaces,
-      currentSpace: snapshot.context.currentSpace
-    })
-  )
-
-  // Memoize callbacks
-  const selectSpace = useMemo(
-    () => (space: Space) => spaceActor.send({ type: "SPACE_SELECTED", space }),
-    []
-  )
-
-  const refresh = useMemo(() => () => spaceActor.send({ type: "REFRESH" }), [])
-
-  // Memoize the context value
-  const value = useMemo(
-    () => ({
-      spaces,
-      currentSpace,
-      selectSpace,
-      refresh,
-      state,
-      actor: spaceActor
-    }),
-    [spaces, currentSpace, selectSpace, refresh, state]
-  )
-
-  return <SpaceContext.Provider value={value}>{children}</SpaceContext.Provider>
+// Helper to convert state value to string
+function getStateString(value: unknown): string {
+  if (typeof value === "string") return value
+  if (value && typeof value === "object") {
+    if ("loaded" in value) {
+      const loadedValue = (value as { loaded: string }).loaded
+      return `loaded.${loadedValue}`
+    }
+    return Object.keys(value)[0] || "unknown"
+  }
+  return "unknown"
 }
 
 // Loading state component
@@ -77,22 +52,46 @@ function Loading() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (
-          !context ||
-          (context.state !== "loading" && context.state !== "initializing")
-        )
-          return null
-
-        const message =
-          context.state === "initializing"
-            ? "Initializing..."
-            : "Loading spaces..."
+        if (!context || context.state !== "loading") return null
 
         return (
           <div className="flex h-screen items-center justify-center bg-background">
             <div role="status" className="text-center">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
-              <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Loading spaces...
+              </p>
+            </div>
+          </div>
+        )
+      }}
+    </SpaceContext.Consumer>
+  )
+}
+
+// Error state component
+function Error() {
+  return (
+    <SpaceContext.Consumer>
+      {(context) => {
+        if (!context || context.state !== "error") return null
+
+        const errorMessage = context.error?.message || UNKNOWN_SPACE_ERROR
+
+        return (
+          <div className="flex h-screen items-center justify-center bg-background p-4">
+            <div className="w-full max-w-sm space-y-4 rounded-lg border bg-destructive/10 p-6">
+              <div className="space-y-2 text-center">
+                <h2 className="text-lg font-semibold text-destructive">
+                  Error Loading Spaces
+                </h2>
+                <p className="text-sm text-destructive/80">{errorMessage}</p>
+                <button
+                  onClick={() => context.refresh()}
+                  className="mt-4 inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90">
+                  Try Again
+                </button>
+              </div>
             </div>
           </div>
         )
@@ -106,13 +105,7 @@ function Empty() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (
-          !context ||
-          context.state === "initializing" ||
-          context.state === "loading" ||
-          context.spaces.length > 0
-        )
-          return null
+        if (!context || context.state !== "loaded.none") return null
 
         return (
           <div className="flex h-screen flex-col items-center justify-center bg-background p-4">
@@ -126,9 +119,9 @@ function Empty() {
               onClick={() => context.refresh()}
               className="inline-flex w-[300px] items-center justify-between rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:bg-muted">
               <div>
-                <div className="font-medium">Fetch Spaces</div>
+                <div className="font-medium">Refresh Spaces</div>
                 <div className="text-sm text-muted-foreground">
-                  Load your spaces from the dashboard
+                  Check for new spaces
                 </div>
               </div>
               <svg
@@ -151,19 +144,46 @@ function Empty() {
   )
 }
 
-// List component
-function List() {
+// Single space component
+function Single() {
   return (
     <SpaceContext.Consumer>
       {(context) => {
-        if (
-          !context ||
-          context.state === "initializing" ||
-          context.state === "loading" ||
-          context.spaces.length === 0 ||
-          context.currentSpace
-        )
+        if (!context || context.state !== "loaded.one" || !context.currentSpace)
           return null
+
+        return (
+          <div className="flex h-screen items-center justify-center bg-background p-4">
+            <div className="w-full max-w-sm space-y-4">
+              <div className="text-center">
+                <h2 className="text-lg font-semibold">Current Space</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  You are working in your only space
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="font-medium">{context.currentSpace.name}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Created{" "}
+                  {new Date(
+                    context.currentSpace.created_at
+                  ).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      }}
+    </SpaceContext.Consumer>
+  )
+}
+
+// Space selection component
+function Selection() {
+  return (
+    <SpaceContext.Consumer>
+      {(context) => {
+        if (!context || context.state !== "loaded.some") return null
 
         return (
           <div className="flex h-screen items-center justify-center bg-background p-4">
@@ -199,23 +219,6 @@ function List() {
   )
 }
 
-// Debug component
-function Debug() {
-  return (
-    <SpaceContext.Consumer>
-      {(context) => {
-        if (!context || process.env.NODE_ENV !== "development") return null
-
-        return (
-          <div className="fixed bottom-4 right-4 z-50 rounded-lg border bg-card p-2 text-xs">
-            <div className="font-medium">Space Machine: {context.state}</div>
-          </div>
-        )
-      }}
-    </SpaceContext.Consumer>
-  )
-}
-
 // Content wrapper component
 function Content({ children }: PropsWithChildren) {
   return (
@@ -228,12 +231,81 @@ function Content({ children }: PropsWithChildren) {
   )
 }
 
-// Export compound components
+// Debug component for development
+function Debug() {
+  return (
+    <SpaceContext.Consumer>
+      {(context) => {
+        if (!context || process.env.NODE_ENV !== "development") return null
+
+        return (
+          <div className="fixed border border-red-400 bottom-4 right-4 z-50 rounded-lg border bg-card p-2 text-xs">
+            <div className="font-medium">Space Machine: {context.state}</div>
+
+            <pre>{JSON.stringify(context, null, 2)}</pre>
+            <div className="mt-1 text-muted-foreground">
+              Spaces: {context.spaces.length}
+              {context.currentSpace &&
+                ` | Selected: ${context.currentSpace.name}`}
+            </div>
+          </div>
+        )
+      }}
+    </SpaceContext.Consumer>
+  )
+}
+
+// Root component that provides context
+function Root({ children }: PropsWithChildren) {
+  const actorRef = useActorRef(spaceMachine)
+
+  const stateValue = useSelector(actorRef, (state) => state.value)
+  const spaces = useSelector(actorRef, (state) => state.context.spaces)
+  const currentSpace = useSelector(
+    actorRef,
+    (state) => state.context.currentSpace
+  )
+  const error = useSelector(actorRef, (state) => state.context.error)
+
+  // Convert state value to string
+  const state = useMemo(() => getStateString(stateValue), [stateValue])
+
+  // Memoize callbacks
+  const selectSpace = useMemo(
+    () => (space: Space) => actorRef.send({ type: "SPACE_SELECTED", space }),
+    [actorRef]
+  )
+
+  const refresh = useMemo(
+    () => () => actorRef.send({ type: "REFRESH" }),
+    [actorRef]
+  )
+
+  // Memoize the context value
+  const value = useMemo(
+    () => ({
+      state,
+      spaces,
+      currentSpace,
+      error,
+      selectSpace,
+      refresh,
+      actor: actorRef
+    }),
+    [state, spaces, currentSpace, error, selectSpace, refresh, actorRef]
+  )
+
+  return <SpaceContext.Provider value={value}>{children}</SpaceContext.Provider>
+}
+
+// Export compound DEBUG
 export const Spaces = {
   Root,
   Loading,
+  Error,
   Empty,
-  List,
+  Single,
+  Selection,
   Content,
   Debug
 }
@@ -243,10 +315,17 @@ export function SpaceProvider({ children }: PropsWithChildren) {
   return (
     <Spaces.Root>
       <Spaces.Loading />
+      <Spaces.Error />
       <Spaces.Empty />
-      <Spaces.List />
+      <Spaces.Single />
+      <Spaces.Selection />
       <Spaces.Content>{children}</Spaces.Content>
-      <Spaces.Debug />
+      {/* <Spaces.Debug /> */}
     </Spaces.Root>
   )
+}
+
+// Hook for accessing space context
+export function useSpace() {
+  return useSpaceContext()
 }
