@@ -1,4 +1,4 @@
-import type { HighlightData } from "@/contents/types"
+import type { HighlightData } from "@/lib/highlight-types"
 import { useEffect, useRef } from "react"
 
 import { Layer } from "./Layer"

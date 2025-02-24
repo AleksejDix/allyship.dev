@@ -1,16 +1,58 @@
 import { LayerSystem } from "@/components/layers/LayerSystem"
-import { Button } from "@/components/ui/button"
+import { LayerToggle } from "@/components/layers/LayerToggle"
 import { eventBus } from "@/lib/events/event-bus"
-import { Eye, EyeOff } from "lucide-react"
+import type { AllyStudioEvent } from "@/lib/events/types"
+import type { HighlightData, HighlightEvent } from "@/lib/highlight-types"
+import { DEFAULT_HIGHLIGHT_STYLES } from "@/lib/highlight-types"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import type { HighlightData, HighlightEvent } from "./types"
-import { DEFAULT_HIGHLIGHT_STYLES } from "./types"
+const DEBOUNCE_MS = 100 // Wait 100ms for batching updates
+
+// Track which tests need to complete
+const REQUIRED_TEST_COMPLETIONS = [
+  "HEADING_ANALYSIS_COMPLETE",
+  "LINK_ANALYSIS_COMPLETE",
+  "ALT_ANALYSIS_COMPLETE",
+  "INTERACTIVE_ANALYSIS_COMPLETE"
+] as const
 
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<
     Map<string, Map<string, HighlightData>>
   >(new Map())
+
+  // Track if tests are complete
+  const [testsComplete, setTestsComplete] = useState(false)
+  const completedTestsRef = useRef<Set<string>>(new Set())
+
+  // Subscribe to test completion events
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+      // Track test completions
+      if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
+        completedTestsRef.current.add(event.type)
+
+        // Check if all required tests are complete
+        const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
+          completedTestsRef.current.has(testType)
+        )
+
+        if (allComplete) {
+          setTestsComplete(true)
+        }
+      }
+    })
+    return () => {
+      completedTestsRef.current.clear()
+      unsubscribe()
+    }
+  }, [])
+
+  // Ref to store pending updates
+  const pendingUpdatesRef = useRef<Map<string, Map<string, HighlightData>>>(
+    new Map([])
+  )
+  const updateTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Track layer visibility
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
@@ -72,69 +114,88 @@ const PlasmoOverlay = () => {
     }
   }
 
-  // Subscribe to events
+  // Function to apply batched updates
+  const applyUpdates = () => {
+    setHighlights(pendingUpdatesRef.current)
+    pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
+  }
+
+  // Debounced update function
+  const debouncedUpdate = (
+    updates: Map<string, Map<string, HighlightData>>
+  ) => {
+    pendingUpdatesRef.current = updates
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current)
+    }
+    updateTimeoutRef.current = setTimeout(applyUpdates, DEBOUNCE_MS)
+  }
+
+  // Subscribe to highlight events
   useEffect(() => {
-    const unsubscribe = eventBus.subscribe((event) => {
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
       if (event.type === "HIGHLIGHT") {
-        setHighlights((current) => {
-          const newHighlights = new Map(current)
-          const highlightEvent = event.data as HighlightEvent
-          const { layer } = highlightEvent
+        const highlightEvent = event.data as HighlightEvent
+        const { layer } = highlightEvent
 
-          // Clear highlights based on layer if clear flag is set
-          if (highlightEvent.clear) {
-            if (layer) {
-              newHighlights.delete(layer)
-            } else {
-              newHighlights.clear()
-            }
-            return newHighlights
+        pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
+
+        // Clear highlights based on layer if clear flag is set
+        if (highlightEvent.clear) {
+          if (layer) {
+            pendingUpdatesRef.current.delete(layer)
+          } else {
+            pendingUpdatesRef.current.clear()
           }
+          debouncedUpdate(pendingUpdatesRef.current)
+          return
+        }
 
-          const { selector, message, isValid } = highlightEvent
-          const element = validateHighlight(selector)
-          if (!element) return current
+        const { selector, message, isValid } = highlightEvent
+        const element = validateHighlight(selector)
+        if (!element) return
 
-          const styles = isValid
-            ? DEFAULT_HIGHLIGHT_STYLES.valid
-            : DEFAULT_HIGHLIGHT_STYLES.invalid
+        const styles = isValid
+          ? DEFAULT_HIGHLIGHT_STYLES.valid
+          : DEFAULT_HIGHLIGHT_STYLES.invalid
 
-          // Get or create layer map
-          let layerHighlights = newHighlights.get(layer)
-          if (!layerHighlights) {
-            layerHighlights = new Map()
-            newHighlights.set(layer, layerHighlights)
-          }
+        // Get or create layer map
+        let layerHighlights = pendingUpdatesRef.current.get(layer)
+        if (!layerHighlights) {
+          layerHighlights = new Map()
+          pendingUpdatesRef.current.set(layer, layerHighlights)
+        }
 
-          // Create new highlight data
-          const newHighlight = {
-            selector,
-            message,
-            element,
-            isValid,
-            styles,
-            layer
-          }
+        // Create new highlight data
+        const newHighlight = {
+          selector,
+          message,
+          element,
+          isValid,
+          styles,
+          layer
+        }
 
-          // Update highlight in layer
-          layerHighlights.set(selector, newHighlight)
+        // Update highlight in layer
+        layerHighlights.set(selector, newHighlight)
 
-          return newHighlights
-        })
+        debouncedUpdate(pendingUpdatesRef.current)
       } else if (event.type === "TOOL_STATE_CHANGE") {
         const { tool, enabled } = event.data
         if (!enabled) {
-          // Only clear highlights for the specific tool being disabled
-          setHighlights((current) => {
-            const newHighlights = new Map(current)
-            newHighlights.delete(tool)
-            return newHighlights
-          })
+          pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
+          pendingUpdatesRef.current.delete(tool)
+          debouncedUpdate(pendingUpdatesRef.current)
         }
       }
     })
 
-    return unsubscribe
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
+      }
+      unsubscribe()
+    }
   }, [])
 
   // Clean up stale highlights periodically
@@ -175,43 +236,12 @@ const PlasmoOverlay = () => {
   return (
     <>
       <LayerSystem highlights={highlights} hiddenLayers={hiddenLayers} />
-      {activeLayerCount > 0 && (
-        <div style={layerCounterStyles} role="status">
-          <div
-            style={{
-              borderBottom: "1px solid rgba(255,255,255,0.2)",
-              paddingBottom: "8px",
-              marginBottom: "4px"
-            }}>
-            <span>Active Layers: {activeLayerCount}</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {layerNames.map((layerName) => (
-              <div key={layerName} style={layerItemStyles}>
-                <span
-                  style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                  }}>
-                  {layerName}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => toggleLayer(layerName)}
-                  aria-pressed={!hiddenLayers.has(layerName)}
-                  aria-label={`Toggle ${layerName} layer visibility`}>
-                  {hiddenLayers.has(layerName) ? (
-                    <EyeOff size="16" />
-                  ) : (
-                    <Eye size="16" />
-                  )}
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
+      {testsComplete && (
+        <LayerToggle
+          highlights={highlights}
+          hiddenLayers={hiddenLayers}
+          onToggleLayer={toggleLayer}
+        />
       )}
     </>
   )
