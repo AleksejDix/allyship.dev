@@ -1,36 +1,8 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
-import type { HeadingHighlightRequestEvent } from "@/lib/events/types"
 import { useEffect, useMemo, useRef, useState, type JSX } from "react"
-import type { CSSProperties } from "react"
 
-interface HighlightStyles {
-  border: string
-  background: string
-  messageBackground: string
-}
-
-interface HighlightData {
-  selector: string
-  message: string
-  element: HTMLElement
-  isValid: boolean
-  styles?: HighlightStyles
-  layer: string
-}
-
-interface HighlightEvent {
-  selector: string
-  message: string
-  isValid: boolean
-  clear?: boolean
-  layer: string
-}
+import { HighlightBox } from "../components/layers/HighlightBox"
+import type { HighlightData, HighlightEvent } from "./types"
 
 const DEFAULT_HIGHLIGHT_STYLES = {
   valid: {
@@ -44,27 +16,6 @@ const DEFAULT_HIGHLIGHT_STYLES = {
     messageBackground: "#DC2626"
   }
 } as const
-
-// CSS classes for highlight elements
-const elementStyles = {
-  highlightBox: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    pointerEvents: "none",
-    willChange: "transform",
-    zIndex: 9999
-  },
-  tooltipTrigger: {
-    position: "absolute",
-    top: "-24px",
-    left: "0",
-    width: "100%",
-    height: "24px",
-    pointerEvents: "auto",
-    cursor: "pointer"
-  }
-} as const satisfies Record<string, CSSProperties>
 
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<
@@ -255,56 +206,15 @@ const PlasmoOverlay = () => {
 
     // Render highlights from each layer
     highlights.forEach((layerHighlights, layer) => {
-      layerHighlights.forEach(
-        ({ element, message, selector, isValid, styles }) => {
-          const rect = element.getBoundingClientRect()
-          if (!rect || rect.width === 0) return
-
-          const validityLabel = isValid ? "Valid" : "Invalid"
-          const highlightStyles =
-            styles ||
-            (isValid
-              ? DEFAULT_HIGHLIGHT_STYLES.valid
-              : DEFAULT_HIGHLIGHT_STYLES.invalid)
-
-          elements.push(
-            <div
-              key={`${layer}-${selector}`}
-              role="group"
-              aria-label={`${validityLabel} highlight for ${message}`}>
-              <div
-                data-highlight-box
-                data-selector={selector}
-                role="presentation"
-                style={{
-                  ...elementStyles.highlightBox,
-                  transform: "translate3d(var(--x), var(--y), 0)",
-                  border: `2px solid ${highlightStyles.border}`,
-                  backgroundColor: highlightStyles.background
-                }}>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div style={elementStyles.tooltipTrigger} />
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="z-[9999]"
-                      style={{
-                        backgroundColor: highlightStyles.messageBackground,
-                        color: "white",
-                        maxWidth: "300px",
-                        whiteSpace: "pre-wrap"
-                      }}>
-                      {message}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-          )
-        }
-      )
+      layerHighlights.forEach((highlight) => {
+        elements.push(
+          <HighlightBox
+            key={`${layer}-${highlight.selector}`}
+            highlight={highlight}
+            layer={layer}
+          />
+        )
+      })
     })
 
     return elements
