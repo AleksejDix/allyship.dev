@@ -43,10 +43,10 @@ function findMatchingPage(
 ): PageWithWebsite | null {
   if (!normalized || !pages?.length) return null
   return (
-    pages.find(
-      (page) =>
-        page.normalized_url === `${normalized.hostname}${normalized.path}`
-    ) ?? null
+    pages.find((page) => {
+      console.log(page.normalized_url, normalized)
+      return page.path === normalized.path
+    }) ?? null
   )
 }
 
@@ -55,7 +55,7 @@ const actors = {
     async ({ input }: { input: { websiteId: string } }) => {
       const { data, error } = await supabase
         .from("Page")
-        .select("*")
+        .select()
         .eq("website_id", input.websiteId)
 
       if (error) throw error
@@ -84,20 +84,7 @@ const actors = {
         .single()
 
       if (pageError) throw pageError
-
-      // Then get the website data
-      const { data: website, error: websiteError } = await supabase
-        .from("Website")
-        .select("*")
-        .eq("id", input.websiteId)
-        .single()
-
-      if (websiteError) throw websiteError
-
-      return {
-        ...page,
-        website
-      } as PageWithWebsite
+      return page as PageWithWebsite
     }
   )
 }
@@ -108,10 +95,14 @@ export const pageMachine = setup({
     events: {} as AllEvents
   },
   actors,
+  guards: {
+    hasValidWebsiteId: ({ event }) => {
+      return event.type === "WEBSITE_CHANGED" && !!event.websiteId
+    }
+  },
   actions: {
     setPages: assign({
       pages: ({ event }) => {
-        if (event.type !== "done.invoke.loadPages") return []
         return event.output
       }
     }),
@@ -151,9 +142,8 @@ export const pageMachine = setup({
       websiteId: ({ event, context }) => {
         if (event.type !== "WEBSITE_CHANGED") return context.websiteId
         return event.websiteId
-      }
-    }),
-    clearPages: assign({
+      },
+      // Clear pages when website changes
       pages: () => [],
       matchingPage: () => null
     })
@@ -175,21 +165,32 @@ export const pageMachine = setup({
         URL_CHANGED: {
           actions: ["setCurrentUrl", "updateMatchingPage"]
         },
-        WEBSITE_CHANGED: {
-          target: "loading",
-          actions: ["setWebsiteId", "clearPages"]
-        },
+        WEBSITE_CHANGED: [
+          {
+            guard: "hasValidWebsiteId",
+            target: "loading",
+            actions: ["setWebsiteId"]
+          },
+          {
+            actions: ["setWebsiteId"]
+          }
+        ],
         ADD_PAGE: {
           target: "adding"
         },
-        REFRESH: "loading"
+        REFRESH: {
+          guard: ({ context }) => !!context.websiteId,
+          target: "loading"
+        }
       }
     },
     loading: {
       invoke: {
         src: "loadPages",
         input: ({ context }) => {
-          if (!context.websiteId) throw new Error("No website ID")
+          if (!context.websiteId) {
+            throw new Error("No website ID")
+          }
           return { websiteId: context.websiteId }
         },
         onDone: {
@@ -204,14 +205,23 @@ export const pageMachine = setup({
     },
     error: {
       on: {
-        REFRESH: "loading",
+        REFRESH: {
+          guard: ({ context }) => !!context.websiteId,
+          target: "loading"
+        },
         URL_CHANGED: {
           actions: ["setCurrentUrl", "updateMatchingPage"]
         },
-        WEBSITE_CHANGED: {
-          target: "loading",
-          actions: ["setWebsiteId", "clearPages"]
-        }
+        WEBSITE_CHANGED: [
+          {
+            guard: "hasValidWebsiteId",
+            target: "loading",
+            actions: ["setWebsiteId"]
+          },
+          {
+            actions: ["setWebsiteId"]
+          }
+        ]
       }
     },
     adding: {
