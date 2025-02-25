@@ -4,17 +4,15 @@ import type { PropsWithChildren } from "react"
 
 export function SpaceSelected({ children }: PropsWithChildren) {
   const actor = useSpaceContext()
-
   const selection = useSelector(actor, (state) => state.context.currentSpace)
+  const shouldRender = useSelector(actor, (state) =>
+    state.matches({ loaded: "selected" })
+  )
 
-  // if (
-  //   !snapshot?.matches({ loaded: { count: "one" } }) &&
-  //   !snapshot?.matches({
-  //     loaded: { count: "some", selection: "selected" }
-  //   })
-  // ) {
-  //   return null
-  // }
+  // Only render when in the loaded.selected state
+  if (!shouldRender) {
+    return null
+  }
 
   return (
     <>
