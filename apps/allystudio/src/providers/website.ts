@@ -23,6 +23,7 @@ type WebsiteEvent =
   | { type: "REFRESH" }
   | { type: "ADD_WEBSITE"; url: string }
   | { type: "URL_CHANGED"; url: string }
+  | { type: "SPACE_CHANGED"; spaceId: string }
 
 type LoadWebsitesDone = { type: "done.invoke.loadWebsites"; output: Website[] }
 type AddWebsiteDone = { type: "done.invoke.addWebsite"; output: Website }
@@ -121,6 +122,16 @@ export const websiteMachine = setup({
       matchingWebsite: ({ context }) => {
         return findMatchingWebsite(context.currentUrl, context.websites)
       }
+    }),
+    updateSpaceId: assign({
+      spaceId: ({ event, context }) => {
+        if (event.type === "SPACE_CHANGED") return event.spaceId
+        return context.spaceId
+      }
+    }),
+    clearWebsites: assign({
+      websites: () => [],
+      matchingWebsite: () => null
     })
   }
 }).createMachine({
@@ -155,6 +166,10 @@ export const websiteMachine = setup({
         REFRESH: "loading",
         URL_CHANGED: {
           actions: ["setCurrentUrl"]
+        },
+        SPACE_CHANGED: {
+          target: "loading",
+          actions: ["updateSpaceId", "clearWebsites"]
         }
       }
     },
@@ -166,6 +181,10 @@ export const websiteMachine = setup({
         },
         URL_CHANGED: {
           actions: ["setCurrentUrl", "updateMatchingWebsite"]
+        },
+        SPACE_CHANGED: {
+          target: "loading",
+          actions: ["updateSpaceId", "clearWebsites"]
         }
       }
     },
