@@ -1,4 +1,5 @@
 import { Header } from "@/components/header"
+import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
 import { SpaceProvider } from "./space-context"
@@ -8,7 +9,8 @@ import { SpaceOptions } from "./space-options"
 import { SpaceSelected } from "./space-selected"
 
 // Root component that sets up the machine and provider
-function Space({
+// Use memo to prevent unnecessary re-renders
+const Space = memo(function Space({
   children,
   debug = false
 }: PropsWithChildren<{ debug?: boolean }>) {
@@ -21,7 +23,7 @@ function Space({
       <Header />
     </SpaceProvider>
   )
-}
+})
 
 // Named exports for composite components
 export { Space, SpaceEmpty, SpaceOptions, SpaceDebug }

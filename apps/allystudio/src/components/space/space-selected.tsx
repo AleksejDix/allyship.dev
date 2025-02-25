@@ -1,12 +1,25 @@
 import { useSpaceContext } from "@/components/space/space-context"
 import { useSelector } from "@xstate/react"
+import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
-export function SpaceSelected({ children }: PropsWithChildren) {
+// Use memo to prevent unnecessary re-renders of the entire component
+export const SpaceSelected = memo(function SpaceSelected({
+  children
+}: PropsWithChildren) {
   const actor = useSpaceContext()
-  const selection = useSelector(actor, (state) => state.context.currentSpace)
-  const shouldRender = useSelector(actor, (state) =>
-    state.matches({ loaded: "selected" })
+
+  // Use memoized selectors for better performance with Object.is comparison
+  const selection = useSelector(
+    actor,
+    (state) => state.context.currentSpace,
+    Object.is
+  )
+
+  const shouldRender = useSelector(
+    actor,
+    (state) => state.matches({ loaded: "selected" }),
+    Object.is
   )
 
   // Only render when in the loaded.selected state
@@ -20,4 +33,4 @@ export function SpaceSelected({ children }: PropsWithChildren) {
       {children}
     </>
   )
-}
+})
