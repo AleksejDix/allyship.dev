@@ -12,13 +12,9 @@
     "check-types": "turbo run check-types",
     "format": "turbo run format"
   },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
+    "@workspace/eslint-config": "*",
+    "@workspace/typescript-config": "*",
     "prettier": "^3.5.1",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "turbo": "^2.4.2",
@@ -27,5 +23,9 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@9.12.3"
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "yarn@1.22.22"
 }

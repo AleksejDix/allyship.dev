@@ -6,7 +6,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { useMaybeSpacesContext } from "@/providers/space-provider"
 import { ChevronsUpDown, Globe } from "lucide-react"
@@ -19,17 +18,7 @@ export function SpaceSelectorDropdown() {
     return null
   }
 
-  const { currentSpace, spaces, selectSpace, state } = spaceContext
-
-  // Show loading state
-  if (state === "loading") {
-    return (
-      <Button variant="outline" className="w-[200px] justify-between" disabled>
-        <Skeleton className="h-4 w-[100px]" />
-        <ChevronsUpDown className="h-4 w-4 opacity-50" />
-      </Button>
-    )
-  }
+  const { currentSpace, spaces, selectSpace } = spaceContext
 
   return (
     <DropdownMenu>

@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "jsxImportSource": "react",
-    "types": ["chrome", "node"],
+    "types": ["chrome", "node", "vitest/importMeta"],
     "verbatimModuleSyntax": true
   }
 }

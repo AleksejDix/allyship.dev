@@ -274,7 +274,6 @@ function Debug() {
 // Root component that provides context
 function Root({ children }: PropsWithChildren) {
   const actorRef = useActorRef(spaceMachine)
-
   const stateValue = useSelector(actorRef, (state) => state.value)
   const spaces = useSelector(actorRef, (state) => state.context.spaces)
   const currentSpace = useSelector(
@@ -333,6 +332,7 @@ export function SpaceProvider({ children }: PropsWithChildren) {
       <Spaces.Error />
       <Spaces.Empty />
       <Spaces.Selection>
+        {children}
         <Header />
       </Spaces.Selection>
       <Spaces.Content>

@@ -1,4 +1,4 @@
-import { extractDomain, isValidPageUrl, normalizeUrl } from "@/utils/url"
+import { isValidPageUrl, normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import {
   createContext,
   useContext,
@@ -19,7 +19,7 @@ interface UrlContextValue {
   currentDomain: string | null
 
   // Normalized values (for matching)
-  normalizedUrl: string | null
+  normalizedUrl: NormalizedUrl | null
   normalizedDomain: string | null
 
   // Loading state
@@ -82,20 +82,29 @@ export function UrlProvider({ children }: PropsWithChildren) {
         console.log("[UrlProvider] Querying current tab")
         const tabs = await chrome.tabs.query({
           active: true,
-          lastFocusedWindow: true
+          currentWindow: true
         })
         console.log("[UrlProvider] Current tabs:", tabs)
 
         const currentTab = tabs[0]
-        if (currentTab?.url) {
-          updateUrl(currentTab.url)
+        if (currentTab) {
+          if (currentTab.url) {
+            updateUrl(currentTab.url)
+          } else {
+            setError({
+              code: "NO_URL",
+              message: "No URL found in current tab"
+            })
+            setCurrentUrl(null)
+          }
         } else {
           setError({
             code: "NO_URL",
-            message: "No URL found in current tab"
+            message: "No active tab found"
           })
           setCurrentUrl(null)
         }
+        setIsLoading(false)
       } catch (error) {
         console.error("[UrlProvider] Error getting current tab:", error)
         setError({
@@ -109,7 +118,6 @@ export function UrlProvider({ children }: PropsWithChildren) {
               : "Failed to access tab information"
         })
         setCurrentUrl(null)
-      } finally {
         setIsLoading(false)
       }
     }
@@ -133,23 +141,18 @@ export function UrlProvider({ children }: PropsWithChildren) {
         clearTimeout(updateTimeout)
       }
 
-      // Only update if the tab is active and has completed loading
-      if (tab.active) {
-        if (changeInfo.status === "complete") {
-          // Debounce URL updates to prevent rapid changes
-          updateTimeout = setTimeout(() => {
-            updateUrl(tab.url)
-          }, 250)
-        } else if (changeInfo.status === "loading") {
-          // Show loading state while page is loading
-          setIsLoading(true)
-        }
+      // Only update if the tab is active
+      if (tab.active && tab.url) {
+        // Always update URL immediately
+        updateUrl(tab.url)
+        setIsLoading(changeInfo.status === "loading")
       }
     }
 
     // Listen for tab activation with validation
     async function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
       console.log("[UrlProvider] Tab activated:", activeInfo)
+
       try {
         // Clear any pending updates
         if (updateTimeout) {
@@ -159,22 +162,26 @@ export function UrlProvider({ children }: PropsWithChildren) {
         setIsLoading(true)
         const tab = await chrome.tabs.get(activeInfo.tabId)
 
-        // Only update if tab still exists and has a URL
-        if (tab && tab.url) {
+        // Always update URL if available
+        if (tab?.url) {
           updateUrl(tab.url)
         } else {
           setError({
             code: "NO_URL",
             message: "No URL found in activated tab"
           })
+          setCurrentUrl(null)
         }
+
+        // Set loading based on tab status
+        setIsLoading(tab?.status === "loading")
       } catch (error) {
         console.error("[UrlProvider] Error getting activated tab:", error)
         setError({
           code: "API_ERROR",
           message: "Failed to get activated tab information"
         })
-      } finally {
+        setCurrentUrl(null)
         setIsLoading(false)
       }
     }
@@ -219,25 +226,19 @@ export function UrlProvider({ children }: PropsWithChildren) {
         }
       }
 
-      // Extract domain first - this is what we'll use for website matching
-      const domain = extractDomain(currentUrl)
-
       // Get full normalized URL for page matching
-      const fullNormalizedUrl = normalizeUrl(currentUrl)
+      const normalized = normalizeUrl(currentUrl)
 
       console.log("URL Provider Normalized:", {
         currentUrl,
-        extractedDomain: domain,
-        fullNormalizedUrl
+        normalized
       })
 
-      const normalized = {
-        normalizedUrl: fullNormalizedUrl,
-        normalizedDomain: domain, // Just the domain for website matching
-        currentDomain: domain
+      return {
+        normalizedUrl: normalized,
+        normalizedDomain: normalized.domain, // Just the domain for website matching
+        currentDomain: normalized.domain
       }
-
-      return normalized
     } catch (error) {
       console.error("Error normalizing URL:", error)
       setError({
