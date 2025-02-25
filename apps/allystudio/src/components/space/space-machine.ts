@@ -31,7 +31,9 @@ const loadSpacesActor = fromPromise<Space[], void>(async () => {
 // Create the machine with proper typing
 export const spaceMachine = setup({
   types: {
-    context: {} as SpaceContext
+    context: {} as SpaceContext,
+    events: {} as SpaceEvent,
+    input: {} as { spaceId: string }
   },
   actors: {
     loadSpaces: loadSpacesActor
