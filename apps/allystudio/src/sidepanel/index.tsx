@@ -8,7 +8,6 @@ export default function SidePanel() {
   return (
     <Layout>
       <PageConnectorNext />
-      <Header />
     </Layout>
   )
 }
