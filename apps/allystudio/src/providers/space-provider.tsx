@@ -1,3 +1,4 @@
+import { Header } from "@/components/header"
 import { cn } from "@/lib/utils"
 import { spaceMachine } from "@/providers/space"
 import type { Database } from "@/types/database"
@@ -159,7 +160,7 @@ function Empty() {
 }
 
 // Space selection component
-function Selection() {
+function Selection({ children }: PropsWithChildren) {
   return (
     <SpaceContext.Consumer>
       {(context) => {
@@ -172,45 +173,42 @@ function Selection() {
         )
           return null
 
-        // Sort spaces by creation date, newest first
-        const sortedSpaces = [...context.spaces].sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-
         return (
-          <div className="flex flex-1 flex-col bg-background p-4">
-            <div className="w-full max-w-sm space-y-4">
-              <div className="text-center">
-                <h2 className="text-lg font-semibold">Select a Space</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Choose a space to start analyzing websites
-                </p>
-              </div>
-              <div className="space-y-2">
-                {sortedSpaces.map((space) => (
-                  <button
-                    key={space.id}
-                    onClick={() => context.selectSpace(space)}
-                    className={cn(
-                      "w-full rounded-lg border bg-card p-4 text-left transition-colors",
-                      "hover:bg-muted focus-visible:outline-none focus-visible:ring-2",
-                      "focus-visible:ring-ring focus-visible:ring-offset-2"
-                    )}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{space.name}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Created{" "}
-                          {new Date(space.created_at).toLocaleDateString()}
-                        </p>
+          <>
+            <div className="flex flex-1 flex-col bg-background p-4">
+              <div className="w-full max-w-sm space-y-4">
+                <div className="text-center">
+                  <h2 className="text-lg font-semibold">Select a Space</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Choose a space to start analyzing websites
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {context.spaces.map((space) => (
+                    <button
+                      key={space.id}
+                      onClick={() => context.selectSpace(space)}
+                      className={cn(
+                        "w-full rounded-lg border bg-card p-4 text-left transition-colors",
+                        "hover:bg-muted focus-visible:outline-none focus-visible:ring-2",
+                        "focus-visible:ring-ring focus-visible:ring-offset-2"
+                      )}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{space.name}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Created{" "}
+                            {new Date(space.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+            {children}
+          </>
         )
       }}
     </SpaceContext.Consumer>
@@ -243,7 +241,7 @@ function Content({ children }: PropsWithChildren) {
           return null
         }
 
-        return <div className="flex-1">{children}</div>
+        return <>{children}</>
       }}
     </SpaceContext.Consumer>
   )
@@ -334,8 +332,13 @@ export function SpaceProvider({ children }: PropsWithChildren) {
       <Spaces.Loading />
       <Spaces.Error />
       <Spaces.Empty />
-      <Spaces.Selection />
-      <Spaces.Content>{children}</Spaces.Content>
+      <Spaces.Selection>
+        <Header />
+      </Spaces.Selection>
+      <Spaces.Content>
+        {children}
+        <Header />
+      </Spaces.Content>
       {/* <Spaces.Debug /> */}
     </Spaces.Root>
   )
@@ -344,4 +347,12 @@ export function SpaceProvider({ children }: PropsWithChildren) {
 // Hook for accessing space context
 export function useSpace() {
   return useSpaceContext()
+}
+
+export function useMaybeSpacesContext() {
+  try {
+    return useSpaceContext()
+  } catch (error) {
+    return null
+  }
 }

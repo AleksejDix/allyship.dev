@@ -6,8 +6,6 @@ import { UrlProvider } from "@/providers/url-provider"
 import { WebsiteProvider } from "@/providers/website-provider"
 import type { PropsWithChildren } from "react"
 
-import { PagesList } from "./pages-list"
-
 export function Layout({ children }: PropsWithChildren) {
   return (
     <ThemeProvider defaultTheme="system" storageKey="ally-studio-theme">
@@ -15,12 +13,7 @@ export function Layout({ children }: PropsWithChildren) {
         <UrlProvider>
           <SpaceProvider>
             <WebsiteProvider>
-              <PageProvider>
-                <div className="flex h-full flex-col">
-                  {children}
-                  <PagesList />
-                </div>
-              </PageProvider>
+              <PageProvider>{children}</PageProvider>
             </WebsiteProvider>
           </SpaceProvider>
         </UrlProvider>
