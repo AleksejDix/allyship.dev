@@ -1,5 +1,6 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database"
+import { extractDomain, normalizeUrl as normalizeUrlUtil } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 
@@ -20,6 +21,7 @@ export type WebsiteEvent =
   | { type: "SPACE_CHANGED"; spaceId: string }
   | { type: "WEBSITE_SELECTED"; website: Website }
   | { type: "ADD_WEBSITE"; url: string }
+  | { type: "MATCH_WEBSITE"; url: string }
 
 // Define event types for better typing
 type LoadWebsitesSuccessEvent = {
@@ -62,31 +64,37 @@ const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
 // Actor to add a new website
 const addWebsiteActor = fromPromise<Website, { url: string; spaceId: string }>(
   async ({ input }) => {
-    // Normalize the URL
-    let normalizedUrl = input.url
-    if (
-      !normalizedUrl.startsWith("http://") &&
-      !normalizedUrl.startsWith("https://")
-    ) {
-      normalizedUrl = "https://" + normalizedUrl
+    try {
+      // Normalize the URL using the utility
+      let urlToAdd = input.url
+      if (!urlToAdd.startsWith("http://") && !urlToAdd.startsWith("https://")) {
+        urlToAdd = "https://" + urlToAdd
+      }
+
+      // Get normalized URL information
+      const urlInfo = normalizeUrlUtil(urlToAdd)
+      console.log("Normalized URL for new website:", urlInfo)
+
+      // Insert the new website
+      const { data, error } = await supabase
+        .from("Website")
+        .insert([
+          {
+            url: urlToAdd,
+            space_id: input.spaceId,
+            name: urlInfo.domain // Use the domain as the name
+          }
+        ])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      return data
+    } catch (error) {
+      console.error("Error adding website:", error)
+      throw error
     }
-
-    // Insert the new website
-    const { data, error } = await supabase
-      .from("Website")
-      .insert([
-        {
-          url: normalizedUrl,
-          space_id: input.spaceId,
-          name: normalizedUrl
-        }
-      ])
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return data
   }
 )
 
@@ -161,6 +169,51 @@ export const websiteMachine = setup({
       return {}
     }),
 
+    // Match and select a website based on URL
+    matchWebsite: assign(({ context, event }) => {
+      if (event.type === "MATCH_WEBSITE") {
+        console.log("Matching website URL:", event.url)
+
+        try {
+          // Use the utility to normalize URLs
+          const eventUrlInfo = normalizeUrlUtil(event.url)
+          const eventDomain = eventUrlInfo.domain
+
+          console.log("Normalized event URL domain:", eventDomain)
+
+          // Find a matching website
+          const matchedWebsite = context.websites.find((website) => {
+            try {
+              const websiteUrlInfo = normalizeUrlUtil(website.url)
+              const websiteDomain = websiteUrlInfo.domain
+
+              console.log("Comparing with website domain:", websiteDomain)
+
+              // Match if domains are the same
+              return eventDomain === websiteDomain
+            } catch (error) {
+              console.error(
+                "Error normalizing website URL:",
+                website.url,
+                error
+              )
+              return false
+            }
+          })
+
+          if (matchedWebsite) {
+            console.log("Found matching website:", matchedWebsite)
+            return { currentWebsite: matchedWebsite }
+          } else {
+            console.log("No matching website found for domain:", eventDomain)
+          }
+        } catch (error) {
+          console.error("Error normalizing event URL:", event.url, error)
+        }
+      }
+      return {}
+    }),
+
     // Update space ID when space changes
     updateSpaceId: assign(({ event }) => {
       if (event.type === "SPACE_CHANGED") {
@@ -216,6 +269,32 @@ export const websiteMachine = setup({
           websites.length
         )
         return websites.length > 1
+      }
+      return false
+    },
+
+    // Check if a website matches the URL
+    hasMatchingWebsite: ({ context, event }) => {
+      if (event.type === "MATCH_WEBSITE") {
+        try {
+          // Use the utility to normalize URLs
+          const eventUrlInfo = normalizeUrlUtil(event.url)
+          const eventDomain = eventUrlInfo.domain
+
+          return context.websites.some((website) => {
+            try {
+              const websiteUrlInfo = normalizeUrlUtil(website.url)
+              const websiteDomain = websiteUrlInfo.domain
+
+              // Match if domains are the same
+              return eventDomain === websiteDomain
+            } catch (error) {
+              return false
+            }
+          })
+        } catch (error) {
+          return false
+        }
       }
       return false
     }
@@ -274,6 +353,10 @@ export const websiteMachine = setup({
         },
         ADD_WEBSITE: {
           target: "adding"
+        },
+        MATCH_WEBSITE: {
+          // No matching possible in empty state
+          // But we could potentially auto-add the website here
         }
       }
     },
@@ -304,6 +387,13 @@ export const websiteMachine = setup({
               target: "selected",
               actions: "setCurrentWebsite"
             },
+            MATCH_WEBSITE: [
+              {
+                guard: "hasMatchingWebsite",
+                target: "selected",
+                actions: "matchWebsite"
+              }
+            ],
             ADD_WEBSITE: {
               target: "../../adding"
             }
@@ -314,6 +404,11 @@ export const websiteMachine = setup({
             WEBSITE_SELECTED: {
               target: "selected",
               actions: "setCurrentWebsite"
+            },
+            MATCH_WEBSITE: {
+              // If already in selected state, only change selection if there's a match
+              guard: "hasMatchingWebsite",
+              actions: "matchWebsite"
             },
             ADD_WEBSITE: {
               target: "../../adding"
@@ -336,6 +431,12 @@ export const websiteMachine = setup({
         },
         ADD_WEBSITE: {
           target: "adding"
+        },
+        MATCH_WEBSITE: {
+          // Allow matching even in error state
+          guard: "hasMatchingWebsite",
+          target: "loaded.selected",
+          actions: "matchWebsite"
         }
       }
     }
