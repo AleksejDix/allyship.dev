@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
 import type { NormalizedUrl } from "@/utils/url"
 import { normalizeUrl } from "@/utils/url"
@@ -66,7 +67,20 @@ function Root({ children }: PropsWithChildren) {
   const { websites } = useWebsite()
   const { normalizedUrl, currentUrl, isLoading: urlLoading } = useCurrentUrl()
 
-  const actorRef = useActorRef(pageMachine)
+  const actorRef = useActorRef(pageMachine, {
+    context: {
+      normalizedUrl: null,
+      currentUrl: null,
+      websites: [],
+      pages: [],
+      error: null,
+      websiteId: null,
+      matchingPage: null,
+      addPage: () => {},
+      refresh: () => {},
+      setWebsiteId: () => {}
+    }
+  })
 
   const pages = useSelector(actorRef, (state) => state.context.pages)
   const error = useSelector(actorRef, (state) => state.context.error)
@@ -101,19 +115,19 @@ function Root({ children }: PropsWithChildren) {
   }, [normalizedUrl?.hostname, websites, actorRef])
 
   // Memoize callbacks
-  const addPage = useMemo(
-    () => (url: string, websiteId: string) =>
+  const addPage = useCallback(
+    (url: string, websiteId: string) =>
       actorRef.send({ type: "ADD_PAGE", url, websiteId }),
     [actorRef]
   )
 
-  const refresh = useMemo(
-    () => () => actorRef.send({ type: "REFRESH" }),
+  const refresh = useCallback(
+    () => actorRef.send({ type: "REFRESH" }),
     [actorRef]
   )
 
-  const setWebsiteId = useMemo(
-    () => (websiteId: string | null) =>
+  const setWebsiteId = useCallback(
+    (websiteId: string | null) =>
       actorRef.send({ type: "WEBSITE_CHANGED", websiteId }),
     [actorRef]
   )
@@ -153,9 +167,9 @@ function Root({ children }: PropsWithChildren) {
 }
 
 // Loading state component
-function Loading() {
+function Loading({ websiteId }: { websiteId: string | null }) {
   return (
-    <PageContext.Consumer>
+    <PageContext.Consumer key={websiteId ?? "no-website"}>
       {(context) => {
         if (!context?.actor) return null
         const snapshot = context.actor.getSnapshot() as SnapshotFrom<
@@ -179,9 +193,9 @@ function Loading() {
 }
 
 // Error state component
-function Error() {
+function Error({ websiteId }: { websiteId: string | null }) {
   return (
-    <PageContext.Consumer>
+    <PageContext.Consumer key={websiteId ?? "no-website"}>
       {(context) => {
         if (!context?.actor) return null
         const snapshot = context.actor.getSnapshot() as SnapshotFrom<
@@ -263,9 +277,10 @@ function Empty() {
 }
 
 // Page list component
-function PageList() {
+function PageList({ websiteId }: { websiteId: string | null }) {
+  const { normalizedUrl } = useCurrentUrl()
   return (
-    <PageContext.Consumer>
+    <PageContext.Consumer key={websiteId ?? "no-website"}>
       {(context) => {
         if (!context?.actor) return null
         const snapshot = context.actor.getSnapshot() as SnapshotFrom<
@@ -275,11 +290,6 @@ function PageList() {
         if (snapshot?.matches("loading") || snapshot?.matches("error"))
           return null
 
-        // Sort pages by creation date, newest first
-        const sortedPages = [...context.pages].sort((a, b) =>
-          a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0
-        )
-
         return (
           <div className="flex flex-1 flex-col bg-background p-4">
             <div className="mx-auto w-full max-w-4xl space-y-4">
@@ -287,7 +297,7 @@ function PageList() {
                 <div>
                   <h2 className="text-lg font-semibold">Pages</h2>
                   <p className="text-sm text-muted-foreground">
-                    {sortedPages.length} pages tracked
+                    {context.pages.length} pages tracked
                   </p>
                 </div>
                 <button
@@ -296,25 +306,39 @@ function PageList() {
                   Refresh Pages
                 </button>
               </div>
-              <div className="space-y-4">
-                {sortedPages.map((page) => (
-                  <div
-                    key={page.id}
-                    className="flex items-center justify-between rounded-lg border bg-card p-4">
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div className="font-medium">{page.url}</div>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div>Path: {page.path}</div>
-                        <div>Added: {formatDate(page.created_at)}</div>
-                        {page.updated_at !== page.created_at && (
-                          <div>Updated: {formatDate(page.updated_at)}</div>
-                        )}
+              <div className="space-y-1">
+                {context.pages.map((page) => {
+                  const isCurrentPath = normalizedUrl?.path === page.path
+                  return (
+                    <div
+                      key={page.id}
+                      className={cn(
+                        "flex items-center justify-between rounded-md border bg-card px-3 py-2 transition-colors",
+                        isCurrentPath && "border-green-500 bg-green-500/5"
+                      )}>
+                      <div className="flex-1 space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">
+                            {page.normalized_url}
+                          </div>
+                          {isCurrentPath && (
+                            <div className="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
+                              Current
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          <div>Added: {formatDate(page.created_at)}</div>
+                          {page.updated_at !== page.created_at && (
+                            <>
+                              <div>Updated: {formatDate(page.updated_at)}</div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -325,11 +349,15 @@ function PageList() {
 }
 
 // Debug component
-function Debug() {
+function Debug({ children }: PropsWithChildren) {
   return (
     <PageContext.Consumer>
       {(context) => {
-        return <pre>{JSON.stringify(context, null, 2)}</pre>
+        return (
+          <pre className="border-4 border-green-500 overflow-y-auto max-h-96">
+            <code>{JSON.stringify(context, null, 2)}</code>
+          </pre>
+        )
       }}
     </PageContext.Consumer>
   )
@@ -345,13 +373,28 @@ export const Pages = {
   Debug
 }
 
-export function PageProvider({ children }: PropsWithChildren) {
+export function PageProvider({
+  children,
+  debug = false
+}: PropsWithChildren & { debug?: boolean }) {
+  const { websites } = useWebsite()
+  const { normalizedUrl } = useCurrentUrl()
+
+  // Find the current website based on the normalized URL
+  const currentWebsite = useMemo(() => {
+    if (!normalizedUrl?.hostname) return null
+    return websites.find(
+      (site) => site.normalized_url === normalizedUrl.hostname
+    )
+  }, [websites, normalizedUrl?.hostname])
+
+  const websiteId = currentWebsite?.id ?? null
+
+  // Use the website ID as a key to force remount when it changes
   return (
     <Pages.Root>
-      <Pages.Loading />
-      <Pages.Error />
-      <Pages.Empty />
-      <Pages.PageList />
+      <Pages.PageList websiteId={websiteId} />
+      {/* <Pages.Debug></Pages.Debug> */}
       {children}
     </Pages.Root>
   )
@@ -359,29 +402,4 @@ export function PageProvider({ children }: PropsWithChildren) {
 
 export function usePage() {
   return usePageContext()
-}
-
-// Helper to find a page by URL
-export function usePageByUrl(url: string) {
-  const { pages } = usePage()
-  const normalized = useMemo(() => {
-    try {
-      return normalizeUrl(url)
-    } catch (error) {
-      return null
-    }
-  }, [url])
-  return useMemo(
-    () => (normalized ? findMatchingPage(normalized, pages) : null),
-    [normalized, pages]
-  )
-}
-
-// Helper to find a website by domain
-export function useWebsiteByDomain(domain: string) {
-  const { websites } = useWebsite()
-  return useMemo(
-    () => websites.find((website) => website.normalized_url === domain),
-    [websites, domain]
-  )
 }
