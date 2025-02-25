@@ -4,7 +4,7 @@ import { useAuth } from "@/providers/auth-provider"
 import logo from "data-base64:~assets/logo.png"
 import * as Icons from "lucide-react"
 
-import { SpaceSelectorDropdown } from "./space-selector-dropdown"
+import { SpaceOptionsDropdown } from "./space/space-options-dropdown"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
 import {
@@ -31,7 +31,7 @@ export function Header() {
           <img src={logo} alt="Ally Studio" width={32} height={32} />
         </div>
 
-        <SpaceSelectorDropdown />
+        <SpaceOptionsDropdown />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

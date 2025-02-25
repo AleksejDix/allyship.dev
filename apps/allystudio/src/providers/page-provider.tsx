@@ -1,8 +1,5 @@
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
-import type { NormalizedUrl } from "@/utils/url"
-import { normalizeUrl } from "@/utils/url"
-import type { PostgrestError } from "@supabase/supabase-js"
 import { useActorRef, useSelector } from "@xstate/react"
 import {
   createContext,
@@ -15,7 +12,7 @@ import {
 import type { ActorRefFrom, SnapshotFrom } from "xstate"
 
 import { formatDate } from "../utils/date-formatting"
-import { pageMachine } from "./page"
+import { pageMachine } from "../components/page/page"
 import { useCurrentUrl } from "./url-provider"
 import { useWebsite } from "./website-provider"
 
@@ -26,42 +23,6 @@ type PageWithWebsite = Page & {
   website: Website
 }
 
-interface PageContextValue {
-  pages: PageWithWebsite[]
-  error: PostgrestError | null
-  websiteId: string | null
-  currentUrl: string | null
-  normalizedUrl: NormalizedUrl | null
-  matchingPage: PageWithWebsite | null
-  addPage: (url: string, websiteId: string) => void
-  refresh: () => void
-  setWebsiteId: (websiteId: string | null) => void
-  actor: ActorRefFrom<typeof pageMachine>
-  isLoading: boolean
-}
-
-const PageContext = createContext<PageContextValue | undefined>(undefined)
-
-function usePageContext() {
-  const context = useContext(PageContext)
-  if (!context) {
-    throw new Error("Page context must be used within PageProvider")
-  }
-  return context
-}
-
-// Helper to find a matching page for a URL
-function findMatchingPage(
-  url: NormalizedUrl,
-  pages: PageWithWebsite[]
-): PageWithWebsite | null {
-  if (!url || !pages?.length) return null
-  return (
-    pages.find(
-      (page) => page.normalized_url === `${url.hostname}${url.path}`
-    ) ?? null
-  )
-}
 
 function Root({ children }: PropsWithChildren) {
   const { websites } = useWebsite()
@@ -78,7 +39,6 @@ function Root({ children }: PropsWithChildren) {
       matchingPage: null,
       addPage: () => {},
       refresh: () => {},
-      setWebsiteId: () => {}
     }
   })
 
@@ -141,8 +101,7 @@ function Root({ children }: PropsWithChildren) {
       normalizedUrl: machineNormalizedUrl,
       matchingPage: machineMatchingPage,
       addPage,
-      refresh,
-      setWebsiteId,
+      refresh
       actor: actorRef,
       isLoading:
         urlLoading || machineState === "loading" || machineState === "adding"
@@ -156,7 +115,7 @@ function Root({ children }: PropsWithChildren) {
       machineMatchingPage,
       addPage,
       refresh,
-      setWebsiteId,
+
       actorRef,
       urlLoading,
       machineState
@@ -166,67 +125,9 @@ function Root({ children }: PropsWithChildren) {
   return <PageContext.Provider value={value}>{children}</PageContext.Provider>
 }
 
-// Loading state component
-function Loading({ websiteId }: { websiteId: string | null }) {
-  return (
-    <PageContext.Consumer key={websiteId ?? "no-website"}>
-      {(context) => {
-        if (!context?.actor) return null
-        const snapshot = context.actor.getSnapshot() as SnapshotFrom<
-          typeof pageMachine
-        >
-        if (!snapshot?.matches("loading")) return null
 
-        return (
-          <div className="flex h-full items-center justify-center bg-background">
-            <div role="status" className="text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent" />
-              <p className="mt-2 text-sm text-muted-foreground">
-                Loading pages...
-              </p>
-            </div>
-          </div>
-        )
-      }}
-    </PageContext.Consumer>
-  )
-}
 
-// Error state component
-function Error({ websiteId }: { websiteId: string | null }) {
-  return (
-    <PageContext.Consumer key={websiteId ?? "no-website"}>
-      {(context) => {
-        if (!context?.actor) return null
-        const snapshot = context.actor.getSnapshot() as SnapshotFrom<
-          typeof pageMachine
-        >
-        if (!snapshot?.matches("error")) return null
 
-        const errorMessage =
-          context.error?.message || "Unknown error occurred while loading pages"
-
-        return (
-          <div className="flex h-full items-center justify-center bg-background p-4">
-            <div className="w-full max-w-sm space-y-4 rounded-lg border bg-destructive/10 p-6">
-              <div className="space-y-2 text-center">
-                <h2 className="text-lg font-semibold text-destructive">
-                  Error Loading Pages
-                </h2>
-                <p className="text-sm text-destructive/80">{errorMessage}</p>
-                <button
-                  onClick={() => context.refresh()}
-                  className="mt-4 inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90">
-                  Try Again
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-      }}
-    </PageContext.Consumer>
-  )
-}
 
 // Empty state component
 function Empty() {
@@ -366,8 +267,8 @@ function Debug({ children }: PropsWithChildren) {
 // Export compound components
 export const Pages = {
   Root,
-  Loading,
-  Error,
+
+
   Empty,
   PageList,
   Debug
@@ -393,13 +294,8 @@ export function PageProvider({
   // Use the website ID as a key to force remount when it changes
   return (
     <Pages.Root>
-      <Pages.PageList websiteId={websiteId} />
-      {/* <Pages.Debug></Pages.Debug> */}
+      {debug && <Pages.Debug></Pages.Debug>}
       {children}
     </Pages.Root>
   )
-}
-
-export function usePage() {
-  return usePageContext()
 }

@@ -1,13 +1,12 @@
 import "@/styles/globals.css"
 
-import { Header } from "@/components/header"
+import { Connector } from "@/components/connector/connector"
 import { Layout } from "@/components/layout"
-import { PageConnectorNext } from "@/components/page-connector-next"
 
 export default function SidePanel() {
   return (
     <Layout>
-      <PageConnectorNext />
+      <Connector />
     </Layout>
   )
 }

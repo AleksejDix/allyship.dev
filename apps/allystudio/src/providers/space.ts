@@ -41,6 +41,7 @@ type SpaceContext =
   | ErrorContext
   | ManualContext
   | SelectedContext
+
 type SpaceEvent =
   | { type: "SPACES_LOADED"; spaces: Space[] }
   | { type: "SPACE_SELECTED"; space: Space }

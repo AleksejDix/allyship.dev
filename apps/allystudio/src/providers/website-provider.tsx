@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { websiteMachine } from "@/providers/website"
 import type { Database } from "@/types/database"
-import { normalizeUrl, type NormalizedUrl } from "@/utils/url"
+import { compareUrlPaths, normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { useActorRef, useSelector } from "@xstate/react"
 import {
