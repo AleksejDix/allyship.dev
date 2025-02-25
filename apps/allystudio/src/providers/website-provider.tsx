@@ -125,6 +125,13 @@ function Root({ children }: PropsWithChildren) {
     }
   }, [normalizedUrl, actorRef])
 
+  // Send space changes to the machine
+  useEffect(() => {
+    if (currentSpace?.id) {
+      actorRef.send({ type: "SPACE_CHANGED", spaceId: currentSpace.id })
+    }
+  }, [currentSpace?.id, actorRef])
+
   const state = useSelector(actorRef, (state) => state.value)
   const websites = useSelector(actorRef, (state) => state.context.websites)
   const error = useSelector(actorRef, (state) => state.context.error)
