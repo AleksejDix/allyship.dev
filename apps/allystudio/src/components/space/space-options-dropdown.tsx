@@ -8,14 +8,31 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import type { Database } from "@/types/database"
 import { useSelector } from "@xstate/react"
 import { ChevronsUpDown, Globe } from "lucide-react"
+import { useCallback } from "react"
+
+// Define Space type
+type Space = Database["public"]["Tables"]["Space"]["Row"]
 
 export function SpaceOptionsDropdown() {
   const actor = useSpaceContext()
 
   const spaces = useSelector(actor, (state) => state.context.spaces)
   const currentSpace = useSelector(actor, (state) => state.context.currentSpace)
+
+  // Memoize the selection handler to prevent unnecessary recreations
+  const handleSelect = useCallback(
+    (space: Space) => {
+      actor.send({ type: "SPACE_SELECTED", space })
+    },
+    [actor]
+  )
+
+  if (spaces.length <= 1) {
+    return null
+  }
 
   return (
     <DropdownMenu>
@@ -40,7 +57,7 @@ export function SpaceOptionsDropdown() {
         {spaces.map((space) => (
           <DropdownMenuItem
             key={space.id}
-            onSelect={() => actor.send({ type: "SPACE_SELECTED", space })}
+            onClick={() => handleSelect(space)}
             className="justify-between">
             <span className="truncate">{space.name}</span>
             {currentSpace?.id === space.id && (

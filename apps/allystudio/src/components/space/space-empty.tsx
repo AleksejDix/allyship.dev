@@ -1,11 +1,19 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSelector } from "@xstate/react"
+import { memo } from "react"
 
 import { useSpaceContext } from "./space-context"
 
-export function SpaceEmpty() {
+// Use memo to prevent unnecessary re-renders
+export const SpaceEmpty = memo(function SpaceEmpty() {
   const actor = useSpaceContext()
-  const shouldRender = useSelector(actor, (state) => state.matches("empty"))
+
+  // Use memoized selector with Object.is comparison for better performance
+  const shouldRender = useSelector(
+    actor,
+    (state) => state.matches("empty"),
+    Object.is
+  )
 
   // Only render when in the empty state
   if (!shouldRender) {
@@ -21,4 +29,4 @@ export function SpaceEmpty() {
       </Card>
     </div>
   )
-}
+})

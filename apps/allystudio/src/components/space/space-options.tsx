@@ -1,13 +1,31 @@
 import { useSpaceContext } from "@/components/space/space-context"
 import { cn } from "@/lib/utils"
+import type { Database } from "@/types/database"
 import { useSelector } from "@xstate/react"
+import { useCallback } from "react"
 import type { PropsWithChildren } from "react"
+
+// Define Space type
+type Space = Database["public"]["Tables"]["Space"]["Row"]
 
 export function SpaceOptions({ children }: PropsWithChildren) {
   const actor = useSpaceContext()
-  const spaces = useSelector(actor, (state) => state.context.spaces)
-  const shouldRender = useSelector(actor, (state) =>
-    state.matches({ loaded: "options" })
+
+  // Use memoized selectors with Object.is comparison for better performance
+  const spaces = useSelector(actor, (state) => state.context.spaces, Object.is)
+
+  const shouldRender = useSelector(
+    actor,
+    (state) => state.matches({ loaded: "options" }),
+    Object.is
+  )
+
+  // Memoize the selection handler to prevent unnecessary recreations
+  const handleSelect = useCallback(
+    (space: Space) => {
+      actor.send({ type: "SPACE_SELECTED", space })
+    },
+    [actor]
   )
 
   // Only render when in the loaded.options state
@@ -29,7 +47,7 @@ export function SpaceOptions({ children }: PropsWithChildren) {
             {spaces.map((space) => (
               <button
                 key={space.id}
-                onClick={() => actor.send({ type: "SPACE_SELECTED", space })}
+                onClick={() => handleSelect(space)}
                 className={cn(
                   "w-full rounded-lg border bg-card p-4 text-left transition-colors",
                   "hover:bg-muted focus-visible:outline-none focus-visible:ring-2",
