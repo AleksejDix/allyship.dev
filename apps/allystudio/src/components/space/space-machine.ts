@@ -39,7 +39,6 @@ export const spaceMachine = setup({
   actions: {
     // Set spaces in context when loaded successfully
     setSpaces: assign(({ event }) => {
-      console.log("setSpaces event:", event)
       // Check if this is a done event from an actor
       if (event.type.startsWith("xstate.done")) {
         return {
@@ -52,7 +51,6 @@ export const spaceMachine = setup({
 
     // Set error in context when loading fails
     setError: assign(({ event }) => {
-      console.log("setError event:", event)
       // Check if this is an error event from an actor
       if (event.type.startsWith("xstate.error")) {
         return {
@@ -65,7 +63,6 @@ export const spaceMachine = setup({
 
     // Set the current space when selected
     setCurrentSpace: assign(({ event }) => {
-      console.log("setCurrentSpace event:", event)
       if (event.type === "SPACE_SELECTED") {
         return { currentSpace: event.space }
       }
@@ -74,7 +71,6 @@ export const spaceMachine = setup({
 
     // Add a new space to the list and select it
     addSpace: assign(({ context, event }) => {
-      console.log("addSpace event:", event)
       if (event.type === "SPACE_ADDED") {
         return {
           spaces: [...context.spaces, event.space],
@@ -100,31 +96,16 @@ export const spaceMachine = setup({
   guards: {
     // Check if there are no spaces
     hasNoSpaces: ({ context }) => {
-      console.log(
-        "hasNoSpaces check:",
-        context.spaces.length === 0,
-        context.spaces
-      )
       return context.spaces.length === 0
     },
 
     // Check if there's exactly one space
     hasOneSpace: ({ context }) => {
-      console.log(
-        "hasOneSpace check:",
-        context.spaces.length === 1,
-        context.spaces
-      )
       return context.spaces.length === 1
     },
 
     // Check if there are multiple spaces
     hasMultipleSpaces: ({ context }) => {
-      console.log(
-        "hasMultipleSpaces check:",
-        context.spaces.length > 1,
-        context.spaces
-      )
       return context.spaces.length > 1
     }
   }
@@ -158,12 +139,10 @@ export const spaceMachine = setup({
           {
             // If no spaces are loaded, go to empty state
             guard: ({ event }) => {
-              console.log("Empty check event:", event)
               // Check if this is a done event from an actor
               if (event.type.startsWith("xstate.done")) {
                 // @ts-ignore - We know this event has an output property
                 const spaces = event.output || []
-                console.log("Empty check:", spaces.length === 0, spaces)
                 return spaces.length === 0
               }
               return false
