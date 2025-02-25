@@ -11,6 +11,8 @@
     "jsx": "preserve",
     "jsxImportSource": "react",
     "types": ["chrome", "node", "vitest/importMeta"],
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "strictNullChecks": true,
+    "strict": true
   }
 }

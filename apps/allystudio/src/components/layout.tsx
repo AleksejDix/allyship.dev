@@ -1,6 +1,6 @@
+import { Page } from "@/components/page/page"
+import { Space } from "@/components/space/space"
 import { AuthProvider } from "@/providers/auth-provider"
-import { PageProvider } from "@/providers/page-provider"
-import { SpaceProvider } from "@/providers/space-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { UrlProvider } from "@/providers/url-provider"
 import { WebsiteProvider } from "@/providers/website-provider"
@@ -11,11 +11,13 @@ export function Layout({ children }: PropsWithChildren) {
     <ThemeProvider defaultTheme="system" storageKey="ally-studio-theme">
       <AuthProvider>
         <UrlProvider>
-          <SpaceProvider>
-            <WebsiteProvider>
-              <PageProvider>{children}</PageProvider>
-            </WebsiteProvider>
-          </SpaceProvider>
+          <Space debug>
+            {/* <WebsiteProvider> */}
+            {/* <Page debug> */}
+            {children}
+            {/* </Page> */}
+            {/* </WebsiteProvider> */}
+          </Space>
         </UrlProvider>
       </AuthProvider>
     </ThemeProvider>

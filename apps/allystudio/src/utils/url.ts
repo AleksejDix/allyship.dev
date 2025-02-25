@@ -176,6 +176,47 @@ export function extractPath(urlString: string): string {
   return normalizeUrl(urlString).path
 }
 
+/**
+ * Normalizes a URL path for comparison
+ * - Removes trailing slashes
+ * - Removes duplicate slashes
+ * - Decodes URI components
+ * - Converts to lowercase
+ */
+export function normalizePath(path: string): string {
+  try {
+    // Decode URI components
+    const decoded = decodeURIComponent(path)
+
+    return (
+      decoded
+        // Convert to lowercase
+        .toLowerCase()
+        // Remove duplicate slashes
+        .replace(/\/+/g, "/")
+        // Remove trailing slash
+        .replace(/\/$/, "")
+        // Ensure path starts with slash
+        .replace(/^([^/])/, "/$1")
+    )
+  } catch (error) {
+    // If decoding fails, return original path normalized
+    return path
+      .toLowerCase()
+      .replace(/\/+/g, "/")
+      .replace(/\/$/, "")
+      .replace(/^([^/])/, "/$1")
+  }
+}
+
+/**
+ * Compares two URL paths for equality after normalization
+ */
+export function compareUrlPaths(path1?: string, path2?: string): boolean {
+  if (!path1 || !path2) return false
+  return normalizePath(path1) === normalizePath(path2)
+}
+
 if (import.meta.vitest) {
   const { describe, it, expect } = import.meta.vitest
 
@@ -458,6 +499,61 @@ if (import.meta.vitest) {
       expect(() => extractDomain("")).toThrow()
       expect(() => extractHostname("chrome://settings")).toThrow()
       expect(() => extractPath("localhost")).toThrow()
+    })
+  })
+
+  describe("normalizePath", () => {
+    it("removes trailing slashes", () => {
+      expect(normalizePath("/path/")).toBe("/path")
+      expect(normalizePath("/path///")).toBe("/path")
+    })
+
+    it("removes duplicate slashes", () => {
+      expect(normalizePath("//path")).toBe("/path")
+      expect(normalizePath("/path//subpath")).toBe("/path/subpath")
+    })
+
+    it("decodes URI components", () => {
+      expect(normalizePath("/%C3%BCber")).toBe("/über")
+      expect(normalizePath("/caf%C3%A9")).toBe("/café")
+    })
+
+    it("converts to lowercase", () => {
+      expect(normalizePath("/Path")).toBe("/path")
+      expect(normalizePath("/PATH/SubPath")).toBe("/path/subpath")
+    })
+
+    it("ensures path starts with slash", () => {
+      expect(normalizePath("path")).toBe("/path")
+      expect(normalizePath("path/subpath")).toBe("/path/subpath")
+    })
+
+    it("handles empty and root paths", () => {
+      expect(normalizePath("")).toBe("")
+      expect(normalizePath("/")).toBe("")
+    })
+  })
+
+  describe("compareUrlPaths", () => {
+    it("compares paths ignoring trailing slashes", () => {
+      expect(compareUrlPaths("/path", "/path/")).toBe(true)
+      expect(compareUrlPaths("/path///", "/path")).toBe(true)
+    })
+
+    it("compares paths ignoring case", () => {
+      expect(compareUrlPaths("/Path", "/path")).toBe(true)
+      expect(compareUrlPaths("/PATH/subpath", "/path/SubPath")).toBe(true)
+    })
+
+    it("compares encoded and decoded paths", () => {
+      expect(compareUrlPaths("/%C3%BCber", "/über")).toBe(true)
+      expect(compareUrlPaths("/caf%C3%A9", "/café")).toBe(true)
+    })
+
+    it("returns false for undefined paths", () => {
+      expect(compareUrlPaths(undefined, "/path")).toBe(false)
+      expect(compareUrlPaths("/path", undefined)).toBe(false)
+      expect(compareUrlPaths(undefined, undefined)).toBe(false)
     })
   })
 }
