@@ -3,8 +3,8 @@ import type { PropsWithChildren } from "react"
 
 import { SpaceProvider } from "./space-context"
 import { SpaceDebug } from "./space-debug"
+import { SpaceEmpty } from "./space-empty"
 import { SpaceOptions } from "./space-options"
-import { SpaceOptionsDropdown } from "./space-options-dropdown"
 import { SpaceSelected } from "./space-selected"
 
 // Root component that sets up the machine and provider
@@ -14,7 +14,8 @@ function Space({
 }: PropsWithChildren<{ debug?: boolean }>) {
   return (
     <SpaceProvider>
-      <SpaceOptions></SpaceOptions>
+      <SpaceEmpty />
+      <SpaceOptions />
       <SpaceSelected>{children}</SpaceSelected>
       {debug && <SpaceDebug />}
       <Header />
@@ -23,10 +24,4 @@ function Space({
 }
 
 // Named exports for composite components
-export {
-  Space,
-  // SpaceList,
-  // SpaceError,
-  SpaceOptions,
-  SpaceDebug
-}
+export { Space, SpaceEmpty, SpaceOptions, SpaceDebug }

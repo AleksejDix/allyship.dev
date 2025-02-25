@@ -5,8 +5,15 @@ import type { PropsWithChildren } from "react"
 
 export function SpaceOptions({ children }: PropsWithChildren) {
   const actor = useSpaceContext()
-
   const spaces = useSelector(actor, (state) => state.context.spaces)
+  const shouldRender = useSelector(actor, (state) =>
+    state.matches({ loaded: "options" })
+  )
+
+  // Only render when in the loaded.options state
+  if (!shouldRender) {
+    return null
+  }
 
   return (
     <>
