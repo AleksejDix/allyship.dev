@@ -1,5 +1,6 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database"
+import { normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import {
   assign,
@@ -16,6 +17,7 @@ type WebsiteContext = {
   error: PostgrestError | null
   spaceId: string
   currentUrl: string | null
+  normalizedUrl: NormalizedUrl | null
   matchingWebsite: Website | null
 }
 
@@ -37,17 +39,16 @@ type AllEvents = WebsiteEvent | DoneEvent | ErrorEvent
 
 // Helper to find a matching website for a URL
 function findMatchingWebsite(
-  url: string | null,
+  normalized: NormalizedUrl | null,
   websites: Website[]
 ): Website | null {
-  if (!url || !websites?.length) return null
+  if (!normalized || !websites?.length) return null
 
-  try {
-    const domain = new URL(url).hostname.replace(/^www\./, "")
-    return websites.find((website) => website.normalized_url === domain) ?? null
-  } catch {
-    return null
-  }
+  // Compare the domain with the normalized_url in the database
+  return (
+    websites.find((website) => website.normalized_url === normalized.domain) ??
+    null
+  )
 }
 
 const actors = {
@@ -63,15 +64,16 @@ const actors = {
   }),
   addWebsite: fromPromise(
     async ({ input }: { input: { spaceId: string; url: string } }) => {
+      // Normalize the URL to get the domain
+      const normalized = normalizeUrl(input.url)
+
       const { data, error } = await supabase
         .from("Website")
         .insert([
           {
             space_id: input.spaceId,
             url: input.url,
-            normalized_url: input.url
-              .replace(/^https?:\/\//, "")
-              .replace(/^www\./, ""),
+            normalized_url: normalized.domain,
             theme: "LIGHT"
           }
         ])
@@ -116,11 +118,20 @@ export const websiteMachine = setup({
       currentUrl: ({ event, context }) => {
         if (event.type !== "URL_CHANGED") return context.currentUrl
         return event.url
+      },
+      normalizedUrl: ({ event, context }) => {
+        if (event.type !== "URL_CHANGED") return context.normalizedUrl
+        try {
+          return normalizeUrl(event.url)
+        } catch (error) {
+          console.error("Error normalizing URL:", error)
+          return null
+        }
       }
     }),
     updateMatchingWebsite: assign({
       matchingWebsite: ({ context }) => {
-        return findMatchingWebsite(context.currentUrl, context.websites)
+        return findMatchingWebsite(context.normalizedUrl, context.websites)
       }
     }),
     updateSpaceId: assign({
@@ -142,6 +153,7 @@ export const websiteMachine = setup({
     error: null,
     spaceId: input.spaceId,
     currentUrl: null,
+    normalizedUrl: null,
     matchingWebsite: null
   }),
   states: {

@@ -1,7 +1,8 @@
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { websiteMachine } from "@/providers/website"
 import type { Database } from "@/types/database"
-import { extractDomain } from "@/utils/url"
+import { normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { useActorRef, useSelector } from "@xstate/react"
 import {
@@ -15,7 +16,7 @@ import type { ActorRefFrom } from "xstate"
 
 import { useAuth } from "./auth-provider"
 import { useSpace } from "./space-provider"
-import { useCurrentDomain, useCurrentUrl } from "./url-provider"
+import { useCurrentDomain, useCurrentUrl, useUrl } from "./url-provider"
 
 type Website = Database["public"]["Tables"]["Website"]["Row"]
 
@@ -29,6 +30,7 @@ interface WebsiteContextValue {
   currentUrl: string | null
   matchingWebsite: Website | null
   isLoading: boolean
+  normalizedUrl: NormalizedUrl | null
 }
 
 const WebsiteContext = createContext<WebsiteContextValue | undefined>(undefined)
@@ -45,20 +47,17 @@ function useWebsiteContext() {
 }
 
 // Helper to find a matching website for a domain
-function findMatchingWebsite(
-  domain: string,
-  websites: Website[]
-): Website | null {
-  if (!domain || !websites?.length) return null
+function findMatchingWebsite(url: string, websites: Website[]): Website | null {
+  if (!url || !websites?.length) return null
 
   try {
-    // Extract just the domain part for comparison
-    const normalizedDomain = extractDomain(domain)
+    // Normalize the URL to get the domain
+    const normalized = normalizeUrl(url)
 
     // Debug the matching process
     console.log("Finding matching website:", {
-      inputUrl: domain,
-      extractedDomain: normalizedDomain,
+      inputUrl: url,
+      normalized,
       availableWebsites: websites.map((w) => ({
         id: w.id,
         normalized_url: w.normalized_url, // This is already just the domain in the database
@@ -66,14 +65,14 @@ function findMatchingWebsite(
       }))
     })
 
-    // Compare the extracted domain with the normalized_url in the database
+    // Compare the domain with the normalized_url in the database
     // normalized_url in the database is already just the domain
     const match = websites.find(
-      (website) => website.normalized_url === normalizedDomain
+      (website) => website.normalized_url === normalized.domain
     )
 
     console.log("Match result:", {
-      extractedDomain: normalizedDomain,
+      normalized,
       matchedWebsite: match
         ? {
             id: match.id,
@@ -121,7 +120,7 @@ function Root({ children }: PropsWithChildren) {
   // Send URL changes to the machine
   useEffect(() => {
     if (normalizedUrl) {
-      actorRef.send({ type: "URL_CHANGED", url: normalizedUrl })
+      actorRef.send({ type: "URL_CHANGED", url: normalizedUrl.hostname })
     }
   }, [normalizedUrl, actorRef])
 
@@ -162,7 +161,8 @@ function Root({ children }: PropsWithChildren) {
       actor: actorRef,
       currentUrl,
       matchingWebsite,
-      isLoading
+      isLoading,
+      normalizedUrl
     }),
     [
       state,
@@ -173,7 +173,8 @@ function Root({ children }: PropsWithChildren) {
       actorRef,
       currentUrl,
       matchingWebsite,
-      isLoading
+      isLoading,
+      normalizedUrl
     ]
   )
 
@@ -369,11 +370,38 @@ function Debug() {
   return (
     <WebsiteContext.Consumer>
       {(context) => {
-        const snapshot = context.actor.getSnapshot()
-
         return (
-          <div className="mt-1 text-muted-foreground">
-            <pre>{JSON.stringify(snapshot, null, 2)}</pre>
+          <pre className="border-4 border-green-500 overflow-y-auto max-h-96">
+            <code>{JSON.stringify(context, null, 2)}</code>
+          </pre>
+        )
+      }}
+    </WebsiteContext.Consumer>
+  )
+}
+
+function List({ children }: PropsWithChildren) {
+  const { normalizedUrl } = useCurrentUrl()
+  return (
+    <WebsiteContext.Consumer>
+      {(context) => {
+        return (
+          <div className="border-4 border-red-500">
+            <ul className="flex flex-wrap gap-1">
+              {context?.websites.map((website) => (
+                <li
+                  className={cn(
+                    "px-2 py-1 rounded-sm",
+                    normalizedUrl?.hostname === website.normalized_url
+                      ? "text-green-600"
+                      : ""
+                  )}
+                  key={website.id}>
+                  {website.normalized_url}
+                </li>
+              ))}
+            </ul>
+            {children}
           </div>
         )
       }}
@@ -388,84 +416,18 @@ export const Websites = {
   Error,
   Empty,
   WebsiteList,
+  List,
   Debug
 }
 
-export function WebsiteProvider({ children }: PropsWithChildren) {
+export function WebsiteProvider({
+  children,
+  debug = false
+}: PropsWithChildren & { debug?: boolean }) {
   return (
     <Websites.Root>
-      <div className="ahh flex h-full flex-col">
-        {/* Debug section to show all domains */}
-        <WebsiteContext.Consumer>
-          {(context) => {
-            if (!context?.websites?.length) return null
-
-            // Get normalized domain from current URL if it exists
-            let normalizedDomain = null
-            try {
-              if (context.currentUrl) {
-                normalizedDomain = extractDomain(context.currentUrl)
-              }
-            } catch (error) {
-              console.error("Error normalizing URL:", error)
-            }
-
-            // Check if domain matches any known domains
-            const isKnownDomain =
-              normalizedDomain &&
-              context.websites.some(
-                (website) => website.normalized_url === normalizedDomain
-              )
-
-            return (
-              <div className="border-b bg-muted/50 px-3 py-2 text-[10px]">
-                <div className="font-medium text-muted-foreground">
-                  Known domains:
-                </div>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {context.websites.map((website) => (
-                    <div
-                      key={website.id}
-                      className={cn(
-                        "rounded bg-muted px-1.5 py-0.5",
-                        website.normalized_url === normalizedDomain
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-muted-foreground"
-                      )}
-                      title={`ID: ${website.id}`}>
-                      {website.normalized_url}
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-1 space-y-0.5">
-                  <div className="text-xs text-muted-foreground/70">
-                    Raw URL: {context.currentUrl || "none"}
-                  </div>
-                  <div className="text-xs">
-                    Normalized domain:{" "}
-                    <span
-                      className={cn(
-                        normalizedDomain
-                          ? isKnownDomain
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
-                          : "text-muted-foreground/70"
-                      )}>
-                      {normalizedDomain || "none"}
-                    </span>
-                  </div>
-                </div>
-                {context.matchingWebsite && (
-                  <div className="mt-0.5 text-xs text-green-600">
-                    Matched: {context.matchingWebsite.normalized_url}
-                  </div>
-                )}
-              </div>
-            )
-          }}
-        </WebsiteContext.Consumer>
-        {children}
-      </div>
+      <Websites.List>{children}</Websites.List>
+      {debug && <Websites.Debug />}
     </Websites.Root>
   )
 }

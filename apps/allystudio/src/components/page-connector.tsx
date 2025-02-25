@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { usePage } from "@/providers/page-provider"
 import { useWebsite } from "@/providers/website-provider"
 import type { Database } from "@/types/database"
-import { extractDomain, extractPath, isValidPageUrl } from "@/utils/url"
+import { isValidPageUrl, normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import { Link2, Link2Off, Plus } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -72,6 +72,7 @@ export function PageConnector({}: PageConnectorProps) {
     matchingWebsite,
     isLoading: websiteLoading,
     currentUrl,
+    normalizedUrl,
     addWebsite
   } = useWebsite()
 
@@ -101,10 +102,16 @@ export function PageConnector({}: PageConnectorProps) {
             normalized_url: matchingPage.normalized_url
           }
         : null,
-      extractedDomain: currentUrl ? extractDomain(currentUrl) : null,
-      extractedPath: currentUrl ? extractPath(currentUrl) : null
+      normalizedUrl
     })
-  }, [currentUrl, websiteLoading, pageLoading, matchingWebsite, matchingPage])
+  }, [
+    currentUrl,
+    websiteLoading,
+    pageLoading,
+    matchingWebsite,
+    matchingPage,
+    normalizedUrl
+  ])
 
   // Combine loading states
   const isLoading = websiteLoading || pageLoading || isAdding
@@ -190,13 +197,8 @@ export function PageConnector({}: PageConnectorProps) {
     )
   }
 
-  // Extract domain and path
-  let domain: string
-  let path: string
-  try {
-    domain = extractDomain(currentUrl)
-    path = extractPath(currentUrl)
-  } catch (error) {
+  // If URL is invalid format, show error state
+  if (!normalizedUrl) {
     return (
       <div className={containerClasses}>
         <div className={contentClasses}>
@@ -246,21 +248,16 @@ export function PageConnector({}: PageConnectorProps) {
                               ? "text-green-600 dark:text-green-400"
                               : "text-red-600 dark:text-red-400"
                           )}>
-                          {domain}
+                          {normalizedUrl.domain}
                         </span>
-                        <span
-                          className={cn(
-                            "truncate",
-                            matchingPage
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400"
-                          )}>
-                          {path}
+                        <span className="mx-1 text-muted-foreground">/</span>
+                        <span className="truncate text-red-600 dark:text-red-400">
+                          {normalizedUrl.path}
                         </span>
                       </div>
-                    </div>
-                    <div className="flex items-center text-[10px] shrink-0 ml-2">
-                      {buttonText}
+                      <span className="text-[10px] shrink-0 ml-2">
+                        {buttonText}
+                      </span>
                     </div>
                   </Button>
                 ) : (
@@ -272,38 +269,22 @@ export function PageConnector({}: PageConnectorProps) {
                       "hover:bg-green-100 hover:text-green-700",
                       "dark:hover:bg-green-900/20 dark:hover:text-green-400"
                     )}
-                    asChild>
-                    <a
-                      href={`https://allyship.dev/spaces/${dashboardSpaceId}/${dashboardWebsiteId}/pages/${matchingPage?.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer">
-                      <div className="flex items-center gap-1 min-w-0 flex-1">
-                        <StatusIcon isConnected={isConnected} />
-                        <div className="text-[10px] font-medium flex items-center min-w-0 flex-1">
-                          <span
-                            className={cn(
-                              "shrink-0",
-                              matchingWebsite
-                                ? "text-green-600 dark:text-green-400"
-                                : "text-red-600 dark:text-red-400"
-                            )}>
-                            {domain}
-                          </span>
-                          <span
-                            className={cn(
-                              "truncate",
-                              matchingPage
-                                ? "text-green-600 dark:text-green-400"
-                                : "text-red-600 dark:text-red-400"
-                            )}>
-                            {path}
-                          </span>
-                        </div>
+                    disabled>
+                    <div className="flex items-center gap-1 min-w-0 flex-1">
+                      <StatusIcon isConnected={isConnected} />
+                      <div className="text-[10px] font-medium flex items-center min-w-0 flex-1">
+                        <span className="shrink-0 text-green-600 dark:text-green-400">
+                          {normalizedUrl.domain}
+                        </span>
+                        <span className="mx-1 text-muted-foreground">/</span>
+                        <span className="truncate text-green-600 dark:text-green-400">
+                          {normalizedUrl.path}
+                        </span>
                       </div>
-                      <div className="flex items-center text-[10px] shrink-0 ml-2">
-                        View in Dashboard
-                      </div>
-                    </a>
+                      <span className="text-[10px] shrink-0 ml-2">
+                        Connected
+                      </span>
+                    </div>
                   </Button>
                 )}
               </TooltipTrigger>

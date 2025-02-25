@@ -1,5 +1,6 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database"
+import { normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup } from "xstate"
 
@@ -15,6 +16,8 @@ type PageContext = {
   error: PostgrestError | null
   websiteId: string | null
   currentUrl: string | null
+  normalizedUrl: NormalizedUrl | null
+  matchingPage: PageWithWebsite | null
 }
 
 type PageEvent =
@@ -33,12 +36,26 @@ type ErrorEvent =
 
 type AllEvents = PageEvent | DoneEvent | ErrorEvent
 
+// Helper to find a matching page for a URL
+function findMatchingPage(
+  normalized: NormalizedUrl | null,
+  pages: PageWithWebsite[]
+): PageWithWebsite | null {
+  if (!normalized || !pages?.length) return null
+  return (
+    pages.find(
+      (page) =>
+        page.normalized_url === `${normalized.hostname}${normalized.path}`
+    ) ?? null
+  )
+}
+
 const actors = {
   loadPages: fromPromise(
     async ({ input }: { input: { websiteId: string } }) => {
       const { data, error } = await supabase
         .from("Page")
-        .select("*, website:Website(*)")
+        .select("*")
         .eq("website_id", input.websiteId)
 
       if (error) throw error
@@ -47,6 +64,10 @@ const actors = {
   ),
   addPage: fromPromise(
     async ({ input }: { input: { url: string; websiteId: string } }) => {
+      // First normalize the URL to get the hostname and path
+      const normalized = normalizeUrl(input.url)
+      const normalizedUrl = `${normalized.hostname}${normalized.path}`
+
       // First add the page
       const { data: page, error: pageError } = await supabase
         .from("Page")
@@ -54,7 +75,8 @@ const actors = {
           {
             website_id: input.websiteId,
             url: input.url,
-            path: new URL(input.url).pathname,
+            normalized_url: normalizedUrl,
+            path: normalized.path,
             status: "idle"
           }
         ])
@@ -106,16 +128,34 @@ export const pageMachine = setup({
       }
     }),
     setCurrentUrl: assign({
-      currentUrl: ({ event }) => {
-        if (event.type !== "URL_CHANGED") return null
+      currentUrl: ({ event, context }) => {
+        if (event.type !== "URL_CHANGED") return context.currentUrl
         return event.url
+      },
+      normalizedUrl: ({ event, context }) => {
+        if (event.type !== "URL_CHANGED") return context.normalizedUrl
+        try {
+          return normalizeUrl(event.url)
+        } catch (error) {
+          console.error("Error normalizing URL:", error)
+          return null
+        }
+      }
+    }),
+    updateMatchingPage: assign({
+      matchingPage: ({ context }) => {
+        return findMatchingPage(context.normalizedUrl, context.pages)
       }
     }),
     setWebsiteId: assign({
-      websiteId: ({ event }) => {
-        if (event.type !== "WEBSITE_CHANGED") return null
+      websiteId: ({ event, context }) => {
+        if (event.type !== "WEBSITE_CHANGED") return context.websiteId
         return event.websiteId
       }
+    }),
+    clearPages: assign({
+      pages: () => [],
+      matchingPage: () => null
     })
   }
 }).createMachine({
@@ -125,21 +165,24 @@ export const pageMachine = setup({
     pages: [],
     error: null,
     websiteId: null,
-    currentUrl: null
+    currentUrl: null,
+    normalizedUrl: null,
+    matchingPage: null
   },
   states: {
     idle: {
       on: {
         URL_CHANGED: {
-          actions: ["setCurrentUrl"]
+          actions: ["setCurrentUrl", "updateMatchingPage"]
         },
         WEBSITE_CHANGED: {
           target: "loading",
-          actions: ["setWebsiteId"]
+          actions: ["setWebsiteId", "clearPages"]
         },
         ADD_PAGE: {
           target: "adding"
-        }
+        },
+        REFRESH: "loading"
       }
     },
     loading: {
@@ -151,7 +194,7 @@ export const pageMachine = setup({
         },
         onDone: {
           target: "idle",
-          actions: ["setPages"]
+          actions: ["setPages", "updateMatchingPage"]
         },
         onError: {
           target: "error",
@@ -161,7 +204,14 @@ export const pageMachine = setup({
     },
     error: {
       on: {
-        REFRESH: "loading"
+        REFRESH: "loading",
+        URL_CHANGED: {
+          actions: ["setCurrentUrl", "updateMatchingPage"]
+        },
+        WEBSITE_CHANGED: {
+          target: "loading",
+          actions: ["setWebsiteId", "clearPages"]
+        }
       }
     },
     adding: {
@@ -176,7 +226,7 @@ export const pageMachine = setup({
         },
         onDone: {
           target: "idle",
-          actions: ["addPageToList"]
+          actions: ["addPageToList", "updateMatchingPage"]
         },
         onError: {
           target: "error",
