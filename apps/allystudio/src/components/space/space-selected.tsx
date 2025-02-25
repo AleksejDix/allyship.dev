@@ -9,13 +9,6 @@ export const SpaceSelected = memo(function SpaceSelected({
 }: PropsWithChildren) {
   const actor = useSpaceContext()
 
-  // Use memoized selectors for better performance with Object.is comparison
-  const selection = useSelector(
-    actor,
-    (state) => state.context.currentSpace,
-    Object.is
-  )
-
   const shouldRender = useSelector(
     actor,
     (state) => state.matches({ loaded: "selected" }),
@@ -27,10 +20,5 @@ export const SpaceSelected = memo(function SpaceSelected({
     return null
   }
 
-  return (
-    <>
-      {selection?.name}
-      {children}
-    </>
-  )
+  return <>{children}</>
 })
