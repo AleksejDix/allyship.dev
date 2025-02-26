@@ -1,7 +1,11 @@
 import type { AllyStudioEvent, EventHandler } from "./types"
 
 // Define high-priority event types that need immediate processing
-const HIGH_PRIORITY_EVENTS = ["HIGHLIGHT", "INSPECTOR_COMMAND"]
+const HIGH_PRIORITY_EVENTS = [
+  "HIGHLIGHT",
+  "INSPECTOR_COMMAND",
+  "OUTLINER_COMMAND"
+]
 
 // Direct communication channel for inspector highlights
 type DirectHighlightHandler = (
