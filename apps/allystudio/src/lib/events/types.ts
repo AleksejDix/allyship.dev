@@ -15,6 +15,8 @@ export type EventType =
   | "INTERACTIVE_ANALYSIS_COMPLETE"
   | "TESTS_COMPLETE"
   | "LAYER_TOGGLE_REQUEST"
+  | "INSPECTOR_COMMAND"
+  | "CONTENT_SCRIPT_READY"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -194,6 +196,22 @@ export interface LayerToggleRequestEvent extends BaseEvent {
   }
 }
 
+// Inspector Events
+export interface InspectorCommandEvent extends BaseEvent {
+  type: "INSPECTOR_COMMAND"
+  data: {
+    command: "start" | "stop"
+  }
+}
+
+// Content Script Events
+export interface ContentScriptReadyEvent extends BaseEvent {
+  type: "CONTENT_SCRIPT_READY"
+  data: {
+    features: string[]
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -211,6 +229,8 @@ export type AllyStudioEvent =
   | InteractiveAnalysisCompleteEvent
   | TestsCompleteEvent
   | LayerToggleRequestEvent
+  | InspectorCommandEvent
+  | ContentScriptReadyEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void
