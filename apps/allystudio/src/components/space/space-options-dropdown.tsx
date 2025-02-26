@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import type { Database } from "@/types/database"
+import type { Database } from "@/types/database.types"
 import { useSelector } from "@xstate/react"
 import { ChevronsUpDown, Globe } from "lucide-react"
 import { useCallback } from "react"

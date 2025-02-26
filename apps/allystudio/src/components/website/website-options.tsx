@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button"
 import { CurrentIndicator } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
-import type { Database } from "@/types/database"
+import type { Database } from "@/types/database.types"
 import { useSelector } from "@xstate/react"
-import { Globe, Plus } from "lucide-react"
-import { memo, useCallback, useState } from "react"
+import { Globe } from "lucide-react"
+import { memo, useCallback } from "react"
 import type { PropsWithChildren } from "react"
 
 import { useWebsiteContext } from "./website-context"
@@ -17,8 +16,6 @@ export const WebsiteOptions = memo(function WebsiteOptions({
   children
 }: PropsWithChildren) {
   const actor = useWebsiteContext()
-  const [newUrl, setNewUrl] = useState("")
-  const [isAdding, setIsAdding] = useState(false)
 
   // Use memoized selectors with Object.is comparison for better performance
   const websites = useSelector(
@@ -41,15 +38,6 @@ export const WebsiteOptions = memo(function WebsiteOptions({
     [actor]
   )
 
-  // Handle adding a new website
-  const handleAddWebsite = () => {
-    if (newUrl.trim()) {
-      actor.send({ type: "ADD_WEBSITE", url: newUrl.trim() })
-      setNewUrl("")
-      setIsAdding(false)
-    }
-  }
-
   // Only render when in the loaded.options state
   if (!shouldRender) {
     return null
@@ -64,40 +52,6 @@ export const WebsiteOptions = memo(function WebsiteOptions({
             Choose a website to analyze or add a new one
           </p>
         </div>
-
-        <Button
-          variant="outline"
-          className="mx-4 mb-4 w-[calc(100%-2rem)] flex items-center justify-center gap-2"
-          onClick={() => setIsAdding(true)}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          Add New Website
-        </Button>
-
-        {/* Add new website form */}
-        {isAdding && (
-          <div className="mx-4 mb-4 p-4 border rounded-lg bg-card">
-            <h3 className="text-sm font-medium mb-2">Add New Website</h3>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                placeholder="Enter website URL (e.g., example.com)"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-              <Button onClick={handleAddWebsite} disabled={!newUrl.trim()}>
-                Add
-              </Button>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsAdding(false)}
-              className="text-xs">
-              Cancel
-            </Button>
-          </div>
-        )}
 
         {/* Website list */}
         <div className="border-t">

@@ -3,6 +3,7 @@ import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
 import { useSpaceContext } from "../space/space-context"
+import { WebsiteAdd } from "./website-add"
 import { WebsiteProvider } from "./website-context"
 import { WebsiteDebug } from "./website-debug"
 import { WebsiteEmpty } from "./website-empty"
@@ -31,6 +32,7 @@ const Website = memo(function Website({
 
   return (
     <WebsiteProvider spaceId={currentSpace.id}>
+      <WebsiteAdd />
       <WebsiteEmpty />
       <WebsiteOptions />
       <WebsiteSelected>{children}</WebsiteSelected>
