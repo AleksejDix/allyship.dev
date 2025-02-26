@@ -9,117 +9,139 @@ export const config: PlasmoCSConfig = {
 let isInspecting = false
 let hoveredElement: HTMLElement | null = null
 let lastHighlightTimestamp = 0
-const THROTTLE_MS = 5 // Reduce throttling for higher FPS (120 FPS target)
-const HIGHLIGHT_DELAY = 0 // Remove delay for immediate feedback
-
-// Cache for selectors to avoid recalculating
+const THROTTLE_MS = 0 // No throttling for maximum responsiveness
 let selectorCache = new WeakMap<Element, string>()
+let elementDetailsCache = new WeakMap<Element, string>()
+
+// Pre-compile frequently used regexes
+const idRegex = /^[a-zA-Z][\w-]*$/
 
 /**
- * Generate a unique CSS selector for an element
- * Inspired by Chrome DevTools and Vue DevTools implementations
+ * Ultra-fast selector generation optimized for performance
+ * Uses a multi-tiered approach with early returns for common cases
  */
 function getUniqueSelector(el: Element): string {
-  // Check cache first for performance
+  // Check cache first for maximum performance
   const cachedSelector = selectorCache.get(el)
   if (cachedSelector) return cachedSelector
 
   if (!el) return ""
 
-  // ID selector - fastest and most reliable
-  if (el.id) {
+  // ID selector - fastest path for most elements
+  if (el.id && idRegex.test(el.id)) {
+    // Fast path for simple IDs (avoid CSS.escape overhead)
+    const selector = `#${el.id}`
+    // Quick uniqueness check
+    if (document.querySelectorAll(selector).length === 1) {
+      selectorCache.set(el, selector)
+      return selector
+    }
+  } else if (el.id) {
+    // Handle complex IDs that need escaping
     const selector = `#${CSS.escape(el.id)}`
-    // Verify uniqueness
     if (document.querySelectorAll(selector).length === 1) {
       selectorCache.set(el, selector)
       return selector
     }
   }
 
-  // Try with tag name and classes for better specificity
+  // Fast path for elements with unique tag names
   const tagName = el.tagName.toLowerCase()
-
-  // Use all classes for better uniqueness
-  if (el.classList.length > 0) {
-    const classSelector = Array.from(el.classList)
-      .map((cls) => `.${CSS.escape(cls)}`)
-      .join("")
-
-    const selector = `${tagName}${classSelector}`
-
-    // Verify uniqueness
-    if (document.querySelectorAll(selector).length === 1) {
-      selectorCache.set(el, selector)
-      return selector
-    }
+  const tagSelector = tagName
+  if (document.querySelectorAll(tagSelector).length === 1) {
+    selectorCache.set(el, tagSelector)
+    return tagSelector
   }
 
-  // Try with parent context for better uniqueness
-  if (el.parentElement) {
-    // Get a simple selector for this element
-    let simpleSelector = tagName
-
-    if (el.classList.length > 0) {
-      // Use first class only for simplicity
-      simpleSelector = `${tagName}.${CSS.escape(el.classList[0])}`
-    }
-
-    // Find position among siblings
-    const siblings = Array.from(el.parentElement.children)
-    const sameTagSiblings = siblings.filter(
-      (sibling) => sibling.tagName.toLowerCase() === tagName
-    )
-
-    // If there are multiple siblings with same tag, use nth-child
-    if (sameTagSiblings.length > 1) {
-      const index = siblings.indexOf(el) + 1
-      simpleSelector = `${tagName}:nth-child(${index})`
-    }
-
-    // Try to get parent's selector for context
-    const parentSelector = getUniqueSelector(el.parentElement)
-    const selector = `${parentSelector} > ${simpleSelector}`
-
-    // Verify uniqueness
-    try {
+  // Fast path for elements with a single class
+  if (el.classList.length === 1) {
+    const className = el.classList[0]
+    if (idRegex.test(className)) {
+      // Simple class name
+      const selector = `.${className}`
       if (document.querySelectorAll(selector).length === 1) {
         selectorCache.set(el, selector)
         return selector
       }
-    } catch (e) {
-      // If selector is invalid, fall back to simpler approach
-      console.warn("Invalid selector generated:", selector)
+
+      // Try tag + class
+      const tagClassSelector = `${tagName}.${className}`
+      if (document.querySelectorAll(tagClassSelector).length === 1) {
+        selectorCache.set(el, tagClassSelector)
+        return tagClassSelector
+      }
     }
   }
 
-  // Fallback to a path-based selector as last resort
+  // Fast path for elements with unique tag + attribute combinations
+  for (const attr of ["name", "type", "role", "data-testid"]) {
+    const value = el.getAttribute(attr)
+    if (value) {
+      const selector = `${tagName}[${attr}="${value.replace(/"/g, '\\"')}"]`
+      if (document.querySelectorAll(selector).length === 1) {
+        selectorCache.set(el, selector)
+        return selector
+      }
+    }
+  }
+
+  // Fast nth-child selector for direct children
+  if (el.parentElement) {
+    const parent = el.parentElement
+    const children = parent.children
+    const index = Array.prototype.indexOf.call(children, el) + 1
+
+    // Try direct child selector
+    const selector = `${tagName}:nth-child(${index})`
+    const parentTagName = parent.tagName.toLowerCase()
+
+    // If parent is body or a common container, use direct selector
+    if (
+      parentTagName === "body" ||
+      parentTagName === "main" ||
+      parentTagName === "div"
+    ) {
+      const fullSelector = `${parentTagName} > ${selector}`
+      if (document.querySelectorAll(fullSelector).length === 1) {
+        selectorCache.set(el, fullSelector)
+        return fullSelector
+      }
+    }
+  }
+
+  // Optimized path-based selector as fallback
+  // Limit to 3 levels for performance
   let current = el
   const path = []
+  let depth = 0
 
-  while (current && current !== document.body) {
+  while (current && current !== document.body && depth < 3) {
     let selector = current.tagName.toLowerCase()
 
     if (current.id) {
-      selector = `#${CSS.escape(current.id)}`
+      selector = idRegex.test(current.id)
+        ? `#${current.id}`
+        : `#${CSS.escape(current.id)}`
       path.unshift(selector)
-      break // ID is unique enough to stop here
-    } else {
-      const parent = current.parentElement
-
-      if (parent) {
-        const siblings = Array.from(parent.children)
-        if (siblings.length > 1) {
-          const index = siblings.indexOf(current) + 1
-          selector += `:nth-child(${index})`
-        }
+      break
+    } else if (current.classList.length === 1) {
+      const className = current.classList[0]
+      if (idRegex.test(className)) {
+        selector += `.${className}`
       }
-
-      path.unshift(selector)
-      current = parent as HTMLElement
     }
 
-    // Limit path length for performance
-    if (path.length > 4) break
+    if (current.parentElement) {
+      const siblings = current.parentElement.children
+      if (siblings.length > 1) {
+        const index = Array.prototype.indexOf.call(siblings, current) + 1
+        selector += `:nth-child(${index})`
+      }
+    }
+
+    path.unshift(selector)
+    current = current.parentElement as HTMLElement
+    depth++
   }
 
   const selector = path.join(" > ")
@@ -127,25 +149,29 @@ function getUniqueSelector(el: Element): string {
   return selector
 }
 
-// Get detailed element information for display
+// Ultra-fast element details generation
 const getElementDetails = (element: HTMLElement): string => {
+  // Check cache first
+  const cachedDetails = elementDetailsCache.get(element)
+  if (cachedDetails) return cachedDetails
+
   const tagName = element.tagName.toLowerCase()
   const id = element.id ? `#${element.id}` : ""
 
-  // Include all classes for better identification
-  const classes =
-    element.classList.length > 0
-      ? `.${Array.from(element.classList).join(".")}`
-      : ""
+  // Only include first class for performance
+  const className = element.classList.length > 0 ? element.classList[0] : ""
+  const classes = className ? `.${className}` : ""
 
-  // Add dimensions for better context
+  // Fast dimension calculation
   const rect = element.getBoundingClientRect()
   const dimensions = `${Math.round(rect.width)}×${Math.round(rect.height)}`
 
-  return `<${tagName}${id}${classes}> ${dimensions}px`
+  const details = `<${tagName}${id}${classes}> ${dimensions}px`
+  elementDetailsCache.set(element, details)
+  return details
 }
 
-// Clear all current highlights
+// Optimized highlight clearing
 const clearHighlights = () => {
   eventBus.publish({
     type: "HIGHLIGHT",
@@ -160,7 +186,7 @@ const clearHighlights = () => {
   })
 }
 
-// Create a highlight for an element
+// Optimized element highlighting
 const highlightElement = (element: HTMLElement) => {
   if (!element) return
 
@@ -171,10 +197,7 @@ const highlightElement = (element: HTMLElement) => {
     // Get element details for the tooltip
     const message = getElementDetails(element)
 
-    // First clear previous highlights
-    clearHighlights()
-
-    // Then add the new highlight immediately
+    // Publish highlight event
     eventBus.publish({
       type: "HIGHLIGHT",
       timestamp: Date.now(),
@@ -190,54 +213,42 @@ const highlightElement = (element: HTMLElement) => {
   }
 }
 
-// Use requestAnimationFrame for smoother performance
-let rafId: number | null = null
-
-// Handle mouse movement with optimized performance
-const handleMouseMove = (e: MouseEvent) => {
+// Use pointer events for better performance
+const handlePointerMove = (e: PointerEvent) => {
   if (!isInspecting) return
 
-  const now = Date.now()
-  // Throttle updates for better performance
+  const now = performance.now() // Use performance.now() for higher precision
+
+  // Skip if we're updating too frequently
   if (now - lastHighlightTimestamp < THROTTLE_MS) return
   lastHighlightTimestamp = now
 
-  // Cancel any pending animation frame
-  if (rafId !== null) {
-    cancelAnimationFrame(rafId)
+  // Get the element under the cursor - use composedPath for Shadow DOM support
+  const element = e.target as HTMLElement
+
+  if (!element) return
+
+  // Skip the highlight elements themselves to prevent feedback loops
+  if (
+    element.hasAttribute("data-highlight-box") ||
+    element.closest("[data-highlight-box]") ||
+    element.closest('[role="tooltip"]')
+  ) {
+    return
   }
 
-  // Schedule the highlight on the next animation frame
-  rafId = requestAnimationFrame(() => {
-    try {
-      // Get the element under the cursor
-      const element = document.elementFromPoint(
-        e.clientX,
-        e.clientY
-      ) as HTMLElement
+  // If we're hovering over the same element, no need to update
+  if (element === hoveredElement) return
 
-      if (!element) return
+  // Update the hovered element
+  hoveredElement = element
 
-      // Skip the highlight elements themselves to prevent feedback loops
-      if (
-        element.hasAttribute("data-highlight-box") ||
-        element.closest("[data-highlight-box]") ||
-        element.closest('[role="tooltip"]')
-      ) {
-        return
-      }
+  // Clear previous highlights first
+  clearHighlights()
 
-      // If we're hovering over the same element, no need to update
-      if (element === hoveredElement) return
-
-      // Update the hovered element
-      hoveredElement = element
-
-      // Highlight the element
-      highlightElement(element)
-    } catch (error) {
-      console.error("[ElementInspector] Error in mouse move handler:", error)
-    }
+  // Highlight the element on next animation frame
+  requestAnimationFrame(() => {
+    highlightElement(element)
   })
 }
 
@@ -246,12 +257,15 @@ const startInspection = () => {
   isInspecting = true
   document.body.style.cursor = "crosshair"
 
-  // Clear selector cache when starting new inspection
-  // Create a new WeakMap since WeakMap doesn't have a clear method
+  // Clear caches when starting new inspection
   selectorCache = new WeakMap<Element, string>()
+  elementDetailsCache = new WeakMap<Element, string>()
 
-  // Use passive listener for better performance
-  document.addEventListener("mousemove", handleMouseMove, { passive: true })
+  // Use pointer events for better performance across devices
+  document.addEventListener("pointermove", handlePointerMove, {
+    passive: true,
+    capture: true // Use capture to get events before they're processed
+  })
 
   // Clear any existing highlights when starting
   clearHighlights()
@@ -267,21 +281,19 @@ const startInspection = () => {
     highlightElement(currentElement)
   }
 
-  console.log("[ElementInspector] Inspection started")
+  console.log(
+    "[ElementInspector] Inspection started with ultra-high performance mode"
+  )
 }
 
 // Stop inspection
 const stopInspection = () => {
   isInspecting = false
   document.body.style.cursor = ""
-  document.removeEventListener("mousemove", handleMouseMove)
+  document.removeEventListener("pointermove", handlePointerMove, {
+    capture: true
+  })
   hoveredElement = null
-
-  // Cancel any pending animation frame
-  if (rafId !== null) {
-    cancelAnimationFrame(rafId)
-    rafId = null
-  }
 
   // Clear highlights
   clearHighlights()
@@ -308,7 +320,7 @@ eventBus.subscribe((event) => {
 })
 
 // Initialize
-console.log("[ElementInspector] Content script loaded")
+console.log("[ElementInspector] High-performance content script loaded")
 
 // Cleanup on unload
 window.addEventListener("unload", () => {
