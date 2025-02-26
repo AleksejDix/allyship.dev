@@ -51,7 +51,7 @@ export function ElementInspector() {
         ) : (
           <>
             <Zap aria-hidden="true" className="h-4 w-4" />
-            Inspect Elements (Ultra Performance)
+            Inspect Elements (Extreme Performance)
           </>
         )}
       </Button>
@@ -60,8 +60,8 @@ export function ElementInspector() {
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
             Move your cursor over elements to highlight them with zero latency.
-            The inspector now runs in ultra-high performance mode with optimized
-            selector generation and zero throttling.
+            The inspector now uses direct DOM manipulation for instant feedback
+            with no delay.
           </p>
           <div className="flex items-start gap-2 p-2 text-xs bg-muted/50 rounded-md">
             <AlertCircle
@@ -69,9 +69,9 @@ export function ElementInspector() {
               className="h-4 w-4 text-amber-500 shrink-0 mt-0.5"
             />
             <p className="text-muted-foreground">
-              Using pointer events and optimized DOM operations for maximum
-              speed. Selectors are generated with multi-tiered approach for
-              instant feedback at 120+ FPS, similar to Chrome DevTools.
+              Using direct DOM manipulation and pointer events for maximum
+              speed. Bypasses React rendering for instant highlights at native
+              browser speed, similar to Chrome DevTools.
             </p>
           </div>
         </div>
