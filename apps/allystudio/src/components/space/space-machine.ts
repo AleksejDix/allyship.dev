@@ -1,5 +1,5 @@
 import { supabase } from "@/core/supabase"
-import type { Database } from "@/types/database"
+import type { Database } from "@/types/database.types"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup } from "xstate"
 

@@ -12,7 +12,7 @@ export function Layout({ children }: PropsWithChildren) {
       <AuthProvider>
         <UrlProvider>
           <Space>
-            <Website>
+            <Website debug={true}>
               <Page>{children}</Page>
             </Website>
           </Space>

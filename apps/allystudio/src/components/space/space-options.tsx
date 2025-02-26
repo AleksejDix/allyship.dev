@@ -1,7 +1,7 @@
 import { useSpaceContext } from "@/components/space/space-context"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { Database } from "@/types/database"
+import type { Database } from "@/types/database.types"
 import { useSelector } from "@xstate/react"
 import { Briefcase, CheckCircle2, Plus } from "lucide-react"
 import { useCallback, useState } from "react"
