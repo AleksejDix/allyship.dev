@@ -8,6 +8,7 @@ type Page = Database["public"]["Tables"]["Page"]["Row"]
 
 export type PageContext = {
   pages: Page[]
+  selectedPage: Page | null
   error: PostgrestError | null
   websiteId: string | null
 }
@@ -16,6 +17,8 @@ export type PageEvent =
   | { type: "LOAD_PAGES"; websiteId: string }
   | { type: "WEBSITE_CHANGED"; websiteId: string }
   | { type: "RETRY" }
+  | { type: "SELECT_PAGE"; pageId: string }
+  | { type: "BACK" }
 
 // Actor to load pages from Supabase
 const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
@@ -75,7 +78,10 @@ export const pageMachine = setup({
     updateWebsiteId: assign(({ event }) => {
       if (event.type === "WEBSITE_CHANGED" || event.type === "LOAD_PAGES") {
         console.log("Updating websiteId to:", event.websiteId)
-        return { websiteId: event.websiteId }
+        return {
+          websiteId: event.websiteId,
+          selectedPage: null // Clear selected page when website changes
+        }
       }
       return {}
     }),
@@ -83,12 +89,27 @@ export const pageMachine = setup({
     // Clear error when retrying
     clearError: assign({
       error: () => null
+    }),
+
+    // Set selected page
+    selectPage: assign(({ context, event }) => {
+      if (event.type === "SELECT_PAGE") {
+        const page = context.pages.find((p) => p.id === event.pageId) || null
+        return { selectedPage: page }
+      }
+      return {}
+    }),
+
+    // Clear selected page
+    clearSelectedPage: assign({
+      selectedPage: () => null
     })
   }
 }).createMachine({
   id: "page",
   context: ({ input }) => ({
     pages: [],
+    selectedPage: null,
     error: null,
     websiteId: input.websiteId
   }),
@@ -130,6 +151,25 @@ export const pageMachine = setup({
       }
     },
     success: {
+      initial: "list",
+      states: {
+        list: {
+          on: {
+            SELECT_PAGE: {
+              target: "selected",
+              actions: "selectPage"
+            }
+          }
+        },
+        selected: {
+          on: {
+            BACK: {
+              target: "list",
+              actions: "clearSelectedPage"
+            }
+          }
+        }
+      },
       on: {
         LOAD_PAGES: {
           target: "loading",

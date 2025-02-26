@@ -8,6 +8,7 @@ import { PageDebug } from "./page-debug"
 import { PageError } from "./page-error"
 import { PageList } from "./page-list"
 import { PageListEmpty } from "./page-list-empty"
+import { PageSelected } from "./page-selected"
 import { PageListSkeleton, Skeleton } from "./page-skeleton"
 
 // Selector to get the current website from the website machine
@@ -40,7 +41,7 @@ const Page = memo(function Page({
       <PageList />
       <PageListEmpty />
       <PageListSkeleton />
-      {children}
+      <PageSelected>{children}</PageSelected>
       {debug && <PageDebug />}
     </PageProvider>
   )
@@ -53,6 +54,7 @@ export {
   PageError,
   PageList,
   PageListEmpty,
+  PageSelected,
   Skeleton,
   PageListSkeleton
 }

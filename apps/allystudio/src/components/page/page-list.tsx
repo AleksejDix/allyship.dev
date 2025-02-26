@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSelector } from "@xstate/react"
 import { ExternalLink, Plus } from "lucide-react"
 
@@ -8,69 +7,77 @@ import { usePageContext } from "./page-context"
 // Component that displays the list of pages
 export function PageList() {
   const actor = usePageContext()
-  const isSuccess = useSelector(actor, (state) => state.matches("success"))
+  const isSuccess = useSelector(actor, (state) =>
+    state.matches({ success: "list" })
+  )
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
 
-  // Only show when in success state and there are pages
+  // Only show when in success.list state and there are pages
   if (!isSuccess || !hasPages) {
     return null
   }
 
+  // Handle page selection
+  const handleSelectPage = (pageId: string) => {
+    actor.send({ type: "SELECT_PAGE", pageId })
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="flex items-center justify-between px-4 py-2">
         <h2 className="text-lg font-medium">Pages</h2>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
-            {pages.length} {pages.length === 1 ? "page" : "pages"} found
+            {pages.length} pages
           </div>
-          <Button variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
-            Add Page
+          <Button variant="outline" size="sm" className="gap-1">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add
           </Button>
         </div>
       </div>
 
-      <ul className="space-y-4">
+      <div className="bg-background border-t">
         {pages.map((page) => (
-          <li key={page.id}>
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base font-medium">
-                    {page.url}
-                  </CardTitle>
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={`https://${page.url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-labelledby={`visit-page-${page.id}`}>
-                      <span id={`visit-page-${page.id}`} className="sr-only">
-                        Visit {page.url} (opens in new window)
-                      </span>
-                      <ExternalLink
-                        className="h-4 w-4 mr-2"
-                        aria-hidden="true"
-                      />
-                      Visit
-                    </a>
-                  </Button>
+          <div
+            key={page.id}
+            className="border-b"
+            onClick={() => handleSelectPage(page.id)}>
+            <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors">
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-sm">{page.url}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(page.created_at).toLocaleDateString()}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    • {page.path}
+                  </span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  Added {new Date(page.created_at).toLocaleDateString()}
-                </div>
-                <div className="mt-2 text-sm">
-                  Path: <span className="font-medium">{page.path}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </li>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                asChild
+                onClick={(e) => e.stopPropagation()} // Prevent card click
+              >
+                <a
+                  href={`https://${page.url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-labelledby={`visit-page-${page.id}`}>
+                  <span id={`visit-page-${page.id}`} className="sr-only">
+                    Visit {page.url} (opens in new window)
+                  </span>
+                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </Button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }

@@ -13,7 +13,7 @@ export function Layout({ children }: PropsWithChildren) {
         <UrlProvider>
           <Space>
             <Website>
-              <Page debug>{children}</Page>
+              <Page>{children}</Page>
             </Website>
           </Space>
         </UrlProvider>
