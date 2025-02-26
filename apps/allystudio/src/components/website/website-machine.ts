@@ -53,6 +53,7 @@ const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
       .from("Website")
       .select("*")
       .eq("space_id", input.spaceId)
+      .order("normalized_url", { ascending: true })
 
     if (error) {
       throw error

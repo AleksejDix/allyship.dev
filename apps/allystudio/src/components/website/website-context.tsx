@@ -6,7 +6,6 @@ import {
   useRef,
   type ReactNode
 } from "react"
-import type { ActorRef, SnapshotFrom } from "xstate"
 
 import { websiteMachine } from "./website-machine"
 import type { WebsiteMachineActorRef } from "./website-machine"

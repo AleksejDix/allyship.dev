@@ -43,21 +43,6 @@ export function PageList() {
 
   return (
     <div className="bg-background">
-      <div className="px-4 py-6 text-center">
-        <h2 className="text-xl font-semibold">Pages</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Select a page to view details or add a new one
-        </p>
-      </div>
-
-      <Button
-        variant="outline"
-        className="mx-4 mb-4 w-[calc(100%-2rem)] flex items-center justify-center gap-2"
-        onClick={() => setIsAdding(true)}>
-        <Plus className="h-4 w-4" aria-hidden="true" />
-        Add New Page
-      </Button>
-
       {/* Add new page form */}
       {isAdding && (
         <div className="mx-4 mb-4 p-4 border rounded-lg bg-card">

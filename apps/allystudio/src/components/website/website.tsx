@@ -32,7 +32,7 @@ const Website = memo(function Website({
 
   return (
     <WebsiteProvider spaceId={currentSpace.id}>
-      <WebsiteAdd />
+      {/* <WebsiteAdd /> */}
       <WebsiteEmpty />
       <WebsiteOptions />
       <WebsiteSelected>{children}</WebsiteSelected>

@@ -41,14 +41,11 @@ export const PageSelected = memo(function PageSelected({
           <ArrowLeft size="16" aria-hidden="true" />
         </Button>
         <div className="grow">
-          <h2 className="text-lg font-medium leading-5">{page.url}</h2>
+          <h2 className="text-lg font-medium leading-5">{page.path}</h2>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">
               Added {new Date(page.created_at).toLocaleDateString()}
             </span>
-            <Badge variant="outline" className="text-xs">
-              {page.path}
-            </Badge>
           </div>
         </div>
         <Button variant="outline" size="sm" asChild>
