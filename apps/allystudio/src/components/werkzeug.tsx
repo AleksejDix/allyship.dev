@@ -174,7 +174,7 @@ export function Werkzeug() {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-2 space-y-4">
       <div className="flex justify-between items-center">
         <Button
           onClick={startAnalysis}
