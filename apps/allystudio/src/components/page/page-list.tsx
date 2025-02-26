@@ -111,23 +111,19 @@ export function PageList() {
                       </div>
                     </div>
                   </button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 flex-shrink-0 mr-2"
-                    asChild>
-                    <a
-                      href={`https://${page.url}${page.path}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-labelledby={`visit-page-${page.id}`}>
-                      <span id={`visit-page-${page.id}`} className="sr-only">
-                        Visit {page.url}
-                        {page.path} (opens in new window)
-                      </span>
-                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                    </a>
-                  </Button>
+                  <a
+                    href={`${page.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-labelledby={`visit-page-${page.id}`}
+                    className="flex items-center gap-1 px-3 py-2 mr-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                    <span id={`visit-page-${page.id}`} className="sr-only">
+                      Visit {page.url}
+                      {page.path} (opens in new window)
+                    </span>
+                    <span className="hidden sm:inline">Visit</span>
+                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                  </a>
                 </div>
               </CurrentPathIndicator>
             </div>

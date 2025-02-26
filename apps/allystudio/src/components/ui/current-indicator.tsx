@@ -59,19 +59,17 @@ export function CurrentPathIndicator({
   const { normalizedUrl, isLoading } = useUrl()
   const isMatch = !isLoading && normalizedUrl?.path === path
 
-  console.log(normalizedUrl?.path, path)
-
   return (
     <div
       className={cn(
-        "relative transition-colors duration-200",
+        "flex-1 flex items-center transition-colors duration-200",
         isMatch && "bg-primary/10 dark:bg-primary/20",
         className
       )}>
-      {children}
+      <div className="flex-1">{children}</div>
 
       {isMatch && showIcon && (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
+        <div className="text-primary shrink-0">
           <CheckCircle2 size={16} aria-hidden="true" />
           <span className="sr-only">Current path</span>
         </div>
