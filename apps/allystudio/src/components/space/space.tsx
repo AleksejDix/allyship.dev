@@ -3,6 +3,7 @@ import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
 import { ElementInspector } from "../element-inspector/element-inspector"
+import { ElementOutliner } from "../element-outliner/element-outliner"
 import { SpaceProvider } from "./space-context"
 import { SpaceDebug } from "./space-debug"
 import { SpaceEmpty } from "./space-empty"
@@ -22,8 +23,9 @@ const Space = memo(function Space({
       <SpaceSelected>{children}</SpaceSelected>
       {debug && <SpaceDebug />}
       <div>
-        <div className="px-2">
+        <div className="px-2 flex space-x-2">
           <ElementInspector />
+          <ElementOutliner />
         </div>
         <Header />
       </div>
