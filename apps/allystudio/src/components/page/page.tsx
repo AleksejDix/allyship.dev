@@ -1,11 +1,14 @@
 import { useSelector } from "@xstate/react"
-import { useEffect, useRef, type PropsWithChildren } from "react"
+import type { PropsWithChildren } from "react"
 
 import { useWebsiteContext } from "../website/website-context"
-import { PageProvider, usePageContext } from "./page-context"
+import { PageProvider } from "./page-context"
 import { PageDebug } from "./page-debug"
 import { PageError } from "./page-error"
 import { PageList } from "./page-list"
+import { PageListEmpty } from "./page-list-empty"
+import { pageMachine, type PageMachineActorRef } from "./page-machine"
+import { PageListSkeleton, Skeleton } from "./page-skeleton"
 
 // Selector to get the current website from the website machine
 const selectCurrentWebsite = (state: any) => state.context.currentWebsite
@@ -25,47 +28,28 @@ export function Page({
 
   return (
     <PageProvider websiteId={currentWebsite.id}>
-      <PageContent websiteId={currentWebsite.id}>
-        <PageError />
-        <PageList />
-        {children}
-        {debug && <PageDebug />}
-      </PageContent>
+      {/* Each component manages its own visibility based on state */}
+      <Skeleton />
+      <PageError />
+      <PageList />
+      {children}
+      {debug && <PageDebug />}
     </PageProvider>
   )
 }
 
-function PageContent({
-  children,
-  websiteId
-}: {
-  children: React.ReactNode
-  websiteId: string
-}) {
-  const previousWebsiteIdRef = useRef<string | null>(null)
-  const pageActor = usePageContext()
+// Export all components and types from this file
+export {
+  // Components
+  PageProvider,
+  PageDebug,
+  PageError,
+  PageList,
+  PageListEmpty,
+  Skeleton,
+  PageListSkeleton,
 
-  // Send LOAD_PAGES event when the websiteId changes
-  useEffect(() => {
-    // Skip the first render
-    if (
-      previousWebsiteIdRef.current !== null &&
-      previousWebsiteIdRef.current !== websiteId
-    ) {
-      console.log(
-        "Website changed from",
-        previousWebsiteIdRef.current,
-        "to",
-        websiteId
-      )
-      pageActor.send({ type: "LOAD_PAGES", websiteId })
-    }
-
-    previousWebsiteIdRef.current = websiteId
-  }, [websiteId, pageActor])
-
-  return <>{children}</>
+  // Types
+  pageMachine,
+  type PageMachineActorRef
 }
-
-// Named exports for composite components
-export { PageError, PageList }
