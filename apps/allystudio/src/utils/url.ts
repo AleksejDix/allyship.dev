@@ -3,7 +3,7 @@ import { parse } from "tldts"
 // Add Vitest type declaration
 declare global {
   interface ImportMeta {
-    vitest?: typeof import("vitest")
+    readonly vitest?: typeof import("vitest")
   }
 }
 
@@ -214,7 +214,13 @@ export function normalizePath(path: string): string {
  */
 export function compareUrlPaths(path1?: string, path2?: string): boolean {
   if (!path1 || !path2) return false
-  return normalizePath(path1) === normalizePath(path2)
+
+  // Normalize both paths
+  const normalized1 = normalizePath(path1)
+  const normalized2 = normalizePath(path2)
+
+  // Simple string comparison
+  return normalized1 === normalized2
 }
 
 if (import.meta.vitest) {

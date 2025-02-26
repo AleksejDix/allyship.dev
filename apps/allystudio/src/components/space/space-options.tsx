@@ -1,10 +1,9 @@
 import { useSpaceContext } from "@/components/space/space-context"
 import { Button } from "@/components/ui/button"
-import { CurrentSpaceIndicator } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
 import { useSelector } from "@xstate/react"
-import { Briefcase, Plus } from "lucide-react"
+import { Briefcase, CheckCircle2, Plus } from "lucide-react"
 import { useCallback, useState } from "react"
 import type { PropsWithChildren } from "react"
 
@@ -105,8 +104,12 @@ export function SpaceOptions({ children }: PropsWithChildren) {
                 "border-b",
                 index === spaces.length - 1 && "border-b-0"
               )}>
-              <CurrentSpaceIndicator
-                isCurrentSpace={currentSpace?.id === space.id}>
+              <div
+                className={cn(
+                  "relative transition-colors duration-200",
+                  currentSpace?.id === space.id &&
+                    "bg-primary/10 dark:bg-primary/20"
+                )}>
                 <button
                   onClick={() => handleSelect(space)}
                   className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
@@ -122,7 +125,13 @@ export function SpaceOptions({ children }: PropsWithChildren) {
                     </div>
                   </div>
                 </button>
-              </CurrentSpaceIndicator>
+                {currentSpace?.id === space.id && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
+                    <CheckCircle2 size={16} aria-hidden="true" />
+                    <span className="sr-only">Current space</span>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
