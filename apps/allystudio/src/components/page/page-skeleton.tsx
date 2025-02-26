@@ -2,14 +2,14 @@ import { useSelector } from "@xstate/react"
 
 import { usePageContext } from "./page-context"
 
-// Loading state component that uses context to determine when to show
+// Loading state component
 export function Skeleton() {
   const actor = usePageContext()
   const isLoading = useSelector(actor, (state) => state.matches("loading"))
-  const hasError = useSelector(actor, (state) => state.matches("error"))
+  const isIdle = useSelector(actor, (state) => state.matches("idle"))
 
-  // Only show the skeleton when loading and not in error state
-  if (!isLoading || hasError) {
+  // Only show when in loading or idle state
+  if (!isLoading && !isIdle) {
     return null
   }
 
@@ -28,6 +28,7 @@ export function PageListSkeleton() {
   const actor = usePageContext()
   const isLoading = useSelector(actor, (state) => state.matches("loading"))
 
+  // Only show when in loading state
   if (!isLoading) {
     return null
   }

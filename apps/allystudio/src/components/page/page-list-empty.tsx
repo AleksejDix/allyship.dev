@@ -4,13 +4,14 @@ import { Plus } from "lucide-react"
 
 import { usePageContext } from "./page-context"
 
+// Component that displays when no pages are found
 export function PageListEmpty() {
   const actor = usePageContext()
+  const isSuccess = useSelector(actor, (state) => state.matches("success"))
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
-  const isLoading = useSelector(actor, (state) => state.matches("loading"))
 
-  // Only show when not loading and has no pages
-  if (isLoading || hasPages) {
+  // Only show when in success state and there are no pages
+  if (!isSuccess || hasPages) {
     return null
   }
 
