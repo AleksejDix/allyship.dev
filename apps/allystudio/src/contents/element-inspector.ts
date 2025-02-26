@@ -16,6 +16,59 @@ let elementDetailsCache = new WeakMap<Element, string>()
 // Pre-compile frequently used regexes
 const idRegex = /^[a-zA-Z][\w-]*$/
 
+// Direct DOM manipulation for ultra-fast highlighting
+let highlightBox: HTMLElement | null = null
+let tooltipElement: HTMLElement | null = null
+
+// Initialize highlight elements
+function createHighlightElements() {
+  // Create highlight box if it doesn't exist
+  if (!highlightBox) {
+    highlightBox = document.createElement("div")
+    highlightBox.setAttribute("data-highlight-box", "true")
+    highlightBox.style.position = "fixed"
+    highlightBox.style.pointerEvents = "none"
+    highlightBox.style.zIndex = "2147483647" // Maximum z-index
+    highlightBox.style.border = "2px solid #4f46e5"
+    highlightBox.style.backgroundColor = "rgba(79, 70, 229, 0.1)"
+    highlightBox.style.boxSizing = "border-box"
+    highlightBox.style.display = "none"
+    document.body.appendChild(highlightBox)
+  }
+
+  // Create tooltip if it doesn't exist
+  if (!tooltipElement) {
+    tooltipElement = document.createElement("div")
+    tooltipElement.setAttribute("role", "tooltip")
+    tooltipElement.style.position = "fixed"
+    tooltipElement.style.pointerEvents = "none"
+    tooltipElement.style.zIndex = "2147483647" // Maximum z-index
+    tooltipElement.style.backgroundColor = "#1e1e1e"
+    tooltipElement.style.color = "white"
+    tooltipElement.style.padding = "4px 8px"
+    tooltipElement.style.borderRadius = "4px"
+    tooltipElement.style.fontSize = "12px"
+    tooltipElement.style.fontFamily = "monospace"
+    tooltipElement.style.maxWidth = "300px"
+    tooltipElement.style.wordBreak = "break-all"
+    tooltipElement.style.display = "none"
+    document.body.appendChild(tooltipElement)
+  }
+}
+
+// Remove highlight elements
+function removeHighlightElements() {
+  if (highlightBox) {
+    document.body.removeChild(highlightBox)
+    highlightBox = null
+  }
+
+  if (tooltipElement) {
+    document.body.removeChild(tooltipElement)
+    tooltipElement = null
+  }
+}
+
 /**
  * Ultra-fast selector generation optimized for performance
  * Uses a multi-tiered approach with early returns for common cases
@@ -171,11 +224,77 @@ const getElementDetails = (element: HTMLElement): string => {
   return details
 }
 
-// Optimized highlight clearing
-const clearHighlights = () => {
+// Direct DOM manipulation for ultra-fast highlighting
+function directHighlightElement(element: HTMLElement | null) {
+  if (!element || !highlightBox || !tooltipElement) return
+
+  // Get element position and size
+  const rect = element.getBoundingClientRect()
+
+  // Position highlight box
+  highlightBox.style.left = `${rect.left + window.scrollX}px`
+  highlightBox.style.top = `${rect.top + window.scrollY}px`
+  highlightBox.style.width = `${rect.width}px`
+  highlightBox.style.height = `${rect.height}px`
+  highlightBox.style.display = "block"
+
+  // Get element details for tooltip
+  const details = getElementDetails(element)
+
+  // Position tooltip
+  tooltipElement.textContent = details
+  tooltipElement.style.left = `${rect.left + window.scrollX}px`
+  tooltipElement.style.top = `${rect.top + window.scrollY - 24}px`
+  tooltipElement.style.display = "block"
+
+  // Also send to event bus for compatibility with other tools
+  const selector = getUniqueSelector(element)
+
+  // Use requestIdleCallback to avoid blocking the main thread
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(() => {
+      eventBus.publish({
+        type: "HIGHLIGHT",
+        timestamp: performance.now(),
+        data: {
+          selector,
+          message: details,
+          isValid: true,
+          layer: "inspector"
+        }
+      })
+    })
+  } else {
+    // Fallback for browsers that don't support requestIdleCallback
+    setTimeout(() => {
+      eventBus.publish({
+        type: "HIGHLIGHT",
+        timestamp: performance.now(),
+        data: {
+          selector,
+          message: details,
+          isValid: true,
+          layer: "inspector"
+        }
+      })
+    }, 0)
+  }
+}
+
+// Clear highlights using direct DOM manipulation
+function directClearHighlights() {
+  if (highlightBox) {
+    highlightBox.style.display = "none"
+  }
+
+  if (tooltipElement) {
+    tooltipElement.style.display = "none"
+  }
+
+  // Also clear via event bus for compatibility
   eventBus.publish({
     type: "HIGHLIGHT",
-    timestamp: Date.now(),
+    timestamp: performance.now(),
     data: {
       selector: "*",
       message: "",
@@ -184,33 +303,6 @@ const clearHighlights = () => {
       layer: "inspector"
     }
   })
-}
-
-// Optimized element highlighting
-const highlightElement = (element: HTMLElement) => {
-  if (!element) return
-
-  try {
-    // Generate a unique selector for the element
-    const selector = getUniqueSelector(element)
-
-    // Get element details for the tooltip
-    const message = getElementDetails(element)
-
-    // Publish highlight event
-    eventBus.publish({
-      type: "HIGHLIGHT",
-      timestamp: Date.now(),
-      data: {
-        selector,
-        message,
-        isValid: true,
-        layer: "inspector"
-      }
-    })
-  } catch (error) {
-    console.error("[ElementInspector] Error highlighting element:", error)
-  }
 }
 
 // Use pointer events for better performance
@@ -243,19 +335,17 @@ const handlePointerMove = (e: PointerEvent) => {
   // Update the hovered element
   hoveredElement = element
 
-  // Clear previous highlights first
-  clearHighlights()
-
-  // Highlight the element on next animation frame
-  requestAnimationFrame(() => {
-    highlightElement(element)
-  })
+  // Directly highlight the element for maximum performance
+  directHighlightElement(element)
 }
 
 // Start inspection
 const startInspection = () => {
   isInspecting = true
   document.body.style.cursor = "crosshair"
+
+  // Create highlight elements
+  createHighlightElements()
 
   // Clear caches when starting new inspection
   selectorCache = new WeakMap<Element, string>()
@@ -268,7 +358,7 @@ const startInspection = () => {
   })
 
   // Clear any existing highlights when starting
-  clearHighlights()
+  directClearHighlights()
 
   // Force a highlight update for the current element under cursor
   const currentElement = document.elementFromPoint(
@@ -278,7 +368,7 @@ const startInspection = () => {
 
   if (currentElement) {
     hoveredElement = currentElement
-    highlightElement(currentElement)
+    directHighlightElement(currentElement)
   }
 
   console.log(
@@ -296,7 +386,10 @@ const stopInspection = () => {
   hoveredElement = null
 
   // Clear highlights
-  clearHighlights()
+  directClearHighlights()
+
+  // Remove highlight elements
+  removeHighlightElements()
 
   console.log("[ElementInspector] Inspection stopped")
 }
@@ -320,7 +413,7 @@ eventBus.subscribe((event) => {
 })
 
 // Initialize
-console.log("[ElementInspector] High-performance content script loaded")
+console.log("[ElementInspector] Ultra-high performance content script loaded")
 
 // Cleanup on unload
 window.addEventListener("unload", () => {

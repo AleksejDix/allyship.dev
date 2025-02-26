@@ -6,7 +6,10 @@ import type { HighlightData, HighlightEvent } from "@/lib/highlight-types"
 import { DEFAULT_HIGHLIGHT_STYLES } from "@/lib/highlight-types"
 import { useEffect, useRef, useState } from "react"
 
-const DEBOUNCE_MS = 100 // Wait 100ms for batching updates
+// Fast path for inspector highlights - no debouncing
+const INSPECTOR_LAYER = "inspector"
+// Reduced debounce for other layers
+const DEBOUNCE_MS = 50 // Reduced from 100ms to 50ms for better responsiveness
 
 // Track which tests need to complete
 const REQUIRED_TEST_COMPLETIONS = [
@@ -31,6 +34,9 @@ const PlasmoOverlay = () => {
   )
   const updateTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
+  // Separate fast-path for inspector highlights
+  const inspectorHighlightsRef = useRef<Map<string, HighlightData>>(new Map())
+
   // Track layer visibility
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
 
@@ -52,7 +58,17 @@ const PlasmoOverlay = () => {
     })
   }
 
-  // Helper to validate selector and element
+  // Fast validation for inspector highlights
+  const fastValidateHighlight = (selector: string): HTMLElement | null => {
+    try {
+      if (!selector || selector === "*") return null
+      return document.querySelector(selector) as HTMLElement
+    } catch (error) {
+      return null
+    }
+  }
+
+  // More thorough validation for other highlights
   const validateHighlight = (selector: string): HTMLElement | null => {
     try {
       if (!selector || selector === "*") return null
@@ -69,7 +85,18 @@ const PlasmoOverlay = () => {
 
   // Function to apply batched updates
   const applyUpdates = () => {
-    setHighlights(pendingUpdatesRef.current)
+    // Create a new map that includes both the pending updates and inspector highlights
+    const newHighlights = new Map(pendingUpdatesRef.current)
+
+    // Add inspector highlights if they exist
+    if (inspectorHighlightsRef.current.size > 0) {
+      newHighlights.set(
+        INSPECTOR_LAYER,
+        new Map(inspectorHighlightsRef.current)
+      )
+    }
+
+    setHighlights(newHighlights)
     pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
   }
 
@@ -82,6 +109,34 @@ const PlasmoOverlay = () => {
       clearTimeout(updateTimeoutRef.current)
     }
     updateTimeoutRef.current = setTimeout(applyUpdates, DEBOUNCE_MS)
+  }
+
+  // Fast path update for inspector highlights
+  const updateInspectorHighlights = (highlightData: HighlightData | null) => {
+    // Clear inspector highlights if null
+    if (highlightData === null) {
+      inspectorHighlightsRef.current.clear()
+    } else {
+      // Set the new highlight
+      inspectorHighlightsRef.current.clear() // Only show one highlight at a time for inspector
+      inspectorHighlightsRef.current.set(highlightData.selector, highlightData)
+    }
+
+    // Apply updates immediately using requestAnimationFrame
+    requestAnimationFrame(() => {
+      const newHighlights = new Map(highlights)
+
+      if (inspectorHighlightsRef.current.size === 0) {
+        newHighlights.delete(INSPECTOR_LAYER)
+      } else {
+        newHighlights.set(
+          INSPECTOR_LAYER,
+          new Map(inspectorHighlightsRef.current)
+        )
+      }
+
+      setHighlights(newHighlights)
+    })
   }
 
   // Initialize message handling
@@ -134,6 +189,41 @@ const PlasmoOverlay = () => {
         const highlightEvent = event.data as HighlightEvent
         const { layer } = highlightEvent
 
+        // Fast path for inspector layer
+        if (layer === INSPECTOR_LAYER) {
+          // Clear highlights if clear flag is set
+          if (highlightEvent.clear) {
+            updateInspectorHighlights(null)
+            return
+          }
+
+          const { selector, message, isValid } = highlightEvent
+          const element = fastValidateHighlight(selector)
+          if (!element) {
+            updateInspectorHighlights(null)
+            return
+          }
+
+          const styles = isValid
+            ? DEFAULT_HIGHLIGHT_STYLES.valid
+            : DEFAULT_HIGHLIGHT_STYLES.invalid
+
+          // Create new highlight data
+          const newHighlight = {
+            selector,
+            message,
+            element,
+            isValid,
+            styles,
+            layer
+          }
+
+          // Update inspector highlights immediately
+          updateInspectorHighlights(newHighlight)
+          return
+        }
+
+        // Standard path for other layers
         pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
 
         // Clear highlights based on layer if clear flag is set
@@ -179,6 +269,12 @@ const PlasmoOverlay = () => {
       } else if (event.type === "TOOL_STATE_CHANGE") {
         const { tool, enabled } = event.data
         if (!enabled) {
+          // Fast path for inspector
+          if (tool === INSPECTOR_LAYER) {
+            updateInspectorHighlights(null)
+            return
+          }
+
           pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
           pendingUpdatesRef.current.delete(tool)
           debouncedUpdate(pendingUpdatesRef.current)
@@ -192,7 +288,7 @@ const PlasmoOverlay = () => {
       }
       unsubscribe()
     }
-  }, [])
+  }, [highlights])
 
   // Subscribe to layer toggle events
   useEffect(() => {
@@ -248,6 +344,12 @@ const PlasmoOverlay = () => {
 
         // Check each layer
         current.forEach((layerHighlights, layer) => {
+          // Skip inspector layer in periodic cleanup - it's managed separately
+          if (layer === INSPECTOR_LAYER) {
+            newHighlights.set(layer, layerHighlights)
+            return
+          }
+
           const newLayerHighlights = new Map()
 
           // Check each highlight in layer
