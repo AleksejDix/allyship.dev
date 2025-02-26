@@ -17,6 +17,7 @@ import {
   Settings,
   SquareAsterisk,
   Type,
+  Brain,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -43,6 +44,7 @@ import { checkKeyboardShortcuts } from './tools/keyboard-shortcuts'
 import { checkLandmarks } from './tools/landmarks'
 import { checkLanguage } from './tools/language-check'
 import { checkLinkLabels } from './tools/link-labels'
+import { checkReadability } from './ai-tools'
 
 const TOOLS = {
   headings: {
@@ -155,6 +157,13 @@ const TOOLS = {
     wcagCriteria: ['3.2.5'],
     run: checkExternalLinks,
   },
+  readability: {
+    id: 'readability',
+    name: 'AI Readability',
+    icon: <BookOpen className="h-4 w-4 text-blue-500" />,
+    description: 'Check text readability with AI',
+    run: checkReadability,
+  },
 } as const
 
 const TOOL_GROUPS = [
@@ -187,6 +196,11 @@ const TOOL_GROUPS = [
     id: 'content',
     label: 'Language',
     tools: [TOOLS.language],
+  },
+  {
+    id: 'ai',
+    label: 'AI Tools',
+    tools: [TOOLS.readability],
   },
 ] as const
 
@@ -333,7 +347,6 @@ export function AccessibilityToolbar() {
           <DropdownMenu key={group.id}>
             <DropdownMenuTrigger asChild>
               <Button
-                type="button"
                 variant={activeTools[group.id] ? 'default' : 'ghost'}
                 size="icon"
                 className="relative w-full h-8"
