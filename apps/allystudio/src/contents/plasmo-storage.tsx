@@ -2,14 +2,26 @@ import { LayerSystem } from "@/components/layers/LayerSystem"
 import { LayerToggle } from "@/components/layers/LayerToggle"
 import { eventBus } from "@/lib/events/event-bus"
 import type { AllyStudioEvent } from "@/lib/events/types"
-import type { HighlightData, HighlightEvent } from "@/lib/highlight-types"
+import type {
+  HighlightData,
+  HighlightEvent,
+  HighlightStyles
+} from "@/lib/highlight-types"
 import { DEFAULT_HIGHLIGHT_STYLES } from "@/lib/highlight-types"
 import { useEffect, useRef, useState } from "react"
 
 // Fast path for inspector highlights - no debouncing
 const INSPECTOR_LAYER = "inspector"
+const INSPECTOR_DEBUG_LAYER = "inspector-debug"
 // Reduced debounce for other layers
 const DEBOUNCE_MS = 50 // Reduced from 100ms to 50ms for better responsiveness
+
+// Custom styles for debug mode
+const DEBUG_HIGHLIGHT_STYLES: HighlightStyles = {
+  border: "#f59e0b", // Amber color for debug mode
+  background: "rgba(245, 158, 11, 0.1)",
+  messageBackground: "#f59e0b"
+}
 
 // Track which tests need to complete
 const REQUIRED_TEST_COMPLETIONS = [
@@ -189,8 +201,8 @@ const PlasmoOverlay = () => {
         const highlightEvent = event.data as HighlightEvent
         const { layer } = highlightEvent
 
-        // Fast path for inspector layer
-        if (layer === INSPECTOR_LAYER) {
+        // Fast path for inspector layer and inspector-debug layer
+        if (layer === INSPECTOR_LAYER || layer === INSPECTOR_DEBUG_LAYER) {
           // Clear highlights if clear flag is set
           if (highlightEvent.clear) {
             updateInspectorHighlights(null)
@@ -204,9 +216,27 @@ const PlasmoOverlay = () => {
             return
           }
 
-          const styles = isValid
+          // Use custom styling for debug mode
+          let styles = isValid
             ? DEFAULT_HIGHLIGHT_STYLES.valid
             : DEFAULT_HIGHLIGHT_STYLES.invalid
+
+          // Apply special styling for debug mode
+          if (layer === INSPECTOR_DEBUG_LAYER) {
+            // Create new highlight data with debug styles
+            const newHighlight = {
+              selector,
+              message,
+              element,
+              isValid,
+              styles: DEBUG_HIGHLIGHT_STYLES,
+              layer
+            }
+
+            // Update inspector highlights immediately
+            updateInspectorHighlights(newHighlight)
+            return
+          }
 
           // Create new highlight data
           const newHighlight = {
