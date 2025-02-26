@@ -12,7 +12,7 @@ export function Layout({ children }: PropsWithChildren) {
       <AuthProvider>
         <UrlProvider>
           <Space>
-            <Website debug={process.env.NODE_ENV === "development"}>
+            <Website>
               {/* <Page debug> */}
               {children}
               {/* </Page> */}
