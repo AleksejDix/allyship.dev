@@ -1,25 +1,37 @@
-import { useActorRef } from "@xstate/react"
-import { createContext, useContext, type ReactNode } from "react"
-import type { ActorRef, SnapshotFrom } from "xstate"
+import { useActor } from "@xstate/react"
+import { createContext, useContext } from "react"
+import { createActor } from "xstate"
 
-import { pageMachine, type PageEvent } from "./page-machine"
+import { pageMachine, type PageMachineActorRef } from "./page-machine"
 
-type PageActor = ActorRef<SnapshotFrom<typeof pageMachine>, PageEvent>
+const PageContext = createContext<PageMachineActorRef | null>(null)
 
-const PageContext = createContext<PageActor | undefined>(undefined)
-
-export function PageProvider({ children }: { children: ReactNode }) {
-  const actorRef = useActorRef(pageMachine)
+export function PageProvider({
+  children,
+  websiteId
+}: {
+  children: React.ReactNode
+  websiteId: string | null
+}) {
+  const pageActor = createActor(pageMachine, {
+    input: { websiteId }
+  })
+  pageActor.start()
 
   return (
-    <PageContext.Provider value={actorRef}>{children}</PageContext.Provider>
+    <PageContext.Provider value={pageActor}>{children}</PageContext.Provider>
   )
 }
 
 export function usePageContext() {
   const context = useContext(PageContext)
   if (!context) {
-    throw new Error("usePageContext must be used within a <PageProvider>")
+    throw new Error("usePageContext must be used within a PageProvider")
   }
+  return context
+}
+
+export function useMaybePageContext() {
+  const context = useContext(PageContext)
   return context
 }

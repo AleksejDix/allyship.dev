@@ -1,4 +1,4 @@
-// import { Page } from "@/components/page/page"
+import { Page } from "@/components/page/page"
 import { Space } from "@/components/space/space"
 import { Website } from "@/components/website/website"
 import { AuthProvider } from "@/providers/auth-provider"
@@ -13,9 +13,7 @@ export function Layout({ children }: PropsWithChildren) {
         <UrlProvider>
           <Space>
             <Website>
-              {/* <Page debug> */}
-              {children}
-              {/* </Page> */}
+              <Page debug>{children}</Page>
             </Website>
           </Space>
         </UrlProvider>
