@@ -92,9 +92,9 @@ function UrlDebug() {
 
 ## Integration with UI Components
 
-The URL Provider is designed to work with the `CurrentIndicator` components in the UI directory:
+The URL Provider is designed to work with the indicator components in the UI directory:
 
-- `CurrentWebsiteIndicator`: Uses `useIsCurrentWebsite` to highlight matching websites
-- `CurrentPageIndicator`: Uses `useIsCurrentPage` to highlight matching pages
+- `CurrentIndicator`: Uses the normalized URL from the provider to highlight matching hostnames
+- `CurrentPathIndicator`: Uses the normalized URL from the provider to highlight matching paths
 
 See the UI components README for more details on these components.

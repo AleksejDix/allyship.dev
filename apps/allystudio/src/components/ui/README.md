@@ -2,69 +2,75 @@
 
 This directory contains components for highlighting UI elements based on the current URL in the browser tab.
 
-## CurrentIndicator Components
+## Current Indicator Components
 
-These components provide visual feedback to users when they are viewing a website or page that is currently being analyzed in the extension.
+The `CurrentIndicator` and `CurrentPathIndicator` components provide visual feedback when an item matches the current URL's hostname or path.
 
-### Components
+### Features
 
-1. **CurrentIndicator**: Base component that handles the visual highlighting
-2. **CurrentWebsiteIndicator**: Highlights when the current browser tab matches a website
-3. **CurrentPageIndicator**: Highlights when the current browser tab matches a specific page
-4. **CurrentSpaceIndicator**: Highlights the current space (not URL-based)
+- Highlights items that match the current URL hostname or path
+- Shows a checkmark icon for the current item
+- Supports custom styling
+- Accessible with screen reader support
 
-### Usage Examples
-
-#### Highlighting the current website
+### Usage
 
 ```tsx
-import { CurrentWebsiteIndicator } from "@/components/ui/current-indicator"
+import { CurrentIndicator, CurrentPathIndicator } from "@/components/ui/current-indicator"
 
-// In your component
-;<CurrentWebsiteIndicator domain="example.com">
-  <div>Website: example.com</div>
-</CurrentWebsiteIndicator>
+// Highlight based on hostname
+<CurrentIndicator hostname="example.com">
+  <div>Example Website</div>
+</CurrentIndicator>
+
+// Highlight based on path
+<CurrentPathIndicator path="/products">
+  <div>Products Page</div>
+</CurrentPathIndicator>
 ```
 
-#### Highlighting the current page
+### Props for CurrentIndicator
+
+| Prop      | Type                        | Default | Description                              |
+| --------- | --------------------------- | ------- | ---------------------------------------- |
+| hostname  | string \| null \| undefined | -       | The hostname to compare with current URL |
+| className | string                      | -       | Optional custom CSS classes              |
+| showIcon  | boolean                     | true    | Whether to show the checkmark icon       |
+| children  | React.ReactNode             | -       | Content to display inside the indicator  |
+
+### Props for CurrentPathIndicator
+
+| Prop      | Type                        | Default | Description                             |
+| --------- | --------------------------- | ------- | --------------------------------------- |
+| path      | string \| null \| undefined | -       | The path to compare with current URL    |
+| className | string                      | -       | Optional custom CSS classes             |
+| showIcon  | boolean                     | true    | Whether to show the checkmark icon      |
+| children  | React.ReactNode             | -       | Content to display inside the indicator |
+
+### Example with Custom Styling
 
 ```tsx
-import { CurrentPageIndicator } from "@/components/ui/current-indicator"
-
-// In your component
-;<CurrentPageIndicator domain="example.com" path="/products">
-  <div>Page: /products</div>
-</CurrentPageIndicator>
-```
-
-#### Highlighting the current space
-
-```tsx
-import { CurrentSpaceIndicator } from "@/components/ui/current-indicator"
-
-// In your component
-;<CurrentSpaceIndicator isCurrentSpace={currentSpace?.id === space.id}>
-  <div>Space: {space.name}</div>
-</CurrentSpaceIndicator>
-```
-
-### Customization
-
-All indicator components accept the following props:
-
-- `className`: Additional CSS classes
-- `showIcon`: Whether to show the checkmark icon (default: true)
-- `showHighlight`: Whether to show the background highlight (default: true)
-
-Example with customization:
-
-```tsx
-<CurrentWebsiteIndicator
-  domain="example.com"
+<CurrentIndicator
+  hostname="example.com"
+  className="rounded-md p-2"
   showIcon={false}
-  className="rounded-lg">
-  <div>Website: example.com</div>
-</CurrentWebsiteIndicator>
+>
+  <div className="flex items-center gap-2">
+    <Globe size={16} />
+    <span>Example Website</span>
+  </div>
+</CurrentIndicator>
+
+<CurrentPathIndicator
+  path="/products"
+  className="rounded-md p-2"
+  showIcon={false}
+>
+  <div className="flex items-center gap-2">
+    <FileText size={16} />
+    <span>Products Page</span>
+  </div>
+</CurrentPathIndicator>
 ```
 
 ## URL Provider Hooks

@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button"
-import { CurrentPageIndicator } from "@/components/ui/current-indicator"
+import {
+  CurrentIndicator,
+  CurrentPathIndicator
+} from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import { useSelector } from "@xstate/react"
 import { ExternalLink, FileText, Plus } from "lucide-react"
@@ -91,7 +94,7 @@ export function PageList() {
                 "border-b",
                 index === pages.length - 1 && "border-b-0"
               )}>
-              <CurrentPageIndicator domain={page.url} path={page.path}>
+              <CurrentPathIndicator path={page.path}>
                 <div className="flex items-center">
                   <button
                     onClick={() => handleSelectPage(page.id)}
@@ -126,7 +129,7 @@ export function PageList() {
                     </a>
                   </Button>
                 </div>
-              </CurrentPageIndicator>
+              </CurrentPathIndicator>
             </div>
           ))}
         </div>

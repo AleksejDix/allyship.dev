@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button"
-import { CurrentWebsiteIndicator } from "@/components/ui/current-indicator"
+import { CurrentIndicator } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
 import { useSelector } from "@xstate/react"
 import { Globe, Plus } from "lucide-react"
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import type { PropsWithChildren } from "react"
 
 import { useWebsiteContext } from "./website-context"
@@ -32,16 +32,6 @@ export const WebsiteOptions = memo(function WebsiteOptions({
     (state) => state.matches({ loaded: "options" }),
     Object.is
   )
-
-  // Add debug logging
-  useEffect(() => {
-    console.log("WebsiteOptions component:", {
-      websites,
-      shouldRender,
-      state: actor.getSnapshot().value,
-      context: actor.getSnapshot().context
-    })
-  }, [websites, shouldRender, actor])
 
   // Memoize the selection handler to prevent unnecessary recreations
   const handleSelect = useCallback(
@@ -118,7 +108,7 @@ export const WebsiteOptions = memo(function WebsiteOptions({
                 "border-b",
                 index === websites.length - 1 && "border-b-0"
               )}>
-              <CurrentWebsiteIndicator domain={website.normalized_url}>
+              <CurrentIndicator hostname={website.normalized_url}>
                 <button
                   onClick={() => handleSelect(website)}
                   className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
@@ -134,7 +124,7 @@ export const WebsiteOptions = memo(function WebsiteOptions({
                     </div>
                   </div>
                 </button>
-              </CurrentWebsiteIndicator>
+              </CurrentIndicator>
             </div>
           ))}
         </div>
