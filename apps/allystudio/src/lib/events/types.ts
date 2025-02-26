@@ -200,7 +200,12 @@ export interface LayerToggleRequestEvent extends BaseEvent {
 export interface InspectorCommandEvent extends BaseEvent {
   type: "INSPECTOR_COMMAND"
   data: {
-    command: "start" | "stop"
+    command:
+      | "start"
+      | "stop"
+      | "toggleDebug"
+      | "toggleDeepInspection"
+      | "toggleClickThrough"
   }
 }
 
