@@ -1,31 +1,45 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSelector } from "@xstate/react"
-import { ExternalLink } from "lucide-react"
+import { ExternalLink, Plus } from "lucide-react"
 
 import { usePageContext } from "./page-context"
+import { PageListEmpty } from "./page-list-empty"
+import { PageListSkeleton } from "./page-skeleton"
 
 export function PageList() {
-  const actor = usePageContext()
+  return (
+    <>
+      <PageListSkeleton />
+      <PageListEmpty />
+      <PageListContent />
+    </>
+  )
+}
 
-  const isLoading = useSelector(actor, (state) => state.matches("loading"))
+function PageListContent() {
+  const actor = usePageContext()
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
+  const isLoading = useSelector(actor, (state) => state.matches("loading"))
 
-  if (isLoading) {
-    return <PageListSkeleton />
-  }
-
-  if (!hasPages) {
-    return <PageListEmpty />
+  // Only render when we have pages and are not loading
+  if (isLoading || !hasPages) {
+    return null
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium">Pages</h2>
-        <div className="text-sm text-muted-foreground">
-          {pages.length} {pages.length === 1 ? "page" : "pages"} found
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {pages.length} {pages.length === 1 ? "page" : "pages"} found
+          </div>
+          <Button variant="outline" size="sm">
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+            Add Page
+          </Button>
         </div>
       </div>
 
@@ -68,39 +82,6 @@ export function PageList() {
           </li>
         ))}
       </ul>
-    </div>
-  )
-}
-
-function PageListSkeleton() {
-  return (
-    <div className="space-y-4" role="status" aria-label="Loading pages">
-      <div className="flex items-center justify-between">
-        <div className="h-6 w-24 bg-muted rounded animate-pulse"></div>
-        <div className="h-4 w-32 bg-muted rounded animate-pulse"></div>
-      </div>
-
-      <ul className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <li key={i}>
-            <div className="border rounded-lg p-4 space-y-2">
-              <div className="h-5 w-3/4 bg-muted rounded animate-pulse"></div>
-              <div className="h-4 w-1/2 bg-muted rounded animate-pulse"></div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-function PageListEmpty() {
-  return (
-    <div className="text-center p-8 border border-dashed rounded-lg">
-      <h3 className="font-medium mb-2">No pages found</h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        There are no pages associated with this website yet.
-      </p>
     </div>
   )
 }
