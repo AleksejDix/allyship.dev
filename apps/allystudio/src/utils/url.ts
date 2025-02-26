@@ -48,6 +48,8 @@ export interface NormalizedUrl {
   path: string
   /** Full URL without protocol, query params, or fragments */
   full: string
+  /** Original input URL as provided to the normalizeUrl function */
+  raw: string
 }
 
 /**
@@ -148,7 +150,8 @@ export function normalizeUrl(url: string): NormalizedUrl {
     hostname,
     domain: parsed.domain,
     path,
-    full
+    full,
+    raw: url // Store the original input URL
   }
 }
 
@@ -257,7 +260,8 @@ if (import.meta.vitest) {
         hostname: "google.com",
         domain: "google.com",
         path: "/",
-        full: "google.com"
+        full: "google.com",
+        raw: "https://google.com"
       })
     })
 
@@ -267,7 +271,8 @@ if (import.meta.vitest) {
         hostname: "google.com",
         domain: "google.com",
         path: "/",
-        full: "google.com"
+        full: "google.com",
+        raw: "https://www.google.com"
       })
 
       // Numbered www
@@ -275,7 +280,8 @@ if (import.meta.vitest) {
         hostname: "www2.google.com",
         domain: "google.com",
         path: "/",
-        full: "www2.google.com"
+        full: "www2.google.com",
+        raw: "https://www2.google.com"
       })
 
       // www with subdomain
@@ -283,7 +289,8 @@ if (import.meta.vitest) {
         hostname: "app.google.com",
         domain: "google.com",
         path: "/",
-        full: "app.google.com"
+        full: "app.google.com",
+        raw: "https://app.www.google.com"
       })
     })
 
@@ -293,7 +300,8 @@ if (import.meta.vitest) {
         hostname: "app.com",
         domain: "app.com",
         path: "/users/123/profile",
-        full: "app.com/users/123/profile"
+        full: "app.com/users/123/profile",
+        raw: "https://app.com/users/123/profile"
       })
 
       // Hash-based routes
@@ -301,7 +309,8 @@ if (import.meta.vitest) {
         hostname: "app.com",
         domain: "app.com",
         path: "/",
-        full: "app.com"
+        full: "app.com",
+        raw: "https://app.com/#/users/123"
       })
 
       // Query param routes
@@ -309,7 +318,8 @@ if (import.meta.vitest) {
         hostname: "app.com",
         domain: "app.com",
         path: "/page",
-        full: "app.com/page"
+        full: "app.com/page",
+        raw: "https://app.com/page?route=/users/123"
       })
     })
 
@@ -318,7 +328,8 @@ if (import.meta.vitest) {
         hostname: "a.b.c.google.com",
         domain: "google.com",
         path: "/path",
-        full: "a.b.c.google.com/path"
+        full: "a.b.c.google.com/path",
+        raw: "https://a.b.c.google.com/path"
       })
     })
 
@@ -327,14 +338,16 @@ if (import.meta.vitest) {
         hostname: "google.com",
         domain: "google.com",
         path: "/path%20with%20spaces",
-        full: "google.com/path%20with%20spaces"
+        full: "google.com/path%20with%20spaces",
+        raw: "https://google.com/path with spaces"
       })
 
       expect(normalizeUrl("https://google.com/path/with/emoji/🎉")).toEqual({
         hostname: "google.com",
         domain: "google.com",
         path: "/path/with/emoji/%F0%9F%8E%89",
-        full: "google.com/path/with/emoji/%F0%9F%8E%89"
+        full: "google.com/path/with/emoji/%F0%9F%8E%89",
+        raw: "https://google.com/path/with/emoji/🎉"
       })
     })
 
@@ -344,7 +357,8 @@ if (import.meta.vitest) {
         hostname: "service.gov.uk",
         domain: "service.gov.uk",
         path: "/",
-        full: "service.gov.uk"
+        full: "service.gov.uk",
+        raw: "https://service.gov.uk"
       })
 
       // Japanese prefecture domain
@@ -352,7 +366,8 @@ if (import.meta.vitest) {
         hostname: "city.tokyo.jp",
         domain: "city.tokyo.jp",
         path: "/",
-        full: "city.tokyo.jp"
+        full: "city.tokyo.jp",
+        raw: "https://city.tokyo.jp"
       })
 
       // Australian education domain
@@ -360,7 +375,8 @@ if (import.meta.vitest) {
         hostname: "school.edu.au",
         domain: "school.edu.au",
         path: "/",
-        full: "school.edu.au"
+        full: "school.edu.au",
+        raw: "https://school.edu.au"
       })
     })
 
@@ -370,14 +386,16 @@ if (import.meta.vitest) {
         hostname: "xn--qcka1pmc.jp",
         domain: "xn--qcka1pmc.jp",
         path: "/",
-        full: "xn--qcka1pmc.jp"
+        full: "xn--qcka1pmc.jp",
+        raw: "https://グーグル.jp"
       })
 
       expect(normalizeUrl("https://日本.jp")).toEqual({
         hostname: "xn--wgv71a.jp",
         domain: "xn--wgv71a.jp",
         path: "/",
-        full: "xn--wgv71a.jp"
+        full: "xn--wgv71a.jp",
+        raw: "https://日本.jp"
       })
 
       // Russian domains
@@ -385,14 +403,16 @@ if (import.meta.vitest) {
         hostname: "xn--d1acpjx3f.xn--p1ai",
         domain: "xn--d1acpjx3f.xn--p1ai",
         path: "/",
-        full: "xn--d1acpjx3f.xn--p1ai"
+        full: "xn--d1acpjx3f.xn--p1ai",
+        raw: "https://яндекс.рф"
       })
 
       expect(normalizeUrl("https://мир.рф/путь")).toEqual({
         hostname: "xn--h1ahn.xn--p1ai",
         domain: "xn--h1ahn.xn--p1ai",
         path: "/%D0%BF%D1%83%D1%82%D1%8C",
-        full: "xn--h1ahn.xn--p1ai/%D0%BF%D1%83%D1%82%D1%8C"
+        full: "xn--h1ahn.xn--p1ai/%D0%BF%D1%83%D1%82%D1%8C",
+        raw: "https://мир.рф/путь"
       })
 
       // Mixed IDN with Latin subdomains
@@ -400,7 +420,8 @@ if (import.meta.vitest) {
         hostname: "store.xn--qcka1pmc.jp",
         domain: "xn--qcka1pmc.jp",
         path: "/",
-        full: "store.xn--qcka1pmc.jp"
+        full: "store.xn--qcka1pmc.jp",
+        raw: "https://store.グーグル.jp"
       })
     })
 
@@ -410,7 +431,8 @@ if (import.meta.vitest) {
         hostname: "example.com",
         domain: "example.com",
         path: "/%E5%95%86%E5%93%81/%E6%96%B0%E7%9D%80",
-        full: "example.com/%E5%95%86%E5%93%81/%E6%96%B0%E7%9D%80"
+        full: "example.com/%E5%95%86%E5%93%81/%E6%96%B0%E7%9D%80",
+        raw: "https://example.com/商品/新着"
       })
 
       // Russian path
@@ -418,7 +440,8 @@ if (import.meta.vitest) {
         hostname: "example.com",
         domain: "example.com",
         path: "/%D0%BA%D0%B0%D1%82%D0%B0%D0%BB%D0%BE%D0%B3/%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8",
-        full: "example.com/%D0%BA%D0%B0%D1%82%D0%B0%D0%BB%D0%BE%D0%B3/%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8"
+        full: "example.com/%D0%BA%D0%B0%D1%82%D0%B0%D0%BB%D0%BE%D0%B3/%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8",
+        raw: "https://example.com/каталог/книги"
       })
     })
   })
