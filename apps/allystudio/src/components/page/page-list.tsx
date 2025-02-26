@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { useSelector } from "@xstate/react"
-import { ExternalLink, Plus } from "lucide-react"
+import { ExternalLink, FileText, Plus } from "lucide-react"
+import { useState } from "react"
 
 import { usePageContext } from "./page-context"
 
@@ -12,9 +14,11 @@ export function PageList() {
   )
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
+  const [isAdding, setIsAdding] = useState(false)
+  const [newPath, setNewPath] = useState("")
 
   // Only show when in success.list state and there are pages
-  if (!isSuccess || !hasPages) {
+  if (!isSuccess) {
     return null
   }
 
@@ -23,61 +27,113 @@ export function PageList() {
     actor.send({ type: "SELECT_PAGE", pageId })
   }
 
+  // Handle adding a new page
+  const handleAddPage = () => {
+    if (newPath.trim()) {
+      // TODO: Implement add page functionality
+      setNewPath("")
+      setIsAdding(false)
+    }
+  }
+
   return (
-    <div>
-      <div className="flex items-center justify-between px-4 py-2">
-        <h2 className="text-lg font-medium">Pages</h2>
-        <div className="flex items-center gap-2">
-          <div className="text-sm text-muted-foreground">
-            {pages.length} pages
-          </div>
-          <Button variant="outline" size="sm" className="gap-1">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Add
-          </Button>
-        </div>
+    <div className="bg-background">
+      <div className="px-4 py-6 text-center">
+        <h2 className="text-xl font-semibold">Pages</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Select a page to view details or add a new one
+        </p>
       </div>
 
-      <div className="bg-background border-t">
-        {pages.map((page) => (
-          <div
-            key={page.id}
-            className="border-b"
-            onClick={() => handleSelectPage(page.id)}>
-            <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors">
-              <div className="min-w-0 flex-1">
-                <div className="font-medium text-sm">{page.url}</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(page.created_at).toLocaleDateString()}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    • {page.path}
-                  </span>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                asChild
-                onClick={(e) => e.stopPropagation()} // Prevent card click
-              >
-                <a
-                  href={`https://${page.url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-labelledby={`visit-page-${page.id}`}>
-                  <span id={`visit-page-${page.id}`} className="sr-only">
-                    Visit {page.url} (opens in new window)
-                  </span>
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </Button>
-            </div>
+      <Button
+        variant="outline"
+        className="mx-4 mb-4 w-[calc(100%-2rem)] flex items-center justify-center gap-2"
+        onClick={() => setIsAdding(true)}>
+        <Plus className="h-4 w-4" aria-hidden="true" />
+        Add New Page
+      </Button>
+
+      {/* Add new page form */}
+      {isAdding && (
+        <div className="mx-4 mb-4 p-4 border rounded-lg bg-card">
+          <h3 className="text-sm font-medium mb-2">Add New Page</h3>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={newPath}
+              onChange={(e) => setNewPath(e.target.value)}
+              placeholder="Enter page path (e.g., /about)"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            <Button onClick={handleAddPage} disabled={!newPath.trim()}>
+              Add
+            </Button>
           </div>
-        ))}
-      </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsAdding(false)}
+            className="text-xs">
+            Cancel
+          </Button>
+        </div>
+      )}
+
+      {/* Page list */}
+      {hasPages ? (
+        <div className="border-t">
+          {pages.map((page, index) => (
+            <div
+              key={page.id}
+              className={cn(
+                "border-b",
+                index === pages.length - 1 && "border-b-0"
+              )}>
+              <div className="flex items-center">
+                <button
+                  onClick={() => handleSelectPage(page.id)}
+                  className="flex-1 py-3 px-4 text-left hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <FileText
+                      className="h-5 w-5 text-muted-foreground flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">
+                        {page.path}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 flex-shrink-0 mr-2"
+                  asChild>
+                  <a
+                    href={`https://${page.url}${page.path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-labelledby={`visit-page-${page.id}`}>
+                    <span id={`visit-page-${page.id}`} className="sr-only">
+                      Visit {page.url}
+                      {page.path} (opens in new window)
+                    </span>
+                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center p-8 border-t border-dashed">
+          <h3 className="font-medium mb-2">No pages found</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            There are no pages associated with this website yet.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

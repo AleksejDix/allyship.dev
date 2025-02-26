@@ -66,75 +66,74 @@ export const WebsiteOptions = memo(function WebsiteOptions({
 
   return (
     <>
-      <div className="bg-background p-4">
-        <div className="space-y-4">
-          <div className="text-center">
-            <h2 className="text-lg font-semibold">Select a Website</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Choose a website to analyze or add a new one
-            </p>
-          </div>
+      <div className="bg-background">
+        <div className="px-4 py-6 text-center">
+          <h2 className="text-xl font-semibold">Select a Website</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Choose a website to analyze or add a new one
+          </p>
+        </div>
 
-          {/* Add new website form */}
-          {isAdding ? (
-            <div className="p-4 border rounded-lg bg-card">
-              <h3 className="text-sm font-medium mb-2">Add New Website</h3>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={newUrl}
-                  onChange={(e) => setNewUrl(e.target.value)}
-                  placeholder="Enter website URL (e.g., example.com)"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <Button onClick={handleAddWebsite} disabled={!newUrl.trim()}>
-                  Add
-                </Button>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsAdding(false)}
-                className="text-xs">
-                Cancel
+        <Button
+          variant="outline"
+          className="mx-4 mb-4 w-[calc(100%-2rem)] flex items-center justify-center gap-2"
+          onClick={() => setIsAdding(true)}>
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          Add New Website
+        </Button>
+
+        {/* Add new website form */}
+        {isAdding && (
+          <div className="mx-4 mb-4 p-4 border rounded-lg bg-card">
+            <h3 className="text-sm font-medium mb-2">Add New Website</h3>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                placeholder="Enter website URL (e.g., example.com)"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <Button onClick={handleAddWebsite} disabled={!newUrl.trim()}>
+                Add
               </Button>
             </div>
-          ) : (
             <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2"
-              onClick={() => setIsAdding(true)}>
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              Add New Website
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAdding(false)}
+              className="text-xs">
+              Cancel
             </Button>
-          )}
+          </div>
+        )}
 
-          {/* Website list */}
-          <div className="space-y-2">
-            {websites.map((website) => (
+        {/* Website list */}
+        <div className="border-t">
+          {websites.map((website, index) => (
+            <div
+              key={website.id}
+              className={cn(
+                "border-b",
+                index === websites.length - 1 && "border-b-0"
+              )}>
               <button
-                key={website.id}
                 onClick={() => handleSelect(website)}
-                className={cn(
-                  "w-full rounded-lg border bg-card p-4 text-left transition-colors",
-                  "hover:bg-muted focus-visible:outline-none focus-visible:ring-2",
-                  "focus-visible:ring-ring focus-visible:ring-offset-2"
-                )}>
+                className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-3">
                   <Globe
-                    className="h-5 w-5 text-muted-foreground"
+                    className="h-5 w-5 text-muted-foreground flex-shrink-0"
                     aria-hidden="true"
                   />
-                  <div>
-                    <p className="font-medium">{website.normalized_url}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Added {new Date(website.created_at).toLocaleDateString()}
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">
+                      {website.normalized_url}
                     </p>
                   </div>
                 </div>
               </button>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
       {children}
