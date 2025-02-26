@@ -7,10 +7,12 @@ import { usePageContext } from "./page-context"
 // Error state component
 export function PageError() {
   const actorRef = usePageContext()
-  // Only re-render when error changes
-  const error = useSelector(actorRef, (state) => state.context.error)
+  // Check if we're in the error state
   const isError = useSelector(actorRef, (state) => state.matches("error"))
+  // Get the error from context
+  const error = useSelector(actorRef, (state) => state.context.error)
 
+  // Only show when in error state and there is an error
   if (!isError || !error) {
     return null
   }

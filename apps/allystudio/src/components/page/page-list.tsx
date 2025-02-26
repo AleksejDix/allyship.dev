@@ -4,27 +4,16 @@ import { useSelector } from "@xstate/react"
 import { ExternalLink, Plus } from "lucide-react"
 
 import { usePageContext } from "./page-context"
-import { PageListEmpty } from "./page-list-empty"
-import { PageListSkeleton } from "./page-skeleton"
 
+// Component that displays the list of pages
 export function PageList() {
-  return (
-    <>
-      <PageListSkeleton />
-      <PageListEmpty />
-      <PageListContent />
-    </>
-  )
-}
-
-function PageListContent() {
   const actor = usePageContext()
+  const isSuccess = useSelector(actor, (state) => state.matches("success"))
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
-  const isLoading = useSelector(actor, (state) => state.matches("loading"))
 
-  // Only render when we have pages and are not loading
-  if (isLoading || !hasPages) {
+  // Only show when in success state and there are pages
+  if (!isSuccess || !hasPages) {
     return null
   }
 
