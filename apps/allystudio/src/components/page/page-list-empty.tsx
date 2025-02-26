@@ -7,10 +7,12 @@ import { usePageContext } from "./page-context"
 // Component that displays when no pages are found
 export function PageListEmpty() {
   const actor = usePageContext()
-  const isSuccess = useSelector(actor, (state) => state.matches("success"))
+  const isSuccess = useSelector(actor, (state) =>
+    state.matches({ success: "list" })
+  )
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
 
-  // Only show when in success state and there are no pages
+  // Only show when in success.list state and there are no pages
   if (!isSuccess || hasPages) {
     return null
   }

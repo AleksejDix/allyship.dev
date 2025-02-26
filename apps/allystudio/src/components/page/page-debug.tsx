@@ -17,7 +17,7 @@ export function PageDebug() {
             Current State
           </h4>
           <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-40">
-            {state}
+            {JSON.stringify(state, null, 2)}
           </pre>
 
           <div className="flex gap-2 mt-4">
