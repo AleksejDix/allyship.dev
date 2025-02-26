@@ -1,4 +1,9 @@
-import { isValidPageUrl, normalizeUrl, type NormalizedUrl } from "@/utils/url"
+import {
+  compareUrlPaths,
+  isValidPageUrl,
+  normalizeUrl,
+  type NormalizedUrl
+} from "@/utils/url"
 import {
   createContext,
   useContext,
@@ -41,6 +46,9 @@ export function UrlProvider({ children }: PropsWithChildren) {
   const [currentUrl, setCurrentUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<UrlError | null>(null)
+  const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  )
 
   useEffect(() => {
     // Function to safely update URL
@@ -105,15 +113,17 @@ export function UrlProvider({ children }: PropsWithChildren) {
           setCurrentUrl(null)
         }
         setIsLoading(false)
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("[UrlProvider] Error getting current tab:", error)
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
         setError({
           code:
-            error.message === "PERMISSION_ERROR"
+            errorMessage === "PERMISSION_ERROR"
               ? "PERMISSION_ERROR"
               : "API_ERROR",
           message:
-            error.message === "PERMISSION_ERROR"
+            errorMessage === "PERMISSION_ERROR"
               ? "Missing chrome.tabs permission. Please check extension permissions."
               : "Failed to access tab information"
         })
@@ -126,8 +136,6 @@ export function UrlProvider({ children }: PropsWithChildren) {
     getCurrentTab()
 
     // Set up tab listeners
-    let updateTimeout: NodeJS.Timeout
-
     // Listen for tab updates with debouncing
     function handleTabUpdate(
       tabId: number,
@@ -139,6 +147,7 @@ export function UrlProvider({ children }: PropsWithChildren) {
       // Clear any pending updates
       if (updateTimeout) {
         clearTimeout(updateTimeout)
+        setUpdateTimeout(null)
       }
 
       // Only update if the tab is active
@@ -157,6 +166,7 @@ export function UrlProvider({ children }: PropsWithChildren) {
         // Clear any pending updates
         if (updateTimeout) {
           clearTimeout(updateTimeout)
+          setUpdateTimeout(null)
         }
 
         setIsLoading(true)
@@ -175,7 +185,7 @@ export function UrlProvider({ children }: PropsWithChildren) {
 
         // Set loading based on tab status
         setIsLoading(tab?.status === "loading")
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("[UrlProvider] Error getting activated tab:", error)
         setError({
           code: "API_ERROR",
@@ -200,7 +210,7 @@ export function UrlProvider({ children }: PropsWithChildren) {
         chrome.tabs.onActivated.removeListener(handleTabActivated)
       }
     }
-  }, [])
+  }, [updateTimeout])
 
   // Compute normalized values
   const { normalizedUrl, normalizedDomain, currentDomain } = useMemo(() => {
@@ -239,11 +249,13 @@ export function UrlProvider({ children }: PropsWithChildren) {
         normalizedDomain: normalized.domain, // Just the domain for website matching
         currentDomain: normalized.domain
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error normalizing URL:", error)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
       setError({
         code: "INVALID_URL",
-        message: error.message || "Failed to normalize URL"
+        message: errorMessage || "Failed to normalize URL"
       })
       return {
         normalizedUrl: null,
@@ -289,4 +301,49 @@ export function useCurrentDomain() {
 export function useCurrentUrl() {
   const { currentUrl, normalizedUrl, isLoading, error } = useUrl()
   return { currentUrl, normalizedUrl, isLoading, error }
+}
+
+/**
+ * Hook to check if the current URL matches a website domain
+ * @param websiteDomain The domain to check against (e.g., "example.com")
+ * @returns Object with isMatch and isLoading properties
+ */
+export function useIsCurrentWebsite(websiteDomain: string | null | undefined) {
+  const { normalizedDomain, isLoading } = useUrl()
+
+  const isMatch = useMemo(() => {
+    if (!normalizedDomain || !websiteDomain) return false
+    return normalizedDomain === websiteDomain
+  }, [normalizedDomain, websiteDomain])
+
+  return { isMatch, isLoading }
+}
+
+/**
+ * Hook to check if the current URL matches a specific page URL
+ * @param pageDomain The domain of the page (e.g., "example.com")
+ * @param pagePath The path of the page (e.g., "/products")
+ * @returns Object with isMatch, isDomainMatch, isPathMatch and isLoading properties
+ */
+export function useIsCurrentPage(
+  pageDomain: string | null | undefined,
+  pagePath: string | null | undefined
+) {
+  const { normalizedUrl, normalizedDomain, isLoading } = useUrl()
+
+  const result = useMemo(() => {
+    const isDomainMatch =
+      normalizedDomain && pageDomain ? normalizedDomain === pageDomain : false
+
+    const isPathMatch =
+      normalizedUrl?.path && pagePath
+        ? compareUrlPaths(normalizedUrl.path, pagePath)
+        : false
+
+    const isMatch = isDomainMatch && isPathMatch
+
+    return { isMatch, isDomainMatch, isPathMatch }
+  }, [normalizedUrl, normalizedDomain, pageDomain, pagePath])
+
+  return { ...result, isLoading }
 }

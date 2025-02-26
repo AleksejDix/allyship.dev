@@ -1,5 +1,6 @@
 import { useSpaceContext } from "@/components/space/space-context"
 import { Button } from "@/components/ui/button"
+import { CurrentSpaceIndicator } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
 import { useSelector } from "@xstate/react"
@@ -17,6 +18,11 @@ export function SpaceOptions({ children }: PropsWithChildren) {
 
   // Use memoized selectors with Object.is comparison for better performance
   const spaces = useSelector(actor, (state) => state.context.spaces, Object.is)
+  const currentSpace = useSelector(
+    actor,
+    (state) => state.context.currentSpace,
+    Object.is
+  )
 
   const shouldRender = useSelector(
     actor,
@@ -99,19 +105,24 @@ export function SpaceOptions({ children }: PropsWithChildren) {
                 "border-b",
                 index === spaces.length - 1 && "border-b-0"
               )}>
-              <button
-                onClick={() => handleSelect(space)}
-                className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-3">
-                  <Briefcase
-                    className="h-5 w-5 text-muted-foreground flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{space.name}</p>
+              <CurrentSpaceIndicator
+                isCurrentSpace={currentSpace?.id === space.id}>
+                <button
+                  onClick={() => handleSelect(space)}
+                  className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Briefcase
+                      className="h-5 w-5 text-muted-foreground flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">
+                        {space.name}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+              </CurrentSpaceIndicator>
             </div>
           ))}
         </div>

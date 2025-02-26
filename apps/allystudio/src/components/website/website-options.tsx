@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { CurrentWebsiteIndicator } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database"
 import { useSelector } from "@xstate/react"
@@ -117,21 +118,23 @@ export const WebsiteOptions = memo(function WebsiteOptions({
                 "border-b",
                 index === websites.length - 1 && "border-b-0"
               )}>
-              <button
-                onClick={() => handleSelect(website)}
-                className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-3">
-                  <Globe
-                    className="h-5 w-5 text-muted-foreground flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">
-                      {website.normalized_url}
-                    </p>
+              <CurrentWebsiteIndicator domain={website.normalized_url}>
+                <button
+                  onClick={() => handleSelect(website)}
+                  className="w-full py-3 px-4 text-left hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Globe
+                      className="h-5 w-5 text-muted-foreground flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">
+                        {website.normalized_url}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+              </CurrentWebsiteIndicator>
             </div>
           ))}
         </div>

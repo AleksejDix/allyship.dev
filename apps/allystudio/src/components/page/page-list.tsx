@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { CurrentPageIndicator } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import { useSelector } from "@xstate/react"
 import { ExternalLink, FileText, Plus } from "lucide-react"
@@ -14,6 +15,7 @@ export function PageList() {
   )
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
+  const websiteId = useSelector(actor, (state) => state.context.websiteId)
   const [isAdding, setIsAdding] = useState(false)
   const [newPath, setNewPath] = useState("")
 
@@ -89,40 +91,42 @@ export function PageList() {
                 "border-b",
                 index === pages.length - 1 && "border-b-0"
               )}>
-              <div className="flex items-center">
-                <button
-                  onClick={() => handleSelectPage(page.id)}
-                  className="flex-1 py-3 px-4 text-left hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <FileText
-                      className="h-5 w-5 text-muted-foreground flex-shrink-0"
-                      aria-hidden="true"
-                    />
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">
-                        {page.path}
-                      </p>
+              <CurrentPageIndicator domain={page.url} path={page.path}>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => handleSelectPage(page.id)}
+                    className="flex-1 py-3 px-4 text-left hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <FileText
+                        className="h-5 w-5 text-muted-foreground flex-shrink-0"
+                        aria-hidden="true"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">
+                          {page.path}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 flex-shrink-0 mr-2"
-                  asChild>
-                  <a
-                    href={`https://${page.url}${page.path}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-labelledby={`visit-page-${page.id}`}>
-                    <span id={`visit-page-${page.id}`} className="sr-only">
-                      Visit {page.url}
-                      {page.path} (opens in new window)
-                    </span>
-                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                  </a>
-                </Button>
-              </div>
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 flex-shrink-0 mr-2"
+                    asChild>
+                    <a
+                      href={`https://${page.url}${page.path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-labelledby={`visit-page-${page.id}`}>
+                      <span id={`visit-page-${page.id}`} className="sr-only">
+                        Visit {page.url}
+                        {page.path} (opens in new window)
+                      </span>
+                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </Button>
+                </div>
+              </CurrentPageIndicator>
             </div>
           ))}
         </div>
