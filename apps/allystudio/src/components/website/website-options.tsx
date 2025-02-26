@@ -45,14 +45,11 @@ export const WebsiteOptions = memo(function WebsiteOptions({
 
   return (
     <>
+      <div className="flex justify-between items-center px-2">
+        <h1>Websites</h1>
+        {children}
+      </div>
       <div className="bg-background">
-        <div className="px-4 py-6 text-center">
-          <h2 className="text-xl font-semibold">Select a Website</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Choose a website to analyze or add a new one
-          </p>
-        </div>
-
         {/* Website list */}
         <div className="border-t">
           {websites.map((website, index) => (
@@ -83,7 +80,6 @@ export const WebsiteOptions = memo(function WebsiteOptions({
           ))}
         </div>
       </div>
-      {children}
     </>
   )
 })
