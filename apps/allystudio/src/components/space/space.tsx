@@ -2,6 +2,7 @@ import { Header } from "@/components/header"
 import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
+import { ElementInspector } from "../element-inspector/element-inspector"
 import { SpaceProvider } from "./space-context"
 import { SpaceDebug } from "./space-debug"
 import { SpaceEmpty } from "./space-empty"
@@ -20,7 +21,12 @@ const Space = memo(function Space({
       <SpaceOptions />
       <SpaceSelected>{children}</SpaceSelected>
       {debug && <SpaceDebug />}
-      <Header />
+      <div>
+        <div className="px-2">
+          <ElementInspector />
+        </div>
+        <Header />
+      </div>
     </SpaceProvider>
   )
 })
