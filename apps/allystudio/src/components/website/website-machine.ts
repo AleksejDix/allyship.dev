@@ -73,7 +73,7 @@ const addWebsiteActor = fromPromise<Website, { payload: WebsiteInsert }>(
       // Insert the new website
       const { data, error } = await supabase
         .from("Website")
-        .update([input.payload])
+        .upsert([input.payload])
         .eq("normalized_url", input.payload.normalized_url)
         .select()
         .single()
@@ -376,7 +376,7 @@ export const websiteMachine = setup({
           return { payload: { url: "", space_id: context.spaceId } }
         },
         onDone: {
-          target: "loaded.selected",
+          target: "loading",
           actions: "addNewWebsite"
         },
         onError: {
