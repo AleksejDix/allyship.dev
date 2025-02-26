@@ -39,7 +39,6 @@ export function WebsiteAdd() {
   }
 
   const handleAddWebsite = useCallback(() => {
-    console.log("Adding website", payload)
     actor.send({ type: "ADD_WEBSITE", payload })
   }, [actor, payload])
 

@@ -1,11 +1,13 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database"
+import type { TablesInsert } from "@/types/database.types"
 import { extractDomain, normalizeUrl as normalizeUrlUtil } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 
 // Define Website type
 type Website = Database["public"]["Tables"]["Website"]["Row"]
+type WebsiteInsert = TablesInsert<"Website">
 
 // Define context type
 type WebsiteContext = {
@@ -20,7 +22,7 @@ export type WebsiteEvent =
   | { type: "REFRESH" }
   | { type: "SPACE_CHANGED"; spaceId: string }
   | { type: "WEBSITE_SELECTED"; website: Website }
-  | { type: "ADD_WEBSITE"; url: string }
+  | { type: "ADD_WEBSITE"; payload: WebsiteInsert }
   | { type: "MATCH_WEBSITE"; url: string }
 
 // Define event types for better typing
@@ -62,34 +64,25 @@ const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
 )
 
 // Actor to add a new website
-const addWebsiteActor = fromPromise<Website, { url: string; spaceId: string }>(
+const addWebsiteActor = fromPromise<Website, { payload: WebsiteInsert }>(
   async ({ input }) => {
     try {
-      // Normalize the URL using the utility
-      let urlToAdd = input.url
-      if (!urlToAdd.startsWith("http://") && !urlToAdd.startsWith("https://")) {
-        urlToAdd = "https://" + urlToAdd
-      }
-
-      // Get normalized URL information
-      const urlInfo = normalizeUrlUtil(urlToAdd)
-      console.log("Normalized URL for new website:", urlInfo)
+      console.log("Adding website with payload:", input.payload)
 
       // Insert the new website
       const { data, error } = await supabase
         .from("Website")
-        .insert([
-          {
-            url: urlToAdd,
-            space_id: input.spaceId,
-            name: urlInfo.domain // Use the domain as the name
-          }
-        ])
+        .update([input.payload])
+        .eq("normalized_url", input.payload.normalized_url)
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error("Error adding website:", error)
+        throw error
+      }
 
+      console.log("Added website:", data)
       return data
     } catch (error) {
       console.error("Error adding website:", error)
@@ -351,9 +344,6 @@ export const websiteMachine = setup({
           target: "loading",
           actions: "clearError"
         },
-        ADD_WEBSITE: {
-          target: "adding"
-        },
         MATCH_WEBSITE: {
           // No matching possible in empty state
           // But we could potentially auto-add the website here
@@ -364,10 +354,26 @@ export const websiteMachine = setup({
       invoke: {
         id: "addWebsite",
         src: "addWebsite",
-        input: ({ context, event }) => ({
-          url: (event as { type: "ADD_WEBSITE"; url: string }).url,
-          spaceId: context.spaceId
-        }),
+        input: ({ context, event }) => {
+          // Make sure we're handling the ADD_WEBSITE event
+          if (event.type === "ADD_WEBSITE") {
+            console.log(
+              "Processing ADD_WEBSITE event with payload:",
+              event.payload
+            )
+            return { payload: event.payload }
+          }
+
+          // Fallback with more detailed logging
+          console.warn(
+            "Unexpected event in adding state:",
+            JSON.stringify(event)
+          )
+          console.warn("Current context:", JSON.stringify(context))
+
+          // Return a default payload to prevent errors
+          return { payload: { url: "", space_id: context.spaceId } }
+        },
         onDone: {
           target: "loaded.selected",
           actions: "addNewWebsite"
@@ -393,10 +399,7 @@ export const websiteMachine = setup({
                 target: "selected",
                 actions: "matchWebsite"
               }
-            ],
-            ADD_WEBSITE: {
-              target: "../../adding"
-            }
+            ]
           }
         },
         selected: {
@@ -409,9 +412,6 @@ export const websiteMachine = setup({
               // If already in selected state, only change selection if there's a match
               guard: "hasMatchingWebsite",
               actions: "matchWebsite"
-            },
-            ADD_WEBSITE: {
-              target: "../../adding"
             }
           }
         }
@@ -429,9 +429,6 @@ export const websiteMachine = setup({
           target: "loading",
           actions: "clearError"
         },
-        ADD_WEBSITE: {
-          target: "adding"
-        },
         MATCH_WEBSITE: {
           // Allow matching even in error state
           guard: "hasMatchingWebsite",
@@ -445,6 +442,9 @@ export const websiteMachine = setup({
     SPACE_CHANGED: {
       target: ".loading",
       actions: "updateSpaceId"
+    },
+    ADD_WEBSITE: {
+      target: ".adding"
     }
   }
 })
