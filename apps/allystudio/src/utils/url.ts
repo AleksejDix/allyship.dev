@@ -3,7 +3,7 @@ import { parse } from "tldts"
 // Add Vitest type declaration
 declare global {
   interface ImportMeta {
-    vitest: typeof import("vitest")
+    vitest?: typeof import("vitest")
   }
 }
 
