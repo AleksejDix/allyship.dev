@@ -2,10 +2,12 @@
 
 import { connectPageToAllyship } from "@/core/pages"
 import { cn } from "@/lib/utils"
+import { usePage } from "@/providers/page-provider"
+import { useWebsite } from "@/providers/website-provider"
 import type { Database } from "@/types/database"
-import { extractDomain, extractPath } from "@/utils/url"
+import { extractDomain, extractPath, isValidPageUrl } from "@/utils/url"
 import { Link2, Link2Off, Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Button } from "./ui/button"
 import {
@@ -19,14 +21,7 @@ type PageData = Database["public"]["Tables"]["Page"]["Row"] & {
   website: Database["public"]["Tables"]["Website"]["Row"]
 }
 
-interface PageConnectorProps {
-  currentFile: string
-  isConnected: boolean
-  onAddPage?: () => Promise<void>
-  pageData?: PageData | null
-  currentUrl: string
-  websiteId?: string
-}
+interface PageConnectorProps {}
 
 function StatusIcon({ isConnected }: { isConnected: boolean }) {
   if (isConnected) {
@@ -37,10 +32,12 @@ function StatusIcon({ isConnected }: { isConnected: boolean }) {
 
 function StatusTooltip({
   isConnected,
-  pageData
+  pageData,
+  matchingWebsite
 }: {
   isConnected: boolean
   pageData?: PageData | null
+  matchingWebsite: Database["public"]["Tables"]["Website"]["Row"] | null
 }) {
   return (
     <TooltipContent side="bottom" className="flex flex-col gap-1">
@@ -49,6 +46,15 @@ function StatusTooltip({
           <p className="text-xs text-muted-foreground">Path: {pageData.path}</p>
           <p className="text-xs text-muted-foreground">
             Added: {new Date(pageData.created_at).toLocaleDateString()}
+          </p>
+        </>
+      ) : matchingWebsite ? (
+        <>
+          <p className="text-xs text-muted-foreground">
+            Website already tracked
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Added: {new Date(matchingWebsite.created_at).toLocaleDateString()}
           </p>
         </>
       ) : (
@@ -60,64 +66,183 @@ function StatusTooltip({
   )
 }
 
-export function PageConnector({
-  currentFile,
-  isConnected,
-  onAddPage,
-  pageData,
-  currentUrl,
-  websiteId
-}: PageConnectorProps) {
-  const [isLoading, setIsLoading] = useState(false)
+export function PageConnector({}: PageConnectorProps) {
+  // Get URL and website information from provider
+  const {
+    matchingWebsite,
+    isLoading: websiteLoading,
+    currentUrl,
+    addWebsite
+  } = useWebsite()
 
+  // Get page information from provider
+  const { matchingPage, isLoading: pageLoading } = usePage()
+
+  // Track local loading state for add operation
+  const [isAdding, setIsAdding] = useState(false)
+
+  // Debug logs for key states
+  useEffect(() => {
+    console.log("PageConnector Debug:", {
+      currentUrl,
+      websiteLoading,
+      pageLoading,
+      matchingWebsite: matchingWebsite
+        ? {
+            id: matchingWebsite.id,
+            normalized_url: matchingWebsite.normalized_url,
+            url: matchingWebsite.url
+          }
+        : null,
+      matchingPage: matchingPage
+        ? {
+            id: matchingPage.id,
+            path: matchingPage.path,
+            normalized_url: matchingPage.normalized_url
+          }
+        : null,
+      extractedDomain: currentUrl ? extractDomain(currentUrl) : null,
+      extractedPath: currentUrl ? extractPath(currentUrl) : null
+    })
+  }, [currentUrl, websiteLoading, pageLoading, matchingWebsite, matchingPage])
+
+  // Combine loading states
+  const isLoading = websiteLoading || pageLoading || isAdding
+
+  // Strict URL validation
+  const isValidUrl = isValidPageUrl(currentUrl || "")
+
+  // Determine connection state - both website and page must be connected
+  const isConnected = !!matchingPage && !!matchingWebsite
+
+  // Handle add page with loading state
   const handleAddPage = async () => {
-    setIsLoading(true)
+    if (!currentUrl) return
+    setIsAdding(true)
     try {
+      // If we don't have a matching website, create it first
+      if (!matchingWebsite) {
+        await addWebsite(currentUrl)
+      }
+      // Connect the page
       await connectPageToAllyship(currentUrl)
-      await onAddPage?.()
     } catch (error) {
-      console.error("Failed to track page:", error)
+      console.error("Failed to add page:", error)
     } finally {
-      setIsLoading(false)
+      setIsAdding(false)
     }
   }
 
-  // Extract domain and path from URL
-  const domain = extractDomain(currentUrl)
-  const path = extractPath(currentUrl)
-
-  // Determine what parts we know
-  const knownWebsite = !!websiteId // Green if we have a website ID
-  const knownPage = !!pageData // Green if we have page data
-
-  const buttonClasses = cn(
-    "h-6 px-2 flex items-center gap-1 w-full",
-    "hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20 dark:hover:text-green-400"
+  // Base container classes that are always applied
+  const containerClasses = cn(
+    "flex h-[32px] items-center justify-between gap-2 border-b px-3",
+    "bg-background/50"
   )
+
+  // Base content wrapper classes
+  const contentClasses = "flex min-w-0 items-center gap-2 w-full"
+
+  // If we're loading, show loading state
+  if (isLoading) {
+    return (
+      <div className={containerClasses}>
+        <div className={contentClasses}>
+          <div className="flex shrink-0 items-center gap-1 w-full">
+            <div className="h-3 w-3 animate-pulse rounded-full bg-muted" />
+            <div className="text-[10px] text-muted-foreground">
+              Loading website information...
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // If no URL, show empty state
+  if (!currentUrl) {
+    return (
+      <div className={containerClasses}>
+        <div className={contentClasses}>
+          <div className="flex shrink-0 items-center gap-1 w-full">
+            <Link2Off className="h-3 w-3 text-muted-foreground" />
+            <div className="text-[10px] text-muted-foreground">
+              Open a webpage to start analyzing
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // If URL is not valid, show invalid state
+  if (!isValidUrl) {
+    return (
+      <div className={containerClasses}>
+        <div className={contentClasses}>
+          <div className="flex shrink-0 items-center gap-1 w-full">
+            <Link2Off className="h-3 w-3 text-red-600 dark:text-red-400" />
+            <div className="text-[10px] text-muted-foreground">
+              This type of page cannot be analyzed
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Extract domain and path
+  let domain: string
+  let path: string
+  try {
+    domain = extractDomain(currentUrl)
+    path = extractPath(currentUrl)
+  } catch (error) {
+    return (
+      <div className={containerClasses}>
+        <div className={contentClasses}>
+          <div className="flex shrink-0 items-center gap-1 w-full">
+            <Link2Off className="h-3 w-3 text-red-600 dark:text-red-400" />
+            <div className="text-[10px] text-muted-foreground">
+              Invalid URL format
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Use matchingWebsite.id for the dashboard link if available
+  const dashboardWebsiteId = matchingWebsite?.id || matchingPage?.website_id
+  const dashboardSpaceId =
+    matchingWebsite?.space_id || matchingPage?.website.space_id
+
+  const buttonText = isLoading ? "Adding..." : "Track"
 
   return (
     <TooltipProvider>
-      <div className="flex h-[32px] items-center justify-between gap-2 border-b px-3">
-        <div className="flex min-w-0 items-center gap-2 w-full">
+      <div className={containerClasses}>
+        <div className={contentClasses}>
           <div className="flex shrink-0 items-center gap-1 w-full">
             <Tooltip>
               <TooltipTrigger asChild>
-                {!isConnected && onAddPage ? (
+                {!isConnected ? (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={buttonClasses}
+                    className={cn(
+                      "h-6 px-2 flex items-center gap-1 w-full",
+                      "hover:bg-green-100 hover:text-green-700",
+                      "dark:hover:bg-green-900/20 dark:hover:text-green-400"
+                    )}
                     onClick={handleAddPage}
                     disabled={isLoading}>
                     <div className="flex items-center gap-1 min-w-0 flex-1">
-                      <div className="transition-transform duration-200 ease-in-out shrink-0">
-                        <StatusIcon isConnected={isConnected} />
-                      </div>
+                      <StatusIcon isConnected={isConnected} />
                       <div className="text-[10px] font-medium flex items-center min-w-0 flex-1">
                         <span
                           className={cn(
                             "shrink-0",
-                            knownWebsite
+                            matchingWebsite
                               ? "text-green-600 dark:text-green-400"
                               : "text-red-600 dark:text-red-400"
                           )}>
@@ -126,7 +251,7 @@ export function PageConnector({
                         <span
                           className={cn(
                             "truncate",
-                            knownPage
+                            matchingPage
                               ? "text-green-600 dark:text-green-400"
                               : "text-red-600 dark:text-red-400"
                           )}>
@@ -135,28 +260,30 @@ export function PageConnector({
                       </div>
                     </div>
                     <div className="flex items-center text-[10px] shrink-0 ml-2">
-                      {isLoading ? "Adding..." : "Track"}
+                      {buttonText}
                     </div>
                   </Button>
                 ) : (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={buttonClasses}
+                    className={cn(
+                      "h-6 px-2 flex items-center gap-1 w-full",
+                      "hover:bg-green-100 hover:text-green-700",
+                      "dark:hover:bg-green-900/20 dark:hover:text-green-400"
+                    )}
                     asChild>
                     <a
-                      href={`https://allyship.dev/spaces/${pageData?.website.space_id}/${pageData?.website_id}/pages/${pageData?.id}`}
+                      href={`https://allyship.dev/spaces/${dashboardSpaceId}/${dashboardWebsiteId}/pages/${matchingPage?.id}`}
                       target="_blank"
                       rel="noopener noreferrer">
                       <div className="flex items-center gap-1 min-w-0 flex-1">
-                        <div className="transition-transform duration-200 ease-in-out shrink-0">
-                          <StatusIcon isConnected={isConnected} />
-                        </div>
+                        <StatusIcon isConnected={isConnected} />
                         <div className="text-[10px] font-medium flex items-center min-w-0 flex-1">
                           <span
                             className={cn(
                               "shrink-0",
-                              knownWebsite
+                              matchingWebsite
                                 ? "text-green-600 dark:text-green-400"
                                 : "text-red-600 dark:text-red-400"
                             )}>
@@ -165,7 +292,7 @@ export function PageConnector({
                           <span
                             className={cn(
                               "truncate",
-                              knownPage
+                              matchingPage
                                 ? "text-green-600 dark:text-green-400"
                                 : "text-red-600 dark:text-red-400"
                             )}>
@@ -180,7 +307,11 @@ export function PageConnector({
                   </Button>
                 )}
               </TooltipTrigger>
-              <StatusTooltip isConnected={isConnected} pageData={pageData} />
+              <StatusTooltip
+                isConnected={isConnected}
+                pageData={matchingPage}
+                matchingWebsite={matchingWebsite}
+              />
             </Tooltip>
           </div>
         </div>

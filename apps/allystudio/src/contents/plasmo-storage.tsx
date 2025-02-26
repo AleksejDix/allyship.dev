@@ -4,7 +4,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import type { AllyStudioEvent } from "@/lib/events/types"
 import type { HighlightData, HighlightEvent } from "@/lib/highlight-types"
 import { DEFAULT_HIGHLIGHT_STYLES } from "@/lib/highlight-types"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const DEBOUNCE_MS = 100 // Wait 100ms for batching updates
 
@@ -25,29 +25,6 @@ const PlasmoOverlay = () => {
   const [testsComplete, setTestsComplete] = useState(false)
   const completedTestsRef = useRef<Set<string>>(new Set())
 
-  // Subscribe to test completion events
-  useEffect(() => {
-    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
-      // Track test completions
-      if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
-        completedTestsRef.current.add(event.type)
-
-        // Check if all required tests are complete
-        const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
-          completedTestsRef.current.has(testType)
-        )
-
-        if (allComplete) {
-          setTestsComplete(true)
-        }
-      }
-    })
-    return () => {
-      completedTestsRef.current.clear()
-      unsubscribe()
-    }
-  }, [])
-
   // Ref to store pending updates
   const pendingUpdatesRef = useRef<Map<string, Map<string, HighlightData>>>(
     new Map([])
@@ -57,40 +34,16 @@ const PlasmoOverlay = () => {
   // Track layer visibility
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
 
-  // Layer counter box styles
-  const layerCounterStyles = {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    color: "white",
-    padding: "12px",
-    borderRadius: "8px",
-    fontSize: "14px",
-    zIndex: 999999,
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "8px",
-    minWidth: "240px"
-  } as const
-
-  const layerItemStyles = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "8px",
-    width: "100%"
-  } as const
-
-  // Get active layer count and names
-  const activeLayerCount = useMemo(() => highlights.size, [highlights])
-  const layerNames = useMemo(() => Array.from(highlights.keys()), [highlights])
-
   // Toggle layer visibility
-  const toggleLayer = (layerName: string) => {
+  const toggleLayer = (layerName: string, forceVisible?: boolean) => {
     setHiddenLayers((current) => {
       const newHidden = new Set(current)
-      if (newHidden.has(layerName)) {
+      const isCurrentlyHidden = newHidden.has(layerName)
+
+      // If forceVisible is provided, use that, otherwise toggle
+      const shouldShow = forceVisible ?? isCurrentlyHidden
+
+      if (shouldShow) {
         newHidden.delete(layerName)
       } else {
         newHidden.add(layerName)
@@ -130,6 +83,49 @@ const PlasmoOverlay = () => {
     }
     updateTimeoutRef.current = setTimeout(applyUpdates, DEBOUNCE_MS)
   }
+
+  // Initialize message handling
+  useEffect(() => {
+    console.log("[PlasmoOverlay] Content script initialized")
+
+    // Notify that we're ready to receive messages
+    chrome.runtime
+      .sendMessage({ type: "CONTENT_SCRIPT_READY" })
+      .catch((error) =>
+        console.error("[PlasmoOverlay] Failed to send ready message:", error)
+      )
+
+    return () => {
+      console.log("[PlasmoOverlay] Content script cleanup")
+    }
+  }, [])
+
+  // Subscribe to test completion events
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+      // Track test completions
+      if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
+        completedTestsRef.current.add(event.type)
+        console.log("Test completed:", event.type)
+
+        // Check if all required tests are complete
+        const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
+          completedTestsRef.current.has(testType)
+        )
+
+        if (allComplete) {
+          console.log("All tests complete, showing layer toggle")
+          setTestsComplete(true)
+          // Reset hidden layers when tests complete
+          setHiddenLayers(new Set())
+        }
+      }
+    })
+    return () => {
+      completedTestsRef.current.clear()
+      unsubscribe()
+    }
+  }, [])
 
   // Subscribe to highlight events
   useEffect(() => {
@@ -194,6 +190,51 @@ const PlasmoOverlay = () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current)
       }
+      unsubscribe()
+    }
+  }, [])
+
+  // Subscribe to layer toggle events
+  useEffect(() => {
+    console.log("[PlasmoOverlay] Setting up LAYER_TOGGLE_REQUEST listener")
+
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+      if (event.type === "LAYER_TOGGLE_REQUEST") {
+        console.log("[PlasmoOverlay] Received LAYER_TOGGLE_REQUEST event:", {
+          type: event.type,
+          data: event.data,
+          timestamp: event.timestamp
+        })
+
+        const { layer, visible } = event.data
+
+        // Apply the toggle
+        setHiddenLayers((current) => {
+          const newHidden = new Set(current)
+          console.log(
+            "[PlasmoOverlay] Current hidden layers:",
+            Array.from(current)
+          )
+
+          if (!visible) {
+            console.log("[PlasmoOverlay] Hiding layer:", layer)
+            newHidden.add(layer)
+          } else {
+            console.log("[PlasmoOverlay] Showing layer:", layer)
+            newHidden.delete(layer)
+          }
+
+          console.log(
+            "[PlasmoOverlay] Updated hidden layers:",
+            Array.from(newHidden)
+          )
+          return newHidden
+        })
+      }
+    })
+
+    return () => {
+      console.log("[PlasmoOverlay] Cleaning up LAYER_TOGGLE_REQUEST listener")
       unsubscribe()
     }
   }, [])
