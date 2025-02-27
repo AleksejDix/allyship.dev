@@ -21,6 +21,8 @@ export type EventType =
   | "FOCUS_ORDER_STATS"
   | "CONTENT_SCRIPT_READY"
   | "DOM_CHANGE"
+  | "TEST_ANALYSIS_REQUEST"
+  | "TEST_ANALYSIS_COMPLETE"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -260,6 +262,26 @@ export interface DOMChangeEvent extends BaseEvent {
   }
 }
 
+// Generic test events for all test types
+export interface TestAnalysisRequestEvent extends BaseEvent {
+  type: "TEST_ANALYSIS_REQUEST"
+  data: {
+    testId: string // e.g. "headings", "links", etc.
+  }
+}
+
+export interface TestAnalysisCompleteEvent extends BaseEvent {
+  type: "TEST_ANALYSIS_COMPLETE"
+  data: {
+    testId: string
+    issues: any[]
+    stats: {
+      total: number
+      invalid: number
+    }
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -283,6 +305,8 @@ export type AllyStudioEvent =
   | FocusOrderStatsEvent
   | ContentScriptReadyEvent
   | DOMChangeEvent
+  | TestAnalysisRequestEvent
+  | TestAnalysisCompleteEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void

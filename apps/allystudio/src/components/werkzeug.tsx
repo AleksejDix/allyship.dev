@@ -7,8 +7,11 @@ import {
 } from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
-import { Eye, EyeOff, Play, Square } from "lucide-react"
+import { requestTestAnalysis } from "@/lib/testing/utils/event-utils"
+import { Beaker, Eye, EyeOff, Play, Square } from "lucide-react"
 import { useEffect, useState } from "react"
+
+import { TestEventMonitor } from "./test-event-monitor"
 
 interface TestResults {
   type: TestType
@@ -188,6 +191,7 @@ export function Werkzeug() {
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
   const [results, setResults] = useState<TestResults[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+  const [showExperimental, setShowExperimental] = useState(false)
 
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event) => {
@@ -217,6 +221,27 @@ export function Werkzeug() {
         ])
         setIsAnalyzing(false)
         setActiveTest(null)
+      }
+
+      // Also listen for the generic TEST_ANALYSIS_COMPLETE events
+      if (event.type === "TEST_ANALYSIS_COMPLETE") {
+        const testId = event.data.testId
+        // Check if this is a known test type
+        if (Object.keys(TEST_CONFIGS).includes(testId)) {
+          setResults((current) => [
+            ...current.filter((result) => result.type !== testId),
+            {
+              type: testId as TestType,
+              stats: {
+                total: event.data.stats.total,
+                invalid: event.data.stats.invalid
+              },
+              issues: event.data.issues
+            }
+          ])
+          setIsAnalyzing(false)
+          setActiveTest(null)
+        }
       }
     })
 
@@ -332,6 +357,52 @@ export function Werkzeug() {
     // Note: The test completion is handled by the useEffect
   }
 
+  // Run a test using the generic event system
+  const runGenericTest = async (testId: string) => {
+    setIsAnalyzing(true)
+    setActiveTest(testId as TestType)
+
+    // Get current tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+    if (!tab?.id) {
+      setIsAnalyzing(false)
+      setActiveTest(null)
+      return
+    }
+
+    // Make sure the layer for this test is visible
+    // Map test types to layer names
+    const layerMap = {
+      headings: "headings",
+      links: "links",
+      alt: "images",
+      interactive: "interactive"
+    } as const
+
+    const mappedLayer = layerMap[testId as keyof typeof layerMap] || testId
+
+    // Remove this layer from hidden layers to make it visible
+    setHiddenLayers((current) => {
+      const newHidden = new Set(current)
+      newHidden.delete(mappedLayer)
+      return newHidden
+    })
+
+    // Publish layer visibility
+    eventBus.publish({
+      type: "LAYER_TOGGLE_REQUEST",
+      timestamp: Date.now(),
+      data: {
+        layer: mappedLayer,
+        visible: true
+      },
+      tabId: tab.id
+    })
+
+    // Start this test using the new generic event
+    requestTestAnalysis(testId)
+  }
+
   const stopAnalysis = () => {
     if (activeTest) {
       console.log(`[Werkzeug] Stopping test: ${activeTest}`)
@@ -359,6 +430,66 @@ export function Werkzeug() {
           isAnalyzing={isAnalyzing}
           activeTest={activeTest}
         />
+
+        {/* Experimental Features Toggle */}
+        <div className="flex items-center justify-between pt-4 border-t">
+          <div className="text-sm font-medium">Experimental Features</div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowExperimental(!showExperimental)}
+            className="flex items-center gap-1">
+            <Beaker className="h-4 w-4" aria-hidden="true" />
+            {showExperimental ? "Hide" : "Show"}
+          </Button>
+        </div>
+
+        {/* Generic Event System Test UI */}
+        {showExperimental && (
+          <div className="p-4 border rounded-md bg-muted/10">
+            <h3 className="text-sm font-medium mb-2">
+              Run Tests with Generic Events
+            </h3>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.keys(TEST_CONFIGS).map((testId) => (
+                <Button
+                  key={testId}
+                  size="sm"
+                  variant={activeTest === testId ? "destructive" : "outline"}
+                  onClick={() => runGenericTest(testId)}
+                  disabled={isAnalyzing && activeTest !== testId}
+                  className={activeTest === testId ? "animate-pulse" : ""}>
+                  {activeTest === testId ? (
+                    <svg
+                      className="h-4 w-4 mr-1 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <Play className="h-3 w-3 mr-1" aria-hidden="true" />
+                  )}
+                  {TEST_CONFIGS[testId as TestType].displayName}
+                </Button>
+              ))}
+            </div>
+
+            {/* Event Monitor */}
+            <TestEventMonitor />
+          </div>
+        )}
 
         {/* Analysis Progress */}
         {isAnalyzing && activeTest && (
