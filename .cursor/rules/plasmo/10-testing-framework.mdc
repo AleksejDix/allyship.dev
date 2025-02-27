@@ -1,12 +1,7 @@
 ---
 description: "Guidelines for using the accessibility testing framework in AllyStudio"
-globs:
-  - "apps/allystudio/src/lib/testing/**/*"
-  - "apps/allystudio/src/contents/test-runner.ts"
-  - "apps/allystudio/src/background/machines/test.ts"
-  - "apps/allystudio/src/background/messages/toggle-test.ts"
-  - "apps/allystudio/src/sidepanel/**/*"
-  - "apps/allystudio/src/components/werkzeug.tsx"
+globs: 
+alwaysApply: false
 ---
 
 # Accessibility Testing Framework

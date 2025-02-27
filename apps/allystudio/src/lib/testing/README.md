@@ -1,8 +1,8 @@
-# Allyship.dev Testing Framework Analysis
+# AllyStudio Testing Framework
 
 ## Overview
 
-This document provides an analysis of the testing framework in the Allyship.dev project, specifically in the `apps/allystudio/src/lib/testing` directory. The framework is designed for accessibility testing of web pages and is integrated into a Chrome extension using Plasmo.
+The AllyStudio Testing Framework provides a robust system for automated accessibility testing of web pages. It enables the extension to detect accessibility issues in real-time and provide actionable feedback to users.
 
 ## System Architecture
 
@@ -13,7 +13,7 @@ flowchart TD
     User([User]) -->|"Clicks 'Run Test'"| WerkzeugUI[Werkzeug UI Component]
 
     subgraph "Chrome Extension"
-        WerkzeugUI -->|"Publishes event\n(e.g. HEADING_ANALYSIS_REQUEST)"| EventBus[Event Bus]
+        WerkzeugUI -->|"Publishes event\n(e.g. TEST_ANALYSIS_REQUEST)"| EventBus[Event Bus]
         EventBus -->|"Subscribes to\ntest events"| TestRunner[Test Runner]
         TestRunner -->|"Creates"| ACTTestRunner[ACT Test Runner]
 
@@ -31,7 +31,7 @@ flowchart TD
         WebPage -->|"Returns elements"| ACTTestRunner
         ACTTestRunner -->|"Logs results"| TestLogger
         ACTTestRunner -->|"Returns results"| TestRunner
-        TestRunner -->|"Publishes results\n(e.g. HEADING_ANALYSIS_COMPLETE)"| EventBus
+        TestRunner -->|"Publishes results\n(e.g. TEST_ANALYSIS_COMPLETE)"| EventBus
         EventBus -->|"Notifies of results"| WerkzeugUI
         ACTTestRunner -->|"Highlights issues on"| WebPage
     end
@@ -43,7 +43,6 @@ flowchart TD
 
 ### `act-test-runner.ts`
 
-- **Status**: Actively used
 - **Purpose**: Central test execution engine
 - **Key features**:
   - `ACTTestRunner` class that runs accessibility tests on web pages
@@ -54,7 +53,6 @@ flowchart TD
 
 ### `act-test-suite.ts`
 
-- **Status**: Actively used
 - **Purpose**: Defines the structure for test suites and test cases
 - **Key features**:
   - Provides a fluent API for defining tests with `suite()`, `describe()`, and `test()` functions
@@ -64,23 +62,20 @@ flowchart TD
 
 ### `test-config.ts`
 
-- **Status**: Actively used
 - **Purpose**: Configuration for different test types
 - **Key features**:
   - Defines four test types: headings, links, alt text, interactive elements
-  - Maps test types to their corresponding event names
   - Provides display text for UI components
+  - Maps test types to layer names
 - **Integration**: Used by both UI and test runner components
 
 ### `test-logger.ts`
 
-- **Status**: Actively used
 - **Purpose**: Logging test results and diagnostics
 - **Integration**: Used by the test runner to track progress and outcomes
 
 ### `create-test-runner.ts`
 
-- **Status**: Actively used
 - **Purpose**: Creates a simplified interface to the test runner
 - **Key features**:
   - Handles event subscription and result publication
@@ -114,6 +109,73 @@ The framework includes four main test categories:
    - Evaluates ARIA roles and properties
    - Checks focus management
 
+## Event System
+
+### Generic Event Model
+
+AllyStudio uses a generic event system for standardized test execution and result handling:
+
+- **`TEST_ANALYSIS_REQUEST`** - Used to request that a test be run
+- **`TEST_ANALYSIS_COMPLETE`** - Used to indicate that a test has finished
+
+This system simplifies the codebase, makes it easier to add new test types, and reduces the amount of duplicate code.
+
+### Event Migration Background
+
+Prior to the current implementation, AllyStudio used specific event types for each test type:
+
+- `HEADING_ANALYSIS_COMPLETE`
+- `LINK_ANALYSIS_COMPLETE`
+- `ALT_ANALYSIS_COMPLETE`
+- `INTERACTIVE_ANALYSIS_COMPLETE`
+
+These have been replaced with the generic events that work with all test types.
+
+### Key Migration Changes
+
+1. **Updated TestConfig**
+
+   - Removed specific event references
+   - Made `layerName` a required property for better UI integration
+
+2. **Simplified Event Types**
+
+   - Removed specific event types and interfaces
+   - Kept the issue type definitions for reference
+
+3. **Updated Event Publishing**
+
+   - `createTestRunner` now only publishes generic events
+   - `publishTestComplete` only publishes the generic event
+
+4. **Updated UI Components**
+
+   - UI now only uses generic events
+   - Added fallback completion logic for reliability
+   - Improved error handling and logging
+
+5. **Content Script Integration**
+   - Content scripts use generic events
+   - Simplified test completion tracking
+
+## Safety Features
+
+Several safety features are implemented in the framework:
+
+1. **Fallback Completion Events**
+
+   - If the content script doesn't respond, a fallback completion event is published
+   - Added a 3 second timeout to prevent UI from getting stuck
+
+2. **Tab Status Checking**
+
+   - Added checks to ensure the tab is ready to receive messages
+   - Provides early feedback if communication might fail
+
+3. **Error Handling**
+   - Every potential error is caught and logged
+   - Ensures a completion event is always published, even on error
+
 ## Integration Points
 
 ### Chrome Extension Integration
@@ -134,9 +196,9 @@ The framework includes four main test categories:
 
 - Uses an event bus (`lib/events/event-bus.ts`) for communication
 - Event types include:
-  - Test requests (e.g., `HEADING_ANALYSIS_REQUEST`)
-  - Test results (e.g., `HEADING_ANALYSIS_COMPLETE`)
-  - UI updates (e.g., `HIGHLIGHT`)
+  - Test requests (e.g., `TEST_ANALYSIS_REQUEST`)
+  - Test results (e.g., `TEST_ANALYSIS_COMPLETE`)
+  - UI updates (e.g., `HIGHLIGHT_ELEMENT`, `CLEAR_HIGHLIGHTS`)
 - Optimized for performance with direct handlers for high-priority events
 
 ## User Flow
@@ -149,19 +211,39 @@ The framework includes four main test categories:
 6. UI displays results and highlights issues on the page
 7. User can click on issues to see details and fix recommendations
 
-## Current Usage Status
+## Future Improvements
 
-All components in the testing framework are actively used and form a central feature of the AllyStudio application. The framework follows a modular design with well-defined responsibilities, making it maintainable and extensible.
+1. **Issue Type Consolidation**
 
-## Recommendations
+   - Create a unified issue type instead of separate types for each test
+   - Further simplify the codebase and make it easier to process issues generically
 
-The testing framework appears well-structured and actively used. Any future extensions should follow the existing patterns:
+2. **Automatic Test Discovery**
 
-1. Add new test suites by creating a new file in the appropriate suite category
+   - Use a registry approach to auto-register new tests
+   - Further reduce the need for changes when adding new tests
+
+3. **Event Documentation**
+   - Create comprehensive documentation of the event system
+   - Make it easier for new developers to understand the system
+
+## Adding New Tests
+
+To add a new test type:
+
+1. Create a new test file in the appropriate suite category
 2. Update `test-config.ts` to include the new test type
 3. Ensure the UI components handle the new test type appropriately
-4. Add event types for the new test in the event system
+4. Add the new test type to relevant event handling code
 
-## Conclusion
+## Best Practices
 
-The testing framework in the Allyship.dev project provides a robust system for accessibility testing in a Chrome extension context. The code is well-organized, actively used, and integrated with both the extension infrastructure and UI components.
+When working with the testing framework:
+
+1. **Use Generic Events** - Utilize the standardized event system for communication
+2. **Provide Test ID** - Always include the testId in events for proper routing
+3. **Handle Errors** - Always include error handling in test functions
+4. **Avoid Side Effects** - Tests should not modify the DOM
+5. **Check Abort Signals** - Always check abort signals for long-running tests
+6. **Documentation** - Add clear documentation about what each test checks
+7. **Include Severity** - Correctly categorize severity of each issue
