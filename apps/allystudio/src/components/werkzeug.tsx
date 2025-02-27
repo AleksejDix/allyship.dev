@@ -1,5 +1,18 @@
 import { Button } from "@/components/ui/button"
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -16,7 +29,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
 import { cn } from "@/lib/utils"
-import { ExternalLink, Play } from "lucide-react"
+import { Check, ChevronsUpDown, ExternalLink, Play } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TestEventMonitor } from "./test-event-monitor"
@@ -49,6 +62,7 @@ function TestSelector({
   activeTest
 }: TestSelectorProps) {
   const [selectedTest, setSelectedTest] = useState<TestType | "">("")
+  const [open, setOpen] = useState(false)
 
   // Update selected test when active test changes
   useEffect(() => {
@@ -59,6 +73,7 @@ function TestSelector({
 
   const handleTestSelection = (value: string) => {
     setSelectedTest(value as TestType)
+    setOpen(false)
   }
 
   const handleRunClick = () => {
@@ -71,19 +86,51 @@ function TestSelector({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Select value={selectedTest} onValueChange={handleTestSelection}>
-          <SelectTrigger className="flex-1">
-            <SelectValue placeholder="Select a test to run" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(TEST_CONFIGS).map(([type, config]) => (
-              <SelectItem key={type} value={type}>
-                {config.displayName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center gap-2 w-full">
+        <div className="flex-1">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between">
+                <span className="truncate">
+                  {selectedTest
+                    ? TEST_CONFIGS[selectedTest as TestType]?.displayName
+                    : "Search tests..."}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+              <Command>
+                <CommandInput placeholder="Search tests..." />
+                <CommandList>
+                  <CommandEmpty>No tests found.</CommandEmpty>
+                  <CommandGroup>
+                    {Object.entries(TEST_CONFIGS)
+                      .sort(([, a], [, b]) =>
+                        a.displayName.localeCompare(b.displayName)
+                      )
+                      .map(([type, config]) => (
+                        <CommandItem
+                          key={type}
+                          value={type}
+                          onSelect={handleTestSelection}
+                          className="flex items-center justify-between">
+                          <span>{config.displayName}</span>
+                          {type === selectedTest && (
+                            <Check className="h-4 w-4" aria-hidden="true" />
+                          )}
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
         <Button
           onClick={handleRunClick}
           disabled={!selectedTest && !isRunning}
@@ -141,7 +188,6 @@ export function Werkzeug() {
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
   const [testResults, setTestResults] = useState<any[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
-  const [processingEvent, setProcessingEvent] = useState(false)
 
   // Added function to clear results explicitly
   const clearResults = () => {
@@ -165,12 +211,6 @@ export function Werkzeug() {
           setActiveTest(null)
         }
 
-        // Prevent processing multiple events too quickly
-        if (processingEvent) {
-          console.log("[werkzeug] Already processing an event, skipping")
-          return
-        }
-
         // Skip fallback events if we already have results
         if (event.data?.isFallbackEvent && testResults.length > 0) {
           console.log(
@@ -178,8 +218,6 @@ export function Werkzeug() {
           )
           return
         }
-
-        setProcessingEvent(true)
 
         // Use a timeout to prevent UI flashing and ensure state updates properly
         setTimeout(() => {
@@ -223,8 +261,6 @@ export function Werkzeug() {
               }
             ])
           }
-
-          setProcessingEvent(false)
         }, 100) // Small delay to ensure state updates properly
       }
     }
@@ -237,7 +273,7 @@ export function Werkzeug() {
       console.log("[werkzeug] Cleaning up event listener")
       cleanup()
     }
-  }, [activeTest, testResults, processingEvent])
+  }, []) // Empty dependency array since we use closure values
 
   const toggleLayer = (testType: string) => {
     console.log("[Werkzeug] Toggle requested for layer:", testType)
