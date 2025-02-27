@@ -61,22 +61,20 @@ export function ElementOutliner() {
                   size="icon"
                   className={cn(
                     "h-8 w-8 relative",
-                    isOutlining && "bg-amber-500 hover:bg-amber-600"
+                    isOutlining && "bg-green-500 hover:bg-green-600"
                   )}
                   onClick={toggleOutlining}
                   aria-label={
                     isOutlining ? "Stop Element Outlining" : "Outline Elements"
                   }>
                   <Grid3X3 className="h-4 w-4" />
+                  {isOutlining && (
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
+                  )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>
-                  {isOutlining ? "Stop Element Outlining" : "Outline Elements"}
-                </p>
-                <p className="text-xs mt-1">
-                  Visualize all elements with colored outlines
-                </p>
+              <TooltipContent>
+                <p>Element Outliner</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -91,7 +89,7 @@ export function ElementOutliner() {
             onClick={() =>
               window.open("https://github.com/mrmrs/pesticide", "_blank")
             }>
-            <Grid3X3 className="mr-2 h-4 w-4 text-amber-500" />
+            <Grid3X3 className="mr-2 h-4 w-4 text-green-500" />
             <span>About Element Outlining</span>
           </ContextMenuItem>
         </ContextMenuContent>

@@ -106,18 +106,12 @@ export function DOMMonitorToggle() {
                 }>
                 <Activity className="h-4 w-4" />
                 {isLoggingEnabled && isEnabled && (
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" />
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>{isEnabled ? "Stop DOM Monitor" : "Start DOM Monitor"}</p>
-              <p className="text-xs mt-1">
-                Track DOM changes in real-time for accessibility testing
-              </p>
-              {isLoggingEnabled && (
-                <p className="text-xs mt-1 text-blue-500">Logging is enabled</p>
-              )}
+            <TooltipContent>
+              <p>DOM Monitor</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

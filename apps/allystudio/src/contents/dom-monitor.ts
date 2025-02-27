@@ -147,7 +147,7 @@ export function createDOMObserver(
         console.log(`Total changes: ${batchedLogs.flat().length}`)
         console.log(
           "%cTip: Click on any element in the logs to inspect it in the Elements panel",
-          "color: #4CAF50; font-weight: bold"
+          "color: #3B82F6; font-weight: bold"
         )
 
         // Log summary by type
@@ -199,7 +199,7 @@ export function createDOMObserver(
         } else {
           console.log(
             "%cToo many changes to display details. Enable filtering or reduce the batch interval.",
-            "color: #F44336"
+            "color: #EF4444"
           )
         }
 
@@ -536,13 +536,15 @@ async function startDOMMonitor() {
     loggingEnabled = (await storage.get("dom_monitor_logging_enabled")) || false
   } catch (error) {
     console.warn(
-      "[DOM Monitor] Failed to read logging state, defaulting to disabled"
+      "%c[DOM Monitor] Failed to read logging state, defaulting to disabled",
+      "color: #F59E0B; font-weight: bold"
     )
     loggingEnabled = false
   }
 
   console.log(
-    `[DOM Monitor] Starting DOM monitor (logging: ${loggingEnabled ? "enabled" : "disabled"})`
+    `%c[DOM Monitor] Starting DOM monitor (logging: ${loggingEnabled ? "enabled" : "disabled"})`,
+    "color: #3B82F6; font-weight: bold"
   )
 
   currentObserverCleanup = createDOMObserver(
@@ -569,7 +571,10 @@ async function startDOMMonitor() {
  */
 function stopDOMMonitor() {
   if (currentObserverCleanup) {
-    console.log("[DOM Monitor] Stopping DOM monitor")
+    console.log(
+      "%c[DOM Monitor] Stopping DOM monitor",
+      "color: #3B82F6; font-weight: bold"
+    )
     currentObserverCleanup()
     currentObserverCleanup = null
   }
@@ -588,7 +593,10 @@ async function toggleLogging(enabled: boolean) {
     startDOMMonitor()
   }
 
-  console.log(`[DOM Monitor] Logging ${enabled ? "enabled" : "disabled"}`)
+  console.log(
+    `%c[DOM Monitor] Logging ${enabled ? "enabled" : "disabled"}`,
+    `color: ${enabled ? "#3B82F6" : "#6B7280"}; font-weight: bold`
+  )
 }
 
 /**
@@ -601,7 +609,8 @@ async function initializeDOMMonitor() {
     loggingEnabled = (await storage.get("dom_monitor_logging_enabled")) || false
   } catch (error) {
     console.warn(
-      "[DOM Monitor] Failed to read storage, defaulting to disabled."
+      "%c[DOM Monitor] Failed to read storage, defaulting to disabled.",
+      "color: #F59E0B; font-weight: bold"
     )
   }
 
