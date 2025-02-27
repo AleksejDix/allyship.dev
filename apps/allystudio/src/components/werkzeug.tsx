@@ -183,32 +183,8 @@ export function Werkzeug() {
 
         // Use a timeout to prevent UI flashing and ensure state updates properly
         setTimeout(() => {
-          // Check for legacy format (issues array)
-          if (event.data?.issues && event.data.issues.length > 0) {
-            console.log(
-              `[werkzeug] Setting legacy test results:`,
-              event.data.issues
-            )
-            // Append new results instead of replacing
-            setTestResults((prevResults) => {
-              // Create a map of existing results by ID to avoid duplicates
-              const existingMap = new Map(
-                prevResults.map((r) => [r.id || JSON.stringify(r), r])
-              )
-
-              // Add new results, avoiding duplicates
-              event.data.issues.forEach((issue: any) => {
-                const id = issue.id || JSON.stringify(issue)
-                if (!existingMap.has(id)) {
-                  existingMap.set(id, issue)
-                }
-              })
-
-              return Array.from(existingMap.values())
-            })
-          }
           // Check for ACT format (results object with details)
-          else if (
+          if (
             event.data?.results?.details &&
             event.data.results.details.length > 0
           ) {
