@@ -18,6 +18,7 @@ type AnalysisCompleteEvent =
   | InteractiveAnalysisCompleteEvent
 
 // Map test types to their event creators
+// MIGRATION: This will be removed once we fully migrate to generic events
 const createCompleteEvent = (
   type: TestType,
   results: any[],
@@ -72,22 +73,37 @@ export function createTestRunner() {
 
   return {
     runTest: async (type: TestType) => {
+      console.log(`[create-test-runner] Running test: ${type}`)
+
       // Run tests and handle results as they come in
       for await (const update of testRunner.runTests(type)) {
         if ("type" in update) {
           switch (update.type) {
             case "complete":
-              // Final completion event
+              console.log(`[create-test-runner] Test complete: ${type}`, {
+                results: update.results.length,
+                stats: update.stats
+              })
+
+              // MIGRATION: In the future, we'll only use the generic events
+              // Currently maintaining both for backward compatibility
+
+              // 1. Legacy specific event (will be removed in future)
               const completeEvent = createCompleteEvent(
                 type,
                 update.results,
                 update.stats
               )
-              // Publish the traditional specific event
               eventBus.publish(completeEvent)
+              console.log(
+                `[create-test-runner] Published legacy event: ${completeEvent.type}`
+              )
 
-              // Also publish the generic TEST_ANALYSIS_COMPLETE event
+              // 2. Generic event (will be the only one in future)
               publishTestComplete(type, update.results, update.stats)
+              console.log(
+                `[create-test-runner] Published generic TEST_ANALYSIS_COMPLETE event`
+              )
               break
           }
         } else {
