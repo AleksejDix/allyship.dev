@@ -60,11 +60,11 @@ function TestSelector({
               side="left">
               {activeTest === type ? (
                 <Button
-                  size="sm"
+                  size="icon"
+                  className="h-8 w-8 animate-pulse"
                   variant="destructive"
                   onClick={onStopTest}
-                  aria-label={`Stop ${config.displayName} test`}
-                  className="animate-pulse">
+                  aria-label={`Stop ${config.displayName} test`}>
                   <svg
                     className="h-4 w-4 animate-spin"
                     xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +86,8 @@ function TestSelector({
                 </Button>
               ) : (
                 <Button
-                  size="sm"
+                  size="icon"
+                  className="h-8 w-8"
                   variant="outline"
                   onClick={() => onRunTest(type as TestType)}
                   disabled={isAnalyzing}

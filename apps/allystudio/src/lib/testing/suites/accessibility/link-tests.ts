@@ -1,5 +1,5 @@
-import { getAccessibleName } from "./act-test-runner"
-import { describe, suite, test } from "./act-test-suite"
+import { getAccessibleName } from "../../act-test-runner"
+import { describe, suite, test } from "../../act-test-suite"
 
 export const linkTests = suite("Link Accessibility", "a[href]", () => {
   test(
