@@ -1,0 +1,51 @@
+---
+description: "Plasmo extension architecture and component organization"
+globs:
+  - "apps/allystudio/src/**/*"
+---
+
+# Plasmo Extension Architecture
+
+## Structure Overview
+
+The AllyStudio extension is structured into several key areas, each with a specific responsibility:
+
+- **Background Scripts** (`src/background/`): Non-UI logic that runs in the background of the browser
+- **Content Scripts** (`src/contents/`): Scripts that execute in the context of web pages
+- **Popup UI** (`src/popup.tsx`): The UI that appears when clicking the extension icon
+- **Options Page** (`src/options/`): Extension settings page
+- **Side Panel** (`src/sidepanel/`): UI that appears in the browser's side panel
+- **UI Components** (`src/components/`): Reusable UI components
+
+## Directory Organization
+
+```
+src/
+├── assets/         # Static assets like images
+├── background/     # Background service workers
+├── components/     # Reusable UI components
+│   ├── ui/         # Basic UI components (shadcn/ui based)
+│   └── ...         # Feature-specific components
+├── contents/       # Content scripts
+├── core/           # Core functionality and business logic
+├── lib/            # Utility functions and helpers
+├── options/        # Options page components
+├── providers/      # Context providers
+├── sidepanel/      # Side panel components
+├── storage/        # Storage-related utilities
+├── styles/         # Global styles
+├── types/          # TypeScript type definitions
+└── utils/          # Utility functions
+```
+
+## Component Lifecycle
+
+Each part of the extension has a specific lifecycle:
+
+1. **Background Scripts**: Run constantly in the background, even when the extension UI is closed
+2. **Content Scripts**: Injected into web pages when they match the specified patterns
+3. **Popup UI**: Activated when the user clicks the extension icon in the toolbar
+4. **Options Page**: Opened when the user accesses the extension settings
+5. **Side Panel**: Available in the browser's side panel when enabled
+
+Understanding these lifecycles is crucial for developing features that work across the different components of the extension.

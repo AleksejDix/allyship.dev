@@ -1,0 +1,31 @@
+---
+description: "Overview and purpose of the AllyStudio browser extension"
+globs:
+  - "apps/allystudio/**/*.tsx"
+  - "apps/allystudio/**/*.ts"
+---
+
+# AllyStudio Overview & Purpose
+
+## Introduction
+
+AllyStudio is built as a browser extension using the Plasmo framework, which provides a modern development experience for creating browser extensions with React. This guide explains the purpose and vision behind the extension.
+
+## Purpose & Vision
+
+AllyStudio is a powerful accessibility auditing tool designed to help developers, designers, and content creators identify and fix accessibility issues on their websites. The extension offers:
+
+- **Real-time Accessibility Analysis**: Scan web pages as you browse to detect WCAG compliance issues
+- **Element Inspection**: Examine individual elements for accessibility problems
+- **Focus Order Visualization**: Trace keyboard navigation paths through the page
+- **Space & Website Management**: Organize accessibility efforts across teams and projects
+- **Actionable Remediation**: Generate clear guidance on how to fix detected issues
+
+We're building AllyStudio to democratize web accessibility, making it easier for everyone to create inclusive digital experiences. The goal is to lower the barrier to accessibility knowledge and implementation by providing:
+
+1. **Immediate Feedback**: Developers get instant results while working
+2. **Educational Tools**: Learning opportunities embedded within the testing process
+3. **Collaborative Workflows**: Teams can track progress across websites
+4. **Actionable Solutions**: Clear guidance on making meaningful improvements
+
+By creating a browser extension, we provide a seamless workflow integration that doesn't require developers to leave their development environment or use external services to test accessibility.

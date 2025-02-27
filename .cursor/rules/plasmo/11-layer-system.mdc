@@ -1,0 +1,650 @@
+---
+description: "Guidelines for working with the AllyStudio Layer System for visual highlighting"
+globs: "apps/allystudio/src/components/layers/**/*", "apps/allystudio/src/contents/plasmo-storage.tsx","apps/allystudio/src/lib/highlight-types.ts"
+alwaysApply: false
+---
+
+# Layer System
+
+## Overview
+
+The AllyStudio Layer System provides visual highlighting of elements on the page, allowing users to see accessibility issues directly in context. This system creates non-intrusive overlays that highlight elements with different colors based on test results.
+
+## Architecture
+
+The Layer System consists of:
+
+1. **PlasmoOverlay** - Main component for managing highlights
+2. **LayerSystem** - Component that renders all highlights
+3. **Layer** - Component for rendering a group of related highlights
+4. **HighlightBox** - Component for rendering individual element highlights
+5. **LayerToggle** - UI for toggling layer visibility
+6. **Highlight Management** - Logic for adding, removing, and updating highlights
+7. **Event System** - Communication between components
+
+## Component Architecture
+
+The Layer System is organized into a hierarchy of components:
+
+```
+PlasmoOverlay
+  ├── LayerSystem
+  │     ├── Layer (headings)
+  │     │     ├── HighlightBox
+  │     │     ├── HighlightBox
+  │     │     └── ...
+  │     ├── Layer (links)
+  │     │     ├── HighlightBox
+  │     │     └── ...
+  │     └── Layer (alt)
+  │           ├── HighlightBox
+  │           └── ...
+  └── LayerToggle
+```
+
+### PlasmoOverlay
+
+The `PlasmoOverlay` component is the entry point for the Layer System:
+
+```tsx
+// Simplified overview of PlasmoOverlay
+const PlasmoOverlay = () => {
+  // State for storing highlights by layer and selector
+  const [highlights, setHighlights] = useState<
+    Map<string, Map<string, HighlightData>>
+  >(new Map())
+
+  // State for tracking which layers are hidden
+  const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+
+  // State for tracking test completion
+  const [testsComplete, setTestsComplete] = useState(false)
+
+  // ... event subscriptions and highlighting logic
+
+  return (
+    <>
+      <LayerSystem highlights={highlights} hiddenLayers={hiddenLayers} />
+      {testsComplete && (
+        <LayerToggle
+          highlights={highlights}
+          hiddenLayers={hiddenLayers}
+          onToggleLayer={toggleLayer}
+        />
+      )}
+    </>
+  )
+}
+```
+
+### LayerSystem Component
+
+The `LayerSystem` component is responsible for rendering all layers and handling scroll/resize events:
+
+```tsx
+// LayerSystem.tsx
+export function LayerSystem({
+  highlights,
+  hiddenLayers = new Set()
+}: LayerSystemProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const ticking = useRef(false)
+
+  // Handles scroll and resize updates
+  useEffect(() => {
+    const updatePositions = () => {
+      requestAnimationFrame(() => {
+        // Update position of all highlight boxes
+        const boxes = containerRef.current.querySelectorAll(
+          "[data-highlight-box]"
+        )
+
+        boxes.forEach((box) => {
+          const selector = box.getAttribute("data-selector")
+          // Find the DOM element and update the highlight position
+          // ...
+        })
+      })
+    }
+
+    // Set up scroll and resize observers
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true })
+    const resizeObserver = new ResizeObserver(updatePositions)
+    resizeObserver.observe(document.body)
+
+    // ...
+  }, [highlights])
+
+  return (
+    <div ref={containerRef} className="ally-highlights-container">
+      {Array.from(highlights.entries()).map(([layerId, layerHighlights]) => (
+        <Layer
+          key={layerId}
+          layerId={layerId}
+          highlights={layerHighlights}
+          isVisible={!hiddenLayers.has(layerId)}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+Key features of the LayerSystem:
+1. Updates highlight positions on scroll and resize
+2. Uses `requestAnimationFrame` for smooth updates
+3. Efficiently manages layer visibility
+4. Uses a container ref to organize all highlights
+
+### Layer Component
+
+The `Layer` component renders a group of related highlights:
+
+```tsx
+// Layer.tsx
+function LayerComponent({ layerId, highlights, isVisible = true }: LayerProps) {
+  return (
+    <div style={{ opacity: isVisible ? 1 : 0, transition: "opacity 0.2s" }}>
+      {Array.from(highlights.values()).map((highlight) => (
+        <HighlightBox
+          key={`${layerId}-${highlight.selector}`}
+          highlight={highlight}
+          layer={layerId}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Memoize the Layer component to prevent unnecessary re-renders
+export const Layer = memo(LayerComponent)
+```
+
+Key features of the Layer component:
+1. Renders all highlights for a specific layer (e.g., headings, links)
+2. Handles layer visibility through CSS opacity
+3. Smooth transition for showing/hiding layers
+4. Memoized to prevent unnecessary re-renders
+
+### HighlightBox Component
+
+The `HighlightBox` component renders individual element highlights with tooltips:
+
+```tsx
+// HighlightBox.tsx
+export function HighlightBox({ highlight, layer }: HighlightBoxProps) {
+  const { element, message, selector, isValid, styles } = highlight
+  const rect = element.getBoundingClientRect()
+
+  // Skip if element has no dimensions
+  if (!rect || rect.width === 0) return null
+
+  const validityLabel = isValid ? "Valid" : "Invalid"
+  const highlightStyles = styles ||
+    (isValid ? DEFAULT_HIGHLIGHT_STYLES.valid : DEFAULT_HIGHLIGHT_STYLES.invalid)
+
+  return (
+    <div
+      key={`${layer}-${selector}`}
+      role="group"
+      aria-label={`${validityLabel} highlight for ${message}`}>
+      <div
+        data-highlight-box
+        data-selector={selector}
+        role="presentation"
+        style={{
+          position: "absolute",
+          transform: "translate3d(var(--x), var(--y), 0)",
+          border: `2px solid ${highlightStyles.border}`,
+          backgroundColor: highlightStyles.background,
+          pointerEvents: "none",
+          zIndex: 9000
+        }}>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div style={{
+                width: "100%",
+                height: "100%",
+                pointerEvents: "auto"
+              }} />
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className="z-[9999]"
+              style={{
+                backgroundColor: highlightStyles.messageBackground,
+                color: "white"
+              }}>
+              {message}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
+  )
+}
+```
+
+Key features of the HighlightBox component:
+1. Creates an outline around the target element
+2. Uses CSS variables for positioning (updated by LayerSystem)
+3. Includes tooltips to display messages on hover
+4. Color-coded based on validity (green for valid, red for invalid)
+5. Accessible with appropriate ARIA attributes
+
+### LayerToggle Component
+
+The `LayerToggle` component provides UI controls for toggling layer visibility:
+
+```tsx
+// LayerToggle.tsx
+function LayerToggleComponent({
+  highlights,
+  hiddenLayers,
+  onToggleLayer
+}: LayerToggleProps) {
+  const activeLayerCount = highlights.size
+  const layerNames = Array.from(highlights.keys())
+
+  if (activeLayerCount === 0) return null
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "white",
+        padding: "10px",
+        borderRadius: "6px",
+        zIndex: 9999
+      }}
+      role="status"
+      className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div>
+        <span>Active Layers: {activeLayerCount}</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        {layerNames.map((layerName) => (
+          <div key={layerName} style={{ display: "flex", justifyContent: "space-between" }}>
+            <span>{layerName}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onToggleLayer(layerName)}
+              aria-pressed={!hiddenLayers.has(layerName)}
+              aria-label={`Toggle ${layerName} layer visibility`}>
+              {hiddenLayers.has(layerName) ? (
+                <EyeOff size="16" />
+              ) : (
+                <Eye size="16" />
+              )}
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Memoize the component to prevent unnecessary re-renders
+export const LayerToggle = memo(LayerToggleComponent)
+```
+
+Key features of the LayerToggle component:
+1. Fixed position in the bottom-right corner of the viewport
+2. Displays all active layers with toggle buttons
+3. Shows/hides each layer independently
+4. Uses Eye/EyeOff icons to indicate visibility state
+5. Accessible with proper ARIA attributes
+6. Animates in when all tests are complete
+
+## Highlight Data Structure
+
+Each highlight contains information about the element to highlight and how to style it:
+
+```tsx
+// Highlight data structure
+interface HighlightData {
+  selector: string         // CSS selector for the element
+  message: string          // Message to display in tooltip
+  element: HTMLElement     // Reference to the DOM element
+  isValid: boolean         // Whether the element passes accessibility tests
+  styles: HighlightStyles  // Visual styling for the highlight
+  layer: string            // Layer this highlight belongs to
+}
+
+// Highlight styles
+interface HighlightStyles {
+  border: string           // Border color
+  background: string       // Background color
+  messageBackground: string // Message background color
+}
+```
+
+## Layer Types
+
+The Layer System supports different types of layers with different behaviors:
+
+1. **Standard Test Layers** - For test results like headings, links, alt text
+2. **Inspector Layer** - Fast-path for real-time element inspection
+3. **Debug Layer** - Special styling for debugging
+
+```tsx
+// Layer constants
+const INSPECTOR_LAYER = "inspector"
+const INSPECTOR_DEBUG_LAYER = "inspector-debug"
+const DEBOUNCE_MS = 50 // Debounce for performance
+```
+
+## Adding Highlights
+
+To add a highlight to the Layer System, emit a `HIGHLIGHT` event:
+
+```tsx
+// Example of adding a highlight
+eventBus.publish({
+  type: "HIGHLIGHT",
+  data: {
+    layer: "headings",
+    selector: "#main-heading",
+    message: "Heading is properly structured",
+    isValid: true
+  }
+})
+```
+
+For inspector highlights (which need to be more responsive):
+
+```tsx
+// Example of adding an inspector highlight
+eventBus.publish({
+  type: "HIGHLIGHT",
+  data: {
+    layer: "inspector",
+    selector: ".focused-element",
+    message: "This element needs an aria-label",
+    isValid: false
+  }
+})
+```
+
+## Clearing Highlights
+
+To clear highlights, emit a `HIGHLIGHT` event with the clear flag:
+
+```tsx
+// Clear all highlights in a layer
+eventBus.publish({
+  type: "HIGHLIGHT",
+  data: {
+    layer: "headings",
+    clear: true
+  }
+})
+
+// Clear all highlights in all layers
+eventBus.publish({
+  type: "HIGHLIGHT",
+  data: {
+    clear: true
+  }
+})
+```
+
+## Layer Visibility
+
+The Layer System allows toggling the visibility of different layers:
+
+```tsx
+// Toggle layer visibility
+eventBus.publish({
+  type: "LAYER_TOGGLE_REQUEST",
+  data: {
+    layer: "headings",
+    visible: false // Hide the layer
+  }
+})
+```
+
+## Performance Optimizations
+
+The Layer System includes several performance optimizations:
+
+1. **Debounced Updates** - Standard highlights are updated with debouncing
+2. **Fast Path for Inspector** - Inspector highlights bypass debouncing
+3. **Element Validation** - Ensures elements are valid before highlighting
+4. **Stale Highlight Cleanup** - Periodically removes highlights for elements no longer in DOM
+5. **Layer-based Organization** - Allows efficient management of related highlights
+6. **Memoized Components** - Uses React.memo to prevent unnecessary re-renders
+7. **RequestAnimationFrame** - Uses RAF for smooth visual updates
+
+```tsx
+// Example of debounced update
+const debouncedUpdate = (
+  updates: Map<string, Map<string, HighlightData>>
+) => {
+  pendingUpdatesRef.current = updates
+  if (updateTimeoutRef.current) {
+    clearTimeout(updateTimeoutRef.current)
+  }
+  updateTimeoutRef.current = setTimeout(applyUpdates, DEBOUNCE_MS)
+}
+```
+
+## Integration with Testing Framework
+
+The Layer System integrates with the testing framework through the event bus:
+
+1. Test results create highlights in their respective layers
+2. Tests mark completion through special events
+3. The Layer System listens for test completion to show layer controls
+
+```tsx
+// Tracking test completion
+const REQUIRED_TEST_COMPLETIONS = [
+  "HEADING_ANALYSIS_COMPLETE",
+  "LINK_ANALYSIS_COMPLETE",
+  "ALT_ANALYSIS_COMPLETE",
+  "INTERACTIVE_ANALYSIS_COMPLETE"
+]
+
+// Subscribe to test completion events
+useEffect(() => {
+  const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+    if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
+      completedTestsRef.current.add(event.type)
+
+      // Check if all required tests are complete
+      const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
+        completedTestsRef.current.has(testType)
+      )
+
+      if (allComplete) {
+        setTestsComplete(true)
+        setHiddenLayers(new Set())
+      }
+    }
+  })
+  return unsubscribe
+}, [])
+```
+
+## Element Validation
+
+The Layer System includes validation to ensure reliable highlighting:
+
+```tsx
+// Validation for normal highlights
+const validateHighlight = (selector: string): HTMLElement | null => {
+  try {
+    if (!selector || selector === "*") return null
+    const element = document.querySelector(selector) as HTMLElement
+    if (!element || !element.isConnected) return null
+    const rect = element.getBoundingClientRect()
+    if (!rect || rect.width === 0 || rect.height === 0) return null
+    return element
+  } catch (error) {
+    console.error("Invalid selector:", selector, error)
+    return null
+  }
+}
+
+// Faster validation for inspector highlights
+const fastValidateHighlight = (selector: string): HTMLElement | null => {
+  try {
+    if (!selector || selector === "*") return null
+    return document.querySelector(selector) as HTMLElement
+  } catch (error) {
+    return null
+  }
+}
+```
+
+## Custom Highlight Styling
+
+Different types of highlights can have different styles:
+
+```tsx
+// Default styles
+const DEFAULT_HIGHLIGHT_STYLES = {
+  valid: {
+    border: "#10b981", // Green for valid
+    background: "rgba(16, 185, 129, 0.1)",
+    messageBackground: "#10b981"
+  },
+  invalid: {
+    border: "#ef4444", // Red for invalid
+    background: "rgba(239, 68, 68, 0.1)",
+    messageBackground: "#ef4444"
+  }
+}
+
+// Debug styles
+const DEBUG_HIGHLIGHT_STYLES: HighlightStyles = {
+  border: "#f59e0b", // Amber color for debug mode
+  background: "rgba(245, 158, 11, 0.1)",
+  messageBackground: "#f59e0b"
+}
+```
+
+## Best Practices
+
+When working with the Layer System:
+
+1. **Use Appropriate Layers** - Group related highlights in the same layer
+2. **Validate Elements** - Always check that elements exist and are visible
+3. **Clear Highlights** - Remove highlights when they're no longer needed
+4. **Consider Performance** - Be mindful of how many highlights you create
+5. **Use Inspector Mode** - For interactive feedback, use the inspector layer
+6. **Clean References** - Don't store references to elements that may be removed
+7. **Layer Naming** - Use descriptive, consistent layer names
+8. **Memoize Components** - When creating custom components that use highlights
+9. **Use Appropriate z-index** - Ensure highlights are visible but don't obscure UI controls
+10. **Test on Different Screen Sizes** - Verify highlight positioning on various screen sizes
+
+## Debugging the Layer System
+
+To debug the Layer System:
+
+1. Use the inspector-debug layer for special highlighting
+2. Check the console for Layer System logs (prefixed with `[PlasmoOverlay]`)
+3. Verify element selectors are valid and specific
+4. Ensure the content script has loaded by checking for the `CONTENT_SCRIPT_READY` message
+5. Inspect stale highlight cleanup by checking the periodic cleanup logs
+
+```tsx
+// Example of using the debug layer
+eventBus.publish({
+  type: "HIGHLIGHT",
+  data: {
+    layer: "inspector-debug",
+    selector: "#problematic-element",
+    message: "Debugging this element",
+    isValid: false
+  }
+})
+```
+
+## Extending the Layer System
+
+To add new layer types or functionality:
+
+1. Update the highlight styles in `highlight-types.ts`
+2. Add any new layer constants to `plasmo-storage.tsx`
+3. Implement custom rendering if needed in `LayerSystem.tsx`
+4. Add any specialized handling in the event listeners
+
+```tsx
+// Example of adding a new layer type
+const MY_CUSTOM_LAYER = "custom-layer"
+
+// Example custom styles
+const CUSTOM_HIGHLIGHT_STYLES: HighlightStyles = {
+  border: "#8b5cf6", // Purple for custom layer
+  background: "rgba(139, 92, 246, 0.1)",
+  messageBackground: "#8b5cf6"
+}
+
+// Update the layer toggle component to recognize the new layer
+// in LayerToggle.tsx
+const LAYER_DISPLAY_NAMES = {
+  // ... existing layers
+  [MY_CUSTOM_LAYER]: "My Custom Layer"
+}
+```
+
+## Creating Custom Highlight Components
+
+You can create custom highlight components that integrate with the Layer System:
+
+```tsx
+// Example custom highlight component
+function CustomHighlight({ element, message, isValid }) {
+  // Generate a stable selector for the element
+  const selector = useMemo(() => generateSelector(element), [element])
+
+  // Add highlight when component mounts
+  useEffect(() => {
+    eventBus.publish({
+      type: "HIGHLIGHT",
+      data: {
+        layer: "custom",
+        selector,
+        message,
+        isValid
+      }
+    })
+
+    // Clean up when component unmounts
+    return () => {
+      eventBus.publish({
+        type: "HIGHLIGHT",
+        data: {
+          layer: "custom",
+          selector,
+          clear: true
+        }
+      })
+    }
+  }, [selector, message, isValid])
+
+  // No need to render anything - the highlight is managed by the Layer System
+  return null
+}
+```
+
+## Layer System Architecture
+
+The Layer System follows this flow:
+
+1. Events trigger highlight updates
+2. Highlight data is stored in layered maps
+3. Updates are debounced for performance
+4. The `LayerSystem` component renders all visible highlights
+5. The `LayerToggle` component provides UI controls
+6. Periodic cleanup removes stale highlights
+
+This architecture ensures efficient rendering and management of potentially hundreds of highlights across multiple layers.

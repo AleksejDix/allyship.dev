@@ -1,0 +1,227 @@
+---
+description: "State management and storage guidelines for Plasmo extensions"
+globs:
+  - "apps/allystudio/src/storage/**/*"
+  - "apps/allystudio/src/providers/**/*"
+---
+
+# State Management and Storage
+
+## Component State Management
+
+1. **Use React Hooks for Component State**:
+   ```tsx
+   function Counter() {
+     const [count, setCount] = useState(0)
+
+     return (
+       <div>
+         <p>Count: {count}</p>
+         <button onClick={() => setCount(count + 1)}>Increment</button>
+       </div>
+     )
+   }
+   ```
+
+2. **Use Reducers for Complex State**:
+   ```tsx
+   type State = { count: number, lastUpdated: Date }
+   type Action = { type: 'increment' } | { type: 'decrement' } | { type: 'reset' }
+
+   function reducer(state: State, action: Action): State {
+     switch (action.type) {
+       case 'increment':
+         return { count: state.count + 1, lastUpdated: new Date() }
+       case 'decrement':
+         return { count: state.count - 1, lastUpdated: new Date() }
+       case 'reset':
+         return { count: 0, lastUpdated: new Date() }
+       default:
+         return state
+     }
+   }
+
+   function CounterWithReducer() {
+     const [state, dispatch] = useReducer(reducer, { count: 0, lastUpdated: new Date() })
+
+     return (
+       <div>
+         <p>Count: {state.count}</p>
+         <p>Last updated: {state.lastUpdated.toLocaleString()}</p>
+         <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>
+         <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>
+         <button onClick={() => dispatch({ type: 'reset' })}>Reset</button>
+       </div>
+     )
+   }
+   ```
+
+3. **Use Context for Shared State**:
+   ```tsx
+   interface ThemeContextValue {
+     theme: 'light' | 'dark'
+     toggleTheme: () => void
+   }
+
+   const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined)
+
+   function ThemeProvider({ children }: { children: React.ReactNode }) {
+     const [theme, setTheme] = useState<'light' | 'dark'>('light')
+
+     const toggleTheme = useCallback(() => {
+       setTheme(current => current === 'light' ? 'dark' : 'light')
+     }, [])
+
+     return (
+       <ThemeContext.Provider value={{ theme, toggleTheme }}>
+         {children}
+       </ThemeContext.Provider>
+     )
+   }
+
+   function useTheme() {
+     const context = useContext(ThemeContext)
+
+     if (context === undefined) {
+       throw new Error('useTheme must be used within a ThemeProvider')
+     }
+
+     return context
+   }
+   ```
+
+## Persistent Storage
+
+### Plasmo Storage vs Chrome Storage
+
+Plasmo Storage is a wrapper around Chrome's storage API that provides a simpler interface. Here's when to use each:
+
+| Storage Type | When to Use | Example |
+|--------------|-------------|---------|
+| **Plasmo Storage** | For simple key-value storage with a clean API | `const storage = new Storage()` |
+| **Chrome Storage** | For advanced use cases with specific storage areas | `chrome.storage.local.get()` |
+
+### Storage Areas
+
+```tsx
+// Plasmo Storage with different areas
+import { Storage } from "@plasmohq/storage"
+
+// Local storage (default)
+const localStorage = new Storage({ area: "local" })
+
+// Sync storage (syncs across user's devices)
+const syncStorage = new Storage({ area: "sync" })
+
+// Session storage (cleared when browser is closed)
+const sessionStorage = new Storage({ area: "session" })
+```
+
+### Storage Considerations
+
+- **Local Storage**: For larger data (up to 5MB) that doesn't need to sync
+- **Sync Storage**: For user preferences and settings (up to 100KB)
+- **Session Storage**: For temporary data during the browser session
+
+### Storage Usage Patterns
+
+1. **Basic Get/Set Operations**:
+   ```tsx
+   import { Storage } from "@plasmohq/storage"
+
+   const storage = new Storage()
+
+   // Set a value
+   await storage.set("user-settings", { theme: "dark", fontSize: "medium" })
+
+   // Get a value
+   const settings = await storage.get("user-settings")
+
+   // Remove a value
+   await storage.remove("user-settings")
+
+   // Clear all values
+   await storage.clear()
+   ```
+
+2. **Watch for Changes**:
+   ```tsx
+   import { Storage } from "@plasmohq/storage"
+   import { useStorage } from "@plasmohq/storage/hook"
+
+   // In a React component
+   function SettingsDisplay() {
+     const [settings, setSettings] = useStorage({
+       key: "user-settings",
+       instance: new Storage()
+     })
+
+     return (
+       <div>
+         <p>Theme: {settings?.theme}</p>
+         <p>Font Size: {settings?.fontSize}</p>
+         <button onClick={() => setSettings({ ...settings, theme: "light" })}>
+           Switch to Light
+         </button>
+       </div>
+     )
+   }
+   ```
+
+3. **Handling Storage Errors**:
+   ```tsx
+   import { Storage } from "@plasmohq/storage"
+
+   const storage = new Storage()
+
+   try {
+     await storage.set("large-data", veryLargeObject)
+   } catch (error) {
+     console.error("Storage error:", error)
+     // Handle quota exceeded or other storage errors
+   }
+   ```
+
+## Best Practices
+
+1. **Type Your Storage Data**:
+   ```tsx
+   interface UserSettings {
+     theme: "light" | "dark"
+     fontSize: "small" | "medium" | "large"
+     notifications: boolean
+   }
+
+   // With TypeScript typings
+   const settings = await storage.get<UserSettings>("user-settings")
+   ```
+
+2. **Partition Storage by Feature**:
+   ```tsx
+   // Settings storage
+   const settingsStorage = new Storage({ area: "sync" })
+
+   // Scan results storage (larger data)
+   const resultsStorage = new Storage({ area: "local" })
+   ```
+
+3. **Respect Storage Limits**:
+   - Sync storage: ~100KB
+   - Local storage: ~5MB
+   - Monitor storage usage and handle quota exceeded errors
+
+4. **Use Versioning for Schema Changes**:
+   ```tsx
+   interface StorageSchema {
+     version: number
+     settings: UserSettings
+   }
+
+   // Check and migrate if needed
+   const data = await storage.get<StorageSchema>("app-data")
+
+   if (!data || data.version < CURRENT_VERSION) {
+     // Migrate data to new format
+     await storage.set("app-data", migrateData(data))
+   }
+   ```

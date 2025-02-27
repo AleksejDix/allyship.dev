@@ -1,0 +1,257 @@
+---
+description: "Guidelines for developing content scripts in Plasmo extensions"
+globs:
+  - "apps/allystudio/src/contents/**/*"
+---
+
+# Content Script Patterns
+
+Content scripts are JavaScript files that run in the context of web pages. They allow your extension to read and manipulate the DOM of pages the user visits.
+
+## Content Script Configuration
+
+```tsx
+// In src/contents/index.tsx
+export const config = {
+  matches: ["<all_urls>"],  // URL patterns to match
+  world: "ISOLATED"         // JavaScript context
+}
+
+export default function Content() {
+  // Component that runs in the web page
+  return <ContentComponent />
+}
+```
+
+## Content Script Worlds
+
+### MAIN World
+
+The MAIN world injects directly into the webpage's JavaScript context:
+
+- Use when you need to interact with the page's JavaScript variables
+- Good for reading page state or modifying existing page functionality
+- Risk of conflicts with page scripts
+
+```tsx
+// Content script in MAIN world
+export const config = {
+  matches: ["<all_urls>"],
+  world: "MAIN"
+}
+
+export default function Content() {
+  useEffect(() => {
+    // Can access page variables directly
+    const pageVariable = window.somePageVariable
+
+    // Can modify existing functions
+    const originalFn = window.someFunction
+    window.someFunction = function(...args) {
+      console.log("Function called with:", args)
+      return originalFn.apply(this, args)
+    }
+  }, [])
+
+  return null
+}
+```
+
+### ISOLATED World
+
+The ISOLATED world runs in a separate JavaScript context:
+
+- Use for most AllyStudio features to prevent conflicts
+- Can still access and modify the DOM
+- Cannot directly access JavaScript variables from the page
+- Safer and more predictable behavior
+
+```tsx
+// Content script in ISOLATED world (default)
+export const config = {
+  matches: ["<all_urls>"],
+  world: "ISOLATED"  // This is the default if not specified
+}
+
+export default function Content() {
+  useEffect(() => {
+    // Can access DOM
+    const headings = document.querySelectorAll('h1, h2, h3')
+
+    // Cannot access page variables or functions
+    // window.somePageVariable would be undefined
+  }, [])
+
+  return null
+}
+```
+
+## DOM Manipulation Examples
+
+### Highlighting Accessibility Issues
+
+```tsx
+// Content script with DOM manipulation
+export default function Content() {
+  useEffect(() => {
+    // Highlight all headings for accessibility testing
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
+    headings.forEach(heading => {
+      heading.style.outline = '2px solid #4f46e5'
+      heading.style.outlineOffset = '2px'
+    })
+
+    // Add annotations
+    headings.forEach(heading => {
+      const level = heading.tagName.toLowerCase()
+      const annotation = document.createElement('span')
+      annotation.textContent = level
+      annotation.style.position = 'absolute'
+      annotation.style.background = '#4f46e5'
+      annotation.style.color = 'white'
+      annotation.style.padding = '2px 4px'
+      annotation.style.borderRadius = '2px'
+      annotation.style.fontSize = '10px'
+      annotation.style.marginLeft = '4px'
+      heading.parentNode.insertBefore(annotation, heading.nextSibling)
+    })
+  }, [])
+
+  return null
+}
+```
+
+### Creating Overlay UI
+
+```tsx
+export default function Content() {
+  return (
+    <div className="fixed bottom-0 right-0 z-50 p-4 m-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h2 className="text-lg font-semibold">Accessibility Tools</h2>
+      <button className="px-3 py-1 mt-2 bg-blue-500 text-white rounded">
+        Analyze Page
+      </button>
+    </div>
+  )
+}
+```
+
+## Communicating with Background Scripts
+
+Content scripts should communicate with the rest of the extension through background scripts:
+
+```tsx
+import { sendToBackground } from "@plasmohq/messaging"
+
+export default function Content() {
+  const [results, setResults] = useState(null)
+
+  const analyzeAccessibility = async () => {
+    // Gather accessibility data from the page
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+      .map(h => ({
+        level: h.tagName.toLowerCase(),
+        text: h.textContent,
+        hasProperNesting: checkHeadingNesting(h)
+      }))
+
+    const images = Array.from(document.querySelectorAll('img'))
+      .map(img => ({
+        hasAlt: img.hasAttribute('alt'),
+        altText: img.getAttribute('alt') || ''
+      }))
+
+    // Send data to background script for processing
+    try {
+      const response = await sendToBackground({
+        name: "analyze-accessibility",
+        body: {
+          url: window.location.href,
+          headings,
+          images
+        }
+      })
+
+      setResults(response.data)
+    } catch (error) {
+      console.error("Failed to analyze page:", error)
+    }
+  }
+
+  return (
+    <div className="fixed bottom-0 right-0 z-50 p-4 m-4 bg-white rounded-lg shadow-lg">
+      <button onClick={analyzeAccessibility}>
+        Analyze Page
+      </button>
+      {results && <ResultsDisplay results={results} />}
+    </div>
+  )
+}
+```
+
+## Performance Considerations
+
+Content scripts run on every matched page, so they must be efficient:
+
+1. **Minimize DOM Operations**: Batch DOM operations when possible
+2. **Use Event Delegation**: For handling multiple similar elements
+3. **Clean Up**: Remove event listeners and observers in useEffect cleanup functions
+4. **Throttle/Debounce**: For event handlers that might fire frequently
+5. **Lazy Initialization**: Initialize heavy operations only when needed
+
+```tsx
+// Example of performance optimizations
+export default function Content() {
+  useEffect(() => {
+    // Debounce scroll handler
+    const handleScroll = debounce(() => {
+      // Handle scroll
+    }, 100)
+
+    // Event delegation
+    document.body.addEventListener('click', (e) => {
+      if (e.target.matches('button.accessibility-action')) {
+        // Handle button clicks
+      }
+    })
+
+    window.addEventListener('scroll', handleScroll)
+
+    // Clean up
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      // Remove other listeners
+    }
+  }, [])
+
+  return null
+}
+
+// Debounce utility
+function debounce(fn, delay) {
+  let timeout
+  return function(...args) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => fn.apply(this, args), delay)
+  }
+}
+```
+
+## Debugging Content Scripts
+
+Add console logs for debugging:
+
+```tsx
+// Content script debugging
+export default function Content() {
+  useEffect(() => {
+    console.log("[AllyStudio] Content script loaded")
+    console.log("[AllyStudio] DOM ready state:", document.readyState)
+    console.log("[AllyStudio] URL:", window.location.href)
+  }, [])
+
+  return null
+}
+```
+
+Open the DevTools console in the page to see these logs. For easier identification, prefix all logs with "[AllyStudio]".

@@ -1,0 +1,162 @@
+---
+description: "Guidelines for creating UI components in the Plasmo extension"
+globs:
+  - "apps/allystudio/src/components/**/*.tsx"
+  - "apps/allystudio/src/sidepanel/**/*.tsx"
+  - "apps/allystudio/src/options/**/*.tsx"
+---
+
+# UI Component Guidelines
+
+## Component Structure
+
+1. Use the shadcn/ui-based component system in `src/components/ui/`
+2. Follow the component patterns established in the codebase:
+
+```tsx
+// Standard component structure
+import { cn } from "@/lib/utils"
+import * as React from "react"
+
+interface ComponentProps {
+  // Props definition
+}
+
+export function Component({
+  className,
+  ...props
+}: ComponentProps) {
+  return (
+    <div
+      className={cn(
+        "base-styles",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+```
+
+## Component Best Practices
+
+### Composition Over Inheritance
+
+Build components that can be composed together rather than creating complex inheritance hierarchies:
+
+```tsx
+// Good: Composable components
+function Card({ children }) {
+  return <div className="card">{children}</div>
+}
+
+function CardTitle({ children }) {
+  return <h2 className="card-title">{children}</h2>
+}
+
+// Usage
+<Card>
+  <CardTitle>My Card</CardTitle>
+  <p>Content goes here</p>
+</Card>
+```
+
+### Controlled Components
+
+Prefer controlled components when state needs to be shared:
+
+```tsx
+// Controlled component
+function Checkbox({ checked, onChange }) {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+    />
+  )
+}
+
+// Usage
+function Parent() {
+  const [isChecked, setIsChecked] = useState(false)
+
+  return (
+    <Checkbox
+      checked={isChecked}
+      onChange={e => setIsChecked(e.target.checked)}
+    />
+  )
+}
+```
+
+### Uncontrolled Components
+
+Use uncontrolled components for simple local state:
+
+```tsx
+// Uncontrolled component with React.forwardRef
+const TextInput = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>((props, ref) => {
+  return <input ref={ref} type="text" {...props} />
+})
+TextInput.displayName = "TextInput"
+
+// Usage
+function Form() {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleSubmit = () => {
+    const value = inputRef.current?.value
+    // Process value
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <TextInput ref={inputRef} defaultValue="" />
+    </form>
+  )
+}
+```
+
+## Component Documentation
+
+Document components with JSDoc comments:
+
+```tsx
+/**
+ * A specialized button for accessibility actions
+ * @param {string} label - Accessible label for the button
+ * @param {() => void} onClick - Click handler
+ * @param {boolean} isPrimary - Whether this is a primary action
+ */
+export function AccessibilityButton({
+  label,
+  onClick,
+  isPrimary = false
+}: AccessibilityButtonProps) {
+  // ...
+}
+```
+
+## Theme Guidelines
+
+1. Use the theme system with light and dark mode support
+2. Use the color tokens defined in `tailwind.config.ts`
+3. Support user theme preferences and system theme detection
+
+```tsx
+// Example of proper theme usage
+function ThemedComponent() {
+  return (
+    <div className="bg-background text-foreground">
+      <h2 className="text-primary">Heading</h2>
+      <p className="text-muted-foreground">
+        This text adapts to both light and dark modes
+      </p>
+    </div>
+  )
+}
+```
