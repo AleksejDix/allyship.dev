@@ -24,12 +24,7 @@ const DEBUG_HIGHLIGHT_STYLES: HighlightStyles = {
 }
 
 // Track which tests need to complete
-const REQUIRED_TEST_COMPLETIONS = [
-  "HEADING_ANALYSIS_COMPLETE",
-  "LINK_ANALYSIS_COMPLETE",
-  "ALT_ANALYSIS_COMPLETE",
-  "INTERACTIVE_ANALYSIS_COMPLETE"
-] as const
+const REQUIRED_TEST_TYPES = ["headings", "links", "alt", "interactive"] as const
 
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<
@@ -170,21 +165,24 @@ const PlasmoOverlay = () => {
   // Subscribe to test completion events
   useEffect(() => {
     const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
-      // Track test completions
-      if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
-        completedTestsRef.current.add(event.type)
-        console.log("Test completed:", event.type)
+      // Track test completions using the generic event
+      if (event.type === "TEST_ANALYSIS_COMPLETE") {
+        const testId = event.data.testId
+        if (REQUIRED_TEST_TYPES.includes(testId as any)) {
+          completedTestsRef.current.add(testId)
+          console.log(`Test completed: ${testId}`)
 
-        // Check if all required tests are complete
-        const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
-          completedTestsRef.current.has(testType)
-        )
+          // Check if all required tests are complete
+          const allComplete = REQUIRED_TEST_TYPES.every((testType) =>
+            completedTestsRef.current.has(testType)
+          )
 
-        if (allComplete) {
-          console.log("All tests complete, showing layer toggle")
-          setTestsComplete(true)
-          // Reset hidden layers when tests complete
-          setHiddenLayers(new Set())
+          if (allComplete) {
+            console.log("All tests complete, showing layer toggle")
+            setTestsComplete(true)
+            // Reset hidden layers when tests complete
+            setHiddenLayers(new Set())
+          }
         }
       }
     })

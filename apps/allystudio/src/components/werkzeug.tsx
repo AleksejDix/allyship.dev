@@ -7,11 +7,8 @@ import {
 } from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
-import {
-  requestTestAnalysis,
-  runTest as runTestHelper
-} from "@/lib/testing/utils/event-utils"
-import { Beaker, Eye, EyeOff, Play, Square } from "lucide-react"
+import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
+import { Beaker, Play } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TestEventMonitor } from "./test-event-monitor"
@@ -32,98 +29,20 @@ interface TestResults {
 interface TestSelectorProps {
   onRunTest: (testType: TestType) => void
   onStopTest: () => void
-  isAnalyzing: boolean
+  isRunning: boolean
   activeTest: TestType | null
 }
 
-// New TestSelector component to allow selecting and running individual tests
+// Generic Test Selector using the unified event system
 function TestSelector({
   onRunTest,
   onStopTest,
-  isAnalyzing,
+  isRunning,
   activeTest
 }: TestSelectorProps) {
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-semibold">Accessibility Tests</h2>
-      <div className="space-y-2">
-        {Object.entries(TEST_CONFIGS).map(([type, config]) => (
-          <div
-            key={type}
-            className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground">
-            <div>
-              <h3 className="font-medium">{config.displayName}</h3>
-              <p className="text-xs text-muted-foreground">
-                Tests {config.statsText.itemName} for accessibility issues
-              </p>
-            </div>
-            <IconButtonWithTooltip
-              tooltip={
-                activeTest === type
-                  ? `Stop ${config.displayName} test`
-                  : `Run ${config.displayName} test`
-              }
-              side="left">
-              {activeTest === type ? (
-                <Button
-                  size="icon"
-                  className="h-8 w-8 animate-pulse"
-                  variant="destructive"
-                  onClick={onStopTest}
-                  aria-label={`Stop ${config.displayName} test`}>
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </Button>
-              ) : (
-                <Button
-                  size="icon"
-                  className="h-8 w-8"
-                  variant="outline"
-                  onClick={() => onRunTest(type as TestType)}
-                  disabled={isAnalyzing}
-                  aria-label={`Run ${config.displayName} test`}>
-                  <Play className="h-4 w-4" aria-hidden="true" />
-                </Button>
-              )}
-            </IconButtonWithTooltip>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// New Test Selector component using generic events
-function GenericTestSelector({
-  onRunTest,
-  onStopTest,
-  isAnalyzing,
-  activeTest
-}: TestSelectorProps) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Accessibility Tests</h2>
-        <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-          New UI
-        </div>
-      </div>
       <div className="space-y-2">
         {Object.entries(TEST_CONFIGS).map(([type, config]) => (
           <div
@@ -142,7 +61,7 @@ function GenericTestSelector({
               onClick={() =>
                 activeTest === type ? onStopTest() : onRunTest(type as TestType)
               }
-              disabled={isAnalyzing && activeTest !== type}
+              disabled={isRunning && activeTest !== type}
               className={activeTest === type ? "animate-pulse" : ""}>
               {activeTest === type ? (
                 <svg
@@ -175,68 +94,6 @@ function GenericTestSelector({
   )
 }
 
-interface TestResultItemProps {
-  result: TestResults
-  hiddenLayers: Set<string>
-  onToggleLayer: (layer: string) => void
-}
-
-// Extract test result item to its own component
-function TestResultItem({
-  result,
-  hiddenLayers,
-  onToggleLayer
-}: TestResultItemProps) {
-  return (
-    <div className="p-4 rounded-lg border bg-card text-card-foreground">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-medium">{TEST_CONFIGS[result.type].displayName}</h3>
-        <IconButtonWithTooltip
-          tooltip={hiddenLayers.has(result.type) ? "Show layer" : "Hide layer"}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onToggleLayer(result.type)}
-            aria-pressed={!hiddenLayers.has(result.type)}
-            aria-label={`Toggle ${TEST_CONFIGS[result.type].displayName} layer visibility`}
-            className="h-8 w-8">
-            {hiddenLayers.has(result.type) ? (
-              <EyeOff className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Eye className="h-4 w-4" aria-hidden="true" />
-            )}
-          </Button>
-        </IconButtonWithTooltip>
-      </div>
-      <p className="text-sm text-muted-foreground">
-        Found {result.stats.invalid} issues in {result.stats.total}{" "}
-        {TEST_CONFIGS[result.type].statsText.itemName}
-      </p>
-      {result.issues.length > 0 && (
-        <ul className="mt-2 space-y-1">
-          {result.issues.map((issue, index) => (
-            <li
-              key={`${result.type}-${issue.id}-${issue.severity}-${index}`}
-              className="text-sm flex items-center gap-2">
-              <span
-                className={`px-1.5 py-0.5 rounded-full text-xs ${
-                  issue.severity === "Critical"
-                    ? "bg-destructive text-destructive-foreground"
-                    : issue.severity === "High"
-                      ? "bg-warning text-warning-foreground"
-                      : "bg-muted text-muted-foreground"
-                }`}>
-                {issue.severity}
-              </span>
-              {issue.message}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
-}
-
 // Tooltip wrapper component for consistency
 function IconButtonWithTooltip({
   children,
@@ -256,15 +113,11 @@ function IconButtonWithTooltip({
 }
 
 export function Werkzeug() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  // Simplified state management - using only the necessary states
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
   const [testResults, setTestResults] = useState<any[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
   const [showExperimental, setShowExperimental] = useState(false)
-  const [runningTest, setRunningTest] = useState<TestType | null>(null)
-  const [runningGenericTest, setRunningGenericTest] = useState<TestType | null>(
-    null
-  )
 
   // Added function to clear results explicitly
   const clearResults = () => {
@@ -273,44 +126,19 @@ export function Werkzeug() {
   }
 
   useEffect(() => {
-    // Listen for test completion events
+    // Listen for test completion events using the generic event system
     const handleTestComplete = (event: any) => {
       console.log("[werkzeug] Received event:", event.type, event)
 
-      // Make sure we're only handling completion events (not requests)
-      if (event.type === "TEST_ANALYSIS_REQUEST") {
-        // Skip request events - we're only interested in completion events
-        return
-      }
-
-      // Handle specific test completion events
-      if (event.type.endsWith("_COMPLETE") && !event.type.startsWith("TEST_")) {
-        console.log("[werkzeug] Handling specific test completion:", event)
-        setIsAnalyzing(false)
-        setActiveTest(null)
-
-        // Make sure results are in the expected format
-        if (event.data?.issues) {
-          setTestResults(event.data.issues || [])
-        } else {
-          setTestResults(event.results || [])
-        }
-      }
-
-      // Handle generic test completion events
+      // Only handle generic test completion events
       if (event.type === "TEST_ANALYSIS_COMPLETE") {
-        console.log("[werkzeug] Handling generic test completion:", event)
+        console.log("[werkzeug] Handling test completion:", event)
         const testId = event.data?.testId
 
-        // Reset the appropriate loading state based on which test was running
-        if (runningTest === testId) {
-          console.log(`[werkzeug] Resetting runningTest for ${testId}`)
-          setRunningTest(null)
-        }
-
-        if (runningGenericTest === testId) {
-          console.log(`[werkzeug] Resetting runningGenericTest for ${testId}`)
-          setRunningGenericTest(null)
+        // Reset loading state if this is the active test
+        if (activeTest === testId) {
+          console.log(`[werkzeug] Resetting activeTest for ${testId}`)
+          setActiveTest(null)
         }
 
         // Update results - only if there are issues to display
@@ -329,7 +157,7 @@ export function Werkzeug() {
       console.log("[werkzeug] Cleaning up event listener")
       cleanup()
     }
-  }, [runningTest, runningGenericTest])
+  }, [activeTest])
 
   const toggleLayer = (testType: string) => {
     console.log("[Werkzeug] Toggle requested for layer:", testType)
@@ -374,10 +202,10 @@ export function Werkzeug() {
     })
   }
 
-  // Update the runTest function to use our helper
+  // Unified test runner using the generic event system
   const runTest = async (type: TestType) => {
     console.log(`[werkzeug] Running test: ${type}`)
-    setRunningTest(type)
+    setActiveTest(type)
 
     try {
       // Use our helper function
@@ -385,40 +213,18 @@ export function Werkzeug() {
 
       // Set a safety timeout to reset the loading state
       setTimeout(() => {
-        if (runningTest === type) {
+        if (activeTest === type) {
           console.log(`[werkzeug] Safety timeout for test: ${type}`)
-          setRunningTest(null)
+          setActiveTest(null)
         }
       }, 10000)
     } catch (error) {
       console.error(`[werkzeug] Error running test ${type}:`, error)
-      setRunningTest(null)
+      setActiveTest(null)
     }
   }
 
-  // Update the runGenericTest function to use our helper
-  const runGenericTest = async (type: TestType) => {
-    console.log(`[werkzeug] Running generic test: ${type}`)
-    setRunningGenericTest(type)
-
-    try {
-      // Use our helper function
-      await runTestHelper(type)
-
-      // Set a safety timeout to reset the loading state
-      setTimeout(() => {
-        if (runningGenericTest === type) {
-          console.log(`[werkzeug] Safety timeout for generic test: ${type}`)
-          setRunningGenericTest(null)
-        }
-      }, 10000)
-    } catch (error) {
-      console.error(`[werkzeug] Error running generic test ${type}:`, error)
-      setRunningGenericTest(null)
-    }
-  }
-
-  const stopAnalysis = () => {
+  const stopTest = () => {
     if (activeTest) {
       console.log(`[Werkzeug] Stopping test: ${activeTest}`)
 
@@ -431,42 +237,21 @@ export function Werkzeug() {
         }
       })
     }
-    setIsAnalyzing(false)
     setActiveTest(null)
   }
 
   return (
     <TooltipProvider>
       <div className="p-2 space-y-4">
-        {/* MIGRATION: We have two test UIs side by side currently.
-            Eventually, we'll remove the old TestSelector completely
-            and only use the GenericTestSelector. */}
-
-        {/* Legacy Test Selector */}
-        <div className="border-b pb-4 mb-2">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Legacy UI</h2>
-            <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              Will be removed
-            </div>
-          </div>
-          <TestSelector
-            onRunTest={runTest}
-            onStopTest={stopAnalysis}
-            isAnalyzing={isAnalyzing}
-            activeTest={activeTest}
-          />
-        </div>
-
-        {/* New Generic Test Selector */}
-        <GenericTestSelector
-          onRunTest={runGenericTest}
-          onStopTest={stopAnalysis}
-          isAnalyzing={isAnalyzing}
+        {/* Test Selector */}
+        <TestSelector
+          onRunTest={runTest}
+          onStopTest={stopTest}
+          isRunning={!!activeTest}
           activeTest={activeTest}
         />
 
-        {/* Event Monitor (always visible now) */}
+        {/* Event Monitor */}
         <TestEventMonitor />
 
         {/* Experimental Features Toggle */}
@@ -491,13 +276,13 @@ export function Werkzeug() {
         )}
 
         {/* Analysis Progress */}
-        {isAnalyzing && activeTest && (
+        {activeTest && (
           <div className="text-sm text-muted-foreground">
             Running {TEST_CONFIGS[activeTest].displayName}...
           </div>
         )}
 
-        {/* Results Summary - Updated to always show once populated */}
+        {/* Results Summary - Persistent until cleared */}
         {testResults.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">

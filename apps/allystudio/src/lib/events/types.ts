@@ -1,18 +1,8 @@
 // Event Types
 export type EventType =
   | "TOOL_STATE_CHANGE"
-  | "HEADING_ANALYSIS_REQUEST"
-  | "HEADING_ANALYSIS_COMPLETE"
-  | "HEADING_ISSUE_FOUND"
   | "HIGHLIGHT"
   | "HEADING_NAVIGATE_REQUEST"
-  | "LINK_ANALYSIS_REQUEST"
-  | "LINK_ANALYSIS_COMPLETE"
-  | "LINK_HIGHLIGHT_REQUEST"
-  | "ALT_ANALYSIS_REQUEST"
-  | "ALT_ANALYSIS_COMPLETE"
-  | "INTERACTIVE_ANALYSIS_REQUEST"
-  | "INTERACTIVE_ANALYSIS_COMPLETE"
   | "TESTS_COMPLETE"
   | "LAYER_TOGGLE_REQUEST"
   | "INSPECTOR_COMMAND"
@@ -40,42 +30,6 @@ export interface ToolStateEvent extends BaseEvent {
   }
 }
 
-// Analysis Events
-export interface HeadingAnalysisRequestEvent extends BaseEvent {
-  type: "HEADING_ANALYSIS_REQUEST"
-}
-
-export interface HeadingAnalysisCompleteEvent extends BaseEvent {
-  type: "HEADING_ANALYSIS_COMPLETE"
-  data: {
-    issues: HeadingIssue[]
-    stats: {
-      total: number
-      invalid: number
-    }
-  }
-}
-
-// Issue Events
-export interface HeadingIssue {
-  id: string
-  selector: string
-  message: string
-  severity: "Critical" | "High" | "Medium" | "Low"
-  element?: {
-    tagName: string
-    textContent: string
-    xpath: string
-  }
-}
-
-export interface HeadingIssueFoundEvent extends BaseEvent {
-  type: "HEADING_ISSUE_FOUND"
-  data: {
-    issue: HeadingIssue
-  }
-}
-
 // UI Events
 export interface HighlightRequestData {
   selector: string
@@ -93,99 +47,6 @@ export interface HeadingHighlightRequestEvent extends BaseEvent {
 export interface HeadingNavigateRequestEvent extends BaseEvent {
   type: "HEADING_NAVIGATE_REQUEST"
   data: {
-    xpath: string
-  }
-}
-
-// Link Events
-export interface LinkAnalysisRequestEvent extends BaseEvent {
-  type: "LINK_ANALYSIS_REQUEST"
-}
-
-export interface LinkAnalysisCompleteEvent extends BaseEvent {
-  type: "LINK_ANALYSIS_COMPLETE"
-  data: {
-    issues: LinkIssue[]
-    stats: {
-      total: number
-      invalid: number
-    }
-  }
-}
-
-export interface LinkIssue {
-  id: string
-  selector: string
-  message: string
-  severity: "Critical" | "High" | "Medium" | "Low"
-  element?: {
-    tagName: string
-    textContent: string
-    xpath: string
-  }
-}
-
-export interface LinkHighlightRequestEvent extends BaseEvent {
-  type: "LINK_HIGHLIGHT_REQUEST"
-  data: {
-    selector: string
-    message: string
-    isValid: boolean
-  }
-}
-
-// Alt Text Events
-export interface AltAnalysisRequestEvent extends BaseEvent {
-  type: "ALT_ANALYSIS_REQUEST"
-}
-
-export interface AltAnalysisCompleteEvent extends BaseEvent {
-  type: "ALT_ANALYSIS_COMPLETE"
-  data: {
-    issues: AltIssue[]
-    stats: {
-      total: number
-      invalid: number
-    }
-  }
-}
-
-export interface AltIssue {
-  id: string
-  selector: string
-  message: string
-  severity: "Critical" | "High" | "Medium" | "Low"
-  element?: {
-    tagName: string
-    textContent: string
-    xpath: string
-  }
-}
-
-// Interactive Analysis Events
-export interface InteractiveAnalysisRequestEvent extends BaseEvent {
-  type: "INTERACTIVE_ANALYSIS_REQUEST"
-}
-
-export interface InteractiveAnalysisCompleteEvent extends BaseEvent {
-  type: "INTERACTIVE_ANALYSIS_COMPLETE"
-  data: {
-    issues: InteractiveIssue[]
-    stats: {
-      total: number
-      invalid: number
-    }
-  }
-}
-
-export interface InteractiveIssue {
-  id: string
-  selector: string
-  message: string
-  severity: "Critical" | "High" | "Medium" | "Low"
-  element?: {
-    tagName: string
-    textContent: string
     xpath: string
   }
 }
@@ -282,21 +143,61 @@ export interface TestAnalysisCompleteEvent extends BaseEvent {
   }
 }
 
+// Type definitions for test issues
+// These remain because they define the shape of issues returned in the TEST_ANALYSIS_COMPLETE event
+export interface HeadingIssue {
+  id: string
+  selector: string
+  message: string
+  severity: "Critical" | "High" | "Medium" | "Low"
+  element?: {
+    tagName: string
+    textContent: string
+    xpath: string
+  }
+}
+
+export interface LinkIssue {
+  id: string
+  selector: string
+  message: string
+  severity: "Critical" | "High" | "Medium" | "Low"
+  element?: {
+    tagName: string
+    textContent: string
+    xpath: string
+  }
+}
+
+export interface AltIssue {
+  id: string
+  selector: string
+  message: string
+  severity: "Critical" | "High" | "Medium" | "Low"
+  element?: {
+    tagName: string
+    textContent: string
+    xpath: string
+  }
+}
+
+export interface InteractiveIssue {
+  id: string
+  selector: string
+  message: string
+  severity: "Critical" | "High" | "Medium" | "Low"
+  element?: {
+    tagName: string
+    textContent: string
+    xpath: string
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
-  | HeadingAnalysisRequestEvent
-  | HeadingAnalysisCompleteEvent
-  | HeadingIssueFoundEvent
   | HeadingHighlightRequestEvent
   | HeadingNavigateRequestEvent
-  | LinkAnalysisRequestEvent
-  | LinkAnalysisCompleteEvent
-  | LinkHighlightRequestEvent
-  | AltAnalysisRequestEvent
-  | AltAnalysisCompleteEvent
-  | InteractiveAnalysisRequestEvent
-  | InteractiveAnalysisCompleteEvent
   | TestsCompleteEvent
   | LayerToggleRequestEvent
   | InspectorCommandEvent
