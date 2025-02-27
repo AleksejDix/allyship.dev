@@ -1,7 +1,7 @@
 ---
 description: "Index of Plasmo extension development guidelines for AllyStudio"
-globs:
-  - "apps/allystudio/**/*"
+globs: 
+alwaysApply: false
 ---
 
 # Plasmo Extension Development Guidelines
@@ -10,21 +10,21 @@ This index provides links to all Plasmo extension development guidelines organiz
 
 ## Core Guidelines
 
-1. [Overview & Purpose](./01-overview.md) - Introduction to AllyStudio and its purpose
-2. [Architecture](./02-architecture.md) - Extension architecture and component organization
-3. [Communication Between Parts](./03-communication.md) - How different extension parts communicate
+1. [Overview & Purpose](mdc:01-overview.md) - Introduction to AllyStudio and its purpose
+2. [Architecture](mdc:02-architecture.md) - Extension architecture and component organization
+3. [Communication Between Parts](mdc:03-communication.md) - How different extension parts communicate
 
 ## UI Development
 
-4. [UI Components](./04-ui-components.md) - Guidelines for creating UI components
+4. [UI Components](mdc:04-ui-components.md) - Guidelines for creating UI components
 
 ## State & Data
 
-6. [State Management & Storage](./06-state-storage.md) - Managing state and persistent storage
+6. [State Management & Storage](mdc:06-state-storage.md) - Managing state and persistent storage
 
 ## Extension-specific Patterns
 
-7. [Content Scripts](./07-content-scripts.md) - Working with content scripts for page interaction
+7. [Content Scripts](mdc:07-content-scripts.md) - Working with content scripts for page interaction
 
 
 ## Quick References
@@ -73,22 +73,10 @@ export default function Content() {
 }
 ```
 
-### Common Commands
-
-```bash
-# Development
-npm run dev            # Start development server
-
-# Building
-npm run build          # Build for all browsers
-
-# Packaging
-npm run package        # Package for all browsers
-```
 
 ## Additional Resources
 
-- [Plasmo Framework Documentation](https://docs.plasmo.com/)
-- [Chrome Extension Documentation](https://developer.chrome.com/docs/extensions/)
-- [Firefox Extension Documentation](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions)
-- [Safari Extension Documentation](https://developer.apple.com/documentation/safariservices/safari_web_extensions)
+- [Plasmo Framework Documentation](mdc:https:/docs.plasmo.com)
+- [Chrome Extension Documentation](mdc:https:/developer.chrome.com/docs/extensions)
+- [Firefox Extension Documentation](mdc:https:/developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions)
+- [Safari Extension Documentation](mdc:https:/developer.apple.com/documentation/safariservices/safari_web_extensions)
