@@ -10,7 +10,13 @@ import "./rules/button-accessible-name"
 import "./rules/image-accessible-name"
 import "./rules/language-of-page"
 
+// Import our new link rules
+import { registerAllRules } from "./rules"
+
 // Add more rule imports here as they are implemented
+
+// Initialize all rules
+registerAllRules()
 
 // Define the event type constant
 export const TEST_ANALYSIS_COMPLETE: EventType = "TEST_ANALYSIS_COMPLETE"

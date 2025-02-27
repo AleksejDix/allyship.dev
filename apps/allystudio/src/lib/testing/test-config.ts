@@ -67,7 +67,6 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
   },
   links: {
     type: "links",
-    suite: linkTests,
     displayName: "Link Accessibility",
     buttonText: {
       enable: "Enable Link Analysis",
@@ -78,7 +77,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       itemName: "links"
     },
     layerName: "links",
-    runner: "link-runner.ts"
+    useACTRules: true
   },
   alt: {
     type: "alt",
