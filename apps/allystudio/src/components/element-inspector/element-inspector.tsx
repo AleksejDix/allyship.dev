@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button"
 import {
   ContextMenu,
+  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
   ContextMenuSeparator,
   ContextMenuTrigger
 } from "@/components/ui/context-menu"
@@ -172,11 +175,10 @@ export function ElementInspector() {
     }
   }, [isInspecting])
 
-  // Get the appropriate icon and label based on current state
+  // Get the appropriate label based on current state
   const getButtonDetails = () => {
     if (isInspecting) {
       return {
-        icon: <LocateOff className="h-4 w-4" />,
         label: "Stop Inspecting",
         variant: "destructive" as const
       }
@@ -184,7 +186,6 @@ export function ElementInspector() {
 
     if (deepInspectionMode) {
       return {
-        icon: <Layers className="h-4 w-4 text-orange-500" />,
         label: "Start Deep Inspection",
         variant: "outline" as const
       }
@@ -192,7 +193,6 @@ export function ElementInspector() {
 
     if (debugMode) {
       return {
-        icon: <Bug className="h-4 w-4 text-amber-500" />,
         label: "Start Debug Inspection",
         variant: "outline" as const
       }
@@ -200,20 +200,18 @@ export function ElementInspector() {
 
     if (!clickThroughMode) {
       return {
-        icon: <MousePointer className="h-4 w-4 text-cyan-500" />,
         label: "Start Inspection (Click-Through Off)",
         variant: "outline" as const
       }
     }
 
     return {
-      icon: <Locate className="h-4 w-4" />,
       label: "Inspect Elements",
       variant: "outline" as const
     }
   }
 
-  const { icon, label, variant } = getButtonDetails()
+  const { label, variant } = getButtonDetails()
 
   return (
     <div>
@@ -223,18 +221,39 @@ export function ElementInspector() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isInspecting ? "default" : "outline"}
+                  variant="outline"
                   size="icon"
                   className={cn(
-                    "h-8 w-8 relative",
-                    isInspecting && "bg-green-500 hover:bg-green-600"
+                    "h-8 w-8 relative border-2",
+                    isInspecting && "border-green-500 hover:border-green-600",
+                    !isInspecting && debugMode && "border-amber-500",
+                    !isInspecting && deepInspectionMode && "border-orange-500",
+                    !isInspecting && !clickThroughMode && "border-cyan-500",
+                    !isInspecting &&
+                      !debugMode &&
+                      !deepInspectionMode &&
+                      clickThroughMode &&
+                      "border-transparent"
                   )}
                   onClick={toggleInspection}
                   aria-label={label}>
-                  {icon}
+                  <Locate className="h-4 w-4" />
                   {isInspecting && (
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
+                    <div className="absolute -top-[4px] -right-[4px] w-2 h-2 bg-green-500 rounded-full ring-2 ring-background " />
                   )}
+                  {/* Options indicator triangle - always visible */}
+
+                  <svg
+                    className="absolute bottom-0.5 right-0.5 !w-1.5 !h-1.5"
+                    viewBox="0 0 4 4"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M0.5 3.5 L3.5 3.5 C3.75 3.5 3.75 3.25 3.5 3 L3.5 0.5 C3.5 0.25 3.25 0.25 3 0.5 Z"
+                      fill="currentColor"
+                      opacity="0.8"
+                    />
+                  </svg>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -243,48 +262,38 @@ export function ElementInspector() {
             </Tooltip>
           </TooltipProvider>
         </ContextMenuTrigger>
+
         <ContextMenuContent className="w-56">
-          <ContextMenuItem onClick={() => startWithMode("default")}>
-            <Zap className="mr-2 h-4 w-4" />
-            <span>Standard Inspection</span>
-          </ContextMenuItem>
-          <ContextMenuItem onClick={() => startWithMode("deep")}>
-            <Layers className="mr-2 h-4 w-4 text-orange-500" />
-            <span>Deep Inspection</span>
-            {deepInspectionMode && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                Active
-              </span>
-            )}
-          </ContextMenuItem>
-          <ContextMenuItem onClick={() => startWithMode("debug")}>
-            <Bug className="mr-2 h-4 w-4 text-amber-500" />
-            <span>Debug Inspection</span>
-            {debugMode && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                Active
-              </span>
-            )}
-          </ContextMenuItem>
+          <ContextMenuRadioGroup
+            value={
+              debugMode ? "debug" : deepInspectionMode ? "deep" : "standard"
+            }>
+            <ContextMenuRadioItem
+              value="standard"
+              onClick={() => startWithMode("default")}>
+              <Zap className="mr-2 h-4 w-4" />
+              <span>Standard Inspection</span>
+            </ContextMenuRadioItem>
+            <ContextMenuRadioItem
+              value="deep"
+              onClick={() => startWithMode("deep")}>
+              <Layers className="mr-2 h-4 w-4 text-orange-500" />
+              <span>Deep Inspection</span>
+            </ContextMenuRadioItem>
+            <ContextMenuRadioItem
+              value="debug"
+              onClick={() => startWithMode("debug")}>
+              <Bug className="mr-2 h-4 w-4 text-amber-500" />
+              <span>Debug Inspection</span>
+            </ContextMenuRadioItem>
+          </ContextMenuRadioGroup>
           <ContextMenuSeparator />
-          <ContextMenuItem onClick={toggleClickThroughMode}>
+          <ContextMenuCheckboxItem
+            checked={clickThroughMode}
+            onClick={toggleClickThroughMode}>
             <MousePointer className="mr-2 h-4 w-4 text-cyan-500" />
             <span>Click-Through</span>
-            <span className="ml-auto text-xs text-muted-foreground">
-              {clickThroughMode ? "On" : "Off"}
-            </span>
-          </ContextMenuItem>
-          {isInspecting && (
-            <>
-              <ContextMenuSeparator />
-              <ContextMenuItem
-                onClick={toggleInspection}
-                className="text-destructive">
-                <Crosshair className="mr-2 h-4 w-4 text-destructive" />
-                <span>Stop Inspection</span>
-              </ContextMenuItem>
-            </>
-          )}
+          </ContextMenuCheckboxItem>
         </ContextMenuContent>
       </ContextMenu>
     </div>
