@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from '@workspace/ui/components/dialog'
 import { Form } from '@workspace/ui/components/form'
-import { Field } from '@/components/forms/field'
+import { Field } from '@workspace/ui/components/field'
 
 type Props = {
   space_id: string

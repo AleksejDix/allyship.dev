@@ -2,7 +2,7 @@ import { HTMLInputAutoCompleteAttribute, HTMLInputTypeAttribute } from 'react'
 import { TriangleAlert } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@workspace/ui/lib/utils'
 import {
   FormControl,
   FormDescription,
@@ -28,15 +28,22 @@ type FieldProps = {
 
 export function Field(props: FieldProps) {
   const form = useFormContext()
-  const error = form.formState.errors[props.name]
+
+  // Check if form context exists
+  if (!form) {
+    throw new Error(
+      `Field component must be used within a Form component. Make sure you're using the Form component from @workspace/ui/components/form and that your form is properly set up.`
+    )
+  }
 
   const isHidden = props.type === 'hidden'
+  const error = form.formState.errors[props.name]
 
   return (
     <FormField
       control={form.control}
       name={props.name}
-      render={context => (
+      render={({ field }) => (
         <FormItem className={cn('space-y-2', props.className)}>
           <FormLabel
             className={cn(
@@ -62,13 +69,15 @@ export function Field(props: FieldProps) {
               ) : null}
             </span>
           </FormLabel>
+
           {props.description && (
             <FormDescription>{props.description}</FormDescription>
           )}
+
           <FormControl>
             <Input
               type={props.type}
-              {...context.field}
+              {...field}
               autoComplete={props.autoComplete}
               placeholder={props.placeholder}
               autoFocus={props.autoFocus}
@@ -76,7 +85,9 @@ export function Field(props: FieldProps) {
               className={cn(error && 'border-destructive')}
             />
           </FormControl>
+
           <FormMessage />
+
           {error?.message && (
             <p className="text-sm text-destructive" role="alert">
               {error.message as string}
