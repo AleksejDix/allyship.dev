@@ -16,6 +16,9 @@ export type EventType =
   | "TESTS_COMPLETE"
   | "LAYER_TOGGLE_REQUEST"
   | "INSPECTOR_COMMAND"
+  | "OUTLINER_COMMAND"
+  | "FOCUS_ORDER_COMMAND"
+  | "FOCUS_ORDER_STATS"
   | "CONTENT_SCRIPT_READY"
 
 // Base Event Interface
@@ -209,6 +212,30 @@ export interface InspectorCommandEvent extends BaseEvent {
   }
 }
 
+// Outliner Events
+export interface OutlinerCommandEvent extends BaseEvent {
+  type: "OUTLINER_COMMAND"
+  data: {
+    command: "start" | "stop" | "toggle"
+  }
+}
+
+// Focus Order Events
+export interface FocusOrderCommandEvent extends BaseEvent {
+  type: "FOCUS_ORDER_COMMAND"
+  data: {
+    command: "start" | "stop" | "toggle"
+  }
+}
+
+export interface FocusOrderStatsEvent extends BaseEvent {
+  type: "FOCUS_ORDER_STATS"
+  data: {
+    total: number
+    positiveTabIndex: number
+  }
+}
+
 // Content Script Events
 export interface ContentScriptReadyEvent extends BaseEvent {
   type: "CONTENT_SCRIPT_READY"
@@ -235,6 +262,9 @@ export type AllyStudioEvent =
   | TestsCompleteEvent
   | LayerToggleRequestEvent
   | InspectorCommandEvent
+  | OutlinerCommandEvent
+  | FocusOrderCommandEvent
+  | FocusOrderStatsEvent
   | ContentScriptReadyEvent
 
 // Event handler type
