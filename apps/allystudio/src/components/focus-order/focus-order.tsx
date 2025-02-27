@@ -87,36 +87,26 @@ export function FocusOrderVisualizer() {
                   size="icon"
                   className={cn(
                     "h-8 w-8 relative",
-                    isVisualizing && "bg-blue-600 hover:bg-blue-700"
+                    isVisualizing && "bg-green-500 hover:bg-green-600"
                   )}
                   onClick={toggleVisualization}
                   aria-label={
                     isVisualizing ? "Hide Focus Order" : "Show Focus Order"
                   }>
                   <Keyboard className="h-4 w-4" />
-                  {stats && isVisualizing && (
+                  {stats && isVisualizing && stats.positiveTabIndex > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                      {stats.positiveTabIndex > 0 ? "!" : ""}
+                      !
                     </span>
                   )}
+                  {isVisualizing &&
+                    (!stats || stats.positiveTabIndex === 0) && (
+                      <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
+                    )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{isVisualizing ? "Hide Focus Order" : "Show Focus Order"}</p>
-                <p className="text-xs mt-1">
-                  Visualize the tab order of interactive elements
-                </p>
-                {stats && (
-                  <div className="text-xs mt-2 space-y-1">
-                    <p>Total focusable elements: {stats.total}</p>
-                    {stats.positiveTabIndex > 0 && (
-                      <p className="text-red-500">
-                        Warning: {stats.positiveTabIndex} elements with positive
-                        tabindex
-                      </p>
-                    )}
-                  </div>
-                )}
+              <TooltipContent>
+                <p>Focus Order</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -136,7 +126,7 @@ export function FocusOrderVisualizer() {
                 "_blank"
               )
             }>
-            <Keyboard className="mr-2 h-4 w-4 text-blue-500" />
+            <Keyboard className="mr-2 h-4 w-4 text-green-500" />
             <span>About Focus Order</span>
           </ContextMenuItem>
         </ContextMenuContent>

@@ -223,29 +223,22 @@ export function ElementInspector() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={variant}
+                  variant={isInspecting ? "default" : "outline"}
                   size="icon"
                   className={cn(
                     "h-8 w-8 relative",
-                    isInspecting && "animate-pulse"
+                    isInspecting && "bg-green-500 hover:bg-green-600"
                   )}
                   onClick={toggleInspection}
                   aria-label={label}>
                   {icon}
+                  {isInspecting && (
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
+                  )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{label}</p>
-                {!isInspecting &&
-                  (deepInspectionMode || debugMode || !clickThroughMode) && (
-                    <p className="text-xs mt-1">
-                      {deepInspectionMode
-                        ? "Deep mode enabled"
-                        : debugMode
-                          ? "Debug mode enabled"
-                          : "Click-through disabled"}
-                    </p>
-                  )}
+              <TooltipContent>
+                <p>Element Inspector</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
