@@ -25,7 +25,7 @@ import {
   CardTitle,
 } from '@workspace/ui/components/card'
 import { Form } from '@workspace/ui/components/form'
-import { Field } from '@/components/forms/field'
+import { Field } from '@workspace/ui/components/field'
 import { RouterLink } from '@/components/RouterLink'
 import { Logo } from '@/components/site/Logo'
 

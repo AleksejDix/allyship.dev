@@ -1,8 +1,8 @@
-import { Metadata } from "next"
-import { ScanJobCreate } from "@/features/scans/components/scan-create"
+import { Metadata } from 'next'
+import { ScanJobCreate } from '@/features/scans/components/scan-create'
 
 export const metadata: Metadata = {
-  title: "Accessibility Scanner",
+  title: 'Accessibility Scanner',
   description: "Allyship's automated static accessibility scanning tool",
 }
 
