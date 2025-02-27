@@ -12,28 +12,31 @@ const testRunner = createTestRunner()
 
 // Subscribe to test requests
 eventBus.subscribe((event) => {
-  // Handle the old event types (specific test request events)
-  // Find test type by matching the request event type
+  // MIGRATION: Eventually, we'll handle only TEST_ANALYSIS_REQUEST events
+  // and remove the specific event type handling
+
+  // Handle the new generic event type (preferred method)
+  if (event.type === "TEST_ANALYSIS_REQUEST") {
+    const testId = event.data?.testId
+    if (testId && Object.keys(TEST_CONFIGS).includes(testId)) {
+      console.log("Running test (generic):", testId)
+      testRunner.runTest(testId as TestType).catch((error) => {
+        console.error("Error running generic test:", error)
+      })
+      return // Return early if we handled the generic event
+    }
+  }
+
+  // Handle the old event types as fallback (legacy support)
   const testConfig = Object.entries(TEST_CONFIGS).find(
     ([, config]) => config.events.request === event.type
   )
 
   if (testConfig) {
     const [type] = testConfig
-    console.log("Running test (old style):", type) // Debug log
+    console.log("Running test (legacy):", type)
     testRunner.runTest(type as TestType).catch((error) => {
       console.error("Error running test:", error)
     })
-  }
-
-  // Handle the new generic event type
-  if (event.type === "TEST_ANALYSIS_REQUEST") {
-    const testId = event.data?.testId
-    if (testId && Object.keys(TEST_CONFIGS).includes(testId)) {
-      console.log("Running test (generic):", testId) // Debug log
-      testRunner.runTest(testId as TestType).catch((error) => {
-        console.error("Error running generic test:", error)
-      })
-    }
   }
 })

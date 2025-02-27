@@ -2,13 +2,23 @@ import { altTests, headingTests, interactiveTests, linkTests } from "./suites"
 
 export type TestType = "headings" | "links" | "alt" | "interactive"
 
+/**
+ * Configuration for accessibility tests
+ *
+ * MIGRATION NOTE: We're adding support for generic events while maintaining
+ * backward compatibility with specific event types. Eventually, the specific
+ * events will be removed and we'll use only generic events.
+ */
 export interface TestConfig {
+  // Test identification
   type: TestType
   suite:
     | typeof headingTests
     | typeof linkTests
     | typeof altTests
     | typeof interactiveTests
+
+  // Legacy specific events (will eventually be removed)
   events: {
     complete:
       | "HEADING_ANALYSIS_COMPLETE"
@@ -21,6 +31,8 @@ export interface TestConfig {
       | "ALT_ANALYSIS_REQUEST"
       | "INTERACTIVE_ANALYSIS_REQUEST"
   }
+
+  // UI display configuration
   displayName: string
   buttonText: {
     enable: string
@@ -30,6 +42,9 @@ export interface TestConfig {
     label: string
     itemName: string
   }
+
+  // Layer mapping for visualization
+  layerName?: string // Maps test types to layer names (optional, defaults to test type)
 }
 
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
@@ -48,7 +63,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "headings"
-    }
+    },
+    layerName: "headings"
   },
   links: {
     type: "links",
@@ -65,7 +81,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "links"
-    }
+    },
+    layerName: "links"
   },
   alt: {
     type: "alt",
@@ -82,7 +99,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "images"
-    }
+    },
+    layerName: "images"
   },
   interactive: {
     type: "interactive",
@@ -99,6 +117,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "elements"
-    }
+    },
+    layerName: "interactive"
   }
 }
