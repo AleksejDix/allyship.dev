@@ -20,6 +20,7 @@ export type EventType =
   | "FOCUS_ORDER_COMMAND"
   | "FOCUS_ORDER_STATS"
   | "CONTENT_SCRIPT_READY"
+  | "DOM_CHANGE"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -244,6 +245,21 @@ export interface ContentScriptReadyEvent extends BaseEvent {
   }
 }
 
+// DOM Change Events
+export interface DOMChangeEvent extends BaseEvent {
+  type: "DOM_CHANGE"
+  data: {
+    elements: {
+      selector: string
+      tagName: string
+      textContent?: string
+      xpath?: string
+    }[]
+    changeType: "added" | "removed" | "attribute" | "text"
+    timestamp: number
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -266,6 +282,7 @@ export type AllyStudioEvent =
   | FocusOrderCommandEvent
   | FocusOrderStatsEvent
   | ContentScriptReadyEvent
+  | DOMChangeEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void
