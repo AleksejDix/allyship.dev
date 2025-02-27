@@ -80,12 +80,7 @@ function TestSelector({
           <SelectContent>
             {Object.entries(TEST_CONFIGS).map(([type, config]) => (
               <SelectItem key={type} value={type}>
-                <div className="flex flex-col">
-                  <span>{config.displayName}</span>
-                  <span className="text-xs text-muted-foreground">
-                    Tests {config.statsText.itemName} for accessibility issues
-                  </span>
-                </div>
+                {config.displayName}
               </SelectItem>
             ))}
           </SelectContent>
@@ -93,44 +88,33 @@ function TestSelector({
         <Button
           onClick={handleRunClick}
           disabled={!selectedTest && !isRunning}
-          variant={isRunning ? "destructive" : "default"}
-          className={isRunning ? "animate-pulse" : ""}>
+          variant={isRunning ? "destructive" : "ghost"}
+          size="icon"
+          className={cn(isRunning ? "animate-pulse" : "")}>
           {isRunning ? (
-            <>
-              <svg
-                className="h-4 w-4 mr-1 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Stop
-            </>
+            <svg
+              className="h-4 w-4 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
           ) : (
-            <>
-              <Play className="h-3 w-3 mr-1" aria-hidden="true" />
-              Run Test
-            </>
+            <Play className="h-4 w-4 text-green-600" aria-hidden="true" />
           )}
         </Button>
       </div>
-      {selectedTest && !isRunning && (
-        <div className="text-sm text-muted-foreground">
-          Tests {TEST_CONFIGS[selectedTest as TestType]?.statsText.itemName} for
-          accessibility issues
-        </div>
-      )}
     </div>
   )
 }
