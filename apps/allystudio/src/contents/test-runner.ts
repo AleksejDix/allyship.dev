@@ -12,6 +12,7 @@ const testRunner = createTestRunner()
 
 // Subscribe to test requests
 eventBus.subscribe((event) => {
+  // Handle the old event types (specific test request events)
   // Find test type by matching the request event type
   const testConfig = Object.entries(TEST_CONFIGS).find(
     ([, config]) => config.events.request === event.type
@@ -19,9 +20,20 @@ eventBus.subscribe((event) => {
 
   if (testConfig) {
     const [type] = testConfig
-    console.log("Running test:", type) // Debug log
+    console.log("Running test (old style):", type) // Debug log
     testRunner.runTest(type as TestType).catch((error) => {
       console.error("Error running test:", error)
     })
+  }
+
+  // Handle the new generic event type
+  if (event.type === "TEST_ANALYSIS_REQUEST") {
+    const testId = event.data?.testId
+    if (testId && Object.keys(TEST_CONFIGS).includes(testId)) {
+      console.log("Running test (generic):", testId) // Debug log
+      testRunner.runTest(testId as TestType).catch((error) => {
+        console.error("Error running generic test:", error)
+      })
+    }
   }
 })

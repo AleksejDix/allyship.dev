@@ -9,6 +9,7 @@ import type {
 import { ACTTestRunner } from "./act-test-runner"
 import type { TestType } from "./test-config"
 import { TestLogger } from "./test-logger"
+import { publishTestComplete } from "./utils/event-utils"
 
 type AnalysisCompleteEvent =
   | HeadingAnalysisCompleteEvent
@@ -82,7 +83,11 @@ export function createTestRunner() {
                 update.results,
                 update.stats
               )
+              // Publish the traditional specific event
               eventBus.publish(completeEvent)
+
+              // Also publish the generic TEST_ANALYSIS_COMPLETE event
+              publishTestComplete(type, update.results, update.stats)
               break
           }
         } else {
