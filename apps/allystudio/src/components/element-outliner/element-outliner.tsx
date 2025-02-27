@@ -57,11 +57,12 @@ export function ElementOutliner() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isOutlining ? "default" : "outline"}
+                  variant="outline"
                   size="icon"
                   className={cn(
-                    "h-8 w-8 relative",
-                    isOutlining && "bg-green-500 hover:bg-green-600"
+                    "h-8 w-8 relative border-2",
+                    isOutlining && "border-green-500 hover:border-green-600",
+                    !isOutlining && "border-transparent"
                   )}
                   onClick={toggleOutlining}
                   aria-label={
@@ -69,8 +70,20 @@ export function ElementOutliner() {
                   }>
                   <Grid3X3 className="h-4 w-4" />
                   {isOutlining && (
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
+                    <div className="absolute -top-[4px] -right-[4px] w-2 h-2 bg-green-500 rounded-full ring-2 ring-background" />
                   )}
+                  {/* Options indicator triangle - always visible */}
+                  <svg
+                    className="absolute bottom-0.5 right-0.5 !w-1.5 !h-1.5"
+                    viewBox="0 0 4 4"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M0.5 3.5 L3.5 3.5 C3.75 3.5 3.75 3.25 3.5 3 L3.5 0.5 C3.5 0.25 3.25 0.25 3 0.5 Z"
+                      fill="currentColor"
+                      opacity="0.8"
+                    />
+                  </svg>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -80,17 +93,9 @@ export function ElementOutliner() {
           </TooltipProvider>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-56">
-          <ContextMenuItem onClick={toggleOutlining}>
-            <Layers className="mr-2 h-4 w-4" />
-            <span>{isOutlining ? "Stop Outlining" : "Start Outlining"}</span>
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            onClick={() =>
-              window.open("https://github.com/mrmrs/pesticide", "_blank")
-            }>
-            <Grid3X3 className="mr-2 h-4 w-4 text-green-500" />
-            <span>About Element Outlining</span>
+          <ContextMenuItem disabled>
+            <Grid3X3 className="mr-2 h-4 w-4" />
+            <span>No additional options</span>
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

@@ -83,11 +83,12 @@ export function FocusOrderVisualizer() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isVisualizing ? "default" : "outline"}
+                  variant="outline"
                   size="icon"
                   className={cn(
-                    "h-8 w-8 relative",
-                    isVisualizing && "bg-green-500 hover:bg-green-600"
+                    "h-8 w-8 relative border-2",
+                    isVisualizing && "border-green-500 hover:border-green-600",
+                    !isVisualizing && "border-transparent"
                   )}
                   onClick={toggleVisualization}
                   aria-label={
@@ -95,14 +96,26 @@ export function FocusOrderVisualizer() {
                   }>
                   <Keyboard className="h-4 w-4" />
                   {stats && isVisualizing && stats.positiveTabIndex > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="absolute -top-[4px] -right-[4px] bg-red-500 text-white text-xs rounded-full w-2 h-2 flex items-center justify-center ring-2 ring-background">
                       !
                     </span>
                   )}
                   {isVisualizing &&
                     (!stats || stats.positiveTabIndex === 0) && (
-                      <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-1 ring-background" />
+                      <div className="absolute -top-[4px] -right-[4px] w-2 h-2 bg-green-500 rounded-full ring-2 ring-background" />
                     )}
+                  {/* Options indicator triangle - always visible */}
+                  <svg
+                    className="absolute bottom-0.5 right-0.5 !w-1.5 !h-1.5"
+                    viewBox="0 0 4 4"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M0.5 3.5 L3.5 3.5 C3.75 3.5 3.75 3.25 3.5 3 L3.5 0.5 C3.5 0.25 3.25 0.25 3 0.5 Z"
+                      fill="currentColor"
+                      opacity="0.8"
+                    />
+                  </svg>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -112,22 +125,9 @@ export function FocusOrderVisualizer() {
           </TooltipProvider>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-56">
-          <ContextMenuItem onClick={toggleVisualization}>
-            <ArrowUpDown className="mr-2 h-4 w-4" />
-            <span>
-              {isVisualizing ? "Hide Focus Order" : "Show Focus Order"}
-            </span>
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            onClick={() =>
-              window.open(
-                "https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html",
-                "_blank"
-              )
-            }>
-            <Keyboard className="mr-2 h-4 w-4 text-green-500" />
-            <span>About Focus Order</span>
+          <ContextMenuItem disabled>
+            <Keyboard className="mr-2 h-4 w-4" />
+            <span>No additional options</span>
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
