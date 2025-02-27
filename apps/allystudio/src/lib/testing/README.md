@@ -2,248 +2,250 @@
 
 ## Overview
 
-The AllyStudio Testing Framework provides a robust system for automated accessibility testing of web pages. It enables the extension to detect accessibility issues in real-time and provide actionable feedback to users.
+The AllyStudio Testing Framework provides a robust system for automated accessibility testing of web pages based on WCAG (Web Content Accessibility Guidelines) and ACT (Accessibility Conformance Testing) methodology. It enables the AllyStudio extension to detect accessibility issues in real-time and provide actionable feedback to users.
 
 ## System Architecture
 
-The following diagram illustrates how the testing framework components interact:
+The testing framework follows a modular architecture focused on the ACT Rules Format 1.0, allowing for standardized accessibility testing:
 
 ```mermaid
 flowchart TD
-    User([User]) -->|"Clicks 'Run Test'"| WerkzeugUI[Werkzeug UI Component]
+    User([User]) -->|"Triggers Test"| UI[Extension UI]
 
-    subgraph "Chrome Extension"
-        WerkzeugUI -->|"Publishes event\n(e.g. TEST_ANALYSIS_REQUEST)"| EventBus[Event Bus]
-        EventBus -->|"Subscribes to\ntest events"| TestRunner[Test Runner]
-        TestRunner -->|"Creates"| ACTTestRunner[ACT Test Runner]
-
-        subgraph "Test Framework"
-            ACTTestRunner -->|"Loads"| TestConfig[Test Configuration]
-            ACTTestRunner -->|"Uses"| TestLogger[Test Logger]
-            TestConfig -->|"Specifies"| TestSuites[Test Suites]
-            TestSuites -->|"Contains"| HeadingTests[Heading Tests]
-            TestSuites -->|"Contains"| LinkTests[Link Tests]
-            TestSuites -->|"Contains"| AltTests[Alt Text Tests]
-            TestSuites -->|"Contains"| InteractiveTests[Interactive Tests]
-        end
-
-        ACTTestRunner -->|"Executes tests on"| WebPage[Web Page DOM]
-        WebPage -->|"Returns elements"| ACTTestRunner
-        ACTTestRunner -->|"Logs results"| TestLogger
-        ACTTestRunner -->|"Returns results"| TestRunner
-        TestRunner -->|"Publishes results\n(e.g. TEST_ANALYSIS_COMPLETE)"| EventBus
-        EventBus -->|"Notifies of results"| WerkzeugUI
-        ACTTestRunner -->|"Highlights issues on"| WebPage
+    subgraph "Testing Framework Core"
+        UI -->|"Publishes Event"| EventBus[Event Bus]
+        EventBus -->|"Initiates"| ACTRuleRunner[ACT Rule Runner]
+        ACTRuleRunner -->|"Uses"| ACTRulesRegistry[ACT Rules Registry]
+        ACTRulesRegistry -->|"Contains"| Rules[Individual ACT Rules]
+        Rules -->|"Returns"| RuleResults[Rule Results]
+        ACTRuleRunner -->|"Collects"| RuleResults
+        ACTRuleRunner -->|"Formats"| TestReport[Test Report]
     end
 
-    WerkzeugUI -->|"Displays results"| User
+    subgraph "Test Integration Layer"
+        EventBus -->|"Triggers"| TestIntegration[ACT Integration]
+        TestIntegration -->|"Maps to"| TestCategories[Test Categories]
+        TestCategories -->|"Runs"| ACTRuleRunner
+        TestIntegration -->|"Reports via"| EventBus
+    end
+
+    subgraph "DOM Analysis"
+        ACTRuleRunner -->|"Examines"| WebPage[Web Page DOM]
+        WebPage -->|"Elements"| ACTRuleRunner
+    end
+
+    UI -->|"Displays Results"| User
+    TestReport -->|"Highlights Issues"| WebPage
 ```
 
 ## Core Components
 
-### `act-test-runner.ts`
+### ACT Types (`act-types.ts`)
 
-- **Purpose**: Central test execution engine
-- **Key features**:
-  - `ACTTestRunner` class that runs accessibility tests on web pages
-  - Utilities for finding elements, executing tests, and reporting results
-  - Handles test progress reporting and test cancellation
-  - Manages element highlighting on the page
-- **Integration**: Used by `create-test-runner.ts` to expose a simplified API
+Defines the core type system for accessibility testing:
 
-### `act-test-suite.ts`
+- `ACTOutcome`: Possible test outcomes ("passed", "failed", "inapplicable", "cantTell")
+- `ACTSeverity`: Issue severity levels
+- `WCAGLevel`: WCAG conformance levels (A, AA, AAA)
+- Result and report interfaces for structured data
 
-- **Purpose**: Defines the structure for test suites and test cases
-- **Key features**:
-  - Provides a fluent API for defining tests with `suite()`, `describe()`, and `test()` functions
-  - Manages test contexts and execution
-  - Supports async test evaluation
-- **Integration**: Used by test suites in the `suites` directory
+### ACT Rules Registry (`act-rules-registry.ts`)
 
-### `test-config.ts`
+Central repository for all accessibility test rules:
 
-- **Purpose**: Configuration for different test types
-- **Key features**:
-  - Defines four test types: headings, links, alt text, interactive elements
-  - Provides display text for UI components
-  - Maps test types to layer names
-- **Integration**: Used by both UI and test runner components
+- Manages registration and retrieval of rules
+- Categorizes rules by WCAG criteria and test type
+- Provides helper functions for rule creation
+- Implements rule applicability testing
 
-### `test-logger.ts`
+### ACT Rule Runner (`act-rule-runner.ts`)
 
-- **Purpose**: Logging test results and diagnostics
-- **Integration**: Used by the test runner to track progress and outcomes
+Executes accessibility tests and collects results:
 
-### `create-test-runner.ts`
+- Manages rule execution with timeouts
+- Collects and organizes test results
+- Generates standardized test reports
+- Prevents duplicate rule execution
 
-- **Purpose**: Creates a simplified interface to the test runner
-- **Key features**:
-  - Handles event subscription and result publication
-  - Maps between internal test results and external event formats
-- **Integration**: Used by `test-runner.ts` in the content script
+### ACT Test Runner (`act-test-runner.ts`)
 
-## Test Suites
+Higher-level test execution engine:
 
-The framework includes four main test categories:
+- Manages suites of tests
+- Tracks test progress
+- Provides UI feedback via element highlighting
+- Handles test abortion and error recovery
 
-1. **Heading Structure** (`structure/heading-tests.ts`)
+### Integration Layer (`act-integration.ts`)
 
-   - Tests for proper heading hierarchy
-   - Checks for accessible names
-   - Evaluates heading structure semantics
+Maps between test types and ACT rules:
 
-2. **Link Accessibility** (`accessibility/link-tests.ts`)
+- Connects user-facing test types to rule categories
+- Manages test execution flow
+- Publishes test completion events
+- Formats and aggregates results for UI consumption
 
-   - Tests for proper link text
-   - Checks for accessible names
-   - Evaluates link functionality
+### Test Configuration (`test-config.ts`)
 
-3. **Alt Text Analysis** (`media/alt-tests.ts`)
+Configures all available test types:
 
-   - Tests for presence of alt text on images
-   - Evaluates quality of alt text
-   - Checks for decorative image handling
+- Maps test types to display names
+- Defines UI text and interaction patterns
+- Configures visualization layers
 
-4. **Interactive Elements** (`interaction/interactive-tests.ts`)
-   - Tests for keyboard accessibility
-   - Evaluates ARIA roles and properties
-   - Checks focus management
+## Rule Implementation Structure
 
-## Event System
+Rules are organized by test category:
 
-### Generic Event Model
+1. Each rule implements the `ACTRule` interface
+2. Rules are registered with the registry at runtime
+3. Rules define applicability and execution logic
+4. Rules are tied to specific WCAG success criteria
 
-AllyStudio uses a generic event system for standardized test execution and result handling:
+Example rule implementation:
 
-- **`TEST_ANALYSIS_REQUEST`** - Used to request that a test be run
-- **`TEST_ANALYSIS_COMPLETE`** - Used to indicate that a test has finished
+```typescript
+// From image-accessible-name.ts
+const imageAccessibleNameRule = createACTRule(
+  "image-has-accessible-name",
+  "Images must have an accessible name",
+  "This rule checks that all image elements have an accessible name.",
+  {
+    accessibility_requirements: getWCAGReference("1.1.1"),
+    categories: [ACTRuleCategory.IMAGES],
+    implementation_url:
+      "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html",
 
-This system simplifies the codebase, makes it easier to add new test types, and reduces the amount of duplicate code.
+    isApplicable: () => {
+      const images = document.querySelectorAll(
+        'img:not([role="presentation"]):not([role="none"]), [role="img"]'
+      )
+      return images.length > 0
+    },
 
-### Event Migration Background
+    execute: async () => {
+      // Implementation details...
+    }
+  }
+)
+```
 
-Prior to the current implementation, AllyStudio used specific event types for each test type:
+## Migration Status
 
-- `HEADING_ANALYSIS_COMPLETE`
-- `LINK_ANALYSIS_COMPLETE`
-- `ALT_ANALYSIS_COMPLETE`
-- `INTERACTIVE_ANALYSIS_COMPLETE`
+The framework was migrated from a type-specific event system to a generic ACT-based approach:
 
-These have been replaced with the generic events that work with all test types.
+- ✅ Migration to generic events completed
+- ✅ Headings tests migrated to ACT rules
+- ✅ Links tests migrated to ACT rules
+- ✅ Alt text tests migrated to ACT rules
+- ✅ Interactive elements tests migrated to ACT rules
+- ✅ Other test types migrated to ACT rules
+- ✅ Legacy code paths removed
 
-### Key Migration Changes
+All tests now use the standardized ACT rule format, providing consistent reporting and better mapping to WCAG criteria.
 
-1. **Updated TestConfig**
+## Test Execution Flow
 
-   - Removed specific event references
-   - Made `layerName` a required property for better UI integration
+1. User initiates a test (e.g., "Check Headings")
+2. UI component publishes a test request event
+3. ACT integration layer receives the event
+4. Integration layer maps the test type to ACT rule categories
+5. ACT Rule Runner executes the applicable rules
+6. Results are collected and formatted
+7. Test completion event is published with results
+8. UI displays results and highlights issues on the page
 
-2. **Simplified Event Types**
+## WCAG Coverage Plan
 
-   - Removed specific event types and interfaces
-   - Kept the issue type definitions for reference
+The framework is implementing comprehensive WCAG 2.1 coverage following the POUR principles:
 
-3. **Updated Event Publishing**
+1. **Perceivable**:
 
-   - `createTestRunner` now only publishes generic events
-   - `publishTestComplete` only publishes the generic event
+   - Text alternatives (1.1.1) - Implemented
+   - Time-based media (1.2.x) - Planned
+   - Adaptable (1.3.x) - Partially implemented
+   - Distinguishable (1.4.x) - Partially implemented
 
-4. **Updated UI Components**
+2. **Operable**:
 
-   - UI now only uses generic events
-   - Added fallback completion logic for reliability
-   - Improved error handling and logging
+   - Keyboard accessible (2.1.x) - Partially implemented
+   - Enough time (2.2.x) - Planned
+   - Seizures (2.3.x) - Planned
+   - Navigable (2.4.x) - Partially implemented
+   - Input modalities (2.5.x) - Planned
 
-5. **Content Script Integration**
-   - Content scripts use generic events
-   - Simplified test completion tracking
+3. **Understandable**:
 
-## Safety Features
+   - Readable (3.1.x) - Partially implemented
+   - Predictable (3.2.x) - Planned
+   - Input assistance (3.3.x) - Planned
 
-Several safety features are implemented in the framework:
-
-1. **Fallback Completion Events**
-
-   - If the content script doesn't respond, a fallback completion event is published
-   - Added a 3 second timeout to prevent UI from getting stuck
-
-2. **Tab Status Checking**
-
-   - Added checks to ensure the tab is ready to receive messages
-   - Provides early feedback if communication might fail
-
-3. **Error Handling**
-   - Every potential error is caught and logged
-   - Ensures a completion event is always published, even on error
-
-## Integration Points
-
-### Chrome Extension Integration
-
-- The framework runs within a Chrome extension built with Plasmo
-- `contents/test-runner.ts` initializes the test runner in the extension content script
-- Tests are executed in the context of the current web page
-
-### UI Component Integration
-
-- `components/werkzeug.tsx` provides the UI for:
-  - Test selection and execution
-  - Progress tracking
-  - Result visualization
-  - Issue highlighting controls
-
-### Event-based Communication
-
-- Uses an event bus (`lib/events/event-bus.ts`) for communication
-- Event types include:
-  - Test requests (e.g., `TEST_ANALYSIS_REQUEST`)
-  - Test results (e.g., `TEST_ANALYSIS_COMPLETE`)
-  - UI updates (e.g., `HIGHLIGHT_ELEMENT`, `CLEAR_HIGHLIGHTS`)
-- Optimized for performance with direct handlers for high-priority events
-
-## User Flow
-
-1. User opens the AllyStudio extension on a web page
-2. User selects a test type in the Werkzeug UI
-3. UI dispatches a test request event
-4. Content script's test runner receives the event and runs tests
-5. Test results are published as events
-6. UI displays results and highlights issues on the page
-7. User can click on issues to see details and fix recommendations
-
-## Future Improvements
-
-1. **Issue Type Consolidation**
-
-   - Create a unified issue type instead of separate types for each test
-   - Further simplify the codebase and make it easier to process issues generically
-
-2. **Automatic Test Discovery**
-
-   - Use a registry approach to auto-register new tests
-   - Further reduce the need for changes when adding new tests
-
-3. **Event Documentation**
-   - Create comprehensive documentation of the event system
-   - Make it easier for new developers to understand the system
+4. **Robust**:
+   - Compatible (4.1.x) - Partially implemented
 
 ## Adding New Tests
 
-To add a new test type:
+To implement a new ACT rule:
 
-1. Create a new test file in the appropriate suite category
-2. Update `test-config.ts` to include the new test type
-3. Ensure the UI components handle the new test type appropriately
-4. Add the new test type to relevant event handling code
+1. Create a new rule file in `rules/[category]/[rule-name].ts`
+2. Implement the rule using the `createACTRule` helper
+3. Register the rule in the appropriate category file
+4. Update the registration in `rules/index.ts`
+5. Ensure the rule is properly categorized for test integration
 
-## Best Practices
+## Test Result Structure
 
-When working with the testing framework:
+Results follow the standard ACT Results format:
 
-1. **Use Generic Events** - Utilize the standardized event system for communication
-2. **Provide Test ID** - Always include the testId in events for proper routing
-3. **Handle Errors** - Always include error handling in test functions
-4. **Avoid Side Effects** - Tests should not modify the DOM
-5. **Check Abort Signals** - Always check abort signals for long-running tests
-6. **Documentation** - Add clear documentation about what each test checks
-7. **Include Severity** - Correctly categorize severity of each issue
+```typescript
+interface ACTRuleResult {
+  rule: {
+    id: string
+    name: string
+  }
+  outcome: ACTOutcome
+  element?: {
+    selector: string
+    html: string
+    xpath?: string
+    attributes?: Record<string, string>
+  }
+  message: string
+  remediation?: string
+  impact?: ACTSeverity
+  wcagCriteria?: string[]
+  helpUrl?: string
+}
+```
+
+## Future Improvements
+
+1. **Performance Optimization**:
+
+   - Implement more efficient element selection
+   - Add caching for expensive computations
+   - Improve rule applicability checking
+
+2. **Rule Coverage Expansion**:
+
+   - Complete implementation of all WCAG 2.1 success criteria
+   - Add WAI-ARIA best practices
+   - Implement WCAG 2.2 new success criteria
+
+3. **Result Enhancement**:
+
+   - Add more detailed remediation guidance
+   - Improve issue localization
+   - Enhance visualization of complex issues
+
+4. **Testing and Validation**:
+   - Add unit tests for all rules
+   - Validate against known accessibility issues
+   - Create test pages for rule verification
+
+## References and Resources
+
+- [W3C ACT Rules Format](https://www.w3.org/TR/act-rules-format/)
+- [WCAG 2.1 Success Criteria](https://www.w3.org/TR/WCAG21/)
+- [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
+- [Axe-core Implementation](https://github.com/dequelabs/axe-core)

@@ -40,10 +40,6 @@ export interface TestConfig {
 
   // Layer mapping for visualization
   layerName: string // Maps test types to layer names
-
-  // Test runner configuration
-  runner?: string // The name of the runner module to use (e.g., "heading-runner.ts")
-  useACTRules?: boolean // Whether to use ACT rules for this test
 }
 
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
@@ -58,8 +54,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "headings"
     },
-    layerName: "headings",
-    useACTRules: true
+    layerName: "headings"
   },
   links: {
     type: "links",
@@ -72,8 +67,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "links"
     },
-    layerName: "links",
-    useACTRules: true
+    layerName: "links"
   },
   alt: {
     type: "alt",
@@ -86,8 +80,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "images"
     },
-    layerName: "images",
-    useACTRules: true
+    layerName: "images"
   },
   interactive: {
     type: "interactive",
@@ -100,8 +93,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "elements"
     },
-    layerName: "interactive",
-    useACTRules: true
+    layerName: "interactive"
   },
   // New ACT rule-based tests
   buttons: {
@@ -115,8 +107,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "buttons"
     },
-    layerName: "buttons",
-    useACTRules: true
+    layerName: "buttons"
   },
   forms: {
     type: "forms",
@@ -129,8 +120,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "form elements"
     },
-    layerName: "forms",
-    useACTRules: true
+    layerName: "forms"
   },
   landmarks: {
     type: "landmarks",
@@ -143,8 +133,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "landmarks"
     },
-    layerName: "landmarks",
-    useACTRules: true
+    layerName: "landmarks"
   },
   aria: {
     type: "aria",
@@ -157,8 +146,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "ARIA elements"
     },
-    layerName: "aria",
-    useACTRules: true
+    layerName: "aria"
   },
   color: {
     type: "color",
@@ -171,8 +159,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "contrast issues"
     },
-    layerName: "color",
-    useACTRules: true
+    layerName: "color"
   },
   tables: {
     type: "tables",
@@ -185,8 +172,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "tables"
     },
-    layerName: "tables",
-    useACTRules: true
+    layerName: "tables"
   },
   language: {
     type: "language",
@@ -199,8 +185,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "language issues"
     },
-    layerName: "language",
-    useACTRules: true
+    layerName: "language"
   },
   structure: {
     type: "structure",
@@ -213,7 +198,6 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "structure issues"
     },
-    layerName: "structure",
-    useACTRules: true
+    layerName: "structure"
   }
 }

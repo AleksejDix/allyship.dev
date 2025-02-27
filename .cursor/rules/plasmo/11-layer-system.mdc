@@ -439,26 +439,27 @@ const debouncedUpdate = (
 The Layer System integrates with the testing framework through the event bus:
 
 1. Test results create highlights in their respective layers
-2. Tests mark completion through special events
+2. Tests mark completion through generic analysis complete events
 3. The Layer System listens for test completion to show layer controls
 
 ```tsx
-// Tracking test completion
-const REQUIRED_TEST_COMPLETIONS = [
-  "HEADING_ANALYSIS_COMPLETE",
-  "LINK_ANALYSIS_COMPLETE",
-  "ALT_ANALYSIS_COMPLETE",
-  "INTERACTIVE_ANALYSIS_COMPLETE"
+// Tracking required test types
+const REQUIRED_TEST_TYPES = [
+  "headings",
+  "links",
+  "alt",
+  "interactive"
 ]
 
 // Subscribe to test completion events
 useEffect(() => {
   const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
-    if (REQUIRED_TEST_COMPLETIONS.includes(event.type as any)) {
-      completedTestsRef.current.add(event.type)
+    if (event.type === "TEST_ANALYSIS_COMPLETE" &&
+        REQUIRED_TEST_TYPES.includes(event.data.testId)) {
+      completedTestsRef.current.add(event.data.testId)
 
       // Check if all required tests are complete
-      const allComplete = REQUIRED_TEST_COMPLETIONS.every((testType) =>
+      const allComplete = REQUIRED_TEST_TYPES.every((testType) =>
         completedTestsRef.current.has(testType)
       )
 
