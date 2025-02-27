@@ -1,5 +1,4 @@
 import { eventBus } from "@/lib/events/event-bus"
-import type { OutlinerCommandEvent } from "@/lib/events/types"
 
 // Track outliner state
 let isOutlining = false
@@ -208,9 +207,7 @@ export function initialize() {
   // Subscribe to commands from the event bus
   eventBus.subscribe((event) => {
     if (event.type === "OUTLINER_COMMAND") {
-      const outlinerEvent = event as OutlinerCommandEvent
-      const { command } = outlinerEvent.data
-
+      const { command } = event.data
       switch (command) {
         case "start":
           startOutlining()

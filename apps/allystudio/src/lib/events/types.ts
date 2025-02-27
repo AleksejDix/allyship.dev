@@ -16,7 +16,6 @@ export type EventType =
   | "TESTS_COMPLETE"
   | "LAYER_TOGGLE_REQUEST"
   | "INSPECTOR_COMMAND"
-  | "OUTLINER_COMMAND"
   | "CONTENT_SCRIPT_READY"
 
 // Base Event Interface
@@ -210,14 +209,6 @@ export interface InspectorCommandEvent extends BaseEvent {
   }
 }
 
-// Outliner Events
-export interface OutlinerCommandEvent extends BaseEvent {
-  type: "OUTLINER_COMMAND"
-  data: {
-    command: "start" | "stop" | "toggle"
-  }
-}
-
 // Content Script Events
 export interface ContentScriptReadyEvent extends BaseEvent {
   type: "CONTENT_SCRIPT_READY"
@@ -244,7 +235,6 @@ export type AllyStudioEvent =
   | TestsCompleteEvent
   | LayerToggleRequestEvent
   | InspectorCommandEvent
-  | OutlinerCommandEvent
   | ContentScriptReadyEvent
 
 // Event handler type
