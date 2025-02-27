@@ -1,7 +1,4 @@
-import { altTests } from "./alt-tests"
-import { headingTests } from "./heading-tests"
-import { interactiveTests } from "./interactive-tests"
-import { linkTests } from "./link-tests"
+import { altTests, headingTests, interactiveTests, linkTests } from "./suites"
 
 export type TestType = "headings" | "links" | "alt" | "interactive"
 
