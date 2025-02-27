@@ -71,7 +71,6 @@ function TestSelector({
 
   return (
     <div className="space-y-2">
-      <h2 className="text-lg font-semibold">Accessibility Tests</h2>
       <div className="flex items-center gap-2">
         <Select value={selectedTest} onValueChange={handleTestSelection}>
           <SelectTrigger className="flex-1">
@@ -360,85 +359,77 @@ export function Werkzeug() {
         {/* Event Monitor */}
         <TestEventMonitor />
 
-        {/* Analysis Progress */}
-        {activeTest && (
-          <div className="text-sm text-muted-foreground">
-            Running {TEST_CONFIGS[activeTest].displayName}...
-          </div>
-        )}
+        {/* Analysis Progress - Fixed height to prevent layout jumps */}
+        <div className="h-6 text-sm text-muted-foreground">
+          {activeTest && `Running ${TEST_CONFIGS[activeTest].displayName}...`}
+        </div>
 
-        {/* Results Summary - Persistent until cleared */}
-        {testResults.length > 0 && (
+        {/* Results Summary - Persistent until cleared or loading placeholder when active */}
+        {(testResults.length > 0 || activeTest) && (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold">Analysis Results</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearResults}
-                className="text-xs">
-                Clear results
-              </Button>
+              {testResults.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearResults}
+                  className="text-xs">
+                  Clear results
+                </Button>
+              )}
             </div>
 
-            {/* Display results in a more user-friendly format */}
-            <div className="space-y-2">
-              {testResults.map((result, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "rounded border p-3",
-                    result.outcome === "passed"
-                      ? "border-success/30 bg-success/10"
-                      : result.severity === "critical" ||
-                          result.severity === "Critical"
-                        ? "border-destructive/30 bg-destructive/10"
-                        : result.severity === "serious" ||
-                            result.severity === "High"
-                          ? "border-warning/30 bg-warning/10"
-                          : "border-muted bg-muted/10"
-                  )}>
-                  <div className="flex items-start justify-between">
-                    <div className="font-medium">
-                      {result.message || "Issue detected"}
-                    </div>
-                    <div className="text-xs px-2 py-1 rounded-full bg-card border">
-                      {result.severity || "Unknown"}
-                    </div>
-                  </div>
-
-                  {result.selector && (
-                    <div className="mt-2 text-xs font-mono bg-card p-2 rounded border">
-                      {result.selector}
-                    </div>
-                  )}
-
-                  {result.html && (
-                    <div className="mt-2">
-                      <div className="text-xs text-muted-foreground mb-1">
-                        HTML:
+            {/* Display results in a dense list format or loading placeholder */}
+            <div className="border rounded overflow-hidden">
+              {testResults.length > 0
+                ? testResults.map((result, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "flex items-center justify-between p-3 border-b last:border-b-0",
+                        "bg-background hover:bg-muted/20 transition-colors"
+                      )}>
+                      <div className="flex items-center gap-2">
+                        {result.outcome === "passed" ? (
+                          <div className="w-2 h-2 rounded-full bg-success" />
+                        ) : (
+                          <div
+                            className={cn(
+                              "w-2 h-2 rounded-full",
+                              result.severity === "critical" ||
+                                result.severity === "Critical"
+                                ? "bg-destructive"
+                                : result.severity === "serious" ||
+                                    result.severity === "High"
+                                  ? "bg-warning"
+                                  : "bg-muted"
+                            )}
+                          />
+                        )}
+                        <div className="font-medium">
+                          {result.message || "Issue detected"}
+                        </div>
                       </div>
-                      <div className="text-xs font-mono bg-card p-2 rounded border overflow-x-auto">
-                        {result.html}
+                      <div className="text-xs px-2 py-1 rounded-full bg-card border">
+                        {result.severity || "Unknown"}
                       </div>
                     </div>
-                  )}
-
-                  {result.help && (
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      <span className="font-medium">Help: </span>
-                      {result.help}
-                    </div>
-                  )}
-
-                  {result.impact && (
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      <span className="font-medium">Impact: </span>
-                      {result.impact}
-                    </div>
-                  )}
-                </div>
-              ))}
+                  ))
+                : activeTest
+                  ? // Loading placeholder rows
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <div
+                        key={`loading-${index}`}
+                        className="flex items-center justify-between p-3 border-b last:border-b-0 animate-pulse">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-muted" />
+                          <div className="h-4 bg-muted rounded w-64" />
+                        </div>
+                        <div className="h-6 w-16 bg-muted rounded-full" />
+                      </div>
+                    ))
+                  : null}
             </div>
           </div>
         )}
