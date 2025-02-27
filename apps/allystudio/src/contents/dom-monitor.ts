@@ -1,8 +1,14 @@
+import { eventBus } from "@/lib/events/event-bus"
+import type { DOMChangeEvent } from "@/lib/events/types"
 import type { PlasmoCSConfig } from "plasmo"
+
+import { Storage } from "@plasmohq/storage"
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
+
+// No need to initialize event bus as we're importing the singleton instance
 
 /**
  * Types of DOM changes that might be relevant for accessibility testing
@@ -28,6 +34,70 @@ export interface DOMChange {
 }
 
 /**
+ * Helper function to get a CSS selector for an element
+ */
+function getSelector(element: HTMLElement): string {
+  try {
+    // Try to get a unique selector for the element
+    const tagName = element.tagName.toLowerCase()
+    const id = element.id ? `#${element.id}` : ""
+
+    // If we have an ID, use it
+    if (id) return `${tagName}${id}`
+
+    // Try to use classes if available
+    const classes = Array.from(element.classList).join(".")
+    if (classes) return `${tagName}.${classes}`
+
+    // Fallback to a basic selector with position
+    const parent = element.parentElement
+    if (parent) {
+      const siblings = Array.from(parent.children)
+      const index = siblings.indexOf(element)
+      return `${tagName}:nth-child(${index + 1})`
+    }
+
+    return tagName
+  } catch (error) {
+    return element.tagName.toLowerCase()
+  }
+}
+
+/**
+ * Helper function to get XPath for an element
+ */
+function getXPath(element: HTMLElement): string {
+  try {
+    const parts = []
+    let node: Node | null = element
+
+    while (node && node.nodeType === Node.ELEMENT_NODE) {
+      let sibling: Node | null = node
+      let siblingCount = 0
+
+      while ((sibling = sibling.previousSibling)) {
+        if (
+          sibling.nodeType === Node.ELEMENT_NODE &&
+          sibling.nodeName === node.nodeName
+        ) {
+          siblingCount++
+        }
+      }
+
+      const tagName = (node as Element).nodeName.toLowerCase()
+      const position = siblingCount > 0 ? `[${siblingCount + 1}]` : ""
+      parts.unshift(`${tagName}${position}`)
+
+      node = node.parentNode
+    }
+
+    return `//${parts.join("/")}`
+  } catch (error) {
+    return ""
+  }
+}
+
+/**
  * Creates a DOM observer that detects changes while ignoring Plasmo UI elements
  * @param callback Function to call when DOM changes are detected
  * @param options Configuration options
@@ -44,11 +114,14 @@ export function createDOMObserver(
     ignoreClassChanges: true, // Whether to ignore class attribute changes (often used for animations)
     ignoreStyleChanges: true, // Whether to ignore style attribute changes (often used for animations)
     ignoreHiddenElements: true, // Whether to ignore changes to hidden elements
-    batchInterval: 50 // Time in ms to batch changes before reporting
+    batchInterval: 50, // Time in ms to batch changes before reporting
+    emitEvents: true, // Whether to emit events to the event bus
+    enableLogging: false, // Whether to log changes to the console
+    logInterval: 500 // Time in ms to batch logs
   }
 ): () => void {
-  // Track elements that change frequently (likely animations)
-  const animatedElements = new Map<
+  // Track elements that change frequently (likely animations) using WeakMap to prevent memory leaks
+  const animatedElements = new WeakMap<
     HTMLElement,
     {
       count: number
@@ -60,6 +133,85 @@ export function createDOMObserver(
   // Track the current batch of changes
   let pendingChanges: DOMChange[] = []
   let batchTimer: number | null = null
+
+  // For batched logging
+  let logTimeout: number | null = null
+  const batchedLogs: DOMChange[][] = []
+
+  // Debounced logging function
+  const logChanges = (changes: DOMChange[]) => {
+    if (!options.enableLogging) return
+
+    batchedLogs.push(changes)
+    if (!logTimeout) {
+      logTimeout = window.setTimeout(() => {
+        console.group("[DOM Monitor] Changes Detected")
+        console.log(`Total batches: ${batchedLogs.length}`)
+        console.log(`Total changes: ${batchedLogs.flat().length}`)
+        console.log(
+          "%cTip: Click on any element in the logs to inspect it in the Elements panel",
+          "color: #4CAF50; font-weight: bold"
+        )
+
+        // Log summary by type
+        const summary = batchedLogs.flat().reduce(
+          (acc, change) => {
+            acc[change.type] = (acc[change.type] || 0) + 1
+            return acc
+          },
+          {} as Record<string, number>
+        )
+
+        console.log("Changes by type:", summary)
+
+        // Log detailed changes if there aren't too many
+        if (batchedLogs.flat().length <= 10) {
+          console.groupCollapsed("Detailed changes (click to expand)")
+
+          // Group changes by type for better readability
+          const changesByType: Record<string, DOMChange[]> = {}
+
+          batchedLogs.flat().forEach((change) => {
+            const type = change.type
+            if (!changesByType[type]) {
+              changesByType[type] = []
+            }
+            changesByType[type].push(change)
+          })
+
+          // Log each type of change in its own group
+          Object.entries(changesByType).forEach(([type, changes]) => {
+            console.groupCollapsed(`${type} (${changes.length})`)
+
+            changes.forEach((change) => {
+              // Log the element directly so it's clickable in dev tools
+              console.log({
+                type: change.type,
+                element: change.element, // This will be clickable
+                selector: getSelector(change.element),
+                tagName: change.element.tagName.toLowerCase(),
+                textContent: change.element.textContent?.slice(0, 100) || "",
+                details: change.details || {}
+              })
+            })
+
+            console.groupEnd()
+          })
+
+          console.groupEnd()
+        } else {
+          console.log(
+            "%cToo many changes to display details. Enable filtering or reduce the batch interval.",
+            "color: #F44336"
+          )
+        }
+
+        console.groupEnd()
+        batchedLogs.length = 0
+        logTimeout = null
+      }, options.logInterval)
+    }
+  }
 
   // Check if an element is likely part of an animation
   const isAnimatedElement = (
@@ -155,12 +307,84 @@ export function createDOMObserver(
         ? pendingChanges.slice(options.maxChanges)
         : []
 
+    // Call the callback with the changes
     callback(changesToReport)
+
+    // Log changes if enabled
+    if (options.enableLogging) {
+      logChanges(changesToReport)
+    }
+
+    // Emit events if enabled
+    if (options.emitEvents) {
+      // Group changes by type for more efficient event emission
+      const addedElements: HTMLElement[] = []
+      const removedElements: HTMLElement[] = []
+      const attributeChangedElements: HTMLElement[] = []
+      const contentChangedElements: HTMLElement[] = []
+
+      changesToReport.forEach((change) => {
+        switch (change.type) {
+          case DOMChangeType.ELEMENT_ADDED:
+            addedElements.push(change.element)
+            break
+          case DOMChangeType.ELEMENT_REMOVED:
+            removedElements.push(change.element)
+            break
+          case DOMChangeType.ATTRIBUTE_CHANGED:
+            attributeChangedElements.push(change.element)
+            break
+          case DOMChangeType.CONTENT_CHANGED:
+            contentChangedElements.push(change.element)
+            break
+        }
+      })
+
+      // Emit events for each type of change
+      if (addedElements.length > 0) {
+        emitDOMChangeEvent(addedElements, "added")
+      }
+
+      if (removedElements.length > 0) {
+        emitDOMChangeEvent(removedElements, "removed")
+      }
+
+      if (attributeChangedElements.length > 0) {
+        emitDOMChangeEvent(attributeChangedElements, "attribute")
+      }
+
+      if (contentChangedElements.length > 0) {
+        emitDOMChangeEvent(contentChangedElements, "text")
+      }
+    }
 
     // Schedule processing of any remaining changes
     if (pendingChanges.length > 0) {
       scheduleBatch()
     }
+  }
+
+  // Helper function to emit DOM change events
+  const emitDOMChangeEvent = (
+    elements: HTMLElement[],
+    changeType: "added" | "removed" | "attribute" | "text"
+  ) => {
+    const elementData = elements.map((element) => ({
+      selector: getSelector(element),
+      tagName: element.tagName.toLowerCase(),
+      textContent: element.textContent?.slice(0, 100) || undefined,
+      xpath: getXPath(element)
+    }))
+
+    eventBus.publish({
+      type: "DOM_CHANGE",
+      timestamp: performance.now(),
+      data: {
+        elements: elementData,
+        changeType,
+        timestamp: Date.now()
+      }
+    } as DOMChangeEvent)
   }
 
   // Schedule batch processing
@@ -171,9 +395,30 @@ export function createDOMObserver(
 
   // Create the observer
   const observer = new MutationObserver((mutations) => {
+    // Pre-filter mutations to avoid unnecessary processing
+    const relevantMutations = mutations.filter((mutation) => {
+      if (
+        mutation.type === "attributes" &&
+        mutation.target instanceof HTMLElement
+      ) {
+        const attributeName = mutation.attributeName || ""
+        // Skip class/style changes if configured
+        if (
+          (attributeName === "class" && options.ignoreClassChanges) ||
+          (attributeName === "style" && options.ignoreStyleChanges)
+        ) {
+          return false
+        }
+        return !shouldIgnoreElement(mutation.target)
+      }
+      return true
+    })
+
+    if (relevantMutations.length === 0) return
+
     let hasChanges = false
 
-    for (const mutation of mutations) {
+    for (const mutation of relevantMutations) {
       // For added/removed nodes
       if (mutation.type === "childList") {
         // Process added nodes
@@ -210,18 +455,9 @@ export function createDOMObserver(
       // For attribute changes
       if (
         mutation.type === "attributes" &&
-        mutation.target instanceof HTMLElement &&
-        !shouldIgnoreElement(mutation.target)
+        mutation.target instanceof HTMLElement
       ) {
         const attributeName = mutation.attributeName || ""
-
-        // Skip class/style changes if configured
-        if (
-          (attributeName === "class" && options.ignoreClassChanges) ||
-          (attributeName === "style" && options.ignoreStyleChanges)
-        ) {
-          continue
-        }
 
         // Skip if this element is being animated
         if (isAnimatedElement(mutation.target, attributeName)) {
@@ -276,16 +512,6 @@ export function createDOMObserver(
     characterDataOldValue: options.observeText // Track old text values
   })
 
-  // Periodically clean up the animation tracking map to prevent memory leaks
-  const cleanupInterval = setInterval(() => {
-    const now = performance.now()
-    animatedElements.forEach((info, element) => {
-      if (now - info.lastSeen > options.animationFilterWindow * 2) {
-        animatedElements.delete(element)
-      }
-    })
-  }, options.animationFilterWindow * 2)
-
   // Return cleanup function
   return () => {
     if (batchTimer !== null) {
@@ -293,17 +519,130 @@ export function createDOMObserver(
       batchTimer = null
     }
 
-    clearInterval(cleanupInterval)
+    if (logTimeout !== null) {
+      clearTimeout(logTimeout)
+      logTimeout = null
+    }
+
     observer.disconnect()
     pendingChanges = []
-    animatedElements.clear()
+    batchedLogs.length = 0
   }
 }
 
-// Initialize the observer with a callback that logs changes
-const cleanup = createDOMObserver((changes) => {
-  console.log("[DOM Monitor] DOM changes detected:", changes)
+// Initialize storage
+const storage = new Storage()
+
+// Track the current observer cleanup function
+let currentObserverCleanup: (() => void) | null = null
+
+// Track logging state
+let loggingEnabled = false
+
+// Function to start the DOM monitor
+async function startDOMMonitor() {
+  if (currentObserverCleanup) return
+
+  // Get logging state from storage
+  try {
+    loggingEnabled = (await storage.get("dom_monitor_logging_enabled")) || false
+  } catch (error) {
+    console.warn(
+      "[DOM Monitor] Failed to read logging state, defaulting to disabled"
+    )
+    loggingEnabled = false
+  }
+
+  console.log(
+    `[DOM Monitor] Starting DOM monitor (logging: ${loggingEnabled ? "enabled" : "disabled"})`
+  )
+  currentObserverCleanup = createDOMObserver(
+    (changes) => {
+      // Process DOM changes if needed
+    },
+    {
+      // Default options
+      ignorePlasmo: true,
+      maxChanges: 50,
+      observeText: true,
+      animationFilterThreshold: 3,
+      animationFilterWindow: 1000,
+      ignoreClassChanges: true,
+      ignoreStyleChanges: true,
+      ignoreHiddenElements: true,
+      batchInterval: 50,
+      emitEvents: true,
+      enableLogging: loggingEnabled,
+      logInterval: 500
+    }
+  )
+}
+
+// Function to stop the DOM monitor
+function stopDOMMonitor() {
+  if (currentObserverCleanup) {
+    console.log("[DOM Monitor] Stopping DOM monitor")
+    currentObserverCleanup()
+    currentObserverCleanup = null
+  }
+}
+
+// Function to toggle logging
+async function toggleLogging(enabled: boolean) {
+  loggingEnabled = enabled
+
+  // Store the logging state
+  await storage.set("dom_monitor_logging_enabled", enabled)
+
+  // Restart the monitor to apply the new logging state
+  if (currentObserverCleanup) {
+    stopDOMMonitor()
+    startDOMMonitor()
+  }
+
+  console.log(`[DOM Monitor] Logging ${enabled ? "enabled" : "disabled"}`)
+}
+
+// Check if the monitor should be enabled on startup
+async function initializeDOMMonitor() {
+  let enabled = false
+  try {
+    enabled = (await storage.get("dom_monitor_enabled")) || false
+    loggingEnabled = (await storage.get("dom_monitor_logging_enabled")) || false
+  } catch (error) {
+    console.warn(
+      "[DOM Monitor] Failed to read storage, defaulting to disabled."
+    )
+  }
+
+  if (enabled) {
+    startDOMMonitor()
+  }
+}
+
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "DOM_MONITOR_STATE_CHANGE") {
+    if (message.enabled) {
+      startDOMMonitor()
+    } else {
+      stopDOMMonitor()
+    }
+  } else if (message.type === "DOM_MONITOR_LOGGING_CHANGE") {
+    toggleLogging(message.enabled)
+  }
+  return true
 })
 
+// Initialize on content script load
+initializeDOMMonitor()
+
 // Clean up when the page unloads
-window.addEventListener("unload", cleanup)
+window.addEventListener("unload", () => {
+  if (currentObserverCleanup) {
+    currentObserverCleanup()
+  }
+})
+
+// Export functions for external use
+export { toggleLogging }
