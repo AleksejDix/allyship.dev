@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -9,7 +16,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
 import { cn } from "@/lib/utils"
-import { Beaker, Play } from "lucide-react"
+import { Play } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TestEventMonitor } from "./test-event-monitor"
@@ -34,63 +41,96 @@ interface TestSelectorProps {
   activeTest: TestType | null
 }
 
-// Generic Test Selector using the unified event system
+// Updated Test Selector using a single select dropdown
 function TestSelector({
   onRunTest,
   onStopTest,
   isRunning,
   activeTest
 }: TestSelectorProps) {
+  const [selectedTest, setSelectedTest] = useState<TestType | "">("")
+
+  // Update selected test when active test changes
+  useEffect(() => {
+    if (activeTest) {
+      setSelectedTest(activeTest)
+    }
+  }, [activeTest])
+
+  const handleTestSelection = (value: string) => {
+    setSelectedTest(value as TestType)
+  }
+
+  const handleRunClick = () => {
+    if (isRunning) {
+      onStopTest()
+    } else if (selectedTest) {
+      onRunTest(selectedTest as TestType)
+    }
+  }
+
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-semibold">Accessibility Tests</h2>
-      <div className="space-y-2">
-        {Object.entries(TEST_CONFIGS).map(([type, config]) => (
-          <div
-            key={type}
-            className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground">
-            <div>
-              <h3 className="font-medium">{config.displayName}</h3>
-              <p className="text-xs text-muted-foreground">
-                Tests {config.statsText.itemName} for accessibility issues
-              </p>
-            </div>
-            <Button
-              key={type}
-              size="sm"
-              variant={activeTest === type ? "destructive" : "outline"}
-              onClick={() =>
-                activeTest === type ? onStopTest() : onRunTest(type as TestType)
-              }
-              disabled={isRunning && activeTest !== type}
-              className={activeTest === type ? "animate-pulse" : ""}>
-              {activeTest === type ? (
-                <svg
-                  className="h-4 w-4 mr-1 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                <Play className="h-3 w-3 mr-1" aria-hidden="true" />
-              )}
-              {config.displayName}
-            </Button>
-          </div>
-        ))}
+      <div className="flex items-center gap-2">
+        <Select value={selectedTest} onValueChange={handleTestSelection}>
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder="Select a test to run" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(TEST_CONFIGS).map(([type, config]) => (
+              <SelectItem key={type} value={type}>
+                <div className="flex flex-col">
+                  <span>{config.displayName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    Tests {config.statsText.itemName} for accessibility issues
+                  </span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          onClick={handleRunClick}
+          disabled={!selectedTest && !isRunning}
+          variant={isRunning ? "destructive" : "default"}
+          className={isRunning ? "animate-pulse" : ""}>
+          {isRunning ? (
+            <>
+              <svg
+                className="h-4 w-4 mr-1 animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Stop
+            </>
+          ) : (
+            <>
+              <Play className="h-3 w-3 mr-1" aria-hidden="true" />
+              Run Test
+            </>
+          )}
+        </Button>
       </div>
+      {selectedTest && !isRunning && (
+        <div className="text-sm text-muted-foreground">
+          Tests {TEST_CONFIGS[selectedTest as TestType]?.statsText.itemName} for
+          accessibility issues
+        </div>
+      )}
     </div>
   )
 }
@@ -118,7 +158,6 @@ export function Werkzeug() {
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
   const [testResults, setTestResults] = useState<any[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
-  const [showExperimental, setShowExperimental] = useState(false)
   const [processingEvent, setProcessingEvent] = useState(false)
 
   // Added function to clear results explicitly
@@ -135,17 +174,25 @@ export function Werkzeug() {
       // Only handle generic test completion events
       if (event.type === "TEST_ANALYSIS_COMPLETE") {
         console.log("[werkzeug] Handling test completion:", event)
-        const testId = event.data?.testId
+        const testId = event.data?.testId || event.data?.testType
 
-        // Reset loading state if this is the active test
-        if (activeTest === testId) {
-          console.log(`[werkzeug] Resetting activeTest for ${testId}`)
+        // Always reset loading state when we receive a completion event
+        if (activeTest) {
+          console.log(`[werkzeug] Resetting activeTest from ${activeTest}`)
           setActiveTest(null)
         }
 
         // Prevent processing multiple events too quickly
         if (processingEvent) {
           console.log("[werkzeug] Already processing an event, skipping")
+          return
+        }
+
+        // Skip fallback events if we already have results
+        if (event.data?.isFallbackEvent && testResults.length > 0) {
+          console.log(
+            "[werkzeug] Ignoring fallback event since we already have results"
+          )
           return
         }
 
@@ -205,14 +252,15 @@ export function Werkzeug() {
             })
           }
           // If no results found and we don't have any existing results, show a message
-          else if (testResults.length === 0) {
+          else if (testResults.length === 0 && !event.data?.isFallbackEvent) {
             console.log(`[werkzeug] No issues found in test results`)
             // Show empty results with a message
             setTestResults([
               {
                 id: "no-issues",
                 message: `No issues found in ${testId} test`,
-                severity: "Low"
+                severity: "Low",
+                outcome: "passed"
               }
             ])
           }
@@ -285,12 +333,13 @@ export function Werkzeug() {
       await runTestHelper(type)
 
       // Set a safety timeout to reset the loading state
+      // This is a backup in case no completion event is received
       setTimeout(() => {
         if (activeTest === type) {
           console.log(`[werkzeug] Safety timeout for test: ${type}`)
           setActiveTest(null)
         }
-      }, 10000)
+      }, 6000) // 6 seconds - slightly longer than the fallback event timeout
     } catch (error) {
       console.error(`[werkzeug] Error running test ${type}:`, error)
       setActiveTest(null)
@@ -326,27 +375,6 @@ export function Werkzeug() {
 
         {/* Event Monitor */}
         <TestEventMonitor />
-
-        {/* Experimental Features Toggle */}
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="text-sm font-medium">Experimental Features</div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowExperimental(!showExperimental)}
-            className="flex items-center gap-1">
-            <Beaker className="h-4 w-4" aria-hidden="true" />
-            {showExperimental ? "Hide" : "Show"}
-          </Button>
-        </div>
-
-        {/* Experimental Features */}
-        {showExperimental && (
-          <div className="p-4 border rounded-md bg-muted/10">
-            <h3 className="text-sm font-medium mb-2">Experimental Features</h3>
-            {/* Add future experimental features here */}
-          </div>
-        )}
 
         {/* Analysis Progress */}
         {activeTest && (

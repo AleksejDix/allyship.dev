@@ -90,43 +90,36 @@ export function TestEventMonitor() {
 
             {lastEvent.data.results?.summary?.wcagCompliance && (
               <div className="mt-2 p-2 bg-card rounded border">
-                <div className="text-xs font-medium mb-1">WCAG Compliance:</div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div
-                    className={cn(
-                      "text-center text-xs p-1 rounded",
-                      lastEvent.data.results.summary.wcagCompliance.A
-                        ? "bg-success/20 text-success"
-                        : "bg-destructive/20 text-destructive"
-                    )}>
-                    Level A:{" "}
-                    {lastEvent.data.results.summary.wcagCompliance.A
-                      ? "✓"
-                      : "✗"}
-                  </div>
-                  <div
-                    className={cn(
-                      "text-center text-xs p-1 rounded",
-                      lastEvent.data.results.summary.wcagCompliance.AA
-                        ? "bg-success/20 text-success"
-                        : "bg-destructive/20 text-destructive"
-                    )}>
-                    Level AA:{" "}
-                    {lastEvent.data.results.summary.wcagCompliance.AA
-                      ? "✓"
-                      : "✗"}
-                  </div>
-                  <div
-                    className={cn(
-                      "text-center text-xs p-1 rounded",
-                      lastEvent.data.results.summary.wcagCompliance.AAA
-                        ? "bg-success/20 text-success"
-                        : "bg-destructive/20 text-destructive"
-                    )}>
-                    Level AAA:{" "}
-                    {lastEvent.data.results.summary.wcagCompliance.AAA
-                      ? "✓"
-                      : "✗"}
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-medium">WCAG Compliance:</div>
+                  <div className="flex gap-2">
+                    <div
+                      className={cn(
+                        "text-center text-xs px-2 py-1 rounded-full font-medium",
+                        lastEvent.data.results.summary.wcagCompliance.A
+                          ? "bg-success text-white"
+                          : "bg-destructive text-white"
+                      )}>
+                      A
+                    </div>
+                    <div
+                      className={cn(
+                        "text-center text-xs px-2 py-1 rounded-full font-medium",
+                        lastEvent.data.results.summary.wcagCompliance.AA
+                          ? "bg-success text-white"
+                          : "bg-destructive text-white"
+                      )}>
+                      AA
+                    </div>
+                    <div
+                      className={cn(
+                        "text-center text-xs px-2 py-1 rounded-full font-medium",
+                        lastEvent.data.results.summary.wcagCompliance.AAA
+                          ? "bg-success text-white"
+                          : "bg-destructive text-white"
+                      )}>
+                      AAA
+                    </div>
                   </div>
                 </div>
               </div>

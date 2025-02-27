@@ -189,6 +189,7 @@ export interface TestAnalysisCompleteEvent extends BaseEvent {
     }
     timestamp?: string
     url?: string
+    isFallbackEvent?: boolean // Flag to indicate this is a fallback event
   }
 }
 
