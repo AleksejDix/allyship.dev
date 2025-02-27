@@ -4,19 +4,16 @@ import type { TestAnalysisRequestEvent } from "@/lib/events/types"
 import { TEST_CONFIGS, type TestType } from "../test-config"
 
 /**
- * Helper to publish both old and new style events for test completion
+ * Helper to publish test completion events
  *
- * MIGRATION NOTE: This currently publishes only the generic event.
- * The old specific events are now generated in create-test-runner.ts.
- * Once all components are migrated to use generic events,
- * we can remove the old event types completely.
+ * Publishes a TEST_ANALYSIS_COMPLETE event with the test results
  */
 export function publishTestComplete(
   type: TestType,
   results: any[],
   stats: { total: number; failed: number }
 ) {
-  // Publish the new generic event
+  // Publish the generic event
   eventBus.publish({
     type: "TEST_ANALYSIS_COMPLETE",
     timestamp: Date.now(),
@@ -29,8 +26,6 @@ export function publishTestComplete(
       }
     }
   })
-
-  // We're not replacing the old events yet, just adding the new ones alongside
 }
 
 /**
@@ -62,10 +57,6 @@ export async function requestTestAnalysis(testId: string) {
 
 /**
  * Helper to run a test and ensure the corresponding layer is visible
- *
- * MIGRATION: This function abstracts away the differences between old and new
- * event systems. Currently it uses the generic event system, but it could
- * be changed to use either approach for backward compatibility.
  *
  * @param testId The test ID/type to run
  * @returns A promise that resolves when the test is started

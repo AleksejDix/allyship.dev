@@ -1,51 +1,9 @@
 import { eventBus } from "@/lib/events/event-bus"
-import type {
-  AltAnalysisCompleteEvent,
-  HeadingAnalysisCompleteEvent,
-  InteractiveAnalysisCompleteEvent,
-  LinkAnalysisCompleteEvent
-} from "@/lib/events/types"
 
 import { ACTTestRunner } from "./act-test-runner"
 import type { TestType } from "./test-config"
 import { TestLogger } from "./test-logger"
 import { publishTestComplete } from "./utils/event-utils"
-
-type AnalysisCompleteEvent =
-  | HeadingAnalysisCompleteEvent
-  | LinkAnalysisCompleteEvent
-  | AltAnalysisCompleteEvent
-  | InteractiveAnalysisCompleteEvent
-
-// Map test types to their event creators
-// MIGRATION: This will be removed once we fully migrate to generic events
-const createCompleteEvent = (
-  type: TestType,
-  results: any[],
-  stats: { total: number; failed: number }
-): AnalysisCompleteEvent => {
-  const baseEvent = {
-    timestamp: Date.now(),
-    data: {
-      issues: results,
-      stats: {
-        total: stats.total,
-        invalid: stats.failed
-      }
-    }
-  }
-
-  switch (type) {
-    case "headings":
-      return { ...baseEvent, type: "HEADING_ANALYSIS_COMPLETE" }
-    case "links":
-      return { ...baseEvent, type: "LINK_ANALYSIS_COMPLETE" }
-    case "alt":
-      return { ...baseEvent, type: "ALT_ANALYSIS_COMPLETE" }
-    case "interactive":
-      return { ...baseEvent, type: "INTERACTIVE_ANALYSIS_COMPLETE" }
-  }
-}
 
 export function createTestRunner() {
   const testRunner = new ACTTestRunner()
@@ -85,24 +43,10 @@ export function createTestRunner() {
                 stats: update.stats
               })
 
-              // MIGRATION: In the future, we'll only use the generic events
-              // Currently maintaining both for backward compatibility
-
-              // 1. Legacy specific event (will be removed in future)
-              const completeEvent = createCompleteEvent(
-                type,
-                update.results,
-                update.stats
-              )
-              eventBus.publish(completeEvent)
-              console.log(
-                `[create-test-runner] Published legacy event: ${completeEvent.type}`
-              )
-
-              // 2. Generic event (will be the only one in future)
+              // Publish the generic event
               publishTestComplete(type, update.results, update.stats)
               console.log(
-                `[create-test-runner] Published generic TEST_ANALYSIS_COMPLETE event`
+                `[create-test-runner] Published TEST_ANALYSIS_COMPLETE event for ${type}`
               )
               break
           }
