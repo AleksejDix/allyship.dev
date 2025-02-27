@@ -13,6 +13,7 @@ export type TestType =
   | "tables"
   | "language"
   | "structure"
+  | "focus"
 
 /**
  * Configuration for accessibility tests
@@ -51,8 +52,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       disable: "Disable Heading Analysis"
     },
     statsText: {
-      label: "Found",
-      itemName: "headings"
+      label: "Headings",
+      itemName: "heading"
     },
     layerName: "headings"
   },
@@ -195,9 +196,22 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       disable: "Disable Structure Analysis"
     },
     statsText: {
-      label: "Found",
-      itemName: "structure issues"
+      label: "Structure Elements",
+      itemName: "element"
     },
     layerName: "structure"
+  },
+  focus: {
+    type: "focus",
+    displayName: "Focus Indicators",
+    buttonText: {
+      enable: "Enable Focus Analysis",
+      disable: "Disable Focus Analysis"
+    },
+    statsText: {
+      label: "Focus Elements",
+      itemName: "element"
+    },
+    layerName: "focus"
   }
 }

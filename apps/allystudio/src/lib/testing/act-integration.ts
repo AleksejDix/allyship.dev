@@ -49,7 +49,8 @@ const testTypeToRuleCategory: Record<string, ACTRuleCategory[]> = {
   color: [ACTRuleCategory.COLOR, ACTRuleCategory.CONTRAST],
   tables: [ACTRuleCategory.TABLES],
   language: [ACTRuleCategory.LANGUAGE],
-  structure: [ACTRuleCategory.STRUCTURE]
+  structure: [ACTRuleCategory.STRUCTURE],
+  focus: [ACTRuleCategory.FOCUS]
 }
 
 /**

@@ -1,4 +1,5 @@
 // Export all ACT rules
+import { registerFocusRules } from "./focus-rules"
 import { registerHeadingRules } from "./heading-rules"
 import { registerLinkRules } from "./link-rules"
 
@@ -8,16 +9,15 @@ import { registerLinkRules } from "./link-rules"
 export function registerAllRules() {
   console.log("[rules/index] Registering all ACT rules")
 
-  // Register heading rules and add logging
-  console.log("[rules/index] Registering heading rules")
+  // Register heading rules
   registerHeadingRules()
 
-  // Register all link rules
+  // Register link rules
   registerLinkRules()
 
-  // Add more rule registrations here as they are created
+  // Register focus rules
+  registerFocusRules()
 
-  // Log confirmation after all rules are registered
   console.log("[rules/index] All ACT rules registered")
 }
 
