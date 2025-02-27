@@ -112,7 +112,7 @@ export async function runTest(testId: TestType) {
   const unsubscribe = eventBus.subscribe((event) => {
     if (
       event.type === "TEST_ANALYSIS_COMPLETE" &&
-      event.data?.testId === testId
+      (event.data?.testId === testId || event.data?.testType === testId)
     ) {
       console.log(`[event-utils] Real event detected for ${testId}`)
       eventPublished = true
@@ -155,17 +155,6 @@ export async function runTest(testId: TestType) {
       console.warn(
         `[event-utils] Tab ${tab.id} may not be ready to receive messages`
       )
-
-      // Publish a fallback completion event after a delay
-      setTimeout(() => {
-        if (!eventPublished) {
-          console.log(
-            `[event-utils] Publishing fallback completion event for ${testId}`
-          )
-          publishTestComplete(testId, [], { total: 0, failed: 0 })
-        }
-      }, 500)
-
       return
     }
 
@@ -181,13 +170,49 @@ export async function runTest(testId: TestType) {
           `[event-utils] Publishing fallback completion event for ${testId}`
         )
         // Publish a fallback completion event just in case
-        publishTestComplete(testId, [], { total: 0, failed: 0 })
+        // Add a special flag to indicate this is a fallback event
+        eventBus.publish({
+          type: "TEST_ANALYSIS_COMPLETE",
+          timestamp: Date.now(),
+          data: {
+            testId: testId,
+            testType: testId,
+            isFallbackEvent: true, // Add this flag to identify fallback events
+            issues: [],
+            stats: {
+              total: 0,
+              invalid: 0
+            },
+            results: {
+              summary: {
+                rules: {
+                  total: 0,
+                  passed: 0,
+                  failed: 0,
+                  inapplicable: 0,
+                  cantTell: 0
+                },
+                elements: {
+                  total: 0,
+                  passed: 0,
+                  failed: 0
+                },
+                wcagCompliance: {
+                  A: true,
+                  AA: true,
+                  AAA: true
+                }
+              },
+              details: []
+            }
+          }
+        })
       } else {
         console.log(
           `[event-utils] Real event already published for ${testId}, skipping fallback`
         )
       }
-    }, 3000) // 3 second fallback timeout
+    }, 5000) // Increased timeout to 5 seconds to give more time for real events
 
     console.log(`[event-utils] Test started: ${testId}`)
   } catch (error) {
@@ -201,6 +226,6 @@ export async function runTest(testId: TestType) {
     // Clean up the event listener
     setTimeout(() => {
       unsubscribe()
-    }, 5000) // Clean up after 5 seconds
+    }, 10000) // Increased cleanup timeout to 10 seconds
   }
 }
