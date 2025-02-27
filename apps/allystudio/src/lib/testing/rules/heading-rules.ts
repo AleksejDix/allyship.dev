@@ -67,6 +67,14 @@ const headingAccessibleNameRule = createACTRule(
       const headings = document.querySelectorAll(
         "h1, h2, h3, h4, h5, h6, [role='heading']"
       )
+      console.log(`[heading-accessible-name] Found ${headings.length} headings`)
+      // Log each heading for debugging
+      headings.forEach((h, index) => {
+        const element = h as HTMLElement
+        console.log(
+          `[heading-accessible-name] Heading ${index + 1}: ${element.tagName}, Text: "${element.textContent?.trim()}"`
+        )
+      })
       return headings.length > 0
     },
 
@@ -103,7 +111,7 @@ const headingAccessibleNameRule = createACTRule(
           selector,
           passed,
           message,
-          "High", // Severity
+          passed ? "Low" : "High", // Use High severity for empty headings
           ["WCAG2.1:2.4.6", "WCAG2.1:1.3.1"], // WCAG criteria
           "https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html" // Help URL
         )
@@ -134,6 +142,14 @@ const firstHeadingIsH1Rule = createACTRule(
       const headings = document.querySelectorAll(
         "h1, h2, h3, h4, h5, h6, [role='heading']"
       )
+      console.log(`[page-has-heading-one] Found ${headings.length} headings`)
+      // Log the first heading if exists
+      if (headings.length > 0) {
+        const element = headings[0] as HTMLElement
+        console.log(
+          `[page-has-heading-one] First heading: ${element.tagName}, Text: "${element.textContent?.trim()}"`
+        )
+      }
       return headings.length > 0
     },
 
@@ -172,7 +188,7 @@ const firstHeadingIsH1Rule = createACTRule(
         selector,
         passed,
         message,
-        "Critical", // Severity
+        passed ? "Low" : "Critical", // Use Critical severity for non-h1 start
         ["WCAG2.1:1.3.1", "WCAG2.1:2.4.6"], // WCAG criteria
         "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html" // Help URL
       )
@@ -184,12 +200,12 @@ const firstHeadingIsH1Rule = createACTRule(
 )
 
 /**
- * ACT Rule: Heading levels must increase by only one
+ * ACT Rule: Heading levels must follow proper hierarchy
  */
 const headingOrderRule = createACTRule(
   "heading-order",
-  "Heading levels must increase by only one",
-  "This rule checks that heading levels only increase by one at a time.",
+  "Heading levels must follow proper hierarchy",
+  "This rule checks that heading levels follow a proper hierarchical structure without skipping levels.",
   {
     accessibility_requirements: getWCAGReference("1.3.1"),
     categories: [ACTRuleCategory.STRUCTURE],
@@ -202,6 +218,17 @@ const headingOrderRule = createACTRule(
       const headings = document.querySelectorAll(
         "h1, h2, h3, h4, h5, h6, [role='heading']"
       )
+      console.log(`[heading-order] Found ${headings.length} headings`)
+      // Log each heading for debugging
+      Array.from(headings).forEach((h, index) => {
+        const element = h as HTMLElement
+        const level = element.getAttribute("aria-level")
+          ? parseInt(element.getAttribute("aria-level")!, 10)
+          : parseInt(element.tagName.charAt(1), 10)
+        console.log(
+          `[heading-order] Heading ${index + 1}: h${level}, Text: "${element.textContent?.trim()}"`
+        )
+      })
       return headings.length >= 2
     },
 
@@ -213,8 +240,18 @@ const headingOrderRule = createACTRule(
       ) as HTMLElement[]
 
       if (headings.length < 2) {
+        console.log(
+          `[heading-order] Not enough headings to check order: ${headings.length}`
+        )
         return // Not enough headings to check order
       }
+
+      console.log(
+        `[heading-order] Checking hierarchy for ${headings.length} headings`
+      )
+
+      // Track the lowest level seen so far to detect improper hierarchy
+      let lowestLevelSeen = 6 // Start with highest possible level (h6)
 
       // Check each heading (except the first) for proper order
       for (let i = 1; i < headings.length; i++) {
@@ -226,27 +263,40 @@ const headingOrderRule = createACTRule(
 
         const selector = getCssSelector(currentHeading)
 
-        // Check if heading level increases by more than one
-        const isSkippingLevel = currentLevel > previousLevel + 1
-        const passed = !isSkippingLevel
+        // Update lowest level seen
+        if (previousLevel < lowestLevelSeen) {
+          lowestLevelSeen = previousLevel
+        }
 
-        // Create a message based on the result
+        // Case 1: Check if heading level increases by more than one
+        const isSkippingLevel = currentLevel > previousLevel + 1
+
+        // Case 2: Check if heading level decreases below a previously established level
+        // This checks if we're creating a subsection that's not properly nested
+        const isImproperNesting =
+          currentLevel > previousLevel && currentLevel > lowestLevelSeen + 1
+
+        const passed = !isSkippingLevel && !isImproperNesting
+
+        // Create a detailed message based on the result
         let message = ""
         if (passed) {
           message = `Level ${currentLevel} heading follows h${previousLevel} correctly`
-        } else {
-          message = `Invalid heading structure: h${previousLevel} is followed by h${currentLevel} - can only increase by one level`
+        } else if (isSkippingLevel) {
+          message = `Skipped heading level: h${previousLevel} is followed by h${currentLevel} - can only increase by one level`
+        } else if (isImproperNesting) {
+          message = `Improper heading structure: h${currentLevel} appears after seeing h${lowestLevelSeen} earlier in the document`
         }
 
         // Format and add the result
         const result = formatACTResult(
           "heading-order",
-          "Heading levels must increase by only one",
+          "Heading levels must follow proper hierarchy",
           currentHeading,
           selector,
           passed,
           message,
-          "High", // Severity
+          passed ? "Low" : "High", // Set severity based on pass/fail
           ["WCAG2.1:1.3.1", "WCAG2.1:2.4.6"], // WCAG criteria
           "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html" // Help URL
         )
@@ -323,12 +373,29 @@ const singleH1Rule = createACTRule(
   }
 )
 
-// Function to register all heading rules
-export function registerHeadingRules() {
+/**
+ * Register all heading-related ACT rules
+ */
+export function registerHeadingRules(): void {
+  console.log("[heading-rules] Registering heading ACT rules")
+
+  // Register accessible name rule
+  console.log("[heading-rules] Registering heading-has-accessible-name rule")
   registerACTRule(headingAccessibleNameRule)
+
+  // Register first heading is h1 rule
+  console.log("[heading-rules] Registering page-has-heading-one rule")
   registerACTRule(firstHeadingIsH1Rule)
+
+  // Register heading order rule
+  console.log("[heading-rules] Registering heading-order rule")
   registerACTRule(headingOrderRule)
+
+  // Register single h1 rule
+  console.log("[heading-rules] Registering single-h1 rule")
   registerACTRule(singleH1Rule)
+
+  console.log("[heading-rules] All heading rules registered successfully")
 }
 
 // Export the rules for direct use
