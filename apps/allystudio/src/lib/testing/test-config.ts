@@ -1,6 +1,18 @@
 import { altTests, headingTests, interactiveTests, linkTests } from "./suites"
 
-export type TestType = "headings" | "links" | "alt" | "interactive"
+export type TestType =
+  | "headings"
+  | "links"
+  | "alt"
+  | "interactive"
+  | "buttons"
+  | "forms"
+  | "landmarks"
+  | "aria"
+  | "color"
+  | "tables"
+  | "language"
+  | "structure"
 
 /**
  * Configuration for accessibility tests
@@ -12,7 +24,7 @@ export type TestType = "headings" | "links" | "alt" | "interactive"
 export interface TestConfig {
   // Test identification
   type: TestType
-  suite:
+  suite?:
     | typeof headingTests
     | typeof linkTests
     | typeof altTests
@@ -31,6 +43,10 @@ export interface TestConfig {
 
   // Layer mapping for visualization
   layerName: string // Maps test types to layer names
+
+  // Test runner configuration
+  runner?: string // The name of the runner module to use (e.g., "heading-runner.ts")
+  useACTRules?: boolean // Whether to use ACT rules for this test
 }
 
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
@@ -46,7 +62,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "headings"
     },
-    layerName: "headings"
+    layerName: "headings",
+    runner: "heading-runner.ts"
   },
   links: {
     type: "links",
@@ -60,7 +77,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "links"
     },
-    layerName: "links"
+    layerName: "links",
+    runner: "link-runner.ts"
   },
   alt: {
     type: "alt",
@@ -74,7 +92,8 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "images"
     },
-    layerName: "images"
+    layerName: "images",
+    runner: "alt-runner.ts"
   },
   interactive: {
     type: "interactive",
@@ -88,6 +107,120 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       label: "Found",
       itemName: "elements"
     },
-    layerName: "interactive"
+    layerName: "interactive",
+    runner: "interactive-runner.ts"
+  },
+  // New ACT rule-based tests
+  buttons: {
+    type: "buttons",
+    displayName: "Button Accessibility",
+    buttonText: {
+      enable: "Enable Button Analysis",
+      disable: "Disable Button Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "buttons"
+    },
+    layerName: "buttons",
+    useACTRules: true
+  },
+  forms: {
+    type: "forms",
+    displayName: "Form Accessibility",
+    buttonText: {
+      enable: "Enable Form Analysis",
+      disable: "Disable Form Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "form elements"
+    },
+    layerName: "forms",
+    useACTRules: true
+  },
+  landmarks: {
+    type: "landmarks",
+    displayName: "Landmark Regions",
+    buttonText: {
+      enable: "Enable Landmark Analysis",
+      disable: "Disable Landmark Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "landmarks"
+    },
+    layerName: "landmarks",
+    useACTRules: true
+  },
+  aria: {
+    type: "aria",
+    displayName: "ARIA Usage",
+    buttonText: {
+      enable: "Enable ARIA Analysis",
+      disable: "Disable ARIA Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "ARIA elements"
+    },
+    layerName: "aria",
+    useACTRules: true
+  },
+  color: {
+    type: "color",
+    displayName: "Color & Contrast",
+    buttonText: {
+      enable: "Enable Color Analysis",
+      disable: "Disable Color Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "contrast issues"
+    },
+    layerName: "color",
+    useACTRules: true
+  },
+  tables: {
+    type: "tables",
+    displayName: "Table Accessibility",
+    buttonText: {
+      enable: "Enable Table Analysis",
+      disable: "Disable Table Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "tables"
+    },
+    layerName: "tables",
+    useACTRules: true
+  },
+  language: {
+    type: "language",
+    displayName: "Language Settings",
+    buttonText: {
+      enable: "Enable Language Analysis",
+      disable: "Disable Language Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "language issues"
+    },
+    layerName: "language",
+    useACTRules: true
+  },
+  structure: {
+    type: "structure",
+    displayName: "Document Structure",
+    buttonText: {
+      enable: "Enable Structure Analysis",
+      disable: "Disable Structure Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "structure issues"
+    },
+    layerName: "structure",
+    useACTRules: true
   }
 }

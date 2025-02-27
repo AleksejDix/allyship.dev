@@ -8,6 +8,7 @@ import {
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
+import { cn } from "@/lib/utils"
 import { Beaker, Play } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -118,6 +119,7 @@ export function Werkzeug() {
   const [testResults, setTestResults] = useState<any[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
   const [showExperimental, setShowExperimental] = useState(false)
+  const [processingEvent, setProcessingEvent] = useState(false)
 
   // Added function to clear results explicitly
   const clearResults = () => {
@@ -141,11 +143,82 @@ export function Werkzeug() {
           setActiveTest(null)
         }
 
-        // Update results - only if there are issues to display
-        if (event.data?.issues && event.data.issues.length > 0) {
-          console.log(`[werkzeug] Setting test results:`, event.data.issues)
-          setTestResults(event.data.issues || [])
+        // Prevent processing multiple events too quickly
+        if (processingEvent) {
+          console.log("[werkzeug] Already processing an event, skipping")
+          return
         }
+
+        setProcessingEvent(true)
+
+        // Use a timeout to prevent UI flashing and ensure state updates properly
+        setTimeout(() => {
+          // Check for legacy format (issues array)
+          if (event.data?.issues && event.data.issues.length > 0) {
+            console.log(
+              `[werkzeug] Setting legacy test results:`,
+              event.data.issues
+            )
+            // Append new results instead of replacing
+            setTestResults((prevResults) => {
+              // Create a map of existing results by ID to avoid duplicates
+              const existingMap = new Map(
+                prevResults.map((r) => [r.id || JSON.stringify(r), r])
+              )
+
+              // Add new results, avoiding duplicates
+              event.data.issues.forEach((issue: any) => {
+                const id = issue.id || JSON.stringify(issue)
+                if (!existingMap.has(id)) {
+                  existingMap.set(id, issue)
+                }
+              })
+
+              return Array.from(existingMap.values())
+            })
+          }
+          // Check for ACT format (results object with details)
+          else if (
+            event.data?.results?.details &&
+            event.data.results.details.length > 0
+          ) {
+            console.log(
+              `[werkzeug] Setting ACT test results:`,
+              event.data.results.details
+            )
+            // Append new results instead of replacing
+            setTestResults((prevResults) => {
+              // Create a map of existing results by ID to avoid duplicates
+              const existingMap = new Map(
+                prevResults.map((r) => [r.id || JSON.stringify(r), r])
+              )
+
+              // Add new results, avoiding duplicates
+              event.data.results.details.forEach((detail: any) => {
+                const id = detail.id || JSON.stringify(detail)
+                if (!existingMap.has(id)) {
+                  existingMap.set(id, detail)
+                }
+              })
+
+              return Array.from(existingMap.values())
+            })
+          }
+          // If no results found and we don't have any existing results, show a message
+          else if (testResults.length === 0) {
+            console.log(`[werkzeug] No issues found in test results`)
+            // Show empty results with a message
+            setTestResults([
+              {
+                id: "no-issues",
+                message: `No issues found in ${testId} test`,
+                severity: "Low"
+              }
+            ])
+          }
+
+          setProcessingEvent(false)
+        }, 100) // Small delay to ensure state updates properly
       }
     }
 
@@ -157,7 +230,7 @@ export function Werkzeug() {
       console.log("[werkzeug] Cleaning up event listener")
       cleanup()
     }
-  }, [activeTest])
+  }, [activeTest, testResults, processingEvent])
 
   const toggleLayer = (testType: string) => {
     console.log("[Werkzeug] Toggle requested for layer:", testType)
@@ -295,13 +368,66 @@ export function Werkzeug() {
                 Clear results
               </Button>
             </div>
-            {testResults.map((result, index) => (
-              <div key={index} className="rounded border border-gray-200 p-2">
-                <pre className="whitespace-pre-wrap text-xs">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
-              </div>
-            ))}
+
+            {/* Display results in a more user-friendly format */}
+            <div className="space-y-2">
+              {testResults.map((result, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "rounded border p-3",
+                    result.outcome === "passed"
+                      ? "border-success/30 bg-success/10"
+                      : result.severity === "critical" ||
+                          result.severity === "Critical"
+                        ? "border-destructive/30 bg-destructive/10"
+                        : result.severity === "serious" ||
+                            result.severity === "High"
+                          ? "border-warning/30 bg-warning/10"
+                          : "border-muted bg-muted/10"
+                  )}>
+                  <div className="flex items-start justify-between">
+                    <div className="font-medium">
+                      {result.message || "Issue detected"}
+                    </div>
+                    <div className="text-xs px-2 py-1 rounded-full bg-card border">
+                      {result.severity || "Unknown"}
+                    </div>
+                  </div>
+
+                  {result.selector && (
+                    <div className="mt-2 text-xs font-mono bg-card p-2 rounded border">
+                      {result.selector}
+                    </div>
+                  )}
+
+                  {result.html && (
+                    <div className="mt-2">
+                      <div className="text-xs text-muted-foreground mb-1">
+                        HTML:
+                      </div>
+                      <div className="text-xs font-mono bg-card p-2 rounded border overflow-x-auto">
+                        {result.html}
+                      </div>
+                    </div>
+                  )}
+
+                  {result.help && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <span className="font-medium">Help: </span>
+                      {result.help}
+                    </div>
+                  )}
+
+                  {result.impact && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      <span className="font-medium">Impact: </span>
+                      {result.impact}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

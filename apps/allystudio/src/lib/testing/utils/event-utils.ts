@@ -13,16 +13,57 @@ export function publishTestComplete(
   results: any[],
   stats: { total: number; failed: number }
 ) {
+  // Add unique IDs to results if they don't have them
+  const resultsWithIds = results.map((result, index) => {
+    if (!result.id) {
+      return {
+        ...result,
+        id: `${type}-result-${index}-${Date.now()}`
+      }
+    }
+    return result
+  })
+
   // Publish the generic event
   eventBus.publish({
     type: "TEST_ANALYSIS_COMPLETE",
     timestamp: Date.now(),
     data: {
       testId: type,
-      issues: results,
+      testType: type, // Add testType for consistency with ACT format
+      issues: resultsWithIds,
       stats: {
         total: stats.total,
         invalid: stats.failed
+      },
+      // Add results field in ACT format for compatibility
+      results: {
+        summary: {
+          rules: {
+            total: 1, // One legacy rule
+            passed: results.length === 0 ? 1 : 0,
+            failed: results.length > 0 ? 1 : 0,
+            inapplicable: 0,
+            cantTell: 0
+          },
+          elements: {
+            total: stats.total,
+            passed: stats.total - stats.failed,
+            failed: stats.failed
+          },
+          wcagCompliance: {
+            A: results.length === 0,
+            AA: results.length === 0,
+            AAA: results.length === 0
+          }
+        },
+        details: resultsWithIds.map((issue) => ({
+          ...issue,
+          // Ensure each issue has these fields for compatibility
+          outcome: "failed",
+          severity: issue.severity || "serious",
+          impact: issue.impact || "serious"
+        }))
       }
     }
   })
@@ -64,6 +105,20 @@ export async function requestTestAnalysis(testId: string) {
 export async function runTest(testId: TestType) {
   console.log(`[event-utils] Running test: ${testId}`)
 
+  // Flag to track if a real event has been published
+  let eventPublished = false
+
+  // Set up a listener to detect if a real event is published
+  const unsubscribe = eventBus.subscribe((event) => {
+    if (
+      event.type === "TEST_ANALYSIS_COMPLETE" &&
+      event.data?.testId === testId
+    ) {
+      console.log(`[event-utils] Real event detected for ${testId}`)
+      eventPublished = true
+    }
+  })
+
   try {
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
@@ -103,10 +158,12 @@ export async function runTest(testId: TestType) {
 
       // Publish a fallback completion event after a delay
       setTimeout(() => {
-        console.log(
-          `[event-utils] Publishing fallback completion event for ${testId}`
-        )
-        publishTestComplete(testId, [], { total: 0, failed: 0 })
+        if (!eventPublished) {
+          console.log(
+            `[event-utils] Publishing fallback completion event for ${testId}`
+          )
+          publishTestComplete(testId, [], { total: 0, failed: 0 })
+        }
       }, 500)
 
       return
@@ -119,13 +176,17 @@ export async function runTest(testId: TestType) {
     // This prevents the UI from getting stuck if the content script fails
     setTimeout(() => {
       // Check if we need to send a fallback event
-      console.log(
-        `[event-utils] Checking if test ${testId} needs a fallback completion event`
-      )
-
-      // Publish a fallback completion event just in case
-      // The event bus will deduplicate if the real event was already handled
-      publishTestComplete(testId, [], { total: 0, failed: 0 })
+      if (!eventPublished) {
+        console.log(
+          `[event-utils] Publishing fallback completion event for ${testId}`
+        )
+        // Publish a fallback completion event just in case
+        publishTestComplete(testId, [], { total: 0, failed: 0 })
+      } else {
+        console.log(
+          `[event-utils] Real event already published for ${testId}, skipping fallback`
+        )
+      }
     }, 3000) // 3 second fallback timeout
 
     console.log(`[event-utils] Test started: ${testId}`)
@@ -133,6 +194,13 @@ export async function runTest(testId: TestType) {
     console.error(`[event-utils] Error running test ${testId}:`, error)
 
     // Ensure we always publish a completion event, even on error
-    publishTestComplete(testId, [], { total: 0, failed: 0 })
+    if (!eventPublished) {
+      publishTestComplete(testId, [], { total: 0, failed: 0 })
+    }
+  } finally {
+    // Clean up the event listener
+    setTimeout(() => {
+      unsubscribe()
+    }, 5000) // Clean up after 5 seconds
   }
 }
