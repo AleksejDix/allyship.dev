@@ -64,10 +64,20 @@ function handleLegacyTest(type: TestType, config: TestConfig) {
       return
     }
 
-    // For now, we'll just publish a completion event with empty results
-    // This ensures the UI doesn't get stuck waiting for a response
+    // For now, we'll just publish a completion event with a message about migration
     console.log(`[create-test-runner] Publishing completion event for ${type}`)
-    publishTestComplete(type, [], { total: 0, failed: 0 })
+
+    // Create a more informative message for the user
+    const results = [
+      {
+        id: "legacy-test-notice",
+        message: `This test (${config.displayName}) is using the legacy format. We're migrating all tests to the ACT rules format for better accessibility testing.`,
+        severity: "Medium",
+        outcome: "failed"
+      }
+    ]
+
+    publishTestComplete(type, results, { total: 1, failed: 1 })
 
     // Log a warning that legacy tests are not fully supported
     console.warn(

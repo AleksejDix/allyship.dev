@@ -1,4 +1,4 @@
-import { altTests, headingTests, interactiveTests, linkTests } from "./suites"
+// No imports needed - all tests now use ACT rules
 
 export type TestType =
   | "headings"
@@ -20,15 +20,12 @@ export type TestType =
  * MIGRATION COMPLETE: We've fully migrated to generic events.
  * All components now use the generic TEST_ANALYSIS_COMPLETE event
  * instead of specific event types.
+ *
+ * ACT MIGRATION COMPLETE: All tests now use ACT rules.
  */
 export interface TestConfig {
   // Test identification
   type: TestType
-  suite?:
-    | typeof headingTests
-    | typeof linkTests
-    | typeof altTests
-    | typeof interactiveTests
 
   // UI display configuration
   displayName: string
@@ -52,7 +49,6 @@ export interface TestConfig {
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
   headings: {
     type: "headings",
-    suite: headingTests,
     displayName: "Heading Structure",
     buttonText: {
       enable: "Enable Heading Analysis",
@@ -63,7 +59,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       itemName: "headings"
     },
     layerName: "headings",
-    runner: "heading-runner.ts"
+    useACTRules: true
   },
   links: {
     type: "links",
@@ -81,7 +77,6 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
   },
   alt: {
     type: "alt",
-    suite: altTests,
     displayName: "Alt Text Analysis",
     buttonText: {
       enable: "Enable Alt Text Analysis",
@@ -92,11 +87,10 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       itemName: "images"
     },
     layerName: "images",
-    runner: "alt-runner.ts"
+    useACTRules: true
   },
   interactive: {
     type: "interactive",
-    suite: interactiveTests,
     displayName: "Interactive Elements",
     buttonText: {
       enable: "Enable Interactive Analysis",
@@ -107,7 +101,7 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
       itemName: "elements"
     },
     layerName: "interactive",
-    runner: "interactive-runner.ts"
+    useACTRules: true
   },
   // New ACT rule-based tests
   buttons: {

@@ -16,7 +16,7 @@ import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
 import { cn } from "@/lib/utils"
-import { Play } from "lucide-react"
+import { ExternalLink, Play } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TestEventMonitor } from "./test-event-monitor"
@@ -345,6 +345,27 @@ export function Werkzeug() {
     setActiveTest(null)
   }
 
+  // Helper function to get severity color class
+  const getSeverityColorClass = (severity: string, outcome: string) => {
+    if (outcome === "passed") return "bg-success"
+
+    const normalizedSeverity = severity?.toLowerCase() || ""
+    if (normalizedSeverity.includes("critical")) return "bg-destructive"
+    if (normalizedSeverity.includes("high")) return "bg-destructive"
+    if (
+      normalizedSeverity.includes("medium") ||
+      normalizedSeverity.includes("serious")
+    )
+      return "bg-warning"
+    if (
+      normalizedSeverity.includes("low") ||
+      normalizedSeverity.includes("minor")
+    )
+      return "bg-muted"
+
+    return "bg-muted"
+  }
+
   return (
     <TooltipProvider>
       <div className="p-2 space-y-4">
@@ -387,33 +408,59 @@ export function Werkzeug() {
                     <div
                       key={index}
                       className={cn(
-                        "flex items-center justify-between p-3 border-b last:border-b-0",
+                        "p-3 border-b last:border-b-0",
                         "bg-background hover:bg-muted/20 transition-colors"
                       )}>
-                      <div className="flex items-center gap-2">
-                        {result.outcome === "passed" ? (
-                          <div className="w-2 h-2 rounded-full bg-success" />
-                        ) : (
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
                           <div
                             className={cn(
                               "w-2 h-2 rounded-full",
-                              result.severity === "critical" ||
-                                result.severity === "Critical"
-                                ? "bg-destructive"
-                                : result.severity === "serious" ||
-                                    result.severity === "High"
-                                  ? "bg-warning"
-                                  : "bg-muted"
+                              getSeverityColorClass(
+                                result.severity,
+                                result.outcome
+                              )
                             )}
                           />
-                        )}
-                        <div className="font-medium">
-                          {result.message || "Issue detected"}
+                          <div className="font-medium">
+                            {result.message || "Issue detected"}
+                          </div>
+                        </div>
+                        <div className="text-xs px-2 py-1 rounded-full bg-card border">
+                          {result.severity || "Unknown"}
                         </div>
                       </div>
-                      <div className="text-xs px-2 py-1 rounded-full bg-card border">
-                        {result.severity || "Unknown"}
-                      </div>
+
+                      {/* Additional ACT rule information */}
+                      {result.ruleId && (
+                        <div className="mt-1 text-xs text-muted-foreground pl-4">
+                          <div>Rule: {result.ruleId}</div>
+                          {result.wcagCriteria && (
+                            <div className="flex items-center gap-1">
+                              <span>
+                                WCAG: {result.wcagCriteria.join(", ")}
+                              </span>
+                              {result.helpUrl && (
+                                <a
+                                  href={result.helpUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center hover:text-foreground">
+                                  <ExternalLink
+                                    size={12}
+                                    className="ml-1"
+                                    aria-hidden="true"
+                                  />
+                                  <span className="sr-only">
+                                    Learn more about this rule (opens in new
+                                    window)
+                                  </span>
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))
                 : activeTest
