@@ -131,15 +131,64 @@ export interface TestAnalysisRequestEvent extends BaseEvent {
   }
 }
 
+// ACT Rule result summary structure
+export interface ACTRuleSummary {
+  rules: {
+    total: number
+    passed: number
+    failed: number
+    inapplicable: number
+    cantTell: number
+  }
+  elements: {
+    total: number
+    passed: number
+    failed: number
+  }
+  wcagCompliance: {
+    A: boolean
+    AA: boolean
+    AAA: boolean
+  }
+}
+
+// ACT Rule result structure
+export interface ACTRuleResult {
+  rule: {
+    id: string
+    name: string
+  }
+  outcome: string
+  element?: {
+    selector: string
+    html: string
+    xpath?: string
+    attributes?: Record<string, string>
+  }
+  message: string
+  remediation?: string
+  impact?: string
+  wcagCriteria?: string[]
+  helpUrl?: string
+}
+
+// Combined event that supports both legacy and ACT formats
 export interface TestAnalysisCompleteEvent extends BaseEvent {
   type: "TEST_ANALYSIS_COMPLETE"
   data: {
-    testId: string
-    issues: any[]
-    stats: {
+    testId?: string
+    testType?: string
+    issues?: any[]
+    stats?: {
       total: number
       invalid: number
     }
+    results?: {
+      summary: ACTRuleSummary
+      details: ACTRuleResult[]
+    }
+    timestamp?: string
+    url?: string
   }
 }
 
