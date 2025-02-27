@@ -24,7 +24,13 @@ const DEBUG_HIGHLIGHT_STYLES: HighlightStyles = {
 }
 
 // Track which tests need to complete
-const REQUIRED_TEST_TYPES = ["headings", "links", "alt", "interactive"] as const
+const REQUIRED_TEST_TYPES = [
+  "headings",
+  "links",
+  "alt",
+  "interactive",
+  "focus"
+] as const
 
 const PlasmoOverlay = () => {
   const [highlights, setHighlights] = useState<
