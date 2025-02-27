@@ -138,9 +138,28 @@ export function createACTTestSummary(results: ACTRuleResult[]): ACTTestSummary {
   const elementOutcomes = new Map<string, boolean>()
   const wcagViolations = new Set<string>()
 
+  console.log(`[createACTTestSummary] Processing ${results.length} results`)
+
+  // First pass: Initialize all rules as passed
+  const uniqueRuleIds = new Set<string>()
+  results.forEach((result) => {
+    uniqueRuleIds.add(result.rule.id)
+    // Set initial state as passed
+    if (!ruleOutcomes.has(result.rule.id)) {
+      ruleOutcomes.set(result.rule.id, "passed")
+    }
+  })
+
+  // Second pass: Any failure for a rule makes the entire rule failed
   for (const result of results) {
-    // Track rule outcomes (using rule ID as key)
-    ruleOutcomes.set(result.rule.id, result.outcome)
+    // If this result failed, mark the rule as failed
+    // A rule is only passed if ALL instances pass
+    if (result.outcome === "failed") {
+      console.log(
+        `[createACTTestSummary] Marking rule ${result.rule.id} as failed`
+      )
+      ruleOutcomes.set(result.rule.id, "failed")
+    }
 
     // Track element outcomes (using selector as key)
     if (result.element) {
@@ -153,11 +172,30 @@ export function createACTTestSummary(results: ACTRuleResult[]): ACTTestSummary {
 
     // Track WCAG violations
     if (result.outcome === "failed" && result.wcagCriteria) {
+      console.log(
+        `[createACTTestSummary] Found WCAG violation for criteria: ${result.wcagCriteria.join(", ")}`
+      )
       for (const criteria of result.wcagCriteria) {
         wcagViolations.add(criteria)
       }
     }
   }
+
+  // Log counts for debugging
+  const passedCount = Array.from(ruleOutcomes.values()).filter(
+    (o) => o === "passed"
+  ).length
+  const failedCount = Array.from(ruleOutcomes.values()).filter(
+    (o) => o === "failed"
+  ).length
+
+  console.log(
+    `[createACTTestSummary] Rule outcome counts - Total: ${ruleOutcomes.size}, Passed: ${passedCount}, Failed: ${failedCount}`
+  )
+  console.log(
+    `[createACTTestSummary] All rule outcomes:`,
+    Array.from(ruleOutcomes.entries())
+  )
 
   // Determine WCAG compliance
   const hasLevelAViolation = Array.from(wcagViolations).some(

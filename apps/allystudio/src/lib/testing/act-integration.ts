@@ -12,6 +12,8 @@ import "./rules/language-of-page"
 
 // Import our new link rules and heading rules
 import { registerAllRules } from "./rules"
+// First, make sure we import publishTestComplete if it's not already imported
+import { publishTestComplete } from "./utils/event-utils"
 
 // Add more rule imports here as they are implemented
 
@@ -36,15 +38,13 @@ function publishEvent(type: EventType, data: any) {
  * Map of test types to ACT rule categories
  */
 const testTypeToRuleCategory: Record<string, ACTRuleCategory[]> = {
-  headings: [ACTRuleCategory.HEADINGS],
-  landmarks: [ACTRuleCategory.LANDMARKS],
+  headings: [ACTRuleCategory.HEADINGS, ACTRuleCategory.STRUCTURE],
   links: [ACTRuleCategory.LINKS],
-  images: [ACTRuleCategory.IMAGES],
   alt: [ACTRuleCategory.IMAGES],
-  forms: [ACTRuleCategory.FORMS],
-  buttons: [ACTRuleCategory.FORMS, ACTRuleCategory.ARIA],
   interactive: [ACTRuleCategory.FORMS, ACTRuleCategory.ARIA],
-  keyboard: [ACTRuleCategory.KEYBOARD, ACTRuleCategory.FOCUS],
+  buttons: [ACTRuleCategory.FORMS, ACTRuleCategory.ARIA],
+  forms: [ACTRuleCategory.FORMS],
+  landmarks: [ACTRuleCategory.LANDMARKS],
   aria: [ACTRuleCategory.ARIA],
   color: [ACTRuleCategory.COLOR, ACTRuleCategory.CONTRAST],
   tables: [ACTRuleCategory.TABLES],
@@ -59,21 +59,55 @@ export async function runACTRulesForTestType(
   testType: string,
   config: TestConfig
 ): Promise<void> {
+  console.log(`[act-integration] Running ACT rules for test type: ${testType}`)
+
   // Clear previous results
   actRuleRunner.clearResults()
 
-  // Get categories for the test type
-  const categories = testTypeToRuleCategory[testType] || []
+  // Get the categories for this test type
+  const categories = getCategoriesForTestType(testType)
+  console.log(`[act-integration] Categories for ${testType}:`, categories)
 
-  // Run rules for each category
+  // Run all rules for each category
   for (const category of categories) {
+    const rules = actRulesRegistry.getRulesByCategory(category)
+    console.log(
+      `[act-integration] Found ${rules.length} rules for category: ${category}`
+    )
+
+    // Log rule information
+    rules.forEach((rule) => {
+      console.log(
+        `[act-integration] Rule ID: ${rule.metadata.id}, Category: ${category}`
+      )
+    })
+
+    // Run rules for this category
     await actRuleRunner.runRulesByCategory(category)
   }
 
   // Get the results
-  const report = actRuleRunner.logResults()
+  const results = actRuleRunner.getResults()
+  console.log(
+    `[act-integration] Got ${results.length} results from rule runner`
+  )
 
-  // Publish the test completion event
+  // Log each result outcome
+  results.forEach((result, index) => {
+    console.log(
+      `[act-integration] Result ${index + 1}: Rule: ${result.rule.id}, Outcome: ${result.outcome}`
+    )
+  })
+
+  const report = actRuleRunner.logResults()
+  console.log(
+    `[act-integration] Test ${testType} completed with ${report.results.length} results`
+  )
+  console.log(
+    `[act-integration] Summary: Total: ${report.summary.rules.total}, Passed: ${report.summary.rules.passed}, Failed: ${report.summary.rules.failed}`
+  )
+
+  // Publish test completion
   publishEvent(TEST_ANALYSIS_COMPLETE, {
     testType,
     results: {
@@ -83,6 +117,27 @@ export async function runACTRulesForTestType(
     timestamp: new Date().toISOString(),
     url: window.location.href
   })
+}
+
+// Let's also check the mapping from test types to categories to make sure headings is properly mapped
+function getCategoriesForTestType(testType: string): ACTRuleCategory[] {
+  // Find the section that maps test types to categories and add logging
+  console.log(
+    `[act-integration] Looking up categories for test type: ${testType}`
+  )
+
+  const categories = testTypeToRuleCategory[testType] || []
+
+  // If it's a headings test but no categories found, something is wrong
+  if (testType === "headings" && categories.length === 0) {
+    console.warn(
+      `[act-integration] WARNING: No categories found for headings test!`
+    )
+    // Force headings test to use structure category if not mapped
+    return [ACTRuleCategory.STRUCTURE]
+  }
+
+  return categories
 }
 
 /**

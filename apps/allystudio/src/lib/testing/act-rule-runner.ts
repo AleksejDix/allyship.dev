@@ -130,7 +130,16 @@ export class ACTRuleRunner {
    */
   async runRulesByCategory(category: string): Promise<void> {
     const rules = actRulesRegistry.getRulesByCategory(category)
-    await Promise.all(rules.map((rule) => this.runRule(rule.metadata.id)))
+    console.log(
+      `[ACTRuleRunner] Running ${rules.length} rules for category: ${category}`
+    )
+
+    // Log each rule ID
+    rules.forEach((rule) => {
+      console.log(`[ACTRuleRunner] - Rule: ${rule.metadata.id}`)
+    })
+
+    await this.runRules(rules.map((rule) => rule.metadata.id))
   }
 
   /**

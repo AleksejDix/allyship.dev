@@ -90,23 +90,21 @@ export const actRulesRegistry = new ACTRulesRegistry()
  * ACT Rule categories
  */
 export enum ACTRuleCategory {
-  KEYBOARD = "keyboard",
+  ARIA = "aria",
   FORMS = "forms",
-  IMAGES = "images",
   HEADINGS = "headings",
-  LANDMARKS = "landmarks",
+  STRUCTURE = "structure",
+  IMAGES = "images",
   LINKS = "links",
   TABLES = "tables",
-  COLOR = "color",
-  AUDIO_VIDEO = "audio-video",
   LANGUAGE = "language",
-  PARSING = "parsing",
-  ARIA = "aria",
+  LANDMARKS = "landmarks",
+  COLOR = "color",
+  CONTRAST = "contrast",
   FOCUS = "focus",
-  STRUCTURE = "structure",
-  TIME = "time",
-  SENSORY = "sensory",
-  CONTRAST = "contrast"
+  KEYBOARD = "keyboard",
+  BUTTONS = "buttons",
+  INTERACTIVE = "interactive"
 }
 
 /**
@@ -144,7 +142,20 @@ export function createACTRule(
  * Helper function to register a new ACT rule
  */
 export function registerACTRule(rule: ACTRule): void {
+  console.log(`[act-rules-registry] Registering rule: ${rule.metadata.id}`)
+
   actRulesRegistry.register(rule)
+
+  if (rule.metadata.categories) {
+    console.log(
+      `[act-rules-registry] Rule ${rule.metadata.id} categories:`,
+      rule.metadata.categories
+    )
+  } else {
+    console.log(
+      `[act-rules-registry] Rule ${rule.metadata.id} has no categories`
+    )
+  }
 }
 
 /**
