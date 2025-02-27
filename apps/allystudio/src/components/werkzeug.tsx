@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Play, Square } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface TestResults {
@@ -15,6 +21,165 @@ interface TestResults {
     message: string
     severity: "Critical" | "High" | "Medium" | "Low"
   }>
+}
+
+interface TestSelectorProps {
+  onRunTest: (testType: TestType) => void
+  onStopTest: () => void
+  isAnalyzing: boolean
+  activeTest: TestType | null
+}
+
+// New TestSelector component to allow selecting and running individual tests
+function TestSelector({
+  onRunTest,
+  onStopTest,
+  isAnalyzing,
+  activeTest
+}: TestSelectorProps) {
+  return (
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold">Accessibility Tests</h2>
+      <div className="space-y-2">
+        {Object.entries(TEST_CONFIGS).map(([type, config]) => (
+          <div
+            key={type}
+            className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground">
+            <div>
+              <h3 className="font-medium">{config.displayName}</h3>
+              <p className="text-xs text-muted-foreground">
+                Tests {config.statsText.itemName} for accessibility issues
+              </p>
+            </div>
+            <IconButtonWithTooltip
+              tooltip={
+                activeTest === type
+                  ? `Stop ${config.displayName} test`
+                  : `Run ${config.displayName} test`
+              }
+              side="left">
+              {activeTest === type ? (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={onStopTest}
+                  aria-label={`Stop ${config.displayName} test`}
+                  className="animate-pulse">
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onRunTest(type as TestType)}
+                  disabled={isAnalyzing}
+                  aria-label={`Run ${config.displayName} test`}>
+                  <Play className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              )}
+            </IconButtonWithTooltip>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface TestResultItemProps {
+  result: TestResults
+  hiddenLayers: Set<string>
+  onToggleLayer: (layer: string) => void
+}
+
+// Extract test result item to its own component
+function TestResultItem({
+  result,
+  hiddenLayers,
+  onToggleLayer
+}: TestResultItemProps) {
+  return (
+    <div className="p-4 rounded-lg border bg-card text-card-foreground">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-medium">{TEST_CONFIGS[result.type].displayName}</h3>
+        <IconButtonWithTooltip
+          tooltip={hiddenLayers.has(result.type) ? "Show layer" : "Hide layer"}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onToggleLayer(result.type)}
+            aria-pressed={!hiddenLayers.has(result.type)}
+            aria-label={`Toggle ${TEST_CONFIGS[result.type].displayName} layer visibility`}
+            className="h-8 w-8">
+            {hiddenLayers.has(result.type) ? (
+              <EyeOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            )}
+          </Button>
+        </IconButtonWithTooltip>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Found {result.stats.invalid} issues in {result.stats.total}{" "}
+        {TEST_CONFIGS[result.type].statsText.itemName}
+      </p>
+      {result.issues.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {result.issues.map((issue, index) => (
+            <li
+              key={`${result.type}-${issue.id}-${issue.severity}-${index}`}
+              className="text-sm flex items-center gap-2">
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-xs ${
+                  issue.severity === "Critical"
+                    ? "bg-destructive text-destructive-foreground"
+                    : issue.severity === "High"
+                      ? "bg-warning text-warning-foreground"
+                      : "bg-muted text-muted-foreground"
+                }`}>
+                {issue.severity}
+              </span>
+              {issue.message}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+// Tooltip wrapper component for consistency
+function IconButtonWithTooltip({
+  children,
+  tooltip,
+  side = "top"
+}: {
+  children: React.ReactNode
+  tooltip: string
+  side?: "top" | "right" | "bottom" | "left"
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side={side}>{tooltip}</TooltipContent>
+    </Tooltip>
+  )
 }
 
 export function Werkzeug() {
@@ -39,7 +204,7 @@ export function Werkzeug() {
       ) {
         const [type] = testConfig
         setResults((current) => [
-          ...current,
+          ...current.filter((result) => result.type !== type),
           {
             type: type as TestType,
             stats: {
@@ -105,61 +270,71 @@ export function Werkzeug() {
     })
   }
 
-  const startAnalysis = async () => {
-    // Clear previous results and layer states
-    setResults([])
-    setHiddenLayers(new Set())
+  // Run a single test
+  const runTest = async (testType: TestType) => {
     setIsAnalyzing(true)
+    setActiveTest(testType)
 
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (!tab?.id) return
-
-    // Run all test suites in sequence
-    const testTypes = Object.entries(TEST_CONFIGS)
-    for (const [type, config] of testTypes) {
-      setActiveTest(type as TestType)
-      console.log("Starting test:", type) // Debug log
-
-      // Start this test
-      eventBus.publish({
-        type: config.events.request,
-        timestamp: Date.now(),
-        tabId: tab.id
-      })
-
-      // Wait for completion before starting next test
-      await new Promise<void>((resolve, reject) => {
-        let timeout: NodeJS.Timeout
-
-        const cleanup = eventBus.subscribe((event) => {
-          if (event.type === config.events.complete) {
-            clearTimeout(timeout)
-            cleanup()
-            resolve()
-          }
-        })
-
-        // Add timeout to prevent hanging
-        timeout = setTimeout(() => {
-          cleanup()
-          reject(new Error(`Test ${type} timed out`))
-        }, 10000) // 10 second timeout
-      }).catch((error) => {
-        console.error("Test error:", error)
-        // Continue with next test even if current one fails
-      })
-
-      // Add small delay between tests to ensure highlights are properly handled
-      await new Promise((resolve) => setTimeout(resolve, 100))
+    if (!tab?.id) {
+      setIsAnalyzing(false)
+      setActiveTest(null)
+      return
     }
 
-    setIsAnalyzing(false)
-    setActiveTest(null)
+    // Make sure the layer for this test is visible
+    // Map test types to layer names
+    const layerMap = {
+      headings: "headings",
+      links: "links",
+      alt: "images",
+      interactive: "interactive"
+    } as const
+
+    const mappedLayer = layerMap[testType] || testType
+
+    console.log(
+      `[Werkzeug] Running test: ${testType}, ensuring layer ${mappedLayer} is visible`
+    )
+
+    // Remove this layer from hidden layers to make it visible
+    setHiddenLayers((current) => {
+      const newHidden = new Set(current)
+      // Always make sure the layer is visible by removing it from hidden layers
+      newHidden.delete(mappedLayer)
+      return newHidden
+    })
+
+    // Always explicitly publish layer visibility event
+    console.log(
+      `[Werkzeug] Publishing LAYER_TOGGLE_REQUEST for layer: ${mappedLayer}, visible: true`
+    )
+    eventBus.publish({
+      type: "LAYER_TOGGLE_REQUEST",
+      timestamp: Date.now(),
+      data: {
+        layer: mappedLayer,
+        visible: true
+      }
+    })
+
+    const config = TEST_CONFIGS[testType]
+
+    // Start this test
+    eventBus.publish({
+      type: config.events.request,
+      timestamp: Date.now(),
+      tabId: tab.id
+    })
+
+    // Note: The test completion is handled by the useEffect
   }
 
   const stopAnalysis = () => {
     if (activeTest) {
+      console.log(`[Werkzeug] Stopping test: ${activeTest}`)
+
       eventBus.publish({
         type: "TOOL_STATE_CHANGE",
         timestamp: Date.now(),
@@ -174,87 +349,38 @@ export function Werkzeug() {
   }
 
   return (
-    <div className="p-2 space-y-4">
-      <div className="flex justify-between items-center">
-        <Button
-          onClick={startAnalysis}
-          disabled={isAnalyzing}
-          className="w-full">
-          {isAnalyzing ? "Analyzing..." : "Start Accessibility Analysis"}
-        </Button>
-        {isAnalyzing && (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={stopAnalysis}
-            className="ml-2">
-            Stop
-          </Button>
+    <TooltipProvider>
+      <div className="p-2 space-y-4">
+        {/* Test Selector */}
+        <TestSelector
+          onRunTest={runTest}
+          onStopTest={stopAnalysis}
+          isAnalyzing={isAnalyzing}
+          activeTest={activeTest}
+        />
+
+        {/* Analysis Progress */}
+        {isAnalyzing && activeTest && (
+          <div className="text-sm text-muted-foreground">
+            Running {TEST_CONFIGS[activeTest].displayName}...
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {results.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Analysis Results</h2>
+            {results.map((result) => (
+              <TestResultItem
+                key={result.type}
+                result={result}
+                hiddenLayers={hiddenLayers}
+                onToggleLayer={toggleLayer}
+              />
+            ))}
+          </div>
         )}
       </div>
-
-      {/* Analysis Progress */}
-      {isAnalyzing && activeTest && (
-        <div className="text-sm text-muted-foreground">
-          Running {TEST_CONFIGS[activeTest].displayName}...
-        </div>
-      )}
-
-      {/* Results Summary */}
-      {results.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Analysis Results</h2>
-          {results.map((result) => (
-            <div
-              key={result.type}
-              className="p-4 rounded-lg border bg-card text-card-foreground">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">
-                  {TEST_CONFIGS[result.type].displayName}
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => toggleLayer(result.type)}
-                  aria-pressed={!hiddenLayers.has(result.type)}
-                  aria-label={`Toggle ${TEST_CONFIGS[result.type].displayName} layer visibility`}
-                  className="h-8 w-8">
-                  {hiddenLayers.has(result.type) ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Found {result.stats.invalid} issues in {result.stats.total}{" "}
-                {TEST_CONFIGS[result.type].statsText.itemName}
-              </p>
-              {result.issues.length > 0 && (
-                <ul className="mt-2 space-y-1">
-                  {result.issues.map((issue, index) => (
-                    <li
-                      key={`${result.type}-${issue.id}-${issue.severity}-${index}`}
-                      className="text-sm flex items-center gap-2">
-                      <span
-                        className={`px-1.5 py-0.5 rounded-full text-xs ${
-                          issue.severity === "Critical"
-                            ? "bg-destructive text-destructive-foreground"
-                            : issue.severity === "High"
-                              ? "bg-warning text-warning-foreground"
-                              : "bg-muted text-muted-foreground"
-                        }`}>
-                        {issue.severity}
-                      </span>
-                      {issue.message}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </TooltipProvider>
   )
 }
