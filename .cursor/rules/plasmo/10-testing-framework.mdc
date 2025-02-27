@@ -1,7 +1,12 @@
 ---
 description: "Guidelines for using the accessibility testing framework in AllyStudio"
-globs: 
-alwaysApply: false
+globs:
+  - "apps/allystudio/src/lib/testing/**/*"
+  - "apps/allystudio/src/contents/test-runner.ts"
+  - "apps/allystudio/src/background/machines/test.ts"
+  - "apps/allystudio/src/background/messages/toggle-test.ts"
+  - "apps/allystudio/src/sidepanel/**/*"
+  - "apps/allystudio/src/components/werkzeug.tsx"
 ---
 
 # Accessibility Testing Framework
@@ -448,10 +453,13 @@ export function createTestRunner() {
       // Log results
       testLogger.logResults(results)
 
-      // Emit result event
+      // Emit generic completion event
       eventBus.emit({
-        type: config.events.result,
-        payload: results
+        type: "TEST_ANALYSIS_COMPLETE",
+        data: {
+          testId: testType,
+          results: results
+        }
       })
 
       return results
@@ -460,30 +468,63 @@ export function createTestRunner() {
 }
 ```
 
+## Generic Event System
+
+AllyStudio uses a generic event system to standardize test execution and result handling:
+
+```tsx
+// Key event types
+export type EventType =
+  | "TEST_ANALYSIS_REQUEST"  // Request to run a specific test
+  | "TEST_ANALYSIS_COMPLETE" // Test has completed with results
+  | "LAYER_VISIBILITY_CHANGED"
+  | "HIGHLIGHT_ELEMENT"
+  | "CLEAR_HIGHLIGHTS"
+  // Other event types...
+
+// Generic test request event
+interface TestAnalysisRequestEvent {
+  type: "TEST_ANALYSIS_REQUEST";
+  data: {
+    testId: TestType;
+    options?: Record<string, unknown>;
+  };
+}
+
+// Generic test completion event
+interface TestAnalysisCompleteEvent {
+  type: "TEST_ANALYSIS_COMPLETE";
+  data: {
+    testId: TestType;
+    results: TestResult[];
+  };
+}
+```
+
 ## Test Configurations
 
-Test configurations define how each test type works:
+Test configurations define the behavior of each test type:
 
 ```tsx
 // Simplified example from test-config.ts
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
   alt: {
-    name: "Image Alt Text",
+    displayName: "Image Alt Text",
     description: "Tests images for proper alternative text",
-    events: {
-      request: "RUN_ALT_TEST",
-      result: "ALT_TEST_RESULTS"
-    },
-    selectors: ["img", "input[type='image']"]
+    selectors: ["img", "input[type='image']"],
+    statsText: {
+      itemName: "images",
+      actionVerb: "analyzing"
+    }
   },
   headings: {
-    name: "Heading Structure",
+    displayName: "Heading Structure",
     description: "Tests heading structure and hierarchy",
-    events: {
-      request: "RUN_HEADING_TEST",
-      result: "HEADING_TEST_RESULTS"
-    },
-    selectors: ["h1", "h2", "h3", "h4", "h5", "h6"]
+    selectors: ["h1", "h2", "h3", "h4", "h5", "h6"],
+    statsText: {
+      itemName: "headings",
+      actionVerb: "analyzing"
+    }
   },
   // ...other test types
 }
@@ -542,15 +583,15 @@ To run a test from the extension UI:
 ```tsx
 // Example of triggering a test from UI
 import { sendToBackground } from "@plasmohq/messaging"
+import { eventBus } from "../lib/events/event-bus"
 
 function AccessibilityPanel() {
   const runAltTest = async () => {
-    // Request test run via background script
-    await sendToBackground({
-      name: "toggle-test",
-      body: {
-        test: "alt",
-        enabled: true
+    // Request test run via generic event
+    eventBus.publish({
+      type: "TEST_ANALYSIS_REQUEST",
+      data: {
+        testId: "alt"
       }
     })
   }
@@ -572,7 +613,9 @@ Test results are emitted as events that can be captured by the extension UI:
 ```tsx
 // Example of handling test results
 import { useEffect, useState } from "react"
+import { Storage } from "@plasmohq/storage"
 import { useStorage } from "@plasmohq/storage/hook"
+import { eventBus } from "../lib/events/event-bus"
 
 function TestResultsDisplay() {
   const [altTestResults, setAltTestResults] = useStorage({
@@ -581,10 +624,10 @@ function TestResultsDisplay() {
   })
 
   useEffect(() => {
-    // Listen for test results
+    // Listen for test results using generic event
     const handleTestResults = (event) => {
-      if (event.type === "ALT_TEST_RESULTS") {
-        setAltTestResults(event.payload)
+      if (event.type === "TEST_ANALYSIS_COMPLETE" && event.data.testId === "alt") {
+        setAltTestResults(event.data.results)
       }
     }
 
@@ -618,7 +661,7 @@ To add a new test type:
 1. Create a new test file in `src/lib/testing/`
 2. Add the test configuration to `test-config.ts`
 3. Implement the test logic
-4. Add event handling for the new test type
+4. Register with the generic event system
 
 Example of adding a new test type:
 
@@ -627,13 +670,13 @@ Example of adding a new test type:
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
   // ...existing tests
   colorContrast: {
-    name: "Color Contrast",
+    displayName: "Color Contrast",
     description: "Tests elements for sufficient color contrast",
-    events: {
-      request: "RUN_COLOR_CONTRAST_TEST",
-      result: "COLOR_CONTRAST_TEST_RESULTS"
-    },
-    selectors: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "span", "a"]
+    selectors: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "span", "a"],
+    statsText: {
+      itemName: "text elements",
+      actionVerb: "analyzing"
+    }
   }
 }
 
@@ -731,6 +774,8 @@ When working with the AllyStudio sidepanel:
 5. **Clear Messaging**: Provide clear, actionable messages for any failures
 6. **Abort Handling**: Always check abort signals for long-running tests
 7. **Avoid Side Effects**: Tests should not modify the DOM
+8. **Use Generic Events**: Use the standardized event system for communication
+9. **Provide Test ID**: Always include the testId in events for proper routing
 
 ## Test Development Guidelines
 
@@ -743,3 +788,4 @@ When developing new accessibility tests:
 5. **Document Tests**: Add clear documentation about what each test checks
 6. **Include Severity**: Correctly categorize severity of each issue
 7. **Test Cross-browser**: Ensure tests work across supported browsers
+8. **Implement Generic Events**: Use the standardized event system for communication
