@@ -65,6 +65,12 @@ export async function runACTRulesForTestType(
   // Clear previous results
   actRuleRunner.clearResults()
 
+  // Clear previous highlights for this test type
+  publishEvent("HIGHLIGHT", {
+    clear: true,
+    layer: config.layerName
+  })
+
   // Get the categories for this test type
   const categories = getCategoriesForTestType(testType)
   console.log(`[act-integration] Categories for ${testType}:`, categories)
@@ -93,6 +99,23 @@ export async function runACTRulesForTestType(
     `[act-integration] Got ${results.length} results from rule runner`
   )
 
+  // Generate highlight events for failed results
+  results.forEach((result) => {
+    if (result.outcome === "failed" && result.element?.selector) {
+      publishEvent("HIGHLIGHT", {
+        selector: result.element.selector,
+        message: result.message,
+        isValid: false,
+        layer: config.layerName,
+        styles: {
+          border: "#ef4444", // Red border for failed elements
+          background: "rgba(239, 68, 68, 0.1)", // Light red background
+          messageBackground: "#ef4444"
+        }
+      })
+    }
+  })
+
   // Log each result outcome
   results.forEach((result, index) => {
     console.log(
@@ -110,7 +133,7 @@ export async function runACTRulesForTestType(
 
   // Publish test completion
   publishEvent(TEST_ANALYSIS_COMPLETE, {
-    testType,
+    testId: testType,
     results: {
       summary: report.summary,
       details: report.results
