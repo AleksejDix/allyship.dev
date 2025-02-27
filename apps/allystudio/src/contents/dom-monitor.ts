@@ -8,8 +8,6 @@ export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"]
 }
 
-// No need to initialize event bus as we're importing the singleton instance
-
 /**
  * Types of DOM changes that might be relevant for accessibility testing
  */
@@ -33,12 +31,16 @@ export interface DOMChange {
   }
 }
 
+// Storage and state management
+const storage = new Storage()
+let currentObserverCleanup: (() => void) | null = null
+let loggingEnabled = false
+
 /**
  * Helper function to get a CSS selector for an element
  */
 function getSelector(element: HTMLElement): string {
   try {
-    // Try to get a unique selector for the element
     const tagName = element.tagName.toLowerCase()
     const id = element.id ? `#${element.id}` : ""
 
@@ -99,28 +101,25 @@ function getXPath(element: HTMLElement): string {
 
 /**
  * Creates a DOM observer that detects changes while ignoring Plasmo UI elements
- * @param callback Function to call when DOM changes are detected
- * @param options Configuration options
- * @returns Cleanup function to disconnect the observer
  */
 export function createDOMObserver(
   callback: (changes: DOMChange[]) => void,
   options = {
     ignorePlasmo: true,
-    maxChanges: 50, // Maximum changes to report at once
-    observeText: true, // Whether to observe text content changes
-    animationFilterThreshold: 3, // Number of times an element can change in rapid succession before being filtered
-    animationFilterWindow: 1000, // Time window in ms for animation detection
-    ignoreClassChanges: true, // Whether to ignore class attribute changes (often used for animations)
-    ignoreStyleChanges: true, // Whether to ignore style attribute changes (often used for animations)
-    ignoreHiddenElements: true, // Whether to ignore changes to hidden elements
-    batchInterval: 50, // Time in ms to batch changes before reporting
-    emitEvents: true, // Whether to emit events to the event bus
-    enableLogging: false, // Whether to log changes to the console
-    logInterval: 500 // Time in ms to batch logs
+    maxChanges: 50,
+    observeText: true,
+    animationFilterThreshold: 3,
+    animationFilterWindow: 1000,
+    ignoreClassChanges: true,
+    ignoreStyleChanges: true,
+    ignoreHiddenElements: true,
+    batchInterval: 50,
+    emitEvents: true,
+    enableLogging: false,
+    logInterval: 500
   }
 ): () => void {
-  // Track elements that change frequently (likely animations) using WeakMap to prevent memory leaks
+  // Track elements that change frequently (likely animations)
   const animatedElements = new WeakMap<
     HTMLElement,
     {
@@ -130,15 +129,13 @@ export function createDOMObserver(
     }
   >()
 
-  // Track the current batch of changes
+  // Batching state
   let pendingChanges: DOMChange[] = []
   let batchTimer: number | null = null
-
-  // For batched logging
   let logTimeout: number | null = null
   const batchedLogs: DOMChange[][] = []
 
-  // Debounced logging function
+  // Logging function
   const logChanges = (changes: DOMChange[]) => {
     if (!options.enableLogging) return
 
@@ -187,7 +184,7 @@ export function createDOMObserver(
               // Log the element directly so it's clickable in dev tools
               console.log({
                 type: change.type,
-                element: change.element, // This will be clickable
+                element: change.element,
                 selector: getSelector(change.element),
                 tagName: change.element.tagName.toLowerCase(),
                 textContent: change.element.textContent?.slice(0, 100) || "",
@@ -504,24 +501,22 @@ export function createDOMObserver(
 
   // Start observing
   observer.observe(document.body, {
-    childList: true, // Watch for added/removed nodes
-    subtree: true, // Watch the entire DOM tree
-    attributes: true, // Watch all attributes
-    attributeOldValue: true, // Track old attribute values
-    characterData: options.observeText, // Watch text changes
-    characterDataOldValue: options.observeText // Track old text values
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeOldValue: true,
+    characterData: options.observeText,
+    characterDataOldValue: options.observeText
   })
 
   // Return cleanup function
   return () => {
     if (batchTimer !== null) {
       clearTimeout(batchTimer)
-      batchTimer = null
     }
 
     if (logTimeout !== null) {
       clearTimeout(logTimeout)
-      logTimeout = null
     }
 
     observer.disconnect()
@@ -530,16 +525,9 @@ export function createDOMObserver(
   }
 }
 
-// Initialize storage
-const storage = new Storage()
-
-// Track the current observer cleanup function
-let currentObserverCleanup: (() => void) | null = null
-
-// Track logging state
-let loggingEnabled = false
-
-// Function to start the DOM monitor
+/**
+ * Start the DOM monitor
+ */
 async function startDOMMonitor() {
   if (currentObserverCleanup) return
 
@@ -556,12 +544,10 @@ async function startDOMMonitor() {
   console.log(
     `[DOM Monitor] Starting DOM monitor (logging: ${loggingEnabled ? "enabled" : "disabled"})`
   )
+
   currentObserverCleanup = createDOMObserver(
-    (changes) => {
-      // Process DOM changes if needed
-    },
+    () => {}, // Empty callback as we're using events
     {
-      // Default options
       ignorePlasmo: true,
       maxChanges: 50,
       observeText: true,
@@ -578,7 +564,9 @@ async function startDOMMonitor() {
   )
 }
 
-// Function to stop the DOM monitor
+/**
+ * Stop the DOM monitor
+ */
 function stopDOMMonitor() {
   if (currentObserverCleanup) {
     console.log("[DOM Monitor] Stopping DOM monitor")
@@ -587,11 +575,11 @@ function stopDOMMonitor() {
   }
 }
 
-// Function to toggle logging
+/**
+ * Toggle logging
+ */
 async function toggleLogging(enabled: boolean) {
   loggingEnabled = enabled
-
-  // Store the logging state
   await storage.set("dom_monitor_logging_enabled", enabled)
 
   // Restart the monitor to apply the new logging state
@@ -603,7 +591,9 @@ async function toggleLogging(enabled: boolean) {
   console.log(`[DOM Monitor] Logging ${enabled ? "enabled" : "disabled"}`)
 }
 
-// Check if the monitor should be enabled on startup
+/**
+ * Initialize the DOM monitor
+ */
 async function initializeDOMMonitor() {
   let enabled = false
   try {
