@@ -5,7 +5,6 @@ import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import {
-  ProgressIndicator,
   TestContext,
   TestEventMonitor,
   TestResults,
@@ -228,9 +227,6 @@ export function Werkzeug() {
 
           {/* Event Monitor */}
           <TestEventMonitor />
-
-          {/* Analysis Progress */}
-          <ProgressIndicator />
 
           {/* Results Summary */}
           <TestResults />
