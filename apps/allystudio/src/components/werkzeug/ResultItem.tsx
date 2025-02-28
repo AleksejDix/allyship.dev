@@ -50,13 +50,13 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
     result.severity === "High" ||
     result.severity === "serious"
 
-  // Update icons with appropriate shadcn UI colors
+  // Update icons with appropriate Tailwind colors
   const outcomeIcon = isPassed ? (
-    <CheckCircle size={16} className="text-success" aria-hidden="true" />
+    <CheckCircle size={16} className="text-green-500" aria-hidden="true" />
   ) : (
     <AlertTriangle
       size={16}
-      className={isSerious ? "text-destructive" : "text-amber-500"}
+      className={isSerious ? "text-red-500" : "text-amber-500"}
       aria-hidden="true"
     />
   )
@@ -66,16 +66,16 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
       className={cn(
         "border rounded-md mb-3 transition-colors shadow-sm",
         isPassed
-          ? "bg-background/50 hover:bg-muted/30 border-success/20 dark:border-success/30"
+          ? "bg-muted/30 hover:bg-muted/50 border-green-500/20 dark:border-green-500/30"
           : isSerious
-            ? "bg-background/50 hover:bg-muted/30 border-destructive/30"
-            : "bg-background/50 hover:bg-muted/30 border-amber-500/30"
+            ? "bg-muted/30 hover:bg-muted/50 border-red-500/30"
+            : "bg-muted/30 hover:bg-muted/50 border-amber-500/30"
       )}>
       {/* Header section with main details */}
       <div
         className={cn(
           "p-3 flex items-center justify-between cursor-pointer",
-          "hover:bg-muted/50",
+          "hover:bg-muted/60",
           isExpanded && "border-b border-border/30"
         )}
         onClick={() => setIsExpanded(!isExpanded)}>
@@ -91,7 +91,7 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
             <div
               className={cn(
                 "text-xs px-2 py-1 rounded-full bg-muted text-foreground/80",
-                isSerious ? "border border-destructive/30" : "border-muted/50"
+                isSerious ? "border border-red-500/30" : "border-muted/50"
               )}>
               {result.impact}
             </div>
@@ -101,9 +101,9 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
               className={cn(
                 "text-xs px-2 py-1 rounded-full",
                 result.severity === "Critical"
-                  ? "bg-destructive/80 text-destructive-foreground border border-destructive/40"
+                  ? "bg-red-500/80 text-white border border-red-500/40"
                   : result.severity === "High" || result.severity === "serious"
-                    ? "bg-destructive/70 text-destructive-foreground border border-destructive/40"
+                    ? "bg-red-500/70 text-white border border-red-500/40"
                     : result.severity === "Medium" ||
                         result.severity === "moderate"
                       ? "bg-amber-500/70 text-amber-50 dark:text-amber-950 border border-amber-500/40"
@@ -130,14 +130,14 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
 
       {/* Expanded details section */}
       {isExpanded && (
-        <div className="p-4 space-y-4 text-sm bg-transparent">
+        <div className="p-4 space-y-4 text-sm bg-transparent dark:bg-background/20">
           {/* Rule information */}
           {(ruleId || ruleName) && (
             <div className="space-y-1">
               <div className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                 Rule
               </div>
-              <div className="bg-muted/50 p-3 rounded-md border border-border">
+              <div className="bg-muted/80 dark:bg-muted/20 p-3 rounded-md border border-border/50">
                 {ruleId && (
                   <div className="font-mono text-xs text-foreground/90">
                     {ruleId}
@@ -160,7 +160,7 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                 {result.wcagCriteria.map((criteria) => (
                   <div
                     key={criteria}
-                    className="bg-primary/20 text-primary dark:text-primary-foreground px-2 py-1 rounded text-xs font-medium border border-primary/30">
+                    className="bg-blue-500/20 text-blue-600 dark:text-blue-300 px-2 py-1 rounded text-xs font-medium border border-blue-500/30">
                     {criteria}
                   </div>
                 ))}
@@ -179,7 +179,7 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                   code={result.element.selector}
                   label="Selector"
                   maxHeight="auto"
-                  className="mt-2"
+                  className="mt-2 bg-muted/40 dark:bg-muted/10"
                 />
               )}
 
@@ -189,6 +189,7 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                     code={result.element.html}
                     label="HTML"
                     maxHeight="200px"
+                    className="bg-muted/40 dark:bg-muted/10"
                   />
                 </div>
               )}
@@ -205,10 +206,10 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                 className={cn(
                   "p-3 rounded-md border",
                   isPassed
-                    ? "bg-success/10 border-success/30 text-foreground"
+                    ? "bg-green-500/5 dark:bg-green-500/10 border-green-500/20 text-foreground"
                     : isSerious
-                      ? "bg-destructive/10 border-destructive/30 text-foreground"
-                      : "bg-amber-500/10 border-amber-500/30 text-foreground"
+                      ? "bg-red-500/5 dark:bg-red-500/10 border-red-500/20 text-foreground"
+                      : "bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/20 text-foreground"
                 )}>
                 {result.remediation}
               </div>
@@ -221,7 +222,7 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs w-full"
+                className="text-xs w-full bg-background/60 dark:bg-muted/10 border-border/50"
                 onClick={(e) => {
                   e.stopPropagation()
                   window.open(result.helpUrl, "_blank", "noopener,noreferrer")

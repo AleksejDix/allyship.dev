@@ -7,6 +7,7 @@ import {
 } from "../act-rules-registry"
 import { getAccessibleName } from "../act-test-runner"
 import { formatACTResult } from "../utils/act-result-formatter"
+import { getValidSelector } from "../utils/selector-utils"
 
 /**
  * ACT Rule: Buttons must have an accessible name
@@ -42,7 +43,7 @@ const buttonAccessibleNameRule = createACTRule(
       for (const button of Array.from(buttons)) {
         const element = button as HTMLElement
         const accessibleName = getAccessibleName(element)
-        const selector = getCssSelector(element)
+        const selector = getValidSelector(element)
 
         // Determine if the button passes or fails
         const passed = accessibleName.trim().length > 0
@@ -74,33 +75,6 @@ const buttonAccessibleNameRule = createACTRule(
     }
   }
 )
-
-/**
- * Helper function to get a CSS selector for an element
- */
-function getCssSelector(element: HTMLElement): string {
-  // If the element has an ID, use that
-  if (element.id) {
-    return `#${element.id}`
-  }
-
-  // Otherwise, create a selector based on tag name and classes
-  let selector = element.tagName.toLowerCase()
-
-  if (element.className) {
-    const classes = element.className.split(/\s+/).filter(Boolean)
-    if (classes.length > 0) {
-      selector += `.${classes.join(".")}`
-    }
-  }
-
-  // Add attribute selectors for role if present
-  if (element.getAttribute("role")) {
-    selector += `[role="${element.getAttribute("role")}"]`
-  }
-
-  return selector
-}
 
 // Register the rule
 registerACTRule(buttonAccessibleNameRule)

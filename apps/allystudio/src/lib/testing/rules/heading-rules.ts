@@ -7,37 +7,7 @@ import {
 } from "../act-rules-registry"
 import { getAccessibleName } from "../act-test-runner"
 import { formatACTResult } from "../utils/act-result-formatter"
-
-/**
- * Helper function to get a CSS selector for an element
- */
-function getCssSelector(element: HTMLElement): string {
-  // If the element has an ID, use that
-  if (element.id) {
-    return `#${element.id}`
-  }
-
-  // Otherwise, create a selector based on tag name and classes
-  let selector = element.tagName.toLowerCase()
-
-  if (element.className) {
-    const classes = element.className.split(/\s+/).filter(Boolean)
-    if (classes.length > 0) {
-      selector += `.${classes.join(".")}`
-    }
-  }
-
-  // Add attribute selectors for role and aria-level if present
-  if (element.getAttribute("role")) {
-    selector += `[role="${element.getAttribute("role")}"]`
-  }
-
-  if (element.getAttribute("aria-level")) {
-    selector += `[aria-level="${element.getAttribute("aria-level")}"]`
-  }
-
-  return selector
-}
+import { getValidSelector } from "../utils/selector-utils"
 
 /**
  * Helper function to get heading level
@@ -89,7 +59,7 @@ const headingAccessibleNameRule = createACTRule(
       for (const heading of Array.from(headings)) {
         const element = heading as HTMLElement
         const accessibleName = getAccessibleName(element)
-        const selector = getCssSelector(element)
+        const selector = getValidSelector(element)
         const level = getHeadingLevel(element)
 
         // Determine if the heading passes or fails
@@ -167,7 +137,7 @@ const firstHeadingIsH1Rule = createACTRule(
       // Get the first heading
       const firstHeading = headings[0]
       const level = getHeadingLevel(firstHeading)
-      const selector = getCssSelector(firstHeading)
+      const selector = getValidSelector(firstHeading)
 
       // Determine if the first heading is an h1
       const passed = level === 1
@@ -261,7 +231,7 @@ const headingOrderRule = createACTRule(
         const currentLevel = getHeadingLevel(currentHeading)
         const previousLevel = getHeadingLevel(previousHeading)
 
-        const selector = getCssSelector(currentHeading)
+        const selector = getValidSelector(currentHeading)
 
         // Update lowest level seen
         if (previousLevel < lowestLevelSeen) {
@@ -341,7 +311,7 @@ const singleH1Rule = createACTRule(
       const targetElement =
         h1Headings.length > 0 ? h1Headings[0] : document.body
       const selector =
-        h1Headings.length > 0 ? getCssSelector(h1Headings[0]) : "body"
+        h1Headings.length > 0 ? getValidSelector(h1Headings[0]) : "body"
 
       // Determine if there's exactly one h1
       const passed = h1Headings.length === 1
@@ -364,6 +334,137 @@ const singleH1Rule = createACTRule(
         message,
         "High", // Severity
         ["WCAG2.1:1.3.1", "WCAG2.1:2.4.6"], // WCAG criteria
+        "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html" // Help URL
+      )
+
+      // Add the result to the runner
+      actRuleRunner.addResult(result)
+    }
+  }
+)
+
+/**
+ * Rule: Page has only one h1 heading
+ */
+export const pageSingleH1Rule = createACTRule(
+  "page-single-h1",
+  "Page should have only one h1 heading",
+  "This rule checks that the page has exactly one h1 heading.",
+  {
+    accessibility_requirements: getWCAGReference("1.3.1"),
+    categories: [ACTRuleCategory.HEADINGS],
+    implementation_url:
+      "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html",
+
+    // Check if the rule is applicable to the current page
+    isApplicable: () => {
+      // This rule always applies to any page
+      return true
+    },
+
+    // Execute the rule
+    execute: async () => {
+      // Find all h1 headings
+      const h1Headings = document.querySelectorAll(
+        "h1, [role='heading'][aria-level='1']"
+      )
+
+      // Target element is either the first h1 or the body
+      const targetElement =
+        h1Headings.length > 0 ? (h1Headings[0] as HTMLElement) : document.body
+      const selector =
+        h1Headings.length > 0
+          ? getValidSelector(h1Headings[0] as HTMLElement)
+          : "body"
+
+      // Determine if there's exactly one h1
+      const passed = h1Headings.length === 1
+
+      // Create a message based on the result
+      let message = ""
+      if (passed) {
+        message = "Page has exactly one h1 heading"
+      } else if (h1Headings.length === 0) {
+        message = "Page does not have any h1 headings"
+      } else {
+        message = `Page has ${h1Headings.length} h1 headings (should have exactly one)`
+      }
+
+      // Format and add the result
+      const result = formatACTResult(
+        "page-single-h1",
+        "Page should have only one h1 heading",
+        targetElement,
+        selector,
+        passed,
+        message,
+        "Moderate", // Severity
+        ["WCAG2.1:1.3.1"], // WCAG criteria
+        "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html" // Help URL
+      )
+
+      // Add the result to the runner
+      actRuleRunner.addResult(result)
+    }
+  }
+)
+
+/**
+ * Rule: Page must have at least one h1 heading
+ */
+export const pageHasH1Rule = createACTRule(
+  "page-has-h1",
+  "Page must have at least one h1 heading",
+  "This rule checks that the page has at least one h1 heading.",
+  {
+    accessibility_requirements: getWCAGReference("1.3.1"),
+    categories: [ACTRuleCategory.HEADINGS],
+    implementation_url:
+      "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html",
+
+    // Check if the rule is applicable to the current page
+    isApplicable: () => {
+      // This rule always applies to any page
+      return true
+    },
+
+    // Execute the rule
+    execute: async () => {
+      // Find all h1 headings
+      const h1Headings = document.querySelectorAll(
+        "h1, [role='heading'][aria-level='1']"
+      )
+
+      // Determine if the page passes or fails
+      const passed = h1Headings.length > 0
+
+      // Create a message based on the result
+      let message = ""
+      if (passed) {
+        message = `Page has ${h1Headings.length} h1 heading(s)`
+      } else {
+        message = "Page does not have an h1 heading"
+      }
+
+      // Find the first heading or use body as fallback for selector
+      const targetElement =
+        h1Headings.length > 0 ? (h1Headings[0] as HTMLElement) : document.body
+
+      const selector =
+        h1Headings.length > 0
+          ? getValidSelector(h1Headings[0] as HTMLElement)
+          : "body"
+
+      // Format and add the result
+      const result = formatACTResult(
+        "page-has-h1",
+        "Page must have at least one h1 heading",
+        targetElement,
+        selector,
+        passed,
+        message,
+        "Serious", // Severity
+        ["WCAG2.1:1.3.1"], // WCAG criteria
         "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html" // Help URL
       )
 

@@ -101,7 +101,35 @@ export async function runACTRulesForTestType(
 
   // Generate highlight events for failed results
   results.forEach((result) => {
+    console.log(
+      `[act-integration] Processing result for rule: ${result.rule.id}, outcome: ${result.outcome}, layer: ${config.layerName}`
+    )
+
+    // Special debug for ARIA tests
+    if (config.layerName === "aria") {
+      console.log(
+        `[ARIA DEBUG] Processing result for rule: ${result.rule.id}`,
+        {
+          outcome: result.outcome,
+          hasSelector: !!result.element?.selector,
+          selector: result.element?.selector,
+          message: result.message
+        }
+      )
+    }
+
     if (result.outcome === "failed" && result.element?.selector) {
+      console.log(
+        `[act-integration] Creating highlight for failed result: ${result.element.selector}`
+      )
+
+      // Special debug for ARIA tests
+      if (config.layerName === "aria") {
+        console.log(
+          `[ARIA DEBUG] Creating highlight event for selector: ${result.element.selector}`
+        )
+      }
+
       publishEvent("HIGHLIGHT", {
         selector: result.element.selector,
         message: result.message,

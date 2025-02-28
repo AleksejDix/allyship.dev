@@ -7,6 +7,7 @@ import {
 } from "../act-rules-registry"
 import { getAccessibleName } from "../act-test-runner"
 import { formatACTResult } from "../utils/act-result-formatter"
+import { getValidSelector } from "../utils/selector-utils"
 
 /**
  * Rule: Link must have accessible name
@@ -42,7 +43,7 @@ export const linkAccessibleNameRule = createACTRule(
           "link-accessible-name",
           "Link must have accessible name",
           htmlElement,
-          getCssSelector(htmlElement),
+          getValidSelector(htmlElement),
           passed,
           message,
           "serious",
@@ -107,7 +108,7 @@ export const linkDescriptiveTextRule = createACTRule(
           "link-descriptive-text",
           "Link text is descriptive",
           htmlElement,
-          getCssSelector(htmlElement),
+          getValidSelector(htmlElement),
           passed,
           message,
           "moderate",
@@ -167,7 +168,7 @@ export const linkTextLengthRule = createACTRule(
           "link-text-length",
           "Link text length is appropriate",
           htmlElement,
-          getCssSelector(htmlElement),
+          getValidSelector(htmlElement),
           passed,
           message,
           "minor",
@@ -243,7 +244,7 @@ export const linkDuplicateTextRule = createACTRule(
           "link-duplicate-text",
           "No duplicate link text with different destinations",
           htmlElement,
-          getCssSelector(htmlElement),
+          getValidSelector(htmlElement),
           passed,
           message,
           "moderate",
@@ -271,62 +272,84 @@ export const linkExternalMarkedRule = createACTRule(
       "https://www.w3.org/WAI/WCAG21/Understanding/consistent-identification.html",
 
     isApplicable: () => {
-      const elements = document.querySelectorAll("a[href]")
+      const elements = document.querySelectorAll("a[href][target='_blank']")
       return elements.length > 0
     },
 
     execute: async () => {
-      const elements = document.querySelectorAll("a[href]")
+      const elements = document.querySelectorAll("a[href][target='_blank']")
 
       for (const element of Array.from(elements)) {
         const htmlElement = element as HTMLElement
-        const href = htmlElement.getAttribute("href")
+        const accessibleName = getAccessibleName(htmlElement)
 
-        if (!href) continue
+        // Check for security attributes
+        const rel = htmlElement.getAttribute("rel") || ""
+        const hasNoopener = rel.includes("noopener")
+        const hasNoreferrer = rel.includes("noreferrer")
+        const hasSecurityAttributes = hasNoopener && hasNoreferrer
 
-        try {
-          const url = new URL(href, window.location.href)
-          const isExternal = url.origin !== window.location.origin
+        // Check for new window indication in accessible name
+        const newWindowIndicators = [
+          "new window",
+          "new tab",
+          "opens in new",
+          "external",
+          "(opens in new window)",
+          "(opens in new tab)",
+          "(external)"
+        ]
 
-          if (!isExternal) continue
+        const hasNewWindowIndicator = newWindowIndicators.some((indicator) =>
+          accessibleName.toLowerCase().includes(indicator)
+        )
 
-          // Check if link has external link indicator
-          const hasNewWindowText = getAccessibleName(htmlElement)
-            .toLowerCase()
-            .includes("new window")
-          const hasExternalIcon =
-            htmlElement.querySelector('[aria-label*="external"]') !== null
-          const hasAriaLabel =
-            htmlElement
-              .getAttribute("aria-label")
-              ?.toLowerCase()
-              .includes("external") || false
-          const hasTargetBlank = htmlElement.getAttribute("target") === "_blank"
+        // Check for external link icon with aria-hidden="true"
+        const hasAriaHiddenIcon = Array.from(
+          htmlElement.querySelectorAll("*")
+        ).some(
+          (el) =>
+            el.getAttribute("aria-hidden") === "true" &&
+            (el.tagName === "SVG" ||
+              el.tagName === "I" ||
+              el.tagName === "SPAN" ||
+              el.tagName === "IMG")
+        )
 
-          const passed =
-            (hasNewWindowText || hasExternalIcon || hasAriaLabel) &&
-            hasTargetBlank
-          const message = passed
-            ? "External link is properly marked"
-            : "External link should indicate it opens in a new window"
+        // Determine if the link passes the test
+        const passed = hasNewWindowIndicator && hasSecurityAttributes
 
-          const result = formatACTResult(
-            "link-external-marked",
-            "External links should be marked",
-            htmlElement,
-            getCssSelector(htmlElement),
-            passed,
-            message,
-            "moderate",
-            ["WCAG2.1:3.2.4"],
-            "https://www.w3.org/WAI/WCAG21/Understanding/consistent-identification.html"
-          )
+        // Create appropriate message based on what's missing
+        let message = ""
+        if (passed) {
+          message = `External link properly indicates it opens in a new window and has security attributes`
+        } else {
+          const missingItems = []
 
-          actRuleRunner.addResult(result)
-        } catch (error) {
-          // Skip links with invalid URLs
-          continue
+          if (!hasNewWindowIndicator) {
+            missingItems.push("indication that it opens in a new window/tab")
+          }
+
+          if (!hasSecurityAttributes) {
+            missingItems.push('security attributes (rel="noopener noreferrer")')
+          }
+
+          message = `External link missing: ${missingItems.join(" and ")}`
         }
+
+        const result = formatACTResult(
+          "link-external-marked",
+          "External links should be marked",
+          htmlElement,
+          getValidSelector(htmlElement),
+          passed,
+          message,
+          "moderate",
+          ["WCAG2.1:3.2.4"],
+          "https://www.w3.org/WAI/WCAG21/Understanding/consistent-identification.html"
+        )
+
+        actRuleRunner.addResult(result)
       }
     }
   }
@@ -362,7 +385,7 @@ export const linkValidHrefRule = createACTRule(
             "link-valid-href",
             "Link href is valid",
             htmlElement,
-            getCssSelector(htmlElement),
+            getValidSelector(htmlElement),
             false,
             "Missing href attribute",
             "serious",
@@ -381,7 +404,7 @@ export const linkValidHrefRule = createACTRule(
             "link-valid-href",
             "Link href is valid",
             htmlElement,
-            getCssSelector(htmlElement),
+            getValidSelector(htmlElement),
             false,
             `Invalid href value "${href}" - use a valid URL or fragment identifier`,
             "serious",
@@ -403,7 +426,7 @@ export const linkValidHrefRule = createACTRule(
               "link-valid-href",
               "Link href is valid",
               htmlElement,
-              getCssSelector(htmlElement),
+              getValidSelector(htmlElement),
               false,
               `Fragment "${href}" does not point to an existing element ID`,
               "serious",
@@ -421,7 +444,7 @@ export const linkValidHrefRule = createACTRule(
           "link-valid-href",
           "Link href is valid",
           htmlElement,
-          getCssSelector(htmlElement),
+          getValidSelector(htmlElement),
           true,
           "Link href is valid",
           "serious",
@@ -436,35 +459,74 @@ export const linkValidHrefRule = createACTRule(
 )
 
 /**
- * Helper function to get a CSS selector for an element
+ * Rule: Links should have sufficient touch target size
  */
-function getCssSelector(element: HTMLElement): string {
-  // If the element has an ID, use that
-  if (element.id) {
-    return `#${element.id}`
-  }
+export const linkTouchTargetSizeRule = createACTRule(
+  "link-touch-target-size",
+  "Links have sufficient touch target size",
+  "Link touch targets should be at least 44×44 pixels for better mobile accessibility",
+  {
+    accessibility_requirements: getWCAGReference("2.5.5"),
+    categories: [ACTRuleCategory.LINKS],
+    implementation_url:
+      "https://www.w3.org/WAI/WCAG21/Understanding/target-size.html",
 
-  // If the element has classes, use those
-  if (element.className && typeof element.className === "string") {
-    const classes = element.className
-      .split(" ")
-      .filter((c) => c.trim().length > 0)
-      .map((c) => `.${c}`)
-      .join("")
+    isApplicable: () => {
+      const elements = document.querySelectorAll("a[href]")
+      return elements.length > 0
+    },
 
-    if (classes) {
-      return `${element.tagName.toLowerCase()}${classes}`
+    execute: async () => {
+      const elements = document.querySelectorAll("a[href]")
+      const MIN_TARGET_SIZE = 44 // Minimum touch target size in pixels
+
+      for (const element of Array.from(elements)) {
+        const htmlElement = element as HTMLElement
+        const rect = htmlElement.getBoundingClientRect()
+
+        // Calculate the effective touch target size
+        const width = Math.round(rect.width)
+        const height = Math.round(rect.height)
+
+        // Check if link is visually hidden but still accessible to screen readers
+        const isVisuallyHidden =
+          htmlElement.offsetParent === null ||
+          width === 0 ||
+          height === 0 ||
+          window.getComputedStyle(htmlElement).display === "none" ||
+          window.getComputedStyle(htmlElement).visibility === "hidden"
+
+        // Skip visually hidden elements
+        if (isVisuallyHidden) continue
+
+        // Check if size meets minimum requirements
+        const passed = width >= MIN_TARGET_SIZE && height >= MIN_TARGET_SIZE
+
+        // Create appropriate message
+        let message = ""
+        if (passed) {
+          message = `Link has sufficient touch target size: ${width}×${height}px`
+        } else {
+          message = `Link touch target size is too small: ${width}×${height}px (should be at least ${MIN_TARGET_SIZE}×${MIN_TARGET_SIZE}px)`
+        }
+
+        const result = formatACTResult(
+          "link-touch-target-size",
+          "Links have sufficient touch target size",
+          htmlElement,
+          getValidSelector(htmlElement),
+          passed,
+          message,
+          "moderate",
+          ["WCAG2.1:2.5.5"],
+          "https://www.w3.org/WAI/WCAG21/Understanding/target-size.html"
+        )
+
+        actRuleRunner.addResult(result)
+      }
     }
   }
-
-  // If the element has a role, use that
-  if (element.getAttribute("role")) {
-    return `${element.tagName.toLowerCase()}[role="${element.getAttribute("role")}"]`
-  }
-
-  // Otherwise, use the tag name
-  return element.tagName.toLowerCase()
-}
+)
 
 // Register all link rules
 export function registerLinkRules() {
@@ -474,4 +536,5 @@ export function registerLinkRules() {
   registerACTRule(linkDuplicateTextRule)
   registerACTRule(linkExternalMarkedRule)
   registerACTRule(linkValidHrefRule)
+  registerACTRule(linkTouchTargetSizeRule)
 }

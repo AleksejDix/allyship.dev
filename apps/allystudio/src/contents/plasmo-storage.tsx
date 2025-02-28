@@ -23,16 +23,28 @@ const DEBUG_HIGHLIGHT_STYLES: HighlightStyles = {
   messageBackground: "#f59e0b"
 }
 
-// Track which tests need to complete
-const REQUIRED_TEST_TYPES = [
+// Define core test types outside component
+const CORE_TEST_TYPES = [
   "headings",
   "links",
   "alt",
   "interactive",
-  "focus"
+  "focus",
+  "forms",
+  "aria"
 ] as const
 
 const PlasmoOverlay = () => {
+  // Track which tests are known (move this inside the component)
+  const knownTestTypesRef = useRef<Set<string>>(new Set())
+
+  // Initialize with core test types (this must be inside the component)
+  useEffect(() => {
+    CORE_TEST_TYPES.forEach((type: string) =>
+      knownTestTypesRef.current.add(type)
+    )
+  }, [])
+
   const [highlights, setHighlights] = useState<
     Map<string, Map<string, HighlightData>>
   >(new Map())
@@ -109,6 +121,19 @@ const PlasmoOverlay = () => {
       )
     }
 
+    // Debug log to check if aria layer has highlights
+    if (newHighlights.has("aria")) {
+      const ariaHighlights = newHighlights.get("aria")
+      console.log(
+        `[HIGHLIGHT DEBUG] Aria layer has ${ariaHighlights?.size || 0} highlights:`,
+        Array.from(ariaHighlights?.entries() || [])
+      )
+    } else {
+      console.log(
+        "[HIGHLIGHT DEBUG] Aria layer has no highlights in pending updates"
+      )
+    }
+
     setHighlights(newHighlights)
     pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
   }
@@ -174,13 +199,19 @@ const PlasmoOverlay = () => {
       // Track test completions using the generic event
       if (event.type === "TEST_ANALYSIS_COMPLETE") {
         const testId = event.data.testId
-        if (REQUIRED_TEST_TYPES.includes(testId as any)) {
+        if (testId) {
+          // Auto-register any new test types
+          if (!knownTestTypesRef.current.has(testId)) {
+            console.log(`Registering new test type: ${testId}`)
+            knownTestTypesRef.current.add(testId)
+          }
+
           completedTestsRef.current.add(testId)
           console.log(`Test completed: ${testId}`)
 
           // Check if all required tests are complete
-          const allComplete = REQUIRED_TEST_TYPES.every((testType) =>
-            completedTestsRef.current.has(testType)
+          const allComplete = Array.from(knownTestTypesRef.current).every(
+            (testType) => completedTestsRef.current.has(testType)
           )
 
           if (allComplete) {
@@ -200,10 +231,26 @@ const PlasmoOverlay = () => {
 
   // Subscribe to highlight events
   useEffect(() => {
+    // Debug log to check if aria layer is hidden
+    console.log("[LAYER DEBUG] Hidden layers:", Array.from(hiddenLayers))
+    console.log("[LAYER DEBUG] Is aria layer hidden:", hiddenLayers.has("aria"))
+
     const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
       if (event.type === "HIGHLIGHT") {
         const highlightEvent = event.data as HighlightEvent
         const { layer } = highlightEvent
+
+        // Debug log to see highlight events
+        console.log(
+          `[HIGHLIGHT] Layer: ${layer}, Selector: ${highlightEvent.selector}`
+        )
+
+        // Special debug for aria layer
+        if (layer === "aria") {
+          console.log(
+            `[ARIA HIGHLIGHT] Adding highlight for selector: ${highlightEvent.selector}, message: ${highlightEvent.message}, isValid: ${highlightEvent.isValid}`
+          )
+        }
 
         // Fast path for inspector layer and inspector-debug layer
         if (layer === INSPECTOR_LAYER || layer === INSPECTOR_DEBUG_LAYER) {
@@ -408,6 +455,36 @@ const PlasmoOverlay = () => {
     }, 1000)
 
     return () => clearInterval(cleanupInterval)
+  }, [])
+
+  // Apply pending updates to highlights
+  useEffect(() => {
+    if (pendingUpdatesRef.current.size === 0) return
+
+    // Create a new map that includes both the pending updates and inspector highlights
+    const newHighlights = new Map(pendingUpdatesRef.current)
+
+    // Add inspector highlights if they exist
+    if (inspectorHighlightsRef.current.size > 0) {
+      newHighlights.set(
+        INSPECTOR_LAYER,
+        new Map(inspectorHighlightsRef.current)
+      )
+    }
+
+    setHighlights(newHighlights)
+    pendingUpdatesRef.current = new Map()
+
+    // Debug log to check if aria layer has highlights
+    if (newHighlights.has("aria")) {
+      const ariaHighlights = newHighlights.get("aria")
+      console.log(
+        `[HIGHLIGHT DEBUG] Aria layer has ${ariaHighlights?.size || 0} highlights:`,
+        Array.from(ariaHighlights?.entries() || [])
+      )
+    } else {
+      console.log("[HIGHLIGHT DEBUG] Aria layer has no highlights")
+    }
   }, [])
 
   return (
