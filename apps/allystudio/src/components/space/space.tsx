@@ -20,10 +20,12 @@ const Space = memo(function Space({
 }: PropsWithChildren<{ debug?: boolean }>) {
   return (
     <SpaceProvider>
-      <SpaceEmpty />
-      <SpaceOptions />
-      <SpaceSelected>{children}</SpaceSelected>
-      {debug && <SpaceDebug />}
+      <div className="overflow-y-auto h-full">
+        <SpaceEmpty />
+        <SpaceOptions />
+        <SpaceSelected>{children}</SpaceSelected>
+        {debug && <SpaceDebug />}
+      </div>
       <div>
         <div className="px-2 flex space-x-2">
           <ElementInspector />

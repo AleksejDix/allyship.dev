@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { CodeBlock } from "@/components/ui/code-block"
 import { cn } from "@/lib/utils"
 import {
   AlertTriangle,
@@ -43,19 +44,31 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
   const ruleId = result.ruleId || result.rule?.id
   const ruleName = result.rule?.name
   const isPassed = result.outcome === "passed"
+  const isSerious =
+    result.severity === "Critical" ||
+    result.severity === "High" ||
+    result.severity === "serious"
 
   const outcomeIcon = isPassed ? (
     <CheckCircle size={16} className="text-green-400" aria-hidden="true" />
   ) : (
     <AlertTriangle
       size={16}
-      className={getSeverityColorClass(
-        result.severity || "",
-        result.outcome || ""
-      )}
+      className={
+        isSerious
+          ? "text-red-500"
+          : getSeverityColorClass(result.severity || "", result.outcome || "")
+      }
       aria-hidden="true"
     />
   )
+
+  // Determine border color based on severity
+  const borderColor = isSerious
+    ? "border-red-500/50"
+    : isPassed
+      ? "border-blue-500/30"
+      : "border-red-500/30"
 
   return (
     <div
@@ -63,7 +76,7 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
         "border rounded-md mb-3 transition-colors",
         isPassed
           ? "bg-blue-950/15 hover:bg-blue-950/20 border-blue-500/30"
-          : "bg-red-950/15 hover:bg-red-950/20 border-red-500/30"
+          : `bg-red-950/15 hover:bg-red-950/20 ${borderColor}`
       )}>
       {/* Header section with main details */}
       <div
@@ -82,7 +95,11 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
 
         <div className="flex items-center gap-2">
           {result.impact && (
-            <div className="text-xs px-2 py-1 rounded-full bg-muted/30 text-foreground/80 border-muted/20">
+            <div
+              className={cn(
+                "text-xs px-2 py-1 rounded-full bg-muted/30 text-foreground/80",
+                isSerious ? "border border-red-500/40" : "border-muted/20"
+              )}>
               {result.impact}
             </div>
           )}
@@ -91,12 +108,12 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
               className={cn(
                 "text-xs px-2 py-1 rounded-full",
                 result.severity === "Critical"
-                  ? "bg-red-600/70 text-red-50"
-                  : result.severity === "High"
-                    ? "bg-red-500/60 text-red-50"
+                  ? "bg-red-600/70 text-red-50 border border-red-500/50"
+                  : result.severity === "High" || result.severity === "serious"
+                    ? "bg-red-500/60 text-red-50 border border-red-500/50"
                     : result.severity === "Medium"
-                      ? "bg-amber-500/70 text-amber-50"
-                      : "bg-muted/30 text-foreground/80"
+                      ? "bg-amber-500/70 text-amber-50 border border-amber-500/50"
+                      : "bg-muted/30 text-foreground/80 border border-muted/30"
               )}>
               {result.severity}
             </div>
@@ -164,28 +181,21 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                 Element
               </div>
               {result.element.selector && (
-                <div className="bg-muted/20 p-3 rounded-md border border-muted/20 overflow-x-auto">
-                  <div className="flex items-center gap-2">
-                    <Code
-                      size={14}
-                      className="text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                    <code className="text-xs font-mono text-foreground/90">
-                      {result.element.selector}
-                    </code>
-                  </div>
-                </div>
+                <CodeBlock
+                  code={result.element.selector}
+                  label="Selector"
+                  maxHeight="auto"
+                  className="mt-2"
+                />
               )}
 
               {result.element.html && (
-                <div className="border border-muted/30 rounded-md mt-2">
-                  <div className="bg-muted/30 px-3 py-1.5 text-xs font-medium text-foreground/80 border-b border-muted/30">
-                    HTML
-                  </div>
-                  <pre className="p-3 text-xs overflow-x-auto font-mono bg-muted/20 text-foreground/90 rounded-b-md">
-                    {result.element.html}
-                  </pre>
+                <div className="mt-2">
+                  <CodeBlock
+                    code={result.element.html}
+                    label="HTML"
+                    maxHeight="200px"
+                  />
                 </div>
               )}
             </div>
@@ -202,7 +212,9 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                   "p-3 rounded-md border",
                   isPassed
                     ? "bg-blue-800/20 border-blue-500/30 text-blue-100"
-                    : "bg-red-800/20 border-red-500/30 text-red-100"
+                    : isSerious
+                      ? "bg-red-800/20 border-red-500/40 text-red-100"
+                      : "bg-red-800/20 border-red-500/30 text-red-100"
                 )}>
                 {result.remediation}
               </div>
