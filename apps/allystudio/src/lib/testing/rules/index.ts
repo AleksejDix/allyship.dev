@@ -16,7 +16,8 @@ import {
   linkAccessibleNameRule,
   linkDescriptiveTextRule,
   linkDuplicateTextRule,
-  linkTextLengthRule
+  linkTextLengthRule,
+  registerLinkRules
 } from "./link-rules"
 
 // Export all rules
@@ -40,8 +41,13 @@ export {
  * Register all rules
  */
 export function registerAllRules() {
-  // All rules self-register when imported
-  // This function just ensures the imports are not tree-shaken
+  // Explicitly register all rule types to prevent tree-shaking issues
+  console.log("[rules] Registering all ACT rules")
+
+  // Explicitly call registration functions
+  registerLinkRules()
+
+  console.log("[rules] All ACT rules registered")
 }
 
 // Re-export all rules for direct use

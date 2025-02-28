@@ -75,6 +75,37 @@ export async function runACTRulesForTestType(
   const categories = getCategoriesForTestType(testType)
   console.log(`[act-integration] Categories for ${testType}:`, categories)
 
+  // DEBUG: Add extra logging to help diagnose link rule issues
+  if (testType === "links") {
+    console.log("[act-integration] DEBUG: Links test type detected")
+    console.log(
+      "[act-integration] DEBUG: Looking for rules with categories:",
+      categories
+    )
+
+    // Check all registered rules
+    const allRules = actRulesRegistry.getAllRules()
+    console.log(
+      `[act-integration] DEBUG: Total registered rules: ${allRules.length}`
+    )
+
+    // Look for link rules specifically
+    const linkRules = allRules.filter((rule) =>
+      rule.metadata?.categories?.some((cat) => cat === ACTRuleCategory.LINKS)
+    )
+    console.log(
+      `[act-integration] DEBUG: Found ${linkRules.length} rules with LINKS category`
+    )
+
+    // List link rule IDs
+    if (linkRules.length > 0) {
+      console.log(
+        "[act-integration] DEBUG: Link rule IDs:",
+        linkRules.map((r) => r.metadata?.id)
+      )
+    }
+  }
+
   // Run all rules for each category
   for (const category of categories) {
     const rules = actRulesRegistry.getRulesByCategory(category)
