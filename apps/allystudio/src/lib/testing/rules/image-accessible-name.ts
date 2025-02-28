@@ -27,51 +27,74 @@ const imageAccessibleNameRule = createACTRule(
     implementation_url:
       "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html",
 
-    // Check if the rule is applicable to the current page
+    // Optimized applicability check
     isApplicable: () => {
-      // Rule applies if there are any image elements
-      const images = document.querySelectorAll(
+      return !!document.querySelector(
         'img:not([role="presentation"]):not([role="none"]), [role="img"]'
       )
-      return images.length > 0
     },
 
-    // Execute the rule
+    // Optimized rule execution
     execute: async () => {
-      // Find all image elements that are not presentational
       const images = document.querySelectorAll(
         'img:not([role="presentation"]):not([role="none"]), [role="img"]'
       )
 
-      // Check each image for an accessible name
-      for (const image of Array.from(images)) {
+      images.forEach((image) => {
         const element = image as HTMLElement
-        const accessibleName = getAccessibleName(element)
+        const accessibleName = getAccessibleName(element).trim()
         const selector = getValidSelector(element)
 
-        // Get alt text specifically for additional checks
+        // Get alt text directly for debug comparison
         const altText =
           element.tagName.toLowerCase() === "img"
-            ? (element as HTMLImageElement).alt
+            ? (element as HTMLImageElement).alt.trim()
             : null
 
-        // Determine if the image passes or fails
-        const passed = accessibleName.trim().length > 0
+        // Debug information to understand why accessible name might be empty
+        console.debug(`[Image Rule Debug]`, {
+          element,
+          selector,
+          accessibleName: accessibleName || "(empty)",
+          directAltText: altText || "(none)",
+          inPictureElement: !!element.closest("picture"),
+          ariaLabel: element.getAttribute("aria-label"),
+          ariaLabelledby: element.getAttribute("aria-labelledby")
+        })
 
-        // Create a message based on the result
-        let message = ""
-        if (passed) {
-          message = `Image has accessible name: "${accessibleName}"`
+        // Handle special case for images in picture elements
+        let finalAccessibleName = accessibleName
 
-          // Additional check for placeholder alt text
-          if (altText && isPlaceholderAltText(altText)) {
-            message = `Image has suspicious alt text that may be placeholder content: "${altText}"`
-          }
-        } else {
-          message = "Image does not have an accessible name"
+        // For images in picture elements, if accessibleName is empty but alt exists, use alt
+        if (!finalAccessibleName && altText && element.closest("picture")) {
+          finalAccessibleName = altText
+          console.debug(
+            `[Image Rule] Using direct alt text for image in picture element: "${altText}"`
+          )
         }
 
-        // Format and add the result
+        let message = ""
+        let passed = finalAccessibleName.length > 0
+        let severity = "Serious"
+
+        if (passed) {
+          message = `Image has accessible name: "${finalAccessibleName}"`
+
+          // Check for placeholder alt text
+          if (altText && isPlaceholderAltText(altText)) {
+            message = `Image has suspicious alt text that may be placeholder content: "${altText}"`
+            severity = "Warning"
+          }
+        } else {
+          // More detailed failure message for debugging
+          message = `Image does not have an accessible name. `
+          if (altText) {
+            message += `Alt text "${altText}" is present but not being correctly calculated as the accessible name.`
+          } else {
+            message += `No alt text was found.`
+          }
+        }
+
         const result = formatACTResult(
           "image-has-accessible-name",
           "Images must have an accessible name",
@@ -79,75 +102,97 @@ const imageAccessibleNameRule = createACTRule(
           selector,
           passed && !(altText && isPlaceholderAltText(altText)),
           message,
-          "Serious", // Severity
-          ["WCAG2.1:1.1.1"], // WCAG criteria
-          "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html" // Help URL
+          severity,
+          ["WCAG2.1:1.1.1"],
+          "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html"
         )
 
-        // Add the result to the runner
         actRuleRunner.addResult(result)
-      }
+      })
     }
   }
 )
 
 /**
  * Check if alt text appears to be placeholder text
+ *
+ * This function is designed to be language-agnostic and identify common
+ * placeholder patterns that indicate low-quality alt text.
+ *
+ * @future This function is designed to be extended with AI capabilities
+ * to better analyze alt text quality across multiple languages.
  */
 function isPlaceholderAltText(altText: string): boolean {
-  // If alt text is reasonably long (more than 20 chars), it's probably not a placeholder
+  // Empty or whitespace-only alt text is considered a failure
+  if (!altText || altText.trim().length === 0) return true
+
+  // If alt text is reasonably long (more than 20 chars), it's probably meaningful
   if (altText.length > 20) {
     return false
   }
 
-  // Convert to lowercase for case-insensitive comparison
-  const text = altText.toLowerCase().trim()
+  const text = altText.trim().toLowerCase()
 
-  // Common placeholder patterns - only exact matches or isolated words
-  const placeholders = [
+  // Early return for likely portrait/person descriptions
+  if (
+    text.includes("portrait") ||
+    text.includes(" photo of ") ||
+    // Check for likely name patterns (First Last format)
+    /^[A-Z][a-z]+ [A-Z][a-z]+$/.test(altText) ||
+    // Check for possessive name patterns (John's photo)
+    /^[A-Z][a-z]+('s| s) (photo|picture|portrait|headshot)$/i.test(altText)
+  ) {
+    return false
+  }
+
+  // Universal placeholder terms (language-agnostic where possible)
+  // These are terms that by themselves don't provide useful descriptions
+  const universalPlaceholders = [
     "image",
-    "picture",
+    "img",
     "photo",
+    "picture",
     "graphic",
     "placeholder",
-    "img"
+    "default",
+    "temp",
+    "untitled"
   ]
 
-  // Check for exact matches (e.g., alt="image")
-  if (placeholders.includes(text)) {
+  // "logo" is only a placeholder when it's used alone
+  if (text === "logo") {
     return true
   }
 
-  // Check for isolated use of the word "logo" - not brand names containing "logo"
-  const words = text.split(/\s+/)
-  if (words.length === 1 && words[0] === "logo") {
+  // Check for exact matches with common placeholder terms
+  // Only flag if the entire text matches one of these terms
+  if (universalPlaceholders.includes(text)) {
     return true
   }
 
-  // Only check for "image of", not any phrase containing "image of"
+  // Check for filename patterns (e.g., "image.png", "logo.jpg")
   if (
-    text === "image of" ||
-    text === "picture of" ||
-    text === "photo of" ||
-    /^(image|picture|photo) of [a-z0-9]+$/.test(text)
+    /^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|svg|webp|bmp|tiff|avif)$/i.test(text)
   ) {
     return true
   }
 
-  // Check if alt text is exactly a filename with extension
-  if (/^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|svg|webp)$/i.test(text)) {
+  // Detect numeric placeholders like "12345" or "0001"
+  if (/^\d{3,}$/.test(text)) {
     return true
   }
 
-  // Check for default CMS placeholder text - exact matches only
-  if (
-    text === "placeholder" ||
-    text === "default image" ||
-    text === "untitled"
-  ) {
+  // More precise check for problematic "X of Y" patterns
+  // Only flag very simple generic patterns, not descriptive ones
+  if (/^(image|picture|photo) of (a|the|an) [a-z0-9]+$/i.test(text)) {
     return true
   }
 
+  // FUTURE: AI INTEGRATION POINT
+  // For more complex analysis, we could call an AI service here
+  // to evaluate the quality of alt text across languages.
+  //
+  // For now, we return false for any alt text that passes our basic checks
   return false
 }
 
