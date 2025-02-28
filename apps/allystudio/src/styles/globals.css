@@ -97,6 +97,9 @@
 #__plasmo {
   /* Use dynamic viewport height */
   min-height: 100dvh;
+  height: 100dvh;
+  width: 100dvw;
+  grid-template-columns: minmax(0, 100%);
   display: grid;
   grid-template-rows: 1fr auto;
 }
