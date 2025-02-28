@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react"
 // Fast path for inspector highlights - no debouncing
 const INSPECTOR_LAYER = "inspector"
 const INSPECTOR_DEBUG_LAYER = "inspector-debug"
+const FOCUS_LAYER = "focus" // New constant for focus layer
 // Reduced debounce for other layers
 const DEBOUNCE_MS = 50 // Reduced from 100ms to 50ms for better responsiveness
 
@@ -21,6 +22,13 @@ const DEBUG_HIGHLIGHT_STYLES: HighlightStyles = {
   border: "#f59e0b", // Amber color for debug mode
   background: "rgba(245, 158, 11, 0.1)",
   messageBackground: "#f59e0b"
+}
+
+// Custom styles for the focus layer
+const FOCUS_HIGHLIGHT_STYLES: HighlightStyles = {
+  border: "#3b82f6", // Blue color for focus mode
+  background: "rgba(59, 130, 246, 0.2)",
+  messageBackground: "#3b82f6"
 }
 
 // Define core test types outside component
@@ -121,6 +129,17 @@ const PlasmoOverlay = () => {
       )
     }
 
+    // Debug log for focus layer highlights
+    if (newHighlights.has(FOCUS_LAYER)) {
+      const focusHighlights = newHighlights.get(FOCUS_LAYER)
+      console.log(
+        `[HIGHLIGHT DEBUG] Focus layer has ${focusHighlights?.size || 0} highlights:`,
+        Array.from(focusHighlights?.entries() || []).map(([key, value]) => key)
+      )
+    } else {
+      console.log("[HIGHLIGHT DEBUG] Focus layer has no highlights")
+    }
+
     // Debug log to check if aria layer has highlights
     if (newHighlights.has("aria")) {
       const ariaHighlights = newHighlights.get("aria")
@@ -188,8 +207,87 @@ const PlasmoOverlay = () => {
         console.error("[PlasmoOverlay] Failed to send ready message:", error)
       )
 
+    // Listen for direct messages to find and scroll to elements
+    const messageListener = (
+      message: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void
+    ) => {
+      console.log("[PlasmoOverlay] Received message:", message)
+
+      if (message.type === "FIND_AND_SCROLL" && message.selector) {
+        console.log(
+          `[PlasmoOverlay] Finding and scrolling to: ${message.selector}`
+        )
+
+        try {
+          const element = document.querySelector(
+            message.selector
+          ) as HTMLElement
+
+          if (element) {
+            console.log(`[PlasmoOverlay] Element found, scrolling:`, element)
+
+            // Highlight the element
+            eventBus.publish({
+              type: "HIGHLIGHT",
+              timestamp: Date.now(),
+              data: {
+                selector: message.selector,
+                message: message.message || "Element from results",
+                isValid: false,
+                layer: FOCUS_LAYER
+              }
+            })
+
+            // Make focus layer visible
+            eventBus.publish({
+              type: "LAYER_TOGGLE_REQUEST",
+              timestamp: Date.now(),
+              data: {
+                layer: FOCUS_LAYER,
+                visible: true
+              }
+            })
+
+            // Scroll to the element
+            element.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            })
+
+            sendResponse({ success: true })
+          } else {
+            console.log(
+              `[PlasmoOverlay] Element not found for: ${message.selector}`
+            )
+            sendResponse({ success: false, error: "Element not found" })
+          }
+        } catch (error) {
+          console.error(`[PlasmoOverlay] Error finding element:`, error)
+          sendResponse({ success: false, error: String(error) })
+        }
+
+        return true // Indicate that we'll send a response asynchronously
+      }
+    }
+
+    try {
+      chrome.runtime.onMessage.addListener(messageListener)
+    } catch (error) {
+      console.error("[PlasmoOverlay] Failed to add message listener:", error)
+    }
+
     return () => {
       console.log("[PlasmoOverlay] Content script cleanup")
+      try {
+        chrome.runtime.onMessage.removeListener(messageListener)
+      } catch (error) {
+        console.error(
+          "[PlasmoOverlay] Failed to remove message listener:",
+          error
+        )
+      }
     }
   }, [])
 
@@ -301,6 +399,66 @@ const PlasmoOverlay = () => {
 
           // Update inspector highlights immediately
           updateInspectorHighlights(newHighlight)
+          return
+        }
+
+        // Special handling for focus layer
+        if (layer === FOCUS_LAYER) {
+          console.log(
+            `[FOCUS] Focusing on selector: ${highlightEvent.selector}`
+          )
+
+          // Clear existing focus highlights if clear flag is set
+          if (highlightEvent.clear) {
+            console.log(`[FOCUS] Clearing all highlights in focus layer`)
+            pendingUpdatesRef.current.delete(FOCUS_LAYER)
+            // Immediately apply the clear
+            applyUpdates()
+            return
+          }
+
+          const { selector, message, isValid } = highlightEvent
+          const element = validateHighlight(selector)
+          if (!element) {
+            console.warn(
+              `[FOCUS] Could not find element with selector: ${selector}`
+            )
+            return
+          }
+
+          // Apply focus-specific styling
+          pendingUpdatesRef.current = new Map(pendingUpdatesRef.current)
+          let focusHighlights = pendingUpdatesRef.current.get(FOCUS_LAYER)
+          if (!focusHighlights) {
+            focusHighlights = new Map()
+            pendingUpdatesRef.current.set(FOCUS_LAYER, focusHighlights)
+          }
+
+          // Clear existing focus highlights first (we only want one at a time)
+          focusHighlights.clear()
+
+          // Create new highlight with focus styling
+          const newHighlight = {
+            selector,
+            message,
+            element,
+            isValid,
+            styles: FOCUS_HIGHLIGHT_STYLES,
+            layer: FOCUS_LAYER
+          }
+
+          // Add the new highlight
+          focusHighlights.set(selector, newHighlight)
+
+          // Apply the update immediately
+          applyUpdates()
+
+          // Scroll to the element
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          })
+
           return
         }
 
@@ -484,6 +642,126 @@ const PlasmoOverlay = () => {
       )
     } else {
       console.log("[HIGHLIGHT DEBUG] Aria layer has no highlights")
+    }
+  }, [])
+
+  // Add an effect to handle HEADING_NAVIGATE_REQUEST events for both xpath and CSS selectors
+  useEffect(() => {
+    const unsubscribe = eventBus.subscribe((event: AllyStudioEvent) => {
+      if (event.type === "HEADING_NAVIGATE_REQUEST") {
+        const { xpath } = event.data
+        console.log(`[Navigation] Request to navigate to: ${xpath}`)
+
+        // Try multiple selector methods to find the element
+        let element: HTMLElement | null = null
+
+        // Method 1: Try as a CSS selector first
+        try {
+          console.log(`[Navigation] Trying as CSS selector: ${xpath}`)
+          element = document.querySelector(xpath) as HTMLElement
+          if (element) {
+            console.log(
+              `[Navigation] Found element using CSS selector:`,
+              element
+            )
+          }
+        } catch (error) {
+          console.log(`[Navigation] Not a valid CSS selector: ${xpath}`, error)
+        }
+
+        // Method 2: Try as an XPath expression
+        if (!element) {
+          try {
+            console.log(`[Navigation] Trying as XPath: ${xpath}`)
+            const result = document.evaluate(
+              xpath,
+              document,
+              null,
+              XPathResult.FIRST_ORDERED_NODE_TYPE,
+              null
+            )
+            element = result.singleNodeValue as HTMLElement
+            if (element) {
+              console.log(`[Navigation] Found element using XPath:`, element)
+            }
+          } catch (error) {
+            console.warn(`[Navigation] Invalid XPath: ${xpath}`, error)
+          }
+        }
+
+        // Method 3: Try finding by ID if the selector looks like an ID selector
+        if (!element && xpath.startsWith("#")) {
+          const id = xpath.substring(1)
+          console.log(`[Navigation] Trying to find by ID: ${id}`)
+          element = document.getElementById(id)
+          if (element) {
+            console.log(`[Navigation] Found element by ID:`, element)
+          }
+        }
+
+        // If element found, scroll to it
+        if (element) {
+          console.log(`[Navigation] Scrolling to element:`, element)
+
+          // Highlight the element in the focus layer
+          eventBus.publish({
+            type: "HIGHLIGHT",
+            timestamp: Date.now(),
+            data: {
+              selector: xpath,
+              message: "Element from results",
+              isValid: false,
+              layer: FOCUS_LAYER
+            }
+          })
+
+          // Make the focus layer visible
+          eventBus.publish({
+            type: "LAYER_TOGGLE_REQUEST",
+            timestamp: Date.now(),
+            data: {
+              layer: FOCUS_LAYER,
+              visible: true
+            }
+          })
+
+          // Use requestAnimationFrame for more reliable scrolling
+          requestAnimationFrame(() => {
+            try {
+              // First try scrollIntoView
+              element?.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+              })
+
+              // As a backup, also try setting scrollTop directly after a short delay
+              setTimeout(() => {
+                if (element) {
+                  const rect = element.getBoundingClientRect()
+                  const scrollTop =
+                    window.pageYOffset +
+                    rect.top -
+                    window.innerHeight / 2 +
+                    rect.height / 2
+
+                  window.scrollTo({
+                    top: scrollTop,
+                    behavior: "smooth"
+                  })
+                }
+              }, 100)
+            } catch (error) {
+              console.error(`[Navigation] Error scrolling to element:`, error)
+            }
+          })
+        } else {
+          console.warn(`[Navigation] Element not found for: ${xpath}`)
+        }
+      }
+    })
+
+    return () => {
+      unsubscribe()
     }
   }, [])
 
