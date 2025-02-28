@@ -27,7 +27,7 @@ const TestResults = memo(function TestResults() {
       </div>
 
       {/* Display results in a dense list format or loading placeholder */}
-      <div className="border rounded overflow-hidden">
+      <div className="">
         {testResults.length > 0 ? (
           testResults.map((result, index) => (
             <ResultItem key={index} result={result} />
