@@ -4,10 +4,10 @@ import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
-import { TestEventMonitor } from "./test-event-monitor"
 import {
   ProgressIndicator,
   TestContext,
+  TestEventMonitor,
   TestResults,
   TestSelector
 } from "./werkzeug/index"
@@ -175,7 +175,36 @@ export function Werkzeug() {
   const clearResults = useCallback(() => {
     console.log("[werkzeug] Clearing test results")
     setTestResults([])
-  }, [])
+
+    // Hide any visible layers when clearing results
+    console.log("[werkzeug] Hiding all layers")
+
+    // Get all test types to find their layer names
+    Object.keys(TEST_CONFIGS).forEach((testType) => {
+      const layerName = TEST_CONFIGS[testType as TestType].layerName || testType
+
+      // Only send event if layer is not already hidden
+      if (!hiddenLayers.has(layerName)) {
+        eventBus.publish({
+          type: "LAYER_TOGGLE_REQUEST",
+          timestamp: Date.now(),
+          data: {
+            layer: layerName,
+            visible: false // explicitly set to not visible
+          }
+        })
+      }
+    })
+
+    // Update hidden layers state
+    setHiddenLayers(
+      new Set(
+        Object.keys(TEST_CONFIGS).map(
+          (testType) => TEST_CONFIGS[testType as TestType].layerName || testType
+        )
+      )
+    )
+  }, [hiddenLayers])
 
   // Create a memoized context value to prevent unnecessary re-renders
   const contextValue = useMemo(
