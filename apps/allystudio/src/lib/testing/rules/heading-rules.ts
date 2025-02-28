@@ -37,12 +37,14 @@ const headingAccessibleNameRule = createACTRule(
       const headings = document.querySelectorAll(
         "h1, h2, h3, h4, h5, h6, [role='heading']"
       )
-      console.log(`[heading-accessible-name] Found ${headings.length} headings`)
+      console.log(
+        `🔍 [HEADING RULE] Found ${headings.length} headings in isApplicable check`
+      )
       // Log each heading for debugging
       headings.forEach((h, index) => {
         const element = h as HTMLElement
         console.log(
-          `[heading-accessible-name] Heading ${index + 1}: ${element.tagName}, Text: "${element.textContent?.trim()}"`
+          `🔍 [HEADING RULE] Heading ${index + 1}: ${element.tagName}, Text: "${element.textContent?.trim()}"`
         )
       })
       return headings.length > 0
@@ -50,43 +52,56 @@ const headingAccessibleNameRule = createACTRule(
 
     // Execute the rule
     execute: async () => {
+      console.log(
+        "🔍 [HEADING RULE] Executing heading-has-accessible-name rule"
+      )
       // Find all heading elements
       const headings = document.querySelectorAll(
         "h1, h2, h3, h4, h5, h6, [role='heading']"
       )
+      console.log(
+        `🔍 [HEADING RULE] Processing ${headings.length} headings in execute function`
+      )
+
+      // If no headings, rule is inapplicable
+      if (headings.length === 0) {
+        console.log("🔍 [HEADING RULE] No headings found, rule is inapplicable")
+      }
 
       // Check each heading for an accessible name
       for (const heading of Array.from(headings)) {
         const element = heading as HTMLElement
+        console.log(
+          `[heading-accessible-name] Processing heading: ${element.tagName}, Text: "${element.textContent?.trim()}"`
+        )
+
         const accessibleName = getAccessibleName(element)
-        const selector = getValidSelector(element)
-        const level = getHeadingLevel(element)
+        console.log(
+          `[heading-accessible-name] Accessible name: "${accessibleName}"`
+        )
 
-        // Determine if the heading passes or fails
-        const passed = accessibleName.trim().length > 0
+        const passed = accessibleName.length > 0
+        const message = passed
+          ? `Heading has accessible name: "${accessibleName}"`
+          : "Heading has no accessible name"
 
-        // Create a message based on the result
-        let message = ""
-        if (passed) {
-          message = `Level ${level} heading has accessible name: "${accessibleName}"`
-        } else {
-          message = `Level ${level} heading is empty`
-        }
+        console.log(
+          `[heading-accessible-name] Test result: ${passed ? "PASSED" : "FAILED"}, message: ${message}`
+        )
 
-        // Format and add the result
         const result = formatACTResult(
           "heading-has-accessible-name",
           "Headings must have an accessible name",
           element,
-          selector,
+          getValidSelector(element),
           passed,
           message,
-          passed ? "Low" : "High", // Use High severity for empty headings
-          ["WCAG2.1:2.4.6", "WCAG2.1:1.3.1"], // WCAG criteria
-          "https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html" // Help URL
+          "serious",
+          ["WCAG2.1:2.4.6"],
+          "https://www.w3.org/WAI/WCAG21/Understanding/headings-and-labels.html"
         )
 
-        // Add the result to the runner
+        console.log("[heading-accessible-name] Adding result to runner")
         actRuleRunner.addResult(result)
       }
     }
@@ -478,25 +493,27 @@ export const pageHasH1Rule = createACTRule(
  * Register all heading-related ACT rules
  */
 export function registerHeadingRules(): void {
-  console.log("[heading-rules] Registering heading ACT rules")
+  console.log("🔍 [HEADING RULES] Registering heading rules")
 
   // Register accessible name rule
-  console.log("[heading-rules] Registering heading-has-accessible-name rule")
+  console.log(
+    "🔍 [HEADING RULES] Registering rule: heading-has-accessible-name"
+  )
   registerACTRule(headingAccessibleNameRule)
 
   // Register first heading is h1 rule
-  console.log("[heading-rules] Registering page-has-heading-one rule")
+  console.log("🔍 [HEADING RULES] Registering rule: first-heading-is-h1")
   registerACTRule(firstHeadingIsH1Rule)
 
   // Register heading order rule
-  console.log("[heading-rules] Registering heading-order rule")
+  console.log("🔍 [HEADING RULES] Registering rule: heading-order")
   registerACTRule(headingOrderRule)
 
   // Register single h1 rule
-  console.log("[heading-rules] Registering single-h1 rule")
+  console.log("🔍 [HEADING RULES] Registering rule: single-h1")
   registerACTRule(singleH1Rule)
 
-  console.log("[heading-rules] All heading rules registered successfully")
+  console.log("🔍 [HEADING RULES] All heading rules registered")
 }
 
 // Export the rules for direct use

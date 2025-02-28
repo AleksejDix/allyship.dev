@@ -270,3 +270,15 @@ export const formLabelAssociationRule = createACTRule(
 
 // Register the rule
 registerACTRule(formLabelAssociationRule)
+
+/**
+ * Register all form-related rules
+ */
+export function registerFormRules(): void {
+  console.log("[form-rules] Registering form rules")
+
+  // Register all form rules explicitly to prevent tree-shaking
+  registerACTRule(formLabelAssociationRule)
+
+  console.log("[form-rules] Form rules registered")
+}

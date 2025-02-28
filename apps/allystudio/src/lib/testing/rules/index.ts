@@ -1,17 +1,26 @@
 // Import rule categories
-import { buttonAccessibleNameRule } from "./button-accessible-name"
-import { focusOrderRule, focusVisibilityRule } from "./focus-rules"
-import { formLabelAssociationRule } from "./form-rules"
+import {
+  buttonAccessibleNameRule,
+  registerButtonRules
+} from "./button-accessible-name"
+import {
+  focusOrderRule,
+  focusVisibilityRule,
+  registerFocusRules
+} from "./focus-rules"
+import { formLabelAssociationRule, registerFormRules } from "./form-rules"
 import {
   firstHeadingIsH1Rule,
   headingAccessibleNameRule,
-  headingOrderRule
+  headingOrderRule,
+  registerHeadingRules
 } from "./heading-rules"
-import { imageAccessibleNameRule } from "./image-accessible-name"
-// Note: Due to how this module is structured, we're not exporting languageOfPageRule directly
-// The rule will still be registered when the module is imported
-import "./language-of-page"
-
+import {
+  imageAccessibleNameRule,
+  registerImageRules
+} from "./image-accessible-name"
+// Import language rules with their registration function
+import { languageOfPageRule, registerLanguageRules } from "./language-of-page"
 import {
   linkAccessibleNameRule,
   linkDescriptiveTextRule,
@@ -30,7 +39,7 @@ export {
   headingAccessibleNameRule,
   headingOrderRule,
   imageAccessibleNameRule,
-  // languageOfPageRule is not exported directly, but registered when imported
+  languageOfPageRule,
   linkAccessibleNameRule,
   linkDescriptiveTextRule,
   linkTextLengthRule,
@@ -45,11 +54,22 @@ export function registerAllRules() {
   console.log("[rules] Registering all ACT rules")
 
   // Explicitly call registration functions
+  registerButtonRules()
+  registerFocusRules()
+  registerFormRules()
+  registerHeadingRules()
+  registerImageRules()
+  registerLanguageRules()
   registerLinkRules()
 
   console.log("[rules] All ACT rules registered")
 }
 
 // Re-export all rules for direct use
-export * from "./link-rules"
+export * from "./button-accessible-name"
+export * from "./focus-rules"
+export * from "./form-rules"
 export * from "./heading-rules"
+export * from "./image-accessible-name"
+export * from "./language-of-page"
+export * from "./link-rules"

@@ -18,7 +18,47 @@ import { publishTestComplete } from "./utils/event-utils"
 // Add more rule imports here as they are implemented
 
 // Initialize all rules
-registerAllRules()
+export function initializeAllRules() {
+  console.log("[act-integration] Initializing all ACT rules")
+
+  // Register all rules
+  registerAllRules()
+
+  // Debug logging for rule registration
+  const allRules = getAllACTRules()
+  console.log(`[act-integration] Total registered rules: ${allRules.length}`)
+
+  // Log rules by category
+  const categories = [
+    "LINKS",
+    "HEADINGS",
+    "STRUCTURE",
+    "FORMS",
+    "IMAGES",
+    "BUTTONS",
+    "LANGUAGE",
+    "FOCUS"
+  ]
+
+  categories.forEach((category) => {
+    const rulesInCategory = getACTRulesByCategory(category)
+    console.log(
+      `[act-integration] Rules in ${category} category: ${rulesInCategory.length}`
+    )
+    if (rulesInCategory.length === 0) {
+      console.warn(
+        `[act-integration] WARNING: No rules found for category ${category}`
+      )
+    } else {
+      console.log(
+        `[act-integration] ${category} rules: ${rulesInCategory.map((r) => r.metadata.id).join(", ")}`
+      )
+    }
+  })
+}
+
+// Call the initialization function
+initializeAllRules()
 
 // Define the event type constant
 export const TEST_ANALYSIS_COMPLETE: EventType = "TEST_ANALYSIS_COMPLETE"
@@ -101,8 +141,44 @@ export async function runACTRulesForTestType(
     if (linkRules.length > 0) {
       console.log(
         "[act-integration] DEBUG: Link rule IDs:",
-        linkRules.map((r) => r.metadata?.id)
+        linkRules.map((rule) => rule.metadata.id)
       )
+    }
+  }
+
+  // DEBUG: Add extra logging for heading rules
+  if (testType === "headings") {
+    console.log("[act-integration] DEBUG: Headings test type detected")
+    console.log(
+      "[act-integration] DEBUG: Looking for rules with categories:",
+      categories
+    )
+
+    // Check all registered rules
+    const allRules = actRulesRegistry.getAllRules()
+    console.log(
+      `[act-integration] DEBUG: Total registered rules: ${allRules.length}`
+    )
+
+    // Look for heading rules specifically
+    const headingRules = allRules.filter((rule) =>
+      rule.metadata?.categories?.some(
+        (cat) =>
+          cat === ACTRuleCategory.HEADINGS || cat === ACTRuleCategory.STRUCTURE
+      )
+    )
+    console.log(
+      `[act-integration] DEBUG: Found ${headingRules.length} rules with HEADINGS or STRUCTURE category`
+    )
+
+    // List heading rule IDs
+    if (headingRules.length > 0) {
+      console.log(
+        "[act-integration] DEBUG: Heading rule IDs:",
+        headingRules.map((rule) => rule.metadata.id)
+      )
+    } else {
+      console.log("[act-integration] DEBUG: No heading rules found!")
     }
   }
 
