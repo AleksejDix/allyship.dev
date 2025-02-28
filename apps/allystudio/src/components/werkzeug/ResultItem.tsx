@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { CodeBlock } from "@/components/ui/code-block"
+import { eventBus } from "@/lib/events/event-bus"
 import { cn } from "@/lib/utils"
 import {
   AlertTriangle,
@@ -49,6 +50,85 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
     result.severity === "Critical" ||
     result.severity === "High" ||
     result.severity === "serious"
+
+  // Function to handle selector click and scroll to element
+  const handleSelectorClick = (selector: string) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    console.log(`[ResultItem] Requesting focus on selector: ${selector}`)
+
+    // First, clear any existing highlights in the focus layer
+    eventBus.publish({
+      type: "HIGHLIGHT",
+      timestamp: Date.now(),
+      data: {
+        clear: true,
+        layer: "focus",
+        // These fields are required by the type but not used when clear is true
+        selector: "",
+        message: "",
+        isValid: false
+      }
+    })
+
+    // Small delay to ensure clear happens before adding new highlight
+    setTimeout(() => {
+      // Send multiple events with different approaches to maximize chances of success
+
+      // 1. Send a direct HIGHLIGHT event with the selector
+      eventBus.publish({
+        type: "HIGHLIGHT",
+        timestamp: Date.now(),
+        data: {
+          selector,
+          message: `${result.message || "Selected element"} (clicked from results)`,
+          isValid: false,
+          layer: "focus",
+          clear: false
+        }
+      })
+
+      // 2. Ensure the focus layer is visible
+      eventBus.publish({
+        type: "LAYER_TOGGLE_REQUEST",
+        timestamp: Date.now(),
+        data: {
+          layer: "focus",
+          visible: true
+        }
+      })
+
+      // 3. Send a navigation request (which now has enhanced element finding)
+      eventBus.publish({
+        type: "HEADING_NAVIGATE_REQUEST",
+        timestamp: Date.now(),
+        data: {
+          xpath: selector
+        }
+      })
+
+      // 4. Also try sending the message directly to the content script via chrome runtime
+      try {
+        chrome.runtime
+          .sendMessage({
+            type: "FIND_AND_SCROLL",
+            selector,
+            message: `${result.message || "Selected element"} (clicked from results)`
+          })
+          .catch((error) => {
+            console.log(
+              "[ResultItem] Chrome message sending failed, falling back to event bus",
+              error
+            )
+          })
+      } catch (error) {
+        console.log(
+          "[ResultItem] Chrome API not available, using event bus only"
+        )
+      }
+    }, 50)
+  }
 
   // Update icons with appropriate Tailwind colors
   const outcomeIcon = isPassed ? (
@@ -175,12 +255,19 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
                 Element
               </div>
               {result.element.selector && (
-                <CodeBlock
-                  code={result.element.selector}
-                  label="Selector"
-                  maxHeight="auto"
-                  className="mt-2 bg-muted/40 dark:bg-muted/10"
-                />
+                <div
+                  onClick={handleSelectorClick(result.element.selector)}
+                  className="cursor-pointer group">
+                  <CodeBlock
+                    code={result.element.selector}
+                    label="Selector"
+                    maxHeight="auto"
+                    className="mt-2 bg-muted/40 dark:bg-muted/10 hover:bg-blue-500/5 transition-colors"
+                  />
+                  <div className="flex items-center gap-1 text-xs text-blue-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span>Click selector to locate element on page</span>
+                  </div>
+                </div>
               )}
 
               {result.element.html && (
