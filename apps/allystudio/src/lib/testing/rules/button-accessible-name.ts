@@ -79,5 +79,17 @@ const buttonAccessibleNameRule = createACTRule(
 // Register the rule
 registerACTRule(buttonAccessibleNameRule)
 
+/**
+ * Register all button-related rules
+ */
+export function registerButtonRules(): void {
+  console.log("[button-rules] Registering button rules")
+
+  // Register all button rules explicitly to prevent tree-shaking
+  registerACTRule(buttonAccessibleNameRule)
+
+  console.log("[button-rules] Button rules registered")
+}
+
 // Export the rule for testing
 export { buttonAccessibleNameRule }

@@ -1,133 +1,78 @@
-# Critical Priority Accessibility Rules - Implementation Progress
+# Critical Priority TODOs for Accessibility Rules
 
-We are implementing critical priority accessibility rules as specified in the [Missing Rules TODOs](./missing-rules-todos.md) document. This document tracks our progress on these critical implementations.
+## Technical Foundations - Recently Completed
 
-## Form Accessibility Rules - Critical Priority
+- ✅ **Enhanced Element Highlighting System**: We've implemented a robust highlighting system with pulsing animations that properly clears previous highlights and uses multiple methods (CSS selectors, XPath, ID lookup) to find and scroll to elements.
 
-- [x] **Implement form label association checks (WCAG 3.3.2, 4.1.2)**
+- ✅ **Improved Selector Generation**: Replaced `getCssSelector` with more robust `getValidSelector` function across all rule files, ensuring reliable element identification even with special characters in IDs.
 
-  - Created `formLabelAssociationRule` that checks if form controls have properly associated labels
-  - Implemented detection for all labeling methods: explicit labels, implicit labels, aria-labelledby, aria-label
-  - Added special handling for buttons and inputs with implicit labels via value attribute
-  - Included detection of placeholder-only labels (which are insufficient for WCAG compliance)
+## Implementation Priorities
 
-- [ ] **Add input purpose identification validation (WCAG 1.3.5)**
+The list below represents critical WCAG requirements that should be prioritized for implementation. The items are roughly ordered by priority.
 
-  - Verify that form fields collecting user information use autocomplete attribute
-  - Check for proper autocomplete values based on input purpose
+- [ ] **Keyboard Focus Indicators**: WCAG 2.4.7 - Focus Visible
 
-- [ ] **Implement form error identification and suggestion tests (WCAG 3.3.1, 3.3.3)**
+  - Status: Partial implementation
+  - Tests: Focus visible CSS check, :focus state detection, outline:none without alternative
+  - Todo: Expand tests to check for sufficient contrast of focus indicators and acceptable alternatives
 
-  - Detect proper error identification in forms
-  - Check for clear error messages and suggestions
+- [ ] **Heading Structure**: WCAG 1.3.1 - Info and Relationships, 2.4.1 - Bypass Blocks, 2.4.6 - Headings and Labels, 2.4.10 - Section Headings
 
-- [ ] **Add validation for form instructions (WCAG 3.3.2)**
+  - Status: Basic implementation
+  - Tests: Checks for heading levels, missing headings
+  - Todo: Evaluate heading hierarchy, detect missing h1, evaluate heading content quality
 
-  - Ensure forms provide clear instructions
-  - Validate that required fields are clearly indicated
+- [ ] **Alternative Text for Images**: WCAG 1.1.1 - Non-text Content
 
-- [ ] **Implement keyboard accessibility for all form controls (WCAG 2.1.1)**
-  - Check that all form controls can be operated via keyboard
-  - Validate focus behavior and keyboard operability
+  - Status: Basic implementation
+  - Tests: Missing alt checks, empty alt detection
+  - Todo: Improve detection of decorative vs. informative images, evaluate alt text quality
 
-## Color and Contrast Rules - Critical Priority
+- [ ] **Form Labels**: WCAG 1.3.1 - Info and Relationships, 3.3.2 - Labels or Instructions, 4.1.2 - Name, Role, Value
 
-- [ ] **Implement text contrast ratio validation (WCAG 1.4.3)**
+  - Status: Partial implementation
+  - Tests: Missing label checks, label association
+  - Todo: Improve detection of visible labels using aria-labelledby, validate label content quality
 
-  - Calculate contrast ratio between text and background
-  - Validate against WCAG requirements based on text size
+- [ ] **Landmarks and Page Structure**: WCAG 1.3.1 - Info and Relationships, 2.4.1 - Bypass Blocks
 
-- [ ] **Add UI component contrast checks (WCAG 1.4.11)**
+  - Status: Initial implementation
+  - Tests: Basic landmark presence
+  - Todo: Evaluate proper use of landmarks, check for appropriate content within landmarks
 
-  - Check contrast of UI controls and visual boundaries
-  - Validate against minimum contrast requirements
+- [ ] **Semantic HTML**: WCAG 1.3.1 - Info and Relationships, 4.1.1 - Parsing
 
-- [ ] **Implement color-only information detection (WCAG 1.4.1)**
+  - Status: Limited implementation
+  - Tests: Basic HTML validity
+  - Todo: Expand checks for appropriate HTML element usage, detect div/span misuse
 
-  - Detect when information is conveyed by color alone
-  - Check for alternative indicators (text, patterns, etc.)
+- [ ] **ARIA Usage**: WCAG 4.1.2 - Name, Role, Value
 
-- [ ] **Add contrast for focus indicators (WCAG 1.4.11)**
+  - Status: Partial implementation
+  - Tests: Basic ARIA validity checks
+  - Todo: Expand role, state, and property validation, detect conflicting or redundant ARIA
 
-  - Validate that focus indicators have sufficient contrast
-  - Check visibility of focus states
+- [ ] **Color Contrast**: WCAG 1.4.3 - Contrast (Minimum), 1.4.11 - Non-text Contrast
 
-- [ ] **Implement validation for text overlaid on background images (WCAG 1.4.3)**
-  - Check contrast of text on image backgrounds
-  - Validate readability against background variation
+  - Status: Planned
+  - Tests: None
+  - Todo: Implement text contrast evaluation, non-text UI element contrast checks
 
-## HTML Structure and Parsing Rules - Critical Priority
+- [ ] **Language of Page**: WCAG 3.1.1 - Language of Page
 
-- [ ] **Implement valid DOCTYPE declaration check**
+  - Status: Planned
+  - Tests: None
+  - Todo: Check for presence and validity of lang attribute
 
-  - Verify presence of valid DOCTYPE declaration
-  - Check for HTML5 compliance
-
-- [ ] **Add HTML validation (no duplicate IDs, proper element nesting)**
-
-  - Check for duplicate IDs in the document
-  - Validate proper nesting of elements
-
-- [ ] **Implement parsing error detection (malformed HTML elements)**
-
-  - Detect malformed HTML elements and syntax errors
-  - Check for unclosed tags and other parsing issues
-
-- [ ] **Add check for empty ID values**
-
-  - Detect elements with empty ID attributes
-  - Validate against proper ID usage
-
-- [ ] **Implement validation for programmatically determined content structure**
-  - Check that content structure can be programmatically determined
-  - Validate semantic structure of content
-
-## ARIA Implementation Rules - Critical Priority
-
-- [ ] **Implement ARIA landmark usage validation**
-
-  - Check for proper ARIA landmark usage
-  - Validate landmark roles and structure
-
-- [ ] **Add ARIA role validity checks**
-
-  - Validate that ARIA roles are used correctly
-  - Check for proper role values
-
-- [ ] **Implement ARIA state and property validation**
-
-  - Validate ARIA states and properties
-  - Check for required attributes based on roles
-
-- [ ] **Add ARIA relationship attribute validation**
-
-  - Check ARIA relationship attributes
-  - Validate proper referencing
-
-- [ ] **Implement ARIA required attribute checks**
-
-  - Check for required attributes based on ARIA roles
-  - Validate completeness of ARIA implementation
-
-- [ ] **Add validation for proper use of aria-hidden**
-
-  - Check that aria-hidden is used correctly
-  - Validate against improper hiding of focusable elements
-
-- [ ] **Implement check for proper heading role usage**
-
-  - Validate proper use of heading role
-  - Check for semantic heading structure
-
-- [ ] **Add validation of aria-label and aria-labelledby references**
-  - Check that aria-labelledby references exist
-  - Validate that aria-label provides meaningful text
+- [ ] **Link Purpose**: WCAG 2.4.4 - Link Purpose (In Context), 2.4.9 - Link Purpose (Link Only)
+  - Status: Planned
+  - Tests: None
+  - Todo: Detect empty links, evaluate link text quality, check for redundant links
 
 ## Implementation Plan
 
-1. Complete all Form Accessibility Rules
-2. Move to HTML Structure and Parsing Rules
-3. Implement Color and Contrast Rules
-4. Complete ARIA Implementation Rules
-
-This implementation order follows the priority specified in the [Missing Rules TODOs](./missing-rules-todos.md) document while focusing on user impact.
+1. Finish improving UX for existing rule results presentation
+2. Complete the core technical foundations for testing and result reporting
+3. Continue implementing critical rules in priority order
+4. Expand test coverage to cover more edge cases
+5. Add more detailed remediation guidance

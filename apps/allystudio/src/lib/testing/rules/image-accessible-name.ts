@@ -199,5 +199,17 @@ function isPlaceholderAltText(altText: string): boolean {
 // Register the rule
 registerACTRule(imageAccessibleNameRule)
 
+/**
+ * Register all image-related rules
+ */
+export function registerImageRules(): void {
+  console.log("[image-rules] Registering image rules")
+
+  // Register all image rules explicitly to prevent tree-shaking
+  registerACTRule(imageAccessibleNameRule)
+
+  console.log("[image-rules] Image rules registered")
+}
+
 // Export the rule for testing
 export { imageAccessibleNameRule }

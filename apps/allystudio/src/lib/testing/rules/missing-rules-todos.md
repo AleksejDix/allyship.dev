@@ -1,5 +1,15 @@
 # Missing Accessibility Rules - Implementation TODOs
 
+## Recent Progress
+
+We've made significant technical improvements to our accessibility testing framework that enhance our ability to implement and enforce all rules:
+
+- ✅ **Enhanced Element Highlighting System**: Improved visual feedback with pulsing animations that properly clear previous highlights and use multiple methods (CSS selectors, XPath, ID lookup) to find and scroll to elements.
+
+- ✅ **Improved Selector Generation**: Replaced `getCssSelector` with more robust `getValidSelector` function across all rule files, ensuring reliable element identification even with special characters in IDs.
+
+These foundational improvements ensure more reliable testing across all rule categories.
+
 ## Existing Rule Categories
 
 We currently have implemented the following rule categories:

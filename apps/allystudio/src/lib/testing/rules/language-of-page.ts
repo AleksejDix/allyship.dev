@@ -121,3 +121,18 @@ const languageOfPageRule = createACTRule(
 
 // Register the rule
 registerACTRule(languageOfPageRule)
+
+/**
+ * Register all language-related rules
+ */
+export function registerLanguageRules(): void {
+  console.log("[language-rules] Registering language rules")
+
+  // Register all language rules explicitly to prevent tree-shaking
+  registerACTRule(languageOfPageRule)
+
+  console.log("[language-rules] Language rules registered")
+}
+
+// Export the rule for testing
+export { languageOfPageRule }
