@@ -1,10 +1,10 @@
 import { eventBus } from "@/lib/events/event-bus"
 import type { TestAnalysisCompleteEvent } from "@/lib/events/types"
 import { cn } from "@/lib/utils"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 
 // Simple component to monitor new-style events
-export function TestEventMonitor() {
+const TestEventMonitor = memo(function TestEventMonitor() {
   const [lastEvent, setLastEvent] = useState<TestAnalysisCompleteEvent | null>(
     null
   )
@@ -129,4 +129,6 @@ export function TestEventMonitor() {
       </div>
     </div>
   )
-}
+})
+
+export default TestEventMonitor
