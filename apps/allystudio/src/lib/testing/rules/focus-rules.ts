@@ -6,28 +6,7 @@ import {
   registerACTRule
 } from "../act-rules-registry"
 import { formatACTResult } from "../utils/act-result-formatter"
-
-/**
- * Helper function to get a CSS selector for an element
- */
-function getCssSelector(element: HTMLElement): string {
-  // If the element has an ID, use that
-  if (element.id) {
-    return `#${element.id}`
-  }
-
-  // Otherwise, create a selector based on tag name and classes
-  let selector = element.tagName.toLowerCase()
-
-  if (element.className) {
-    const classes = element.className.split(/\s+/).filter(Boolean)
-    if (classes.length > 0) {
-      selector += `.${classes.join(".")}`
-    }
-  }
-
-  return selector
-}
+import { getValidSelector } from "../utils/selector-utils"
 
 /**
  * Rule: Interactive elements have visible focus indicator
@@ -68,7 +47,7 @@ export const focusVisibilityRule = createACTRule(
 
       for (const element of elementsToTest) {
         const htmlElement = element as HTMLElement
-        const selector = getCssSelector(htmlElement)
+        const selector = getValidSelector(htmlElement)
 
         // Store original styles
         const originalOutline = window.getComputedStyle(htmlElement).outline
@@ -242,7 +221,7 @@ export const focusOrderRule = createACTRule(
           (Math.abs(currentRect.top - previousRect.top) < 100 &&
             Math.abs(currentRect.left - previousRect.left) < 200)
 
-        const selector = getCssSelector(current)
+        const selector = getValidSelector(current)
         let message = ""
 
         if (passed) {

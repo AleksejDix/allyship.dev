@@ -106,18 +106,18 @@ const TestResults = memo(function TestResults() {
                     <h3
                       className={`text-sm font-medium ${
                         category === "Critical"
-                          ? "text-red-500"
+                          ? "text-red-400 dark:text-red-400"
                           : category === "Serious"
-                            ? "text-red-400"
+                            ? "text-red-300 dark:text-red-300"
                             : category === "Moderate"
-                              ? "text-amber-400"
+                              ? "text-amber-300 dark:text-amber-300"
                               : category === "Passed"
-                                ? "text-green-400"
+                                ? "text-green-300 dark:text-green-300"
                                 : "text-muted-foreground"
                       }`}>
                       {category} Issues ({groupedResults[category].length})
                     </h3>
-                    <div className="h-px flex-1 bg-border/30 mx-3"></div>
+                    <div className="h-px flex-1 bg-border/20 dark:bg-border/10 mx-3"></div>
                   </div>
                   <div>
                     {groupedResults[category].map(

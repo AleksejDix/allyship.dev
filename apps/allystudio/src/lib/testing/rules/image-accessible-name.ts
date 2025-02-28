@@ -7,6 +7,7 @@ import {
 } from "../act-rules-registry"
 import { getAccessibleName } from "../act-test-runner"
 import { formatACTResult } from "../utils/act-result-formatter"
+import { getValidSelector } from "../utils/selector-utils"
 
 /**
  * ACT Rule: Images must have an accessible name
@@ -46,7 +47,7 @@ const imageAccessibleNameRule = createACTRule(
       for (const image of Array.from(images)) {
         const element = image as HTMLElement
         const accessibleName = getAccessibleName(element)
-        const selector = getCssSelector(element)
+        const selector = getValidSelector(element)
 
         // Get alt text specifically for additional checks
         const altText =
@@ -91,80 +92,63 @@ const imageAccessibleNameRule = createACTRule(
 )
 
 /**
- * Helper function to get a CSS selector for an element
- */
-function getCssSelector(element: HTMLElement): string {
-  // If the element has an ID, use that
-  if (element.id) {
-    return `#${element.id}`
-  }
-
-  // Otherwise, create a selector based on tag name and classes
-  let selector = element.tagName.toLowerCase()
-
-  if (element.className) {
-    const classes = element.className.split(/\s+/).filter(Boolean)
-    if (classes.length > 0) {
-      selector += `.${classes.join(".")}`
-    }
-  }
-
-  // Add attribute selectors for role if present
-  if (element.getAttribute("role")) {
-    selector += `[role="${element.getAttribute("role")}"]`
-  }
-
-  return selector
-}
-
-/**
- * Check if alt text appears to be a placeholder
+ * Check if alt text appears to be placeholder text
  */
 function isPlaceholderAltText(altText: string): boolean {
-  const lowerAlt = altText.toLowerCase()
+  // If alt text is reasonably long (more than 20 chars), it's probably not a placeholder
+  if (altText.length > 20) {
+    return false
+  }
 
-  // Common placeholder patterns
+  // Convert to lowercase for case-insensitive comparison
+  const text = altText.toLowerCase().trim()
+
+  // Common placeholder patterns - only exact matches or isolated words
   const placeholders = [
     "image",
     "picture",
     "photo",
     "graphic",
-    "logo",
-    "icon",
-    "img",
-    "pic",
     "placeholder",
-    "temp",
-    "alt",
-    "description",
-    "untitled",
-    "dsc",
-    "jpg",
-    "jpeg",
-    "png",
-    "gif",
-    "figure",
-    "screenshot",
-    "screen shot",
-    "snapshot",
-    "banner"
+    "img"
   ]
 
-  // Check for exact matches or patterns that suggest placeholders
-  return placeholders.some(
-    (placeholder) =>
-      lowerAlt === placeholder ||
-      lowerAlt === `${placeholder}.jpg` ||
-      lowerAlt === `${placeholder}.png` ||
-      lowerAlt === `${placeholder}.gif` ||
-      lowerAlt === `${placeholder} ${placeholder}` ||
-      lowerAlt === `${placeholder}1` ||
-      lowerAlt === `${placeholder}2` ||
-      lowerAlt === `${placeholder}3` ||
-      lowerAlt === `${placeholder}_1` ||
-      lowerAlt === `${placeholder}_2` ||
-      lowerAlt === `${placeholder}_3`
-  )
+  // Check for exact matches (e.g., alt="image")
+  if (placeholders.includes(text)) {
+    return true
+  }
+
+  // Check for isolated use of the word "logo" - not brand names containing "logo"
+  const words = text.split(/\s+/)
+  if (words.length === 1 && words[0] === "logo") {
+    return true
+  }
+
+  // Only check for "image of", not any phrase containing "image of"
+  if (
+    text === "image of" ||
+    text === "picture of" ||
+    text === "photo of" ||
+    /^(image|picture|photo) of [a-z0-9]+$/.test(text)
+  ) {
+    return true
+  }
+
+  // Check if alt text is exactly a filename with extension
+  if (/^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|svg|webp)$/i.test(text)) {
+    return true
+  }
+
+  // Check for default CMS placeholder text - exact matches only
+  if (
+    text === "placeholder" ||
+    text === "default image" ||
+    text === "untitled"
+  ) {
+    return true
+  }
+
+  return false
 }
 
 // Register the rule

@@ -8,6 +8,7 @@ import {
 import type { ACTSuite, TestResult } from "../act-test-suite"
 import type { AccessibilityRequirement } from "../act-types"
 import { formatACTResult } from "./act-result-formatter"
+import { getValidSelector } from "./selector-utils"
 
 /**
  * Converts an old-style test suite to a new ACT rule
@@ -82,7 +83,7 @@ export function convertSuiteToACTRule(
                 `${ruleId}-${testCase.id}`,
                 testCase.name,
                 htmlElement,
-                getCssSelector(htmlElement),
+                getValidSelector(htmlElement),
                 result.passed,
                 result.message,
                 severity as any,
@@ -108,38 +109,4 @@ export function convertSuiteToACTRule(
 
   // Return the rule for testing
   return rule
-}
-
-/**
- * Generates a CSS selector for an element based on its ID, class, and role attributes
- *
- * @param element The element to generate a selector for
- * @returns A CSS selector that uniquely identifies the element
- */
-function getCssSelector(element: HTMLElement): string {
-  // If the element has an ID, use that
-  if (element.id) {
-    return `#${element.id}`
-  }
-
-  // If the element has classes, use those
-  if (element.className && typeof element.className === "string") {
-    const classes = element.className
-      .split(" ")
-      .filter((c) => c.trim().length > 0)
-      .map((c) => `.${c}`)
-      .join("")
-
-    if (classes) {
-      return `${element.tagName.toLowerCase()}${classes}`
-    }
-  }
-
-  // If the element has a role, use that
-  if (element.getAttribute("role")) {
-    return `${element.tagName.toLowerCase()}[role="${element.getAttribute("role")}"]`
-  }
-
-  // Otherwise, use the tag name
-  return element.tagName.toLowerCase()
 }

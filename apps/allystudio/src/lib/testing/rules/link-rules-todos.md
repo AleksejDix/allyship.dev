@@ -6,6 +6,8 @@
 - Validates descriptive link text
 - Ensures appropriate link text length
 - Detects duplicate link text with different destinations
+- Verifies external links are properly marked with new window indicators
+- Checks touch target size for better mobile accessibility
 
 ## Already Implemented Rules
 
@@ -31,17 +33,33 @@
    - Provides detailed feedback about ideal link text length
 
 4. **Link Duplicate Text Rule**
+
    - Identifies instances where multiple links have identical text but point to different destinations
    - Groups links by text content and checks their href attributes
    - References WCAG 2.1 Success Criterion 3.2.4 (Consistent Identification)
    - Helps users understand when similar-sounding links go to different places
 
+5. **External Link Indicator Rule** ✅
+
+   - Detects links that open in new windows/tabs (target="\_blank")
+   - Verifies that links indicate they open in a new window/tab in the accessible name
+   - Checks for security attributes (rel="noopener noreferrer")
+   - References WCAG 2.1 Success Criterion 3.2.4 (Consistent Identification)
+   - Provides specific feedback on what's missing (indication or security attributes)
+
+6. **Link Touch Target Size Rule** ✅
+   - Verifies that link target areas meet WCAG 2.1 AAA requirements (44×44px)
+   - Calculates actual pixel dimensions of link elements
+   - Skips visually hidden elements that are still accessible to screen readers
+   - References WCAG 2.1 Success Criterion 2.5.5 (Target Size)
+   - Provides specific size measurements and recommendations
+
 ## TODO Items
 
 ### Critical Priority
 
-- [ ] Implement checks for links that open in new windows/tabs without warning
-- [ ] Add target="\_blank" warning checks with rel="noopener noreferrer" validation
+- [x] Implement checks for links that open in new windows/tabs without warning
+- [x] Add target="\_blank" warning checks with rel="noopener noreferrer" validation
 - [ ] Implement URL validity testing for broken links
 
 ### High Priority
@@ -49,7 +67,7 @@
 - [ ] Add checks for adjacent links to the same destination (should be combined)
 - [ ] Implement visual link identification check (links should be visually distinct from surrounding text)
 - [ ] Add hover/focus state validation for links
-- [ ] Implement check for link text describing file type for downloads
+- [x] Add check for touch target size for better mobile accessibility
 
 ### Medium Priority
 
@@ -66,39 +84,25 @@
 
 ## Implementation Notes
 
-### Links Opening in New Windows
+### Links Opening in New Windows (✅ Implemented)
 
-```javascript
-// Potential implementation approach
-function checkNewWindowLinks() {
-  const links = document.querySelectorAll('a[target="_blank"]')
+The enhanced implementation now:
 
-  links.forEach((link) => {
-    const hasRelAttr =
-      link.getAttribute("rel")?.includes("noopener") &&
-      link.getAttribute("rel")?.includes("noreferrer")
+- Specifically targets links with `target="_blank"`
+- Checks for security attributes (`rel="noopener noreferrer"`)
+- Verifies multiple phrases that indicate a link opens in a new window/tab
+- Provides detailed feedback on what's missing
+- Properly handles accessibility requirements for external links
 
-    // Check for warning text about new window
-    const accessibleName = getAccessibleName(link)
-    const hasNewWindowIndicator = /new window|new tab|external/i.test(
-      accessibleName
-    )
+### Touch Target Size (✅ Implemented)
 
-    // Check for icon indicating external link
-    const hasExternalIcon = link.querySelector(
-      'svg, img[alt*="external"], i[class*="external"]'
-    )
+The new touch target size rule:
 
-    if (!hasRelAttr) {
-      // Flag security/performance issue
-    }
-
-    if (!hasNewWindowIndicator && !hasExternalIcon) {
-      // Flag accessibility issue - no indication that link opens in new window
-    }
-  })
-}
-```
+- Measures the actual pixel dimensions of link elements
+- Compares against WCAG 2.5.5 (AAA) minimum size requirements (44×44px)
+- Skips elements that are visually hidden but still accessible to screen readers
+- Provides specific measurements and clear recommendations
+- Helps ensure mobile accessibility for touch interfaces
 
 ### Adjacent Link Detection
 
