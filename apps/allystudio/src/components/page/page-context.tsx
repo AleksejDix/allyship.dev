@@ -1,13 +1,6 @@
 import type { NormalizedUrl } from "@/utils/url"
-import { useActorRef, useSelector } from "@xstate/react"
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  type ReactNode
-} from "react"
-import type { ActorRef, SnapshotFrom } from "xstate"
+import { useActorRef } from "@xstate/react"
+import { createContext, useContext, type ReactNode } from "react"
 
 import { pageMachine } from "./page-machine"
 import type { PageMachineActorRef } from "./page-machine"

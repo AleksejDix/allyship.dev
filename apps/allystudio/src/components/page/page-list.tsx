@@ -115,11 +115,10 @@ export const PageAddSection = memo(function PageAddSection() {
     Object.is
   )
 
-  const { pages, pageValidationError, isAddingPage } = useSelector(
+  const { pages, isAddingPage } = useSelector(
     pageActor,
     (state) => ({
       pages: state.context.pages,
-      pageValidationError: state.context.pageValidationError,
       isAddingPage: state.matches("adding")
     }),
     Object.is
@@ -138,7 +137,6 @@ export const PageAddSection = memo(function PageAddSection() {
   // Determine if add button should be disabled
   const isAddDisabled =
     !normalizedUrl?.path ||
-    !!pageValidationError ||
     isAddingPage ||
     !currentUrlBelongsToWebsite ||
     pageAlreadyExists
@@ -179,8 +177,6 @@ export const PageAddSection = memo(function PageAddSection() {
     buttonTooltip = "Page already added"
   } else if (!currentUrlBelongsToWebsite) {
     buttonTooltip = "Page from different website"
-  } else if (pageValidationError) {
-    buttonTooltip = "Cannot add page"
   } else if (!normalizedUrl?.path) {
     buttonTooltip = "No page detected"
   }
