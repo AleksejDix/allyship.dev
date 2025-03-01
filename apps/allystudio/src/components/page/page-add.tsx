@@ -85,7 +85,7 @@ export function PageAdd() {
   )
 
   const handleAddPage = useCallback(() => {
-    if (!currentWebsite || !normalizedUrl?.path) {
+    if (!currentWebsite || !normalizedUrl?.path || pageAlreadyExists) {
       return
     }
 
@@ -128,18 +128,16 @@ export function PageAdd() {
     // Send ADD_PAGE event to the page machine
     pageActor.send({ type: "ADD_PAGE", payload })
 
-    // Set timeout to reset adding state if no errors occur
+    // Update UI immediately without waiting for timeout
+    // This helps prevent the UI from blinking
+    if (!pageAlreadyExists) {
+      setSuccess("Page added successfully")
+    }
+
+    // Set timeout just to reset adding state
     const timer = setTimeout(() => {
       setIsAdding(false)
-      setSuccess(
-        pageAlreadyExists
-          ? "Page was already in your list"
-          : "Page added successfully"
-      )
-
-      // The page is added directly to the list optimistically
-      // No need to reload all pages from the database
-    }, 1000)
+    }, 500) // Reduced timeout for smoother experience
 
     return () => clearTimeout(timer)
   }, [
@@ -155,26 +153,31 @@ export function PageAdd() {
     return null
   }
 
-  // Determine button state
+  // Determine button state and appearance
   const isAddDisabled =
     isLoading ||
     !normalizedUrl?.path ||
     !!error ||
     isAdding ||
-    !currentUrlBelongsToWebsite
+    !currentUrlBelongsToWebsite ||
+    pageAlreadyExists // Explicitly disable for already added pages
 
   let buttonLabel = "Add Current Page"
+  let buttonVariant: "default" | "outline" | "secondary" = "default"
 
   if (isAdding) {
     buttonLabel = "Adding..."
   } else if (pageAlreadyExists) {
     buttonLabel = "Page Already Added"
+    buttonVariant = "secondary" // Use a different style for already added pages
   } else if (isLoading) {
     buttonLabel = "Loading Page..."
   } else if (!currentUrlBelongsToWebsite) {
     buttonLabel = "Page From Different Website"
+    buttonVariant = "outline"
   } else if (error) {
     buttonLabel = "Cannot Add Page"
+    buttonVariant = "outline"
   }
 
   return (
@@ -183,6 +186,7 @@ export function PageAdd() {
         type="button"
         onClick={handleAddPage}
         disabled={isAddDisabled}
+        variant={buttonVariant}
         aria-disabled={isAddDisabled}
         aria-labelledby={`${addPageId}-button-label`}
         className="w-full">

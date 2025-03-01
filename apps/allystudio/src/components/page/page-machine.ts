@@ -92,6 +92,20 @@ export const pageMachine = setup({
       if (event.type.startsWith("xstate.done") && "output" in event) {
         const newPage = event.output as Page
         console.log("Adding page to list optimistically:", newPage)
+
+        // Check if the page already exists in the list to prevent duplicates
+        const pageExists = context.pages.some(
+          (p) => p.path === newPage.path && p.website_id === newPage.website_id
+        )
+
+        if (pageExists) {
+          console.log("Page already exists in list, not adding duplicate")
+          return {
+            // Don't modify the pages array, just clear errors
+            error: null
+          }
+        }
+
         // Put the new page at the beginning of the array (newest first)
         return {
           pages: [newPage, ...context.pages],
