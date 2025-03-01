@@ -1,36 +1,10 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { useSelector } from "@xstate/react"
-import { ArrowLeft, ExternalLink, Globe } from "lucide-react"
 import { memo } from "react"
 import type { PropsWithChildren } from "react"
-
-import { useWebsiteContext } from "./website-context"
 
 // Use memo to prevent unnecessary re-renders of the entire component
 export const WebsiteSelected = memo(function WebsiteSelected({
   children
 }: PropsWithChildren) {
-  const actor = useWebsiteContext()
-
-  // Use memoized selectors for better performance with Object.is comparison
-  const website = useSelector(
-    actor,
-    (state) => state.context.currentWebsite,
-    Object.is
-  )
-
-  const shouldRender = useSelector(
-    actor,
-    (state) => state.matches({ loaded: "selected" }),
-    Object.is
-  )
-
-  // Only render when in the loaded.selected state
-  if (!shouldRender || !website) {
-    return null
-  }
-
   return (
     <>
       {/* <div className="flex items-center gap-3 px-2 py-2">
