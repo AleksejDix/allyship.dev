@@ -32,8 +32,8 @@ export const WebsiteSelected = memo(function WebsiteSelected({
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-3 px-2 py-2">
+    <>
+      {/* <div className="flex items-center gap-3 px-2 py-2">
         <Button
           variant="outline"
           size="sm"
@@ -63,9 +63,9 @@ export const WebsiteSelected = memo(function WebsiteSelected({
             Visit
           </a>
         </Button>
-      </div>
+      </div> */}
 
       {children}
-    </div>
+    </>
   )
 })
