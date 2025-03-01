@@ -5,9 +5,9 @@ import {
 } from "@/components/ui/current-indicator"
 import { cn } from "@/lib/utils"
 import { useSelector } from "@xstate/react"
-import { ExternalLink, FileText, Plus } from "lucide-react"
-import { useState } from "react"
+import { ExternalLink, FileText } from "lucide-react"
 
+import { PageAdd } from "./page-add"
 import { usePageContext } from "./page-context"
 
 // Component that displays the list of pages
@@ -19,8 +19,6 @@ export function PageList() {
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
   const websiteId = useSelector(actor, (state) => state.context.websiteId)
-  const [isAdding, setIsAdding] = useState(false)
-  const [newPath, setNewPath] = useState("")
 
   // Only show when in success.list state and there are pages
   if (!isSuccess) {
@@ -32,42 +30,14 @@ export function PageList() {
     actor.send({ type: "SELECT_PAGE", pageId })
   }
 
-  // Handle adding a new page
-  const handleAddPage = () => {
-    if (newPath.trim()) {
-      // TODO: Implement add page functionality
-      setNewPath("")
-      setIsAdding(false)
-    }
-  }
-
   return (
     <div className="bg-background">
-      {/* Add new page form */}
-      {isAdding && (
-        <div className="mx-4 mb-4 p-4 border rounded-lg bg-card">
-          <h3 className="text-sm font-medium mb-2">Add New Page</h3>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={newPath}
-              onChange={(e) => setNewPath(e.target.value)}
-              placeholder="Enter page path (e.g., /about)"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-            <Button onClick={handleAddPage} disabled={!newPath.trim()}>
-              Add
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsAdding(false)}
-            className="text-xs">
-            Cancel
-          </Button>
-        </div>
-      )}
+      {/* Add page button with proper styling */}
+      <div className="px-4 py-6">
+        <h3 className="text-sm font-medium mb-4">Add New Page</h3>
+        <PageAdd />
+      </div>
+
       <div className="border-t">
         {pages.map((page, index) => (
           <div

@@ -3,6 +3,7 @@ import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
 import { useWebsiteContext } from "../website/website-context"
+import { PageAdd } from "./page-add"
 import { PageProvider } from "./page-context"
 import { PageDebug } from "./page-debug"
 import { PageError } from "./page-error"
@@ -56,5 +57,6 @@ export {
   PageListEmpty,
   PageSelected,
   Skeleton,
-  PageListSkeleton
+  PageListSkeleton,
+  PageAdd
 }
