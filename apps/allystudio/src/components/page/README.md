@@ -450,8 +450,32 @@ The Page module uses a composite component pattern to provide a clean API and se
   <PageListSkeleton />
   <PageSelected>{children}</PageSelected>
   {debug && <PageDebug />}
+  {showSearch && <PageSearchDemo />}
 </PageProvider>
 ```
+
+### Search Component
+
+The Page module includes a search component that allows users to find and select pages using a combobox interface:
+
+```jsx
+// Basic usage
+<PageSearch placeholder="Find a page..." />
+
+// With custom styling
+<PageSearch className="max-w-md" />
+
+// In a card with description (demo component)
+<PageSearchDemo />
+```
+
+The search component offers:
+
+1. **Instant Filtering**: Filters pages in real-time as users type
+2. **Keyboard Navigation**: Full keyboard support for accessibility
+3. **Path & URL Search**: Searches both path and normalized URL
+4. **Selection Indicator**: Shows which page is currently selected
+5. **Integration with State Machine**: Dispatches the same events as the PageList component
 
 ### Component Separation
 
@@ -741,6 +765,7 @@ The Page component implements accessibility best practices:
 
 - `Space`: Parent component that provides space context
 - `Website`: Intermediary component that provides website context within a space
+- `PageSearch`: Component for searching and selecting pages via combobox interface
 - Child components that consume page context
 
 ## Future Improvements

@@ -7,10 +7,12 @@ import { PageAdd } from "./page-add"
 import { PageProvider } from "./page-context"
 import { PageDebug } from "./page-debug"
 import { PageError } from "./page-error"
-import { PageAddSection, PageList } from "./page-list"
+import { PageList } from "./page-list"
 import { PageListEmpty } from "./page-list-empty"
+import { PageSearch } from "./page-search"
 import { PageSelected } from "./page-selected"
 import { PageListSkeleton, Skeleton } from "./page-skeleton"
+import { PageView } from "./page-view"
 
 // Selector to get the current website from the website machine
 const selectCurrentWebsite = (state: any) => state.context.currentWebsite
@@ -19,8 +21,9 @@ const selectCurrentWebsite = (state: any) => state.context.currentWebsite
 // Use memo to prevent unnecessary re-renders
 const Page = memo(function Page({
   children,
-  debug = false
-}: PropsWithChildren<{ debug?: boolean }>) {
+  debug = false,
+  showSearch = true
+}: PropsWithChildren<{ debug?: boolean; showSearch?: boolean }>) {
   const websiteActor = useWebsiteContext()
 
   // Get the current website from the website context
@@ -39,11 +42,11 @@ const Page = memo(function Page({
     <PageProvider websiteId={currentWebsite.id}>
       <Skeleton />
       <PageError />
-      <PageAddSection />
-      <PageList />
+      {showSearch && <PageSearch className="w-full mb-3" />}
+      <PageAdd />
+      <PageView>{children}</PageView>
       <PageListEmpty />
       <PageListSkeleton />
-      <PageSelected>{children}</PageSelected>
       {debug && <PageDebug />}
     </PageProvider>
   )
@@ -55,10 +58,11 @@ export {
   PageDebug,
   PageError,
   PageList,
-  PageAddSection,
   PageListEmpty,
   PageSelected,
+  PageView,
   Skeleton,
   PageListSkeleton,
-  PageAdd
+  PageAdd,
+  PageSearch
 }
