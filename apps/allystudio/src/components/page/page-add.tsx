@@ -3,7 +3,7 @@ import { useUrl } from "@/providers/url-provider"
 import { type TablesInsert } from "@/types/database.types"
 import { useSelector } from "@xstate/react"
 import { Plus, RefreshCw, SwitchCamera } from "lucide-react"
-import { useCallback, useEffect, useId, useState } from "react"
+import { useCallback, useEffect, useId } from "react"
 
 import { Button } from "../ui/button"
 import { useWebsiteContext } from "../website/website-context"
@@ -18,10 +18,6 @@ export function PageAdd() {
   const auth = useAuth()
   const addPageId = useId()
 
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [isAdding, setIsAdding] = useState(false)
-
   // Get the current website from the website context
   const currentWebsite = useSelector(
     websiteActor,
@@ -29,55 +25,54 @@ export function PageAdd() {
     Object.is
   )
 
-  // Get the existing pages from the page context
-  const pages = useSelector(
-    pageActor,
-    (state) => state.context.pages,
+  // Get URL validation state from website machine
+  const urlValidation = useSelector(
+    websiteActor,
+    (state) => state.context.urlValidation,
     Object.is
   )
 
-  // Check machine state for errors
-  const addPageError = useSelector(
+  // Get the existing pages and validation states from the page context
+  const {
+    pages,
+    pageValidationError,
+    pageValidationSuccess,
+    currentUrl,
+    isAddingPage
+  } = useSelector(
     pageActor,
-    (state) => state.context.error,
+    (state) => ({
+      pages: state.context.pages,
+      pageValidationError: state.context.pageValidationError,
+      pageValidationSuccess: state.context.pageValidationSuccess,
+      currentUrl: state.context.currentUrl,
+      isAddingPage: state.matches("adding")
+    }),
     Object.is
   )
 
-  // Clear error and success when URL changes
+  // Notify the page machine when the URL changes
   useEffect(() => {
-    setError(null)
-    setSuccess(null)
-  }, [normalizedUrl])
+    if (normalizedUrl && currentWebsite) {
+      // Send the URL_CHANGED event to the page machine
+      pageActor.send({
+        type: "URL_CHANGED",
+        url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`,
+        website: currentWebsite
+      })
 
-  // Update error message if page machine returns an error
-  useEffect(() => {
-    if (addPageError) {
-      setError(addPageError.message || "Failed to add page")
-      setSuccess(null)
-      setIsAdding(false)
+      // Validate URL ownership in the website machine
+      websiteActor.send({
+        type: "VALIDATE_URL_OWNERSHIP",
+        url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`
+      })
     }
-  }, [addPageError])
+  }, [normalizedUrl, currentWebsite, pageActor, websiteActor])
 
-  // Validate the path
-  const validatePath = (input: string) => {
-    if (!input.startsWith("/")) {
-      return "Path must start with /"
-    }
-    if (input.includes("?") || input.includes("#")) {
-      return "Path cannot contain query parameters or fragments"
-    }
-    return null
-  }
-
-  // Check if the current URL belongs to the selected website
-  const currentUrlBelongsToWebsite =
-    normalizedUrl && currentWebsite
-      ? normalizedUrl.hostname ===
-        currentWebsite.normalized_url.replace(/^https?:\/\//, "")
-      : false
+  // Check if the current URL belongs to the selected website - use urlValidation from website machine
+  const currentUrlBelongsToWebsite = urlValidation.belongsToCurrentWebsite
 
   // Check if the current page already exists in our local state
-  // This is just for UI feedback, the database will handle duplicates
   const currentPath = normalizedUrl?.path || ""
   const pageAlreadyExists = pages.some(
     (page) =>
@@ -85,43 +80,77 @@ export function PageAdd() {
   )
 
   const handleAddPage = useCallback(() => {
-    if (!currentWebsite || !normalizedUrl?.path || pageAlreadyExists) {
+    if (!currentWebsite || !normalizedUrl?.path) {
       return
     }
 
-    // Check if the current URL belongs to the current website
-    if (!currentUrlBelongsToWebsite) {
-      setError(
-        `This page belongs to ${normalizedUrl.hostname}, but you're currently on ${currentWebsite.normalized_url.replace(/^https?:\/\//, "")}`
+    // Extra validation to ensure we never add pages from different websites
+    if (pageAlreadyExists) {
+      console.log("Page already exists, not adding duplicate")
+      return
+    }
+
+    // Double check URL ownership using website machine
+    websiteActor.send({
+      type: "VALIDATE_URL_OWNERSHIP",
+      url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`
+    })
+
+    // CRITICAL SECURITY CHECK: Never allow adding pages from different websites
+    if (!urlValidation.belongsToCurrentWebsite) {
+      console.error(
+        "Security violation: Attempted to add page from a different website",
+        {
+          pageHostname: normalizedUrl.hostname,
+          websiteHostname: currentWebsite.normalized_url.replace(
+            /^https?:\/\//,
+            ""
+          )
+        }
       )
-      setSuccess(null)
+      // Just clear messages, no payload needed
+      pageActor.send({
+        type: "CLEAR_MESSAGES"
+      })
       return
     }
 
+    // Use the path from the normalized URL
     const path = normalizedUrl.path
-    const validationError = validatePath(path)
 
-    if (validationError) {
-      setError(validationError)
-      setSuccess(null)
+    // First validate the path with the page machine
+    pageActor.send({
+      type: "VALIDATE_PATH",
+      path
+    })
+
+    // If we have validation errors, don't proceed
+    if (pageValidationError) {
       return
     }
-
-    // Start loading state
-    setIsAdding(true)
-    setError(null)
-    setSuccess(null)
 
     // Construct normalized_url as hostname + path
-    // Extract hostname from the website's normalized_url (without protocol)
     const hostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
-    const pageNormalizedUrl = `${hostname}${path}`
+    const combinedNormalizedUrl = `${hostname}${path}`
+
+    // Final domain check to ensure security
+    if (normalizedUrl.hostname !== hostname) {
+      console.error("Security violation: Hostname mismatch when adding page", {
+        pageHostname: normalizedUrl.hostname,
+        websiteHostname: hostname
+      })
+      // Just clear messages, no payload needed
+      pageActor.send({
+        type: "CLEAR_MESSAGES"
+      })
+      return
+    }
 
     // Create the page insert payload with all required fields
     const payload: PageInsert = {
       path,
       url: `${currentWebsite.url}${path}`,
-      normalized_url: pageNormalizedUrl,
+      normalized_url: combinedNormalizedUrl,
       website_id: currentWebsite.id,
       // Optional metadata fields
       created_at: new Date().toISOString(),
@@ -129,32 +158,34 @@ export function PageAdd() {
     }
 
     console.log("Adding page with path:", path)
-    console.log("Using normalized URL:", pageNormalizedUrl)
+    console.log(
+      "Using normalized URL (hostname + path):",
+      combinedNormalizedUrl
+    )
     console.log("Website ID:", currentWebsite.id)
 
-    // Send ADD_PAGE event to the page machine
-    pageActor.send({ type: "ADD_PAGE", payload })
-
-    // Update UI immediately without waiting for timeout
-    // This helps prevent the UI from blinking
-    if (!pageAlreadyExists) {
-      setSuccess("Page added successfully")
-    }
-
-    // Set timeout just to reset adding state
-    const timer = setTimeout(() => {
-      setIsAdding(false)
-    }, 500) // Reduced timeout for smoother experience
-
-    return () => clearTimeout(timer)
+    // Send ADD_PAGE event to the page machine with website context
+    pageActor.send({
+      type: "ADD_PAGE",
+      payload,
+      website: currentWebsite
+    })
   }, [
     currentWebsite,
     normalizedUrl,
     pageActor,
-    validatePath,
+    websiteActor,
     pageAlreadyExists,
-    currentUrlBelongsToWebsite
+    pageValidationError,
+    urlValidation
   ])
+
+  // Clear error and success messages when URL changes
+  useEffect(() => {
+    if (normalizedUrl) {
+      pageActor.send({ type: "CLEAR_MESSAGES" })
+    }
+  }, [normalizedUrl, pageActor])
 
   if (!currentWebsite) {
     return null
@@ -164,15 +195,15 @@ export function PageAdd() {
   const isAddDisabled =
     isLoading ||
     !normalizedUrl?.path ||
-    !!error ||
-    isAdding ||
+    !!pageValidationError ||
+    isAddingPage ||
     !currentUrlBelongsToWebsite ||
     pageAlreadyExists // Explicitly disable for already added pages
 
   let buttonLabel = "Add Current Page"
   let buttonVariant: "default" | "outline" | "secondary" = "default"
 
-  if (isAdding) {
+  if (isAddingPage) {
     buttonLabel = "Adding..."
   } else if (pageAlreadyExists) {
     buttonLabel = "Page Already Added"
@@ -182,7 +213,7 @@ export function PageAdd() {
   } else if (!currentUrlBelongsToWebsite) {
     buttonLabel = "Page From Different Website"
     buttonVariant = "outline"
-  } else if (error) {
+  } else if (pageValidationError) {
     buttonLabel = "Cannot Add Page"
     buttonVariant = "outline"
   }
@@ -205,11 +236,11 @@ export function PageAdd() {
       </Button>
 
       {/* Show a helpful message and button when the page is from a different website */}
-      {!currentUrlBelongsToWebsite && normalizedUrl && !error && (
+      {!currentUrlBelongsToWebsite && normalizedUrl && !pageValidationError && (
         <div className="mt-2 text-center">
           <p className="text-xs text-amber-500 mb-2">
-            This page is from {normalizedUrl.hostname}, but you're viewing
-            website {currentWebsite.normalized_url.replace(/^https?:\/\//, "")}
+            {urlValidation.error ||
+              `This page is from ${normalizedUrl.hostname}, but you're viewing website ${currentWebsite.normalized_url.replace(/^https?:\/\//, "")}`}
           </p>
           <Button
             variant="secondary"
@@ -228,14 +259,16 @@ export function PageAdd() {
         </div>
       )}
 
-      {error && (
+      {pageValidationError && (
         <div className="flex flex-col gap-2 mt-1">
-          <p className="text-sm text-destructive text-center">{error}</p>
+          <p className="text-sm text-destructive text-center">
+            {pageValidationError}
+          </p>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setError(null)
+              pageActor.send({ type: "CLEAR_MESSAGES" })
               // Refresh page list
               if (currentWebsite?.id) {
                 pageActor.send({
@@ -251,8 +284,10 @@ export function PageAdd() {
         </div>
       )}
 
-      {success && !error && (
-        <p className="text-sm text-green-600 text-center">{success}</p>
+      {pageValidationSuccess && !pageValidationError && (
+        <p className="text-sm text-green-600 text-center">
+          {pageValidationSuccess}
+        </p>
       )}
     </div>
   )
