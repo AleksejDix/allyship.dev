@@ -151,8 +151,56 @@ When adding a new page, the normalized URL is constructed by:
 // Extract hostname from the website's normalized_url
 const hostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
 // Combine hostname and path
-const pageNormalizedUrl = `${hostname}${path}`
+const combinedNormalizedUrl = `${hostname}${path}`
 ```
+
+### Security Checks
+
+The Page component implements multi-layered security checks to ensure pages can only be added to their appropriate website:
+
+1. **Client-side UI Validation**:
+
+   ```typescript
+   // In page-add.tsx
+   if (hostname !== normalizedUrl.hostname) {
+     console.error(
+       "Security violation: Attempting to add page to different website",
+       { hostname, currentUrl: normalizedUrl.hostname }
+     )
+     // Disable button and show error
+   }
+   ```
+
+2. **State Machine Validation**:
+
+   ```typescript
+   // In website-machine.ts
+   const urlBelongsToWebsite = (url, website) => {
+     // Check if url domain matches website domain
+     return urlDomain === websiteDomain
+   }
+   ```
+
+3. **Actor Function Validation**:
+
+   ```typescript
+   // In page-machine.ts (addPageActor)
+   // Extract hostname parts for security check
+   const pageHostnamePart = pageNormalizedUrl.split("/")[0]
+   const websiteHostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
+
+   // Security check: verify page belongs to this website
+   if (pageHostnamePart !== websiteHostname) {
+     console.error("SECURITY VIOLATION: Attempt to add page to different website", {
+       pageHostname: pageHostnamePart,
+       websiteHostname
+     })
+     return { success: false, error: "Security violation: URL doesn't belong to this website" }
+   }
+   ```
+
+4. **Database Constraint**:
+   Pages are uniquely identified by the combination of `website_id` and `normalized_url`, preventing duplicate pages and ensuring pages belong to their proper website.
 
 ### Database Operations
 
@@ -172,6 +220,7 @@ This ensures that:
 1. Each page is uniquely identified by its website and normalized URL
 2. Attempting to add a duplicate page will update the existing one
 3. Race conditions are handled efficiently at the database level
+4. Pages can only be associated with their correct website
 
 ## Usage
 
@@ -213,6 +262,10 @@ function PageComponent() {
 6. Delegate business logic like validation to state machines
 7. Use the centralized URL utilities rather than implementing custom URL logic
 8. Let the website machine handle URL-website relationship checks
+9. Never bypass security checks when adding pages to websites
+10. Always maintain the multi-layered security approach (UI, state machine, actor function, database)
+11. Log potential security violations for monitoring and auditing
+12. Verify that the hostname of a page always matches the hostname of its parent website
 
 ## Accessibility
 
