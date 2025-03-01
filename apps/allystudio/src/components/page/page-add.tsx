@@ -2,7 +2,7 @@ import { useAuth } from "@/providers/auth-provider"
 import { useUrl } from "@/providers/url-provider"
 import { type TablesInsert } from "@/types/database.types"
 import { useSelector } from "@xstate/react"
-import { Plus, RefreshCw } from "lucide-react"
+import { Plus, RefreshCw, SwitchCamera } from "lucide-react"
 import { useCallback, useEffect, useId, useState } from "react"
 
 import { Button } from "../ui/button"
@@ -112,18 +112,25 @@ export function PageAdd() {
     setError(null)
     setSuccess(null)
 
-    // Construct the full URL
-    const fullUrl = `${currentWebsite.url}${path}`
+    // Construct normalized_url as hostname + path
+    // Extract hostname from the website's normalized_url (without protocol)
+    const hostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
+    const pageNormalizedUrl = `${hostname}${path}`
 
-    // Create the page insert payload
+    // Create the page insert payload with all required fields
     const payload: PageInsert = {
       path,
-      url: fullUrl,
-      normalized_url: currentWebsite.normalized_url,
-      website_id: currentWebsite.id
+      url: `${currentWebsite.url}${path}`,
+      normalized_url: pageNormalizedUrl,
+      website_id: currentWebsite.id,
+      // Optional metadata fields
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
 
-    console.log("Adding page", payload)
+    console.log("Adding page with path:", path)
+    console.log("Using normalized URL:", pageNormalizedUrl)
+    console.log("Website ID:", currentWebsite.id)
 
     // Send ADD_PAGE event to the page machine
     pageActor.send({ type: "ADD_PAGE", payload })
@@ -196,6 +203,30 @@ export function PageAdd() {
         </span>
         {buttonLabel}
       </Button>
+
+      {/* Show a helpful message and button when the page is from a different website */}
+      {!currentUrlBelongsToWebsite && normalizedUrl && !error && (
+        <div className="mt-2 text-center">
+          <p className="text-xs text-amber-500 mb-2">
+            This page is from {normalizedUrl.hostname}, but you're viewing
+            website {currentWebsite.normalized_url.replace(/^https?:\/\//, "")}
+          </p>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              // Use the MATCH_WEBSITE event to find the website matching the current URL
+              websiteActor.send({
+                type: "MATCH_WEBSITE",
+                url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`
+              })
+            }}
+            className="mx-auto">
+            <SwitchCamera className="h-3 w-3 mr-1" aria-hidden="true" />
+            <span>Switch to {normalizedUrl.hostname}</span>
+          </Button>
+        </div>
+      )}
 
       {error && (
         <div className="flex flex-col gap-2 mt-1">
