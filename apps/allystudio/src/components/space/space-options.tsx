@@ -54,20 +54,13 @@ export function SpaceOptions({ children }: PropsWithChildren) {
   return (
     <>
       <div className="bg-background">
-        <div className="px-4 py-6 text-center">
-          <h2 className="text-xl font-semibold">Select a Space</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Choose a space to start analyzing websites
-          </p>
-        </div>
-
-        <Button
+        {/* <Button
           variant="outline"
           className="mx-4 mb-4 w-[calc(100%-2rem)] flex items-center justify-center gap-2"
           onClick={() => setIsAdding(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
           Add New Space
-        </Button>
+        </Button> */}
 
         {/* Add new space form */}
         {isAdding && (

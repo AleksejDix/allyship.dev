@@ -66,7 +66,6 @@ export {
   PageList,
   PageListEmpty,
   PageSelected,
-  PageView,
   Skeleton,
   PageListSkeleton,
   PageAdd,

@@ -1,3 +1,4 @@
+import { useCurrentUrl } from "@/providers/url-provider"
 import { useSelector } from "@xstate/react"
 import { memo } from "react"
 import type { PropsWithChildren } from "react"
@@ -26,18 +27,21 @@ const Website = memo(function Website({
     Object.is
   )
 
+  const { normalizedUrl } = useCurrentUrl()
+
   // Only render when a space is selected
   if (!currentSpace) {
     return null
   }
 
   return (
-    <WebsiteProvider spaceId={currentSpace.id}>
+    <WebsiteProvider spaceId={currentSpace.id} normalizedUrl={normalizedUrl}>
       <WebsiteEmpty />
       <WebsiteSearch />
-      <WebsiteOptions>
-        <WebsiteAdd />
-      </WebsiteOptions>
+      <WebsiteAdd />
+      {/* <WebsiteOptions>
+      </WebsiteOptions> */}
+      {children}
       <WebsiteSelected>{children}</WebsiteSelected>
       {debug && <WebsiteDebug />}
     </WebsiteProvider>

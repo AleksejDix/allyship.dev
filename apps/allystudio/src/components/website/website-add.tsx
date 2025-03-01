@@ -40,6 +40,9 @@ export function WebsiteAdd() {
     return null
   }
 
+  // Add a log to verify the normalizedUrl structure
+  console.log("WebsiteAdd normalizedUrl structure:", normalizedUrl)
+
   const payload: WebsiteInsert = {
     normalized_url: normalizedUrl.hostname,
     url: normalizedUrl.raw,
