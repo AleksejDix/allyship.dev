@@ -22,9 +22,8 @@ const selectCurrentWebsite = (state: any) => state.context.currentWebsite
 // Use memo to prevent unnecessary re-renders
 const Page = memo(function Page({
   children,
-  debug = false,
-  showSearch = true
-}: PropsWithChildren<{ debug?: boolean; showSearch?: boolean }>) {
+  debug = false
+}: PropsWithChildren<{ debug?: boolean }>) {
   const websiteActor = useWebsiteContext()
 
   // Get the current website from the website context
@@ -45,8 +44,12 @@ const Page = memo(function Page({
     <PageProvider websiteId={currentWebsite.id} normalizedUrl={normalizedUrl}>
       <Skeleton />
       <PageError />
-      {showSearch && <PageSearch className="w-full mb-3" />}
-      <PageAdd />
+      <div className="flex items-center justify-between py-2">
+        <div className="grow">
+          <PageSearch />
+        </div>
+        <PageAdd />
+      </div>
       <PageView>{children}</PageView>
       <PageListEmpty />
       <PageListSkeleton />
