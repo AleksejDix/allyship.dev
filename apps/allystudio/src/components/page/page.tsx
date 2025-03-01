@@ -1,3 +1,4 @@
+import { useCurrentUrl } from "@/providers/url-provider"
 import { useSelector } from "@xstate/react"
 import { memo } from "react"
 import type { PropsWithChildren } from "react"
@@ -33,13 +34,15 @@ const Page = memo(function Page({
     Object.is
   )
 
+  const { normalizedUrl } = useCurrentUrl()
+
   // Only render when a website is selected
   if (!currentWebsite) {
     return null
   }
 
   return (
-    <PageProvider websiteId={currentWebsite.id}>
+    <PageProvider websiteId={currentWebsite.id} normalizedUrl={normalizedUrl}>
       <Skeleton />
       <PageError />
       {showSearch && <PageSearch className="w-full mb-3" />}

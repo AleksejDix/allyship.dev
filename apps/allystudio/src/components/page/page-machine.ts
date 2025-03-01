@@ -1,6 +1,6 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database.types"
-import { compareUrlPaths, isValidPageUrl, normalizeUrl } from "@/utils/url"
+import { compareUrlPaths, normalizeUrl, type NormalizedUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 
@@ -25,26 +25,7 @@ export type PageEvent =
   | { type: "SELECT_PAGE"; pageId: string }
   | { type: "BACK" }
   | { type: "ADD_PAGE"; payload: PageInsert; website: Website }
-  | { type: "VALIDATE_PATH"; path: string }
-  | { type: "CLEAR_MESSAGES" }
-
-// Utility functions for URL validation and construction
-const validatePagePath = (path: string): string | null => {
-  if (!path.startsWith("/")) {
-    return "Path must start with /"
-  }
-  if (path.includes("?") || path.includes("#")) {
-    return "Path cannot contain query parameters or fragments"
-  }
-  return null
-}
-
-const constructNormalizedUrl = (website: Website, path: string): string => {
-  // Extract hostname from the website's normalized_url (without protocol)
-  const hostname = website.normalized_url.replace(/^https?:\/\//, "")
-  // Construct normalized_url as hostname + path
-  return `${hostname}${path}`
-}
+  | { type: "PATH_CHANGED"; normalizedUrl: NormalizedUrl }
 
 const checkPageExists = (
   pages: Page[],
@@ -59,19 +40,16 @@ const checkPageExists = (
 // Actor to load pages from Supabase
 const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
   async ({ input }) => {
-    console.log("Loading pages for website:", input.websiteId)
-
     const { data, error } = await supabase
       .from("Page")
       .select("*")
       .eq("website_id", input.websiteId)
-      .order("created_at", { ascending: false }) // Order by creation date, newest first
+      .order("normalized_url", { ascending: true })
 
     if (error) {
       throw error
     }
 
-    console.log("Loaded pages data:", data, "length:", data?.length ?? 0)
     return data ?? []
   }
 )
@@ -204,13 +182,35 @@ export const pageMachine = setup({
   types: {
     context: {} as PageContext,
     events: {} as PageEvent,
-    input: {} as { websiteId: string | null }
+    input: {} as {
+      websiteId: string | null
+      normalizedUrl: NormalizedUrl | null
+    }
   },
   actors: {
     loadPages: loadPagesActor,
     addPage: addPageActor
   },
   actions: {
+    logPathChange: assign(({ event }) => {
+      if (event.type === "PATH_CHANGED") {
+        console.log("Path changed:", event.normalizedUrl)
+      }
+      return {}
+    }),
+    setSelectedPageByPath: assign(({ context, event }) => {
+      if (event.type === "PATH_CHANGED") {
+        const normalizedUrl = event.normalizedUrl.full
+        const page = context.pages.find(
+          (p) => p.normalized_url === normalizedUrl
+        )
+        console.log("Setting selected page by path:", page)
+        return {
+          selectedPage: page || null
+        }
+      }
+      return {}
+    }),
     // Set pages in context when loaded successfully
     setPages: assign(({ event }) => {
       // Check if this is a done event from an actor
@@ -300,12 +300,6 @@ export const pageMachine = setup({
       pageValidationError: () => null
     }),
 
-    // Clear all validation messages
-    clearMessages: assign({
-      pageValidationError: () => null,
-      pageValidationSuccess: () => null
-    }),
-
     // Set selected page
     selectPage: assign(({ context, event }) => {
       if (event.type === "SELECT_PAGE") {
@@ -318,19 +312,6 @@ export const pageMachine = setup({
     // Clear selected page
     clearSelectedPage: assign({
       selectedPage: () => null
-    }),
-
-    // Validate path and update validation errors
-    validatePath: assign(({ event }) => {
-      if (event.type === "VALIDATE_PATH") {
-        const validationError = validatePagePath(event.path)
-
-        return {
-          pageValidationError: validationError,
-          pageValidationSuccess: validationError ? null : "Path is valid"
-        }
-      }
-      return {}
     }),
 
     // Prepare page payload with normalized URL
@@ -351,14 +332,6 @@ export const pageMachine = setup({
     })
   },
   guards: {
-    // Check if path is valid
-    isPathValid: ({ event }) => {
-      if (event.type === "VALIDATE_PATH") {
-        return validatePagePath(event.path) === null
-      }
-      return false
-    },
-
     // Check if page already exists
     pageAlreadyExists: ({ context, event }) => {
       if (event.type === "ADD_PAGE") {
@@ -382,18 +355,14 @@ export const pageMachine = setup({
     pageValidationSuccess: null
   }),
   initial: "idle",
+
   states: {
     idle: {
+      entry: "setSelectedPageByPath",
       on: {
         LOAD_PAGES: {
           target: "loading",
           actions: "updateWebsiteId"
-        },
-        VALIDATE_PATH: {
-          actions: "validatePath"
-        },
-        CLEAR_MESSAGES: {
-          actions: "clearMessages"
         }
       },
       always: [
@@ -421,14 +390,6 @@ export const pageMachine = setup({
         onError: {
           target: "error",
           actions: "setError"
-        }
-      },
-      on: {
-        VALIDATE_PATH: {
-          actions: "validatePath"
-        },
-        CLEAR_MESSAGES: {
-          actions: "clearMessages"
         }
       }
     },
@@ -460,12 +421,6 @@ export const pageMachine = setup({
         ADD_PAGE: {
           target: "adding",
           actions: "preparePagePayload"
-        },
-        VALIDATE_PATH: {
-          actions: "validatePath"
-        },
-        CLEAR_MESSAGES: {
-          actions: "clearMessages"
         }
       }
     },
@@ -478,12 +433,6 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: ["updateWebsiteId", "clearError"]
-        },
-        VALIDATE_PATH: {
-          actions: "validatePath"
-        },
-        CLEAR_MESSAGES: {
-          actions: "clearMessages"
         }
       }
     },
@@ -521,6 +470,9 @@ export const pageMachine = setup({
     WEBSITE_CHANGED: {
       target: ".loading",
       actions: "updateWebsiteId"
+    },
+    PATH_CHANGED: {
+      actions: "setSelectedPageByPath"
     }
   }
 })
