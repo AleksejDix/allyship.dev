@@ -1,17 +1,26 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database.types"
+import { compareUrlPaths, isValidPageUrl, normalizeUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 
 // Types
 type Page = Database["public"]["Tables"]["Page"]["Row"]
 type PageInsert = Database["public"]["Tables"]["Page"]["Insert"]
+type Website = Database["public"]["Tables"]["Website"]["Row"]
 
 export type PageContext = {
   pages: Page[]
   selectedPage: Page | null
   error: PostgrestError | null
   websiteId: string | null
+  pageValidationError: string | null
+  pageValidationSuccess: string | null
+  currentUrl: {
+    normalized: string | null
+    path: string | null
+    hostname: string | null
+  }
 }
 
 export type PageEvent =
@@ -20,7 +29,38 @@ export type PageEvent =
   | { type: "RETRY" }
   | { type: "SELECT_PAGE"; pageId: string }
   | { type: "BACK" }
-  | { type: "ADD_PAGE"; payload: PageInsert }
+  | { type: "ADD_PAGE"; payload: PageInsert; website: Website }
+  | { type: "VALIDATE_PATH"; path: string }
+  | { type: "URL_CHANGED"; url: string; website: Website }
+  | { type: "CLEAR_MESSAGES" }
+
+// Utility functions for URL validation and construction
+const validatePagePath = (path: string): string | null => {
+  if (!path.startsWith("/")) {
+    return "Path must start with /"
+  }
+  if (path.includes("?") || path.includes("#")) {
+    return "Path cannot contain query parameters or fragments"
+  }
+  return null
+}
+
+const constructNormalizedUrl = (website: Website, path: string): string => {
+  // Extract hostname from the website's normalized_url (without protocol)
+  const hostname = website.normalized_url.replace(/^https?:\/\//, "")
+  // Construct normalized_url as hostname + path
+  return `${hostname}${path}`
+}
+
+const checkPageExists = (
+  pages: Page[],
+  path: string,
+  websiteId: string
+): boolean => {
+  return pages.some(
+    (page) => compareUrlPaths(page.path, path) && page.website_id === websiteId
+  )
+}
 
 // Actor to load pages from Supabase
 const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
@@ -43,60 +83,128 @@ const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
 )
 
 // Actor to add a page to Supabase
-const addPageActor = fromPromise<Page, { payload: PageInsert }>(
-  async ({ input }) => {
+const addPageActor = fromPromise<
+  Page,
+  { payload: PageInsert; website: Website }
+>(async ({ input }) => {
+  try {
+    console.log(
+      "Starting addPageActor with payload:",
+      JSON.stringify(input.payload, null, 2)
+    )
+
+    if (!input.payload || !input.payload.website_id) {
+      console.error("Invalid payload for addPageActor:", input.payload)
+      throw new Error("Missing required payload fields for adding page")
+    }
+
+    // SECURITY CHECK: Verify that the page actually belongs to the website
     try {
-      console.log(
-        "Starting addPageActor with payload:",
-        JSON.stringify(input.payload, null, 2)
+      // Extract just the hostname part from the page's normalized_url (which is now hostname+path)
+      const pageNormalizedUrl = input.payload.normalized_url || ""
+      const pageHostnamePart = pageNormalizedUrl.split("/")[0]
+
+      // Extract hostname from website's normalized_url (removing protocol if present)
+      const websiteHostname = input.website.normalized_url.replace(
+        /^https?:\/\//,
+        ""
       )
 
-      if (!input.payload || !input.payload.website_id) {
-        console.error("Invalid payload for addPageActor:", input.payload)
-        throw new Error("Missing required payload fields for adding page")
+      // Exact match comparison of hostnames
+      if (pageHostnamePart !== websiteHostname) {
+        console.error(
+          "CRITICAL SECURITY VIOLATION: Attempted to add page from a different website",
+          {
+            pageHostnamePart,
+            websiteHostname,
+            pageNormalizedUrl,
+            pageId: input.payload.id,
+            websiteId: input.website.id
+          }
+        )
+        throw new Error(
+          "Security violation: Cannot add page from a different website"
+        )
       }
 
-      // Log normalized_url format
-      console.log(
-        "Using normalized_url (hostname + path):",
-        input.payload.normalized_url
-      )
-      console.log("Using standalone path:", input.payload.path)
-      console.log("Using website_id:", input.payload.website_id)
-      console.log(
-        "Page uniqueness will be on website_id + normalized_url:",
-        `[${input.payload.website_id}, ${input.payload.normalized_url}]`
-      )
+      // Double check with normalizeUrl utility
+      const pageUrl = `https://${pageHostnamePart}${input.payload.path}`
+      const websiteUrl = input.website.url
 
-      // Log auth state
-      const { data: authData } = await supabase.auth.getSession()
-      console.log("Auth session exists:", !!authData.session)
+      try {
+        const pageUrlInfo = normalizeUrl(pageUrl)
+        const websiteUrlInfo = normalizeUrl(websiteUrl)
 
-      // Perform the upsert operation
-      const { data, error } = await supabase
-        .from("Page")
-        .upsert(input.payload, { onConflict: "normalized_url,website_id" })
-        .select()
-        .single()
+        if (pageUrlInfo.domain !== websiteUrlInfo.domain) {
+          console.error(
+            "DOMAIN MISMATCH: Page and website domains do not match",
+            {
+              pageDomain: pageUrlInfo.domain,
+              websiteDomain: websiteUrlInfo.domain,
+              pageHostnamePart,
+              websiteHostname
+            }
+          )
+          throw new Error(
+            "Security violation: Domain mismatch between page and website"
+          )
+        }
 
-      if (error) {
-        console.error("Supabase upsert error:", error)
-        throw error
+        console.log("Security check passed: Page belongs to website", {
+          pageDomain: pageUrlInfo.domain,
+          websiteDomain: websiteUrlInfo.domain,
+          pageHostnamePart,
+          websiteHostname
+        })
+      } catch (error) {
+        console.error("Error during domain normalization check:", error)
+        throw new Error("Cannot add page: URL validation failed")
       }
-
-      if (!data) {
-        console.error("No data returned from Page upsert operation")
-        throw new Error("Failed to add page - no data returned")
-      }
-
-      console.log("Successfully added page:", data)
-      return data
     } catch (error) {
-      console.error("Error in addPageActor:", error)
+      console.error("Error during security check:", error)
+      throw new Error("Cannot add page: Security validation failed")
+    }
+
+    // Log normalized_url format
+    console.log(
+      "Using normalized_url (hostname+path):",
+      input.payload.normalized_url
+    )
+    console.log("Using standalone path:", input.payload.path)
+    console.log("Using website_id:", input.payload.website_id)
+    console.log(
+      "Page uniqueness will be on website_id + normalized_url (containing hostname+path):",
+      `[${input.payload.website_id}, ${input.payload.normalized_url}]`
+    )
+
+    // Log auth state
+    const { data: authData } = await supabase.auth.getSession()
+    console.log("Auth session exists:", !!authData.session)
+
+    // Perform the upsert operation
+    const { data, error } = await supabase
+      .from("Page")
+      .upsert(input.payload, { onConflict: "website_id,normalized_url" })
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Supabase upsert error:", error)
       throw error
     }
+
+    if (!data) {
+      console.error("No data returned from Page upsert operation")
+      throw new Error("Failed to add page - no data returned")
+    }
+
+    console.log("Successfully added page:", data)
+    return data
+  } catch (error) {
+    console.error("Error in addPageActor:", error)
+    throw error
   }
-)
+})
 
 export const pageMachine = setup({
   types: {
@@ -142,7 +250,8 @@ export const pageMachine = setup({
           console.log("Page already exists in list, not adding duplicate")
           return {
             // Don't modify the pages array, just clear errors
-            error: null
+            error: null,
+            pageValidationSuccess: "Page already exists"
           }
         }
 
@@ -158,7 +267,8 @@ export const pageMachine = setup({
 
         return {
           pages: updatedPages,
-          error: null // Clear any errors
+          error: null, // Clear any errors
+          pageValidationSuccess: "Page added successfully"
         }
       }
       return {}
@@ -170,7 +280,9 @@ export const pageMachine = setup({
       if (event.type.startsWith("xstate.error") && "error" in event) {
         console.log("Setting error:", event.error)
         return {
-          error: event.error as PostgrestError
+          error: event.error as PostgrestError,
+          pageValidationError:
+            (event.error as PostgrestError).message || "An error occurred"
         }
       }
       return {}
@@ -190,7 +302,14 @@ export const pageMachine = setup({
 
     // Clear error when retrying
     clearError: assign({
-      error: () => null
+      error: () => null,
+      pageValidationError: () => null
+    }),
+
+    // Clear all validation messages
+    clearMessages: assign({
+      pageValidationError: () => null,
+      pageValidationSuccess: () => null
     }),
 
     // Set selected page
@@ -205,7 +324,105 @@ export const pageMachine = setup({
     // Clear selected page
     clearSelectedPage: assign({
       selectedPage: () => null
+    }),
+
+    // Validate path and update validation errors
+    validatePath: assign(({ event }) => {
+      if (event.type === "VALIDATE_PATH") {
+        const validationError = validatePagePath(event.path)
+
+        return {
+          pageValidationError: validationError,
+          pageValidationSuccess: validationError ? null : "Path is valid"
+        }
+      }
+      return {}
+    }),
+
+    // Update current URL in context
+    updateCurrentUrl: assign(({ event }) => {
+      if (event.type === "URL_CHANGED") {
+        try {
+          const urlData = normalizeUrl(event.url)
+          return {
+            currentUrl: {
+              normalized: urlData.hostname,
+              path: urlData.path,
+              hostname: urlData.hostname
+            },
+            // Clear validation messages when URL changes
+            pageValidationError: null,
+            pageValidationSuccess: null
+          }
+        } catch (error) {
+          return {
+            currentUrl: {
+              normalized: null,
+              path: null,
+              hostname: null
+            },
+            pageValidationError: (error as Error).message
+          }
+        }
+      }
+      return {}
+    }),
+
+    // Prepare page payload with normalized URL
+    preparePagePayload: assign(({ context, event }) => {
+      if (event.type === "ADD_PAGE" && context.currentUrl.path) {
+        // Hostname from the website's normalized_url (without protocol)
+        const hostname = event.website.normalized_url.replace(
+          /^https?:\/\//,
+          ""
+        )
+
+        // Return fully prepared payload with updated normalized_url
+        return {
+          pageValidationSuccess: checkPageExists(
+            context.pages,
+            context.currentUrl.path,
+            event.website.id
+          )
+            ? "Page already exists"
+            : "Page added successfully"
+        }
+      }
+      return {}
     })
+  },
+  guards: {
+    // Check if path is valid
+    isPathValid: ({ event }) => {
+      if (event.type === "VALIDATE_PATH") {
+        return validatePagePath(event.path) === null
+      }
+      return false
+    },
+
+    // Check if URL belongs to website
+    urlBelongsToWebsite: ({ context, event }) => {
+      if (event.type === "URL_CHANGED" && context.currentUrl.hostname) {
+        const websiteHost = event.website.normalized_url.replace(
+          /^https?:\/\//,
+          ""
+        )
+        return context.currentUrl.hostname === websiteHost
+      }
+      return false
+    },
+
+    // Check if page already exists
+    pageAlreadyExists: ({ context, event }) => {
+      if (event.type === "ADD_PAGE" && context.currentUrl.path) {
+        return checkPageExists(
+          context.pages,
+          context.currentUrl.path,
+          event.website.id
+        )
+      }
+      return false
+    }
   }
 }).createMachine({
   id: "page",
@@ -213,7 +430,14 @@ export const pageMachine = setup({
     pages: [],
     selectedPage: null,
     error: null,
-    websiteId: input.websiteId
+    websiteId: input.websiteId,
+    pageValidationError: null,
+    pageValidationSuccess: null,
+    currentUrl: {
+      normalized: null,
+      path: null,
+      hostname: null
+    }
   }),
   initial: "idle",
   states: {
@@ -222,6 +446,15 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: "updateWebsiteId"
+        },
+        URL_CHANGED: {
+          actions: "updateCurrentUrl"
+        },
+        VALIDATE_PATH: {
+          actions: "validatePath"
+        },
+        CLEAR_MESSAGES: {
+          actions: "clearMessages"
         }
       },
       always: [
@@ -249,6 +482,17 @@ export const pageMachine = setup({
         onError: {
           target: "error",
           actions: "setError"
+        }
+      },
+      on: {
+        URL_CHANGED: {
+          actions: "updateCurrentUrl"
+        },
+        VALIDATE_PATH: {
+          actions: "validatePath"
+        },
+        CLEAR_MESSAGES: {
+          actions: "clearMessages"
         }
       }
     },
@@ -278,7 +522,17 @@ export const pageMachine = setup({
           actions: "updateWebsiteId"
         },
         ADD_PAGE: {
-          target: "adding"
+          target: "adding",
+          actions: "preparePagePayload"
+        },
+        URL_CHANGED: {
+          actions: "updateCurrentUrl"
+        },
+        VALIDATE_PATH: {
+          actions: "validatePath"
+        },
+        CLEAR_MESSAGES: {
+          actions: "clearMessages"
         }
       }
     },
@@ -291,6 +545,15 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: ["updateWebsiteId", "clearError"]
+        },
+        URL_CHANGED: {
+          actions: "updateCurrentUrl"
+        },
+        VALIDATE_PATH: {
+          actions: "validatePath"
+        },
+        CLEAR_MESSAGES: {
+          actions: "clearMessages"
         }
       }
     },
@@ -300,9 +563,16 @@ export const pageMachine = setup({
         src: "addPage",
         input: ({ event }) => {
           if (event.type === "ADD_PAGE") {
-            return { payload: event.payload }
+            return {
+              payload: event.payload,
+              website: event.website
+            }
           }
-          return { payload: {} as PageInsert }
+          // Return empty objects with correct types if not ADD_PAGE event
+          return {
+            payload: {} as PageInsert,
+            website: {} as Website
+          }
         },
         onDone: {
           // Go back to success state instead of loading

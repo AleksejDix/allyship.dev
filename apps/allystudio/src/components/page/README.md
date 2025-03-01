@@ -47,6 +47,93 @@ The Page component uses XState for state management with the following key state
 - `SELECT_PAGE`: Select a specific page
 - `BACK`: Go back to the page list
 - `ADD_PAGE`: Add a new page to the current website
+- `VALIDATE_PATH`: Validate a path for adding a new page
+- `URL_CHANGED`: Handle when the current URL changes
+- `CLEAR_MESSAGES`: Clear validation messages
+
+## Business Logic
+
+The Page component centralizes business logic in the state machine to ensure consistent behavior across the application.
+
+### URL Validation
+
+URL validation is handled by dedicated functions and actions in the state machine:
+
+```typescript
+// In page-machine.ts
+const validatePagePath = (path: string): string | null => {
+  if (!path.startsWith("/")) {
+    return "Path must start with /"
+  }
+  if (path.includes("?") || path.includes("#")) {
+    return "Path cannot contain query parameters or fragments"
+  }
+  return null
+}
+```
+
+Components dispatch validation events rather than performing validation themselves:
+
+```typescript
+// In page-add.tsx
+pageActor.send({
+  type: "VALIDATE_PATH",
+  path
+})
+```
+
+### URL-Website Relationship
+
+The website machine handles checking if a URL belongs to a website:
+
+```typescript
+// In website-machine.ts
+function urlBelongsToWebsite(url: string, website: Website): boolean {
+  try {
+    const urlInfo = normalizeUrlUtil(url)
+    const urlDomain = urlInfo.domain
+    const websiteUrlInfo = normalizeUrlUtil(website.url)
+    const websiteDomain = websiteUrlInfo.domain
+    return urlDomain === websiteDomain
+  } catch (error) {
+    return false
+  }
+}
+```
+
+Components request validation through events:
+
+```typescript
+// In page-add.tsx
+websiteActor.send({
+  type: "VALIDATE_URL_OWNERSHIP",
+  url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`
+})
+```
+
+### Message Handling
+
+Success and error messages are managed centrally in the state machine context:
+
+```typescript
+// In page-machine.ts context
+pageValidationError: string | null
+pageValidationSuccess: string | null
+```
+
+Components retrieve these messages through selectors:
+
+```typescript
+// In page-add.tsx
+const { pageValidationError, pageValidationSuccess } = useSelector(
+  pageActor,
+  (state) => ({
+    pageValidationError: state.context.pageValidationError,
+    pageValidationSuccess: state.context.pageValidationSuccess
+  }),
+  Object.is
+)
+```
 
 ## URL Handling
 
@@ -123,6 +210,9 @@ function PageComponent() {
 3. Use the debug component during development to inspect state
 4. Follow the event-based pattern for state transitions
 5. Ensure normalized_url follows the hostname + path pattern for uniqueness
+6. Delegate business logic like validation to state machines
+7. Use the centralized URL utilities rather than implementing custom URL logic
+8. Let the website machine handle URL-website relationship checks
 
 ## Accessibility
 

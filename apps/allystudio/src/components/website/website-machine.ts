@@ -1,6 +1,5 @@
 import { supabase } from "@/core/supabase"
-import type { Database } from "@/types/database"
-import type { TablesInsert } from "@/types/database.types"
+import type { Database, TablesInsert } from "@/types/database.types"
 import { extractDomain, normalizeUrl as normalizeUrlUtil } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
@@ -15,6 +14,11 @@ type WebsiteContext = {
   currentWebsite: Website | null
   error: PostgrestError | null
   spaceId: string
+  urlValidation: {
+    isValid: boolean
+    belongsToCurrentWebsite: boolean
+    error: string | null
+  }
 }
 
 // Define user events
@@ -24,6 +28,7 @@ export type WebsiteEvent =
   | { type: "WEBSITE_SELECTED"; website: Website }
   | { type: "ADD_WEBSITE"; payload: WebsiteInsert }
   | { type: "MATCH_WEBSITE"; url: string }
+  | { type: "VALIDATE_URL_OWNERSHIP"; url: string }
 
 // Define event types for better typing
 type LoadWebsitesSuccessEvent = {
@@ -43,6 +48,30 @@ type AllEvents =
   | LoadWebsitesErrorEvent
   | { type: "done.invoke.addWebsite"; output: Website }
   | { type: "error.invoke.addWebsite"; error: PostgrestError }
+
+/**
+ * Checks if a URL belongs to a website
+ * @param url The URL to check
+ * @param website The website to check against
+ * @returns Whether the URL belongs to the website
+ */
+function urlBelongsToWebsite(url: string, website: Website): boolean {
+  try {
+    // Use the utility to normalize URLs
+    const urlInfo = normalizeUrlUtil(url)
+    const urlDomain = urlInfo.domain
+
+    // Normalize website URL
+    const websiteUrlInfo = normalizeUrlUtil(website.url)
+    const websiteDomain = websiteUrlInfo.domain
+
+    // Check if domains match
+    return urlDomain === websiteDomain
+  } catch (error) {
+    console.error("Error in urlBelongsToWebsite check:", error)
+    return false
+  }
+}
 
 // Actor to load websites from Supabase
 const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
@@ -208,6 +237,51 @@ export const websiteMachine = setup({
       return {}
     }),
 
+    // Validate if a URL belongs to the current website
+    validateUrlOwnership: assign(({ context, event }) => {
+      if (event.type === "VALIDATE_URL_OWNERSHIP") {
+        console.log("Validating URL ownership:", event.url)
+
+        if (!context.currentWebsite) {
+          return {
+            urlValidation: {
+              isValid: false,
+              belongsToCurrentWebsite: false,
+              error: "No website selected"
+            }
+          }
+        }
+
+        try {
+          // Normalize URL and check if it belongs to current website
+          const urlInfo = normalizeUrlUtil(event.url)
+          const belongsToWebsite = urlBelongsToWebsite(
+            event.url,
+            context.currentWebsite
+          )
+
+          return {
+            urlValidation: {
+              isValid: true,
+              belongsToCurrentWebsite: belongsToWebsite,
+              error: belongsToWebsite
+                ? null
+                : `This page belongs to ${urlInfo.hostname}, but you're currently on ${context.currentWebsite.normalized_url.replace(/^https?:\/\//, "")}`
+            }
+          }
+        } catch (error) {
+          return {
+            urlValidation: {
+              isValid: false,
+              belongsToCurrentWebsite: false,
+              error: (error as Error).message
+            }
+          }
+        }
+      }
+      return {}
+    }),
+
     // Update space ID when space changes
     updateSpaceId: assign(({ event }) => {
       if (event.type === "SPACE_CHANGED") {
@@ -219,6 +293,15 @@ export const websiteMachine = setup({
     // Clear error when refreshing
     clearError: assign({
       error: () => null
+    }),
+
+    // Reset URL validation
+    resetUrlValidation: assign({
+      urlValidation: {
+        isValid: false,
+        belongsToCurrentWebsite: false,
+        error: null
+      }
     })
   },
   guards: {
@@ -291,6 +374,14 @@ export const websiteMachine = setup({
         }
       }
       return false
+    },
+
+    // Check if a URL belongs to the current website
+    urlMatchesCurrentWebsite: ({ context, event }) => {
+      if (event.type === "VALIDATE_URL_OWNERSHIP" && context.currentWebsite) {
+        return urlBelongsToWebsite(event.url, context.currentWebsite)
+      }
+      return false
     }
   }
 }).createMachine({
@@ -299,7 +390,12 @@ export const websiteMachine = setup({
     websites: [],
     currentWebsite: null,
     error: null,
-    spaceId: input.spaceId
+    spaceId: input.spaceId,
+    urlValidation: {
+      isValid: false,
+      belongsToCurrentWebsite: false,
+      error: null
+    }
   }),
   initial: "loading",
   states: {
@@ -348,6 +444,9 @@ export const websiteMachine = setup({
         MATCH_WEBSITE: {
           // No matching possible in empty state
           // But we could potentially auto-add the website here
+        },
+        VALIDATE_URL_OWNERSHIP: {
+          actions: "validateUrlOwnership"
         }
       }
     },
@@ -383,6 +482,11 @@ export const websiteMachine = setup({
           target: "error",
           actions: "setError"
         }
+      },
+      on: {
+        VALIDATE_URL_OWNERSHIP: {
+          actions: "validateUrlOwnership"
+        }
       }
     },
     loaded: {
@@ -392,27 +496,33 @@ export const websiteMachine = setup({
           on: {
             WEBSITE_SELECTED: {
               target: "selected",
-              actions: "setCurrentWebsite"
+              actions: ["setCurrentWebsite", "resetUrlValidation"]
             },
             MATCH_WEBSITE: [
               {
                 guard: "hasMatchingWebsite",
                 target: "selected",
-                actions: "matchWebsite"
+                actions: ["matchWebsite", "resetUrlValidation"]
               }
-            ]
+            ],
+            VALIDATE_URL_OWNERSHIP: {
+              actions: "validateUrlOwnership"
+            }
           }
         },
         selected: {
           on: {
             WEBSITE_SELECTED: {
               target: "selected",
-              actions: "setCurrentWebsite"
+              actions: ["setCurrentWebsite", "resetUrlValidation"]
             },
             MATCH_WEBSITE: {
               // If already in selected state, only change selection if there's a match
               guard: "hasMatchingWebsite",
-              actions: "matchWebsite"
+              actions: ["matchWebsite", "resetUrlValidation"]
+            },
+            VALIDATE_URL_OWNERSHIP: {
+              actions: "validateUrlOwnership"
             }
           }
         }
@@ -420,7 +530,7 @@ export const websiteMachine = setup({
       on: {
         REFRESH: {
           target: "loading",
-          actions: "clearError"
+          actions: ["clearError", "resetUrlValidation"]
         }
       }
     },
@@ -428,13 +538,16 @@ export const websiteMachine = setup({
       on: {
         REFRESH: {
           target: "loading",
-          actions: "clearError"
+          actions: ["clearError", "resetUrlValidation"]
         },
         MATCH_WEBSITE: {
           // Allow matching even in error state
           guard: "hasMatchingWebsite",
           target: "loaded.selected",
-          actions: "matchWebsite"
+          actions: ["matchWebsite", "resetUrlValidation"]
+        },
+        VALIDATE_URL_OWNERSHIP: {
+          actions: "validateUrlOwnership"
         }
       }
     }
@@ -442,7 +555,7 @@ export const websiteMachine = setup({
   on: {
     SPACE_CHANGED: {
       target: ".loading",
-      actions: "updateSpaceId"
+      actions: ["updateSpaceId", "resetUrlValidation"]
     },
     ADD_WEBSITE: {
       target: ".adding"
