@@ -1,200 +1,111 @@
-# Space Component System
+# Space Component
 
-This directory contains the components and state machine for managing spaces in AllyStudio. The system uses XState for state management and follows a component-based architecture where each component is responsible for rendering itself based on the current state.
+## Overview
 
-## Architecture Overview
+The Space component is the top-level container in the Allyship Studio application's component hierarchy. It manages spaces, which are the highest-level organizational unit in the application, containing websites and their associated pages. The component uses XState for state management and React Context for sharing state with child components.
 
-The space system follows a state-driven architecture with the following key components:
+## Architecture
 
-- **State Machine**: Manages the state transitions and business logic
-- **Context Provider**: Provides the state machine to all child components
-- **State-specific Components**: Render UI based on specific states
-- **Orchestrator Component**: Composes all components together
+The Space component sits at the top of the component hierarchy:
 
-## Component Structure
-
-```mermaid
-graph TD
-    A[Space] --> B[SpaceContext]
-    B --> C[SpaceEmpty]
-    B --> D[SpaceOptions]
-    B --> E[SpaceSelected]
-    B --> F[SpaceDebug]
-    D --> G[SpaceOptionsDropdown]
+```
+Space → Website → Page
 ```
 
-## State Machine Flow
+All websites and pages exist within the context of a Space.
 
-The space machine manages the following states:
+### Key Files
 
-```mermaid
-stateDiagram-v2
-    [*] --> idle
-    idle --> loading: REFRESH
-    loading --> empty: hasNoSpaces
-    loading --> loaded.options: hasMultipleSpaces
-    loading --> loaded.selected: hasOneSpace
-    loading --> error: onError
+- `space.tsx`: Root component that sets up the context provider and renders child components based on state
+- `space-context.tsx`: Context provider and hooks for accessing the space state
+- `space-machine.ts`: XState machine that manages space state and side effects
+- `space-options.tsx`: Displays space selection options and management UI
+- `space-selected.tsx`: Displays the selected space and its content
+- `space-empty.tsx`: Empty state when no spaces exist
+- `space-debug.tsx`: Development tool for debugging space state
+- `space-options-dropdown.tsx`: Dropdown menu for space actions
 
-    empty --> loading: REFRESH
-    empty --> loaded.selected: SPACE_ADDED
+## State Management
 
-    loaded.options --> loaded.selected: SPACE_SELECTED
-    loaded.selected --> loaded.options: DESELECT
+The Space component uses XState for state management with the following key states:
 
-    error --> loading: REFRESH
+- `loading`: Initial state while loading spaces from the database
+- `error`: Error state when loading fails
+- `empty`: When no spaces exist in the system
+- `loaded`: When spaces have been successfully loaded
+  - `idle`: Spaces loaded but none selected
+  - `selected`: A specific space is selected
 
-    state loaded {
-        options --> selected: SPACE_SELECTED
-        selected --> options: DESELECT
-    }
-```
+### Events
 
-## Component Responsibilities
+- `REFRESH`: Refresh the list of spaces
+- `SPACE_SELECTED`: Select a specific space
+- `SPACE_ADDED`: A new space has been added
 
-### `space-machine.ts`
+## Usage
 
-Contains the XState state machine that manages the space selection flow. The machine handles:
-
-- Loading spaces from the database
-- Transitioning between states based on the number of spaces
-- Managing the current space selection
-- Handling errors during loading
-
-### `space-context.tsx`
-
-Provides the state machine actor to all child components using React Context. This allows components to:
-
-- Access the current state
-- Send events to the state machine
-- Subscribe to state changes
-
-### `space.tsx`
-
-The main orchestrator component that composes all space-related components. It:
-
-- Initializes the state machine
-- Provides the context to child components
-- Renders all state-specific components
-
-### `space-empty.tsx`
-
-Renders when no spaces are available. This component:
-
-- Only displays when the state is "empty"
-- Shows a card prompting the user to create a space
-
-### `space-options.tsx`
-
-Renders when multiple spaces are available and none is selected. This component:
-
-- Only displays when the state is "loaded.options"
-- Shows a list of available spaces
-- Allows the user to select a space
-
-### `space-selected.tsx`
-
-Renders when a space is selected. This component:
-
-- Only displays when the state is "loaded.selected"
-- Shows the currently selected space
-- Renders any child components (space content)
-
-### `space-options-dropdown.tsx`
-
-A dropdown component for selecting spaces. This component:
-
-- Can be used within the SpaceSelected component
-- Allows switching between spaces
-
-### `space-debug.tsx`
-
-A development component that shows the current state and context for debugging purposes.
-
-## Usage Example
+The Space component is designed to be used as a wrapper for the Website and Page components:
 
 ```tsx
-// In a page or layout
-import { Space } from "@/components/space/space"
-import { YourContent } from "@/components/your-content"
+<SpaceProvider>
+  <WebsiteProvider spaceId={spaceId}>
+    <PageProvider websiteId={websiteId}>
+      {/* Application content */}
+    </PageProvider>
+  </WebsiteProvider>
+</SpaceProvider>
+```
 
-export default function YourPage() {
-  return (
-    <Space>
-      <YourContent />
-    </Space>
-  )
+### Accessing Space State
+
+```tsx
+import { useSpaceContext } from "./space-context"
+
+function SpaceComponent() {
+  const spaceActor = useSpaceContext()
+  const spaceState = useSelector(spaceActor, (state) => state)
+
+  // Use space state...
 }
 ```
 
-## State Transitions
+## Data Flow
 
-1. **Initial Load**:
+1. The Space component loads spaces from the database
+2. The user selects a space, triggering a state change
+3. The Website component uses the selected space's ID to load associated websites
+4. The Page component uses the selected website's ID to load associated pages
 
-   - Starts in "idle" state
-   - Automatically transitions to "loading"
-   - Loads spaces from the database
+## Additional Features
 
-2. **Empty State**:
+In addition to the core space management, the Space component renders accessibility tools including:
 
-   - If no spaces are found, transitions to "empty"
-   - User can refresh or add a new space
+- Element Inspector
+- Element Outliner
+- Focus Order Visualizer
+- DOM Monitor Toggle
+- Application Header
 
-3. **Multiple Spaces**:
-
-   - If multiple spaces are found, transitions to "loaded.options"
-   - User selects a space to work with
-
-4. **Single Space**:
-
-   - If only one space is found, automatically transitions to "loaded.selected"
-   - The single space is automatically selected
-
-5. **Space Selected**:
-
-   - After selection, transitions to "loaded.selected"
-   - Shows the selected space and renders children
-
-6. **Error Handling**:
-   - If an error occurs during loading, transitions to "error"
-   - User can retry by refreshing
-
-## Implementation Details
-
-### State Checking Pattern
-
-Components check if they should render using the `state.matches()` method:
-
-```tsx
-const shouldRender = useSelector(actor, (state) =>
-  state.matches("empty") // or state.matches({ loaded: "options" })
-)
-
-if (!shouldRender) {
-  return null
-}
-```
-
-### Event Handling
-
-Components send events to the state machine using the `send` method:
-
-```tsx
-actor.send({ type: "SPACE_SELECTED", space })
-```
-
-### Context Access
-
-Components access the state machine context using selectors:
-
-```tsx
-const spaces = useSelector(actor, (state) => state.context.spaces)
-```
+These tools are available across the entire application regardless of the current space.
 
 ## Best Practices
 
-1. **State-Driven Rendering**: Components should only render when in the appropriate state
-2. **Single Responsibility**: Each component should handle one specific state
-3. **Centralized Logic**: Business logic should be in the state machine, not components
-4. **Minimal Props**: Avoid passing props between components, use the context instead
-5. **Type Safety**: Use TypeScript to ensure type safety for events and context
+1. Always access space state through the context hooks
+2. Handle loading and error states appropriately
+3. Use the debug component during development to inspect state
+4. Follow the event-based pattern for state transitions
+
+## Accessibility
+
+The Space component implements accessibility best practices:
+
+- Proper ARIA attributes for dynamic content
+- Loading indicators with appropriate ARIA roles
+- Error messages with role="alert"
+- Accessibility inspection tools for development
+
+## Related Components
+
+- `Website`: Child component that uses space context to load websites
+- `Page`: Grandchild component that relies on website context
+- Accessibility tools for inspecting and enhancing accessibility

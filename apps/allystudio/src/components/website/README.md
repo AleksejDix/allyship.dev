@@ -1,167 +1,113 @@
-# Website Component Architecture
+# Website Component
 
-This directory contains a set of components that implement a state machine-based architecture for managing websites within a space. The architecture follows the same pattern as the space components, providing a consistent approach to state management across the application.
+## Overview
 
-## Component Structure
+The Website component manages websites within a space in the Allyship Studio application. It sits between the Space and Page components in the component hierarchy, providing context for loading and managing websites. The component uses XState for state management and React Context for sharing state with child components.
 
-```mermaid
-graph TD
-    Website[Website] --> WebsiteProvider[WebsiteProvider]
-    WebsiteProvider --> WebsiteEmpty[WebsiteEmpty]
-    WebsiteProvider --> WebsiteOptions[WebsiteOptions]
-    WebsiteProvider --> WebsiteSelected[WebsiteSelected]
-    WebsiteProvider --> WebsiteDebug[WebsiteDebug]
-    WebsiteProvider --> WebsiteMachine[website-machine.ts]
-    WebsiteProvider --> WebsiteContext[website-context.tsx]
+## Architecture
+
+The Website component is in the middle of the component hierarchy:
+
+```
+Space → Website → Page
 ```
 
-## State Machine Flow
+Websites exist within a Space and contain Pages.
 
-```mermaid
-stateDiagram-v2
-    [*] --> loading
-    loading --> error: Error loading websites
-    loading --> empty: No websites found
-    loading --> loaded: Websites loaded
+### Key Files
 
-    error --> loading: REFRESH
+- `website.tsx`: Root component that sets up the context provider and renders child components based on state
+- `website-context.tsx`: Context provider and hooks for accessing the website state
+- `website-machine.ts`: XState machine that manages website state and side effects
+- `website-add.tsx`: Form for adding new websites
+- `website-selected.tsx`: Displays the selected website and its content
+- `website-empty.tsx`: Empty state when no websites exist
+- `website-debug.tsx`: Development tool for debugging website state
+- `website-options.tsx`: Displays website selection options and management UI
 
-    empty --> loading: REFRESH
-    empty --> adding: ADD_WEBSITE
+## State Management
 
-    loaded --> loading: REFRESH
-    loaded --> adding: ADD_WEBSITE
+The Website component uses XState for state management with the following key states:
 
-    state loaded {
-        [*] --> options
-        options --> selected: WEBSITE_SELECTED
-        selected --> selected: WEBSITE_SELECTED
-    }
+- `idle`: Initial state before any loading occurs
+- `loading`: Loading websites from the database
+- `error`: Error state when loading fails
+- `empty`: When no websites exist for the space
+- `loaded`: When websites have been successfully loaded
+- `selected`: When a specific website is selected
+- `adding`: When a new website is being added
 
-    adding --> error: Error adding website
-    adding --> loaded.selected: Website added successfully
+### Events
 
-    state "*" {
-        -- --> loading: SPACE_CHANGED
-    }
-```
+- `REFRESH`: Refresh the list of websites
+- `SPACE_CHANGED`: When the parent space changes
+- `WEBSITE_SELECTED`: Select a specific website
+- `ADD_WEBSITE`: Start adding a new website
+- `MATCH_WEBSITE`: Match a URL to an existing website
 
-## Components
+## Usage
 
-### `website-machine.ts`
-
-The core state machine that manages the website state. It handles loading websites, selecting a website, adding new websites, and handling errors. The machine includes the following states:
-
-- `loading`: Fetching websites from the database
-- `error`: An error occurred while loading or adding websites
-- `empty`: No websites found
-- `loaded`: Websites are loaded, with substates:
-  - `options`: Showing a list of websites to select
-  - `selected`: A website is selected
-- `adding`: Adding a new website
-
-### `website-context.tsx`
-
-Provides the context for the website state machine. It creates an actor from the machine and provides it to child components through React context.
-
-### `website.tsx`
-
-The main component that orchestrates the rendering of all other components based on the current state. It uses the `WebsiteProvider` to provide the state machine context to all child components.
-
-### `website-empty.tsx`
-
-Renders when there are no websites in the current space. Provides a form to add a new website.
-
-### `website-options.tsx`
-
-Renders a list of websites to select from when in the `loaded.options` state. Also provides a form to add a new website.
-
-### `website-selected.tsx`
-
-Renders when a website is selected, showing details about the selected website and providing actions like visiting the website or changing the selection.
-
-### `website-debug.tsx`
-
-A debug component that shows the current state and context of the website machine. Only visible in development mode.
-
-## Usage Example
+The Website component is designed to be used between the Space and Page components:
 
 ```tsx
-import { Website } from "@/components/website/website"
+<SpaceProvider>
+  <WebsiteProvider spaceId={spaceId}>
+    <PageProvider websiteId={websiteId}>
+      {/* Application content */}
+    </PageProvider>
+  </WebsiteProvider>
+</SpaceProvider>
+```
 
-export default function WebsitePage() {
-  return (
-    <div>
-      <h1>Website Management</h1>
-      <Website spaceId="space-123" debug={true}>
-        {/* Child components rendered when a website is selected */}
-        <div>Website-specific content goes here</div>
-      </Website>
-    </div>
-  )
+### Accessing Website State
+
+```tsx
+import { useWebsiteContext } from "./website-context"
+
+function WebsiteComponent() {
+  const websiteActor = useWebsiteContext()
+  const websiteState = useSelector(websiteActor, (state) => state)
+
+  // Use website state...
 }
 ```
 
-## State Transitions
+## Data Flow
 
-The website machine handles the following events:
+1. The Website component receives a space ID from the Space component
+2. It loads websites associated with that space
+3. When a website is selected, it provides the website ID to the Page component
+4. The Page component uses this ID to load pages for the selected website
 
-- `REFRESH`: Reload websites from the database
-- `ADD_WEBSITE`: Add a new website
-- `WEBSITE_SELECTED`: Select a website
-- `URL_CHANGED`: Update the current URL
-- `SPACE_CHANGED`: Change the current space
+## URL Integration
 
-## Implementation Details
+The Website component includes functionality for:
 
-### State Checking Pattern
-
-Each component checks if it should render based on the current state:
-
-```tsx
-const shouldRender = useSelector(
-  actor,
-  (state) => state.matches({ loaded: "options" }),
-  Object.is
-)
-
-if (!shouldRender) {
-  return null
-}
-```
-
-### Event Handling
-
-Events are sent to the machine using the actor's `send` method:
-
-```tsx
-const handleSelect = useCallback(
-  (website: Website) => {
-    actor.send({ type: "WEBSITE_SELECTED", website })
-  },
-  [actor]
-)
-```
-
-### Context Access
-
-Components access the machine's context using selectors:
-
-```tsx
-const website = useSelector(
-  actor,
-  (state) => state.context.currentWebsite,
-  Object.is
-)
-```
+- Normalizing URLs for consistent storage
+- Extracting domains from URLs
+- Adding new websites via URL input
+- Matching entered URLs to existing websites
 
 ## Best Practices
 
-1. **Use memoized selectors**: Always use `Object.is` comparison with `useSelector` to prevent unnecessary re-renders.
-2. **Use memo for components**: Wrap components with `memo` to prevent unnecessary re-renders.
-3. **Use useCallback for event handlers**: Memoize event handlers to prevent unnecessary recreations.
-4. **Check state before rendering**: Each component should check if it should render based on the current state.
-5. **Provide clear aria attributes**: Ensure all components are accessible with proper aria attributes.
-6. **Hide decorative icons**: Use `aria-hidden="true"` for decorative icons.
-7. **Use sr-only for screen reader text**: Provide additional context for screen readers using `sr-only` classes.
-8. **Use proper semantic HTML**: Use appropriate HTML elements for the content.
+1. Always access website state through the context hooks
+2. Handle loading and error states appropriately
+3. Use the debug component during development to inspect state
+4. Follow the event-based pattern for state transitions
+5. Normalize URLs before storing them
+6. Handle the space ID change appropriately
+
+## Accessibility
+
+The Website component implements accessibility best practices:
+
+- Proper ARIA attributes for dynamic content
+- Loading indicators with appropriate ARIA roles
+- Error messages with role="alert"
+- Focus management between website states
+
+## Related Components
+
+- `Space`: Parent component that provides space context
+- `Page`: Child component that uses website context
+- Form components for adding and editing websites

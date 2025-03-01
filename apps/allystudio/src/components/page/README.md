@@ -1,184 +1,98 @@
-# Page Components
+# Page Component
 
-This directory contains components for managing and displaying pages associated with a website in the Ally Studio application.
+## Overview
 
-## Architecture Overview
+The Page component provides functionality for managing and displaying pages associated with a website in the Allyship Studio application. It uses XState for state management and React Context for passing state throughout the component tree.
 
-The page components follow a state machine architecture using XState. The components are structured to handle different states of the page data lifecycle (loading, success, error) and render appropriate UI for each state.
+## Architecture
 
-```mermaid
-graph TD
-    A[Page Component] --> B[PageProvider]
-    B --> C[State Machine]
-    C -->|loading| D[Skeleton/PageListSkeleton]
-    C -->|error| E[PageError]
-    C -->|success.list + no pages| F[PageListEmpty]
-    C -->|success.list + has pages| G[PageList]
-    C -->|success.selected| H[PageSelected]
-    C -->|debug| I[PageDebug]
+The Page component follows a state machine architecture using XState:
+
+```
+Space → Website → Page
 ```
 
-## Component Hierarchy
+Pages exist within the context of a Website, which exists within a Space.
 
-Each component is responsible for its own visibility based on the current state of the page machine:
+### Key Files
 
-```mermaid
-graph TD
-    A[Page] --> B[PageProvider]
-    B --> C[Skeleton]
-    B --> D[PageError]
-    B --> E[PageList]
-    B --> F[PageListEmpty]
-    B --> G[PageListSkeleton]
-    B --> H[PageSelected]
-    B --> I[Children]
-    B --> J[PageDebug]
-```
-
-## State Machine
-
-The page machine manages the state of pages for a selected website. It handles loading pages, error states, and successful data fetching, as well as page selection.
-
-```mermaid
-stateDiagram-v2
-    [*] --> idle
-    idle --> loading: LOAD_PAGES
-    loading --> success: done.invoke.loadPages
-    loading --> error: error.platform.loadPages
-    error --> loading: RETRY
-
-    state success {
-        [*] --> list
-        list --> selected: SELECT_PAGE
-        selected --> list: BACK
-    }
-
-    success --> loading: REFRESH
-    idle --> loading: WEBSITE_CHANGED
-```
-
-## Component Responsibilities
-
-### Page
-
-The root component that sets up the machine and provider. It only renders when a website is selected.
-
-```mermaid
-flowchart LR
-    A[Website Context] -->|currentWebsite| B[Page]
-    B -->|websiteId| C[PageProvider]
-```
-
-### PageProvider
-
-Provides the page machine context to all child components.
-
-### PageList
-
-Displays the list of pages when in the success.list state and there are pages to display. Allows selecting a page to view details.
-
-### PageSelected
-
-Displays the details of a selected page when in the success.selected state.
-
-### PageListEmpty
-
-Displays a message when in the success.list state but there are no pages.
-
-### PageError
-
-Displays an error message when in the error state.
-
-### Skeleton & PageListSkeleton
-
-Display loading indicators when in the loading or idle state.
-
-### PageDebug
-
-Displays debugging information about the current state of the page machine.
-
-## Data Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Page
-    participant PageMachine
-    participant Supabase
-
-    User->>Page: Select Website
-    Page->>PageMachine: Create with websiteId
-    PageMachine->>PageMachine: LOAD_PAGES event
-    PageMachine->>Supabase: Query pages for website
-    Supabase-->>PageMachine: Return pages data
-    PageMachine-->>Page: Update state to success.list
-    Page->>User: Render page list
-
-    User->>PageList: Click on a page
-    PageList->>PageMachine: SELECT_PAGE event
-    PageMachine-->>PageMachine: Update state to success.selected
-    PageMachine-->>PageSelected: Render selected page
-    PageSelected->>User: Show page details
-
-    User->>PageSelected: Click back button
-    PageSelected->>PageMachine: BACK event
-    PageMachine-->>PageMachine: Update state to success.list
-    PageMachine-->>PageList: Render page list again
-```
+- `page.tsx`: Root component that sets up the context provider and renders child components based on state
+- `page-context.tsx`: Context provider and hooks for accessing the page state
+- `page-machine.ts`: XState machine that manages page state and side effects
+- `page-list.tsx`: Displays a list of pages for the selected website
+- `page-selected.tsx`: Displays the selected page and its content
+- `page-skeleton.tsx`: Loading states for page components
+- `page-error.tsx`: Error handling component
+- `page-list-empty.tsx`: Empty state when no pages exist
+- `page-debug.tsx`: Development tool for debugging page state
 
 ## State Management
 
-The page machine has the following states:
+The Page component uses XState for state management with the following key states:
 
-1. **idle**: Initial state before any pages are loaded
-2. **loading**: Actively fetching pages from the database
-3. **success**: Pages successfully loaded
-   - **list**: Displaying the list of pages
-   - **selected**: Displaying a selected page's details
-4. **error**: An error occurred while loading pages
+- `idle`: Initial state before any loading occurs
+- `loading`: Loading pages from the database
+- `error`: Error state when loading fails
+- `empty`: When no pages exist for the website
+- `loaded`: When pages have been successfully loaded
+- `selected`: When a specific page is selected
 
-Each component checks the current state and only renders when appropriate:
+### Events
 
-```mermaid
-flowchart TD
-    A[Page Machine State] -->|loading| B[Skeleton Components]
-    A -->|error| C[PageError Component]
-    A -->|success.list + pages.length > 0| D[PageList Component]
-    A -->|success.list + pages.length === 0| E[PageListEmpty Component]
-    A -->|success.selected| F[PageSelected Component]
-```
+- `LOAD_PAGES`: Trigger loading pages for a website
+- `WEBSITE_CHANGED`: When the parent website changes
+- `RETRY`: Retry loading after an error
+- `SELECT_PAGE`: Select a specific page
+- `BACK`: Go back to the page list
 
 ## Usage
 
-```tsx
-// In a parent component
-import { Page } from "@/components/page/page"
+The Page component is designed to be used within the Website component:
 
-function WebsiteDetails() {
-  return (
-    <Page debug={process.env.NODE_ENV === "development"}>
-      {/* Additional content that will be rendered inside PageSelected */}
-    </Page>
-  )
+```tsx
+<WebsiteProvider spaceId={spaceId}>
+  <PageProvider websiteId={websiteId}>{/* Page content */}</PageProvider>
+</WebsiteProvider>
+```
+
+### Accessing Page State
+
+```tsx
+import { usePageContext } from "./page-context"
+
+function PageComponent() {
+  const pageActor = usePageContext()
+  const pageState = useSelector(pageActor, (state) => state)
+
+  // Use page state...
 }
 ```
 
-## Events
+## Data Flow
 
-The page machine responds to the following events:
+1. The Space component provides a Space context
+2. The Website component consumes the Space context and provides a Website context
+3. The Page component consumes the Website context and provides a Page context
+4. Child components consume the Page context to render UI based on the current state
 
-- **LOAD_PAGES**: Triggers loading of pages for the current website
-- **REFRESH**: Refreshes the current list of pages
-- **RETRY**: Retries loading pages after an error
-- **WEBSITE_CHANGED**: Triggered when the selected website changes
-- **SELECT_PAGE**: Selects a page to view its details
-- **BACK**: Returns from the selected page to the page list
+## Best Practices
 
-## Context
+1. Always access page state through the context hooks
+2. Handle loading and error states appropriately
+3. Use the debug component during development to inspect state
+4. Follow the event-based pattern for state transitions
 
-The page machine context contains:
+## Accessibility
 
-- **websiteId**: ID of the current website
-- **pages**: Array of page objects
-- **selectedPage**: Currently selected page (or null if none selected)
-- **error**: Error object if an error occurred
+The Page component implements accessibility best practices:
+
+- Proper ARIA attributes for dynamic content
+- Loading indicators with appropriate ARIA roles
+- Error messages with role="alert"
+- Focus management between page states
+
+## Related Components
+
+- `Space`: Parent component that provides space context
+- `Website`: Intermediary component that provides website context within a space
+- Child components that consume page context
