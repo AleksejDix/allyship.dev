@@ -11,7 +11,7 @@ export function PagePathWatcher() {
     if (!normalizedUrl) return
 
     pageActor.send({
-      type: "PATH_CHANGED",
+      type: "URL_CHANGED",
       normalizedUrl
     })
   }, [normalizedUrl])

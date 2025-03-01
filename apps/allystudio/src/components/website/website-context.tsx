@@ -1,3 +1,4 @@
+import { type NormalizedUrl } from "@/utils/url"
 import { useActorRef } from "@xstate/react"
 import {
   createContext,
@@ -7,6 +8,7 @@ import {
   type ReactNode
 } from "react"
 
+import { WebsiteHostnameWatcher } from "./website-hostname-watcher"
 import { websiteMachine } from "./website-machine"
 import type { WebsiteMachineActorRef } from "./website-machine"
 
@@ -16,14 +18,17 @@ const WebsiteContext = createContext<WebsiteMachineActorRef | undefined>(
 
 export function WebsiteProvider({
   children,
-  spaceId
+  spaceId,
+  normalizedUrl
 }: {
   children: ReactNode
   spaceId: string
+  normalizedUrl: NormalizedUrl | null
 }) {
   const actorRef = useActorRef(websiteMachine, {
     input: {
-      spaceId
+      spaceId,
+      normalizedUrl
     }
   })
 
@@ -44,6 +49,7 @@ export function WebsiteProvider({
 
   return (
     <WebsiteContext.Provider value={actorRef}>
+      <WebsiteHostnameWatcher />
       {children}
     </WebsiteContext.Provider>
   )

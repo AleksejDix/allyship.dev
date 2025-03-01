@@ -23,7 +23,7 @@ export type PageEvent =
   | { type: "SELECT_PAGE"; pageId: string }
   | { type: "BACK" }
   | { type: "ADD_PAGE"; payload: PageInsert; website: Website }
-  | { type: "PATH_CHANGED"; normalizedUrl: NormalizedUrl }
+  | { type: "URL_CHANGED"; normalizedUrl: NormalizedUrl }
 
 const checkPageExists = (
   pages: Page[],
@@ -136,11 +136,8 @@ export const pageMachine = setup({
     addPage: addPageActor
   },
   actions: {
-    logPathChange: assign(({ event }) => {
-      return {}
-    }),
     setSelectedPageByPath: assign(({ context, event }) => {
-      if (event.type === "PATH_CHANGED") {
+      if (event.type === "URL_CHANGED") {
         const normalizedUrl = event.normalizedUrl.full
         const page = context.pages.find(
           (p) => p.normalized_url === normalizedUrl
@@ -367,8 +364,8 @@ export const pageMachine = setup({
       target: ".loading",
       actions: "updateWebsiteId"
     },
-    PATH_CHANGED: {
-      actions: "setSelectedPageByPath"
+    URL_CHANGED: {
+      actions: ["setSelectedPageByPath"]
     }
   }
 })

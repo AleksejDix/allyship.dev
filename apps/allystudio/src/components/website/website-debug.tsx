@@ -21,7 +21,7 @@ export const WebsiteDebug = memo(function WebsiteDebug() {
       </div>
       <div>
         <strong>Context:</strong>
-        <pre>{JSON.stringify(context, null, 2)}</pre>
+        current:<pre>{JSON.stringify(context, null, 2)}</pre>
       </div>
     </div>
   )

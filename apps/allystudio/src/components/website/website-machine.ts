@@ -1,6 +1,6 @@
 import { supabase } from "@/core/supabase"
 import type { Database, TablesInsert } from "@/types/database.types"
-import { extractDomain, normalizeUrl as normalizeUrlUtil } from "@/utils/url"
+import { type NormalizedUrl } from "@/utils/url"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 
@@ -14,21 +14,15 @@ type WebsiteContext = {
   currentWebsite: Website | null
   error: PostgrestError | null
   spaceId: string
-  urlValidation: {
-    isValid: boolean
-    belongsToCurrentWebsite: boolean
-    error: string | null
-  }
 }
 
 // Define user events
 export type WebsiteEvent =
   | { type: "REFRESH" }
   | { type: "SPACE_CHANGED"; spaceId: string }
-  | { type: "WEBSITE_SELECTED"; website: Website }
+  | { type: "WEBSITE_SELECTED"; websiteId: string }
   | { type: "ADD_WEBSITE"; payload: WebsiteInsert }
-  | { type: "MATCH_WEBSITE"; url: string }
-  | { type: "VALIDATE_URL_OWNERSHIP"; url: string }
+  | { type: "URL_CHANGED"; normalizedUrl: NormalizedUrl }
 
 // Define event types for better typing
 type LoadWebsitesSuccessEvent = {
@@ -49,35 +43,9 @@ type AllEvents =
   | { type: "done.invoke.addWebsite"; output: Website }
   | { type: "error.invoke.addWebsite"; error: PostgrestError }
 
-/**
- * Checks if a URL belongs to a website
- * @param url The URL to check
- * @param website The website to check against
- * @returns Whether the URL belongs to the website
- */
-function urlBelongsToWebsite(url: string, website: Website): boolean {
-  try {
-    // Use the utility to normalize URLs
-    const urlInfo = normalizeUrlUtil(url)
-    const urlDomain = urlInfo.domain
-
-    // Normalize website URL
-    const websiteUrlInfo = normalizeUrlUtil(website.url)
-    const websiteDomain = websiteUrlInfo.domain
-
-    // Check if domains match
-    return urlDomain === websiteDomain
-  } catch (error) {
-    console.error("Error in urlBelongsToWebsite check:", error)
-    return false
-  }
-}
-
 // Actor to load websites from Supabase
 const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
   async ({ input }) => {
-    console.log("Loading websites for space:", input.spaceId)
-
     const { data, error } = await supabase
       .from("Website")
       .select("*")
@@ -88,7 +56,6 @@ const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
       throw error
     }
 
-    console.log("Loaded websites data:", data, "length:", data?.length ?? 0)
     return data ?? []
   }
 )
@@ -97,8 +64,6 @@ const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
 const addWebsiteActor = fromPromise<Website, { payload: WebsiteInsert }>(
   async ({ input }) => {
     try {
-      console.log("Adding website with payload:", input.payload)
-
       // Insert the new website
       const { data, error } = await supabase
         .from("Website")
@@ -108,14 +73,11 @@ const addWebsiteActor = fromPromise<Website, { payload: WebsiteInsert }>(
         .single()
 
       if (error) {
-        console.error("Error adding website:", error)
         throw error
       }
 
-      console.log("Added website:", data)
       return data
     } catch (error) {
-      console.error("Error adding website:", error)
       throw error
     }
   }
@@ -126,21 +88,39 @@ export const websiteMachine = setup({
   types: {
     context: {} as WebsiteContext,
     events: {} as AllEvents,
-    input: {} as { spaceId: string }
+    input: {} as { spaceId: string; normalizedUrl: NormalizedUrl | null }
   },
   actors: {
     loadWebsites: loadWebsitesActor,
     addWebsite: addWebsiteActor
   },
   actions: {
+    // Set current website by hostname (URL-based matching)
+    setCurrentWebsiteByHostname: assign(({ context, event }) => {
+      if (event.type === "URL_CHANGED") {
+        console.log("URL_CHANGED event received:", event.normalizedUrl)
+        const hostname = event.normalizedUrl.hostname
+
+        const website = context.websites.find(
+          (website) => website.normalized_url === hostname
+        )
+
+        console.log("Matched website:", website || "No match found")
+        return {
+          currentWebsite: website || null
+        }
+      }
+      return {}
+    }),
+
     // Set websites in context when loaded successfully
     setWebsites: assign(({ event }) => {
       // Check if this is a done event from an actor
       if (event.type.startsWith("xstate.done") && "output" in event) {
         const websites = event.output as Website[]
-        console.log("Setting websites:", websites, "length:", websites.length)
         return {
-          websites: websites
+          websites: websites,
+          error: null // Clear any errors
         }
       }
       return {}
@@ -150,7 +130,6 @@ export const websiteMachine = setup({
     setError: assign(({ event }) => {
       // Check if this is an error event from an actor
       if (event.type.startsWith("xstate.error") && "error" in event) {
-        console.log("Setting error:", event.error)
         return {
           error: event.error as PostgrestError
         }
@@ -158,10 +137,20 @@ export const websiteMachine = setup({
       return {}
     }),
 
-    // Set the current website when selected
-    setCurrentWebsite: assign(({ event }) => {
+    // Set website by ID (manual selection)
+    setCurrentWebsiteById: assign(({ context, event }) => {
       if (event.type === "WEBSITE_SELECTED") {
-        return { currentWebsite: event.website }
+        const website =
+          context.websites.find((w) => w.id === event.websiteId) || null
+        return { currentWebsite: website }
+      }
+      return {}
+    }),
+
+    // Set the only website (when there's just one)
+    setOnlyWebsite: assign(({ context }) => {
+      if (context.websites.length === 1) {
+        return { currentWebsite: context.websites[0] }
       }
       return {}
     }),
@@ -171,112 +160,10 @@ export const websiteMachine = setup({
       // Check if this is a done event from an actor
       if (event.type.startsWith("xstate.done") && "output" in event) {
         const newWebsite = event.output as Website
-        console.log("Adding new website:", newWebsite)
         return {
           websites: [...context.websites, newWebsite],
-          currentWebsite: newWebsite
-        }
-      }
-      return {}
-    }),
-
-    // Auto-select the first website if there's only one
-    autoSelectSingleWebsite: assign(({ context, event }) => {
-      // Check if this is a done event from an actor
-      if (event.type.startsWith("xstate.done") && "output" in event) {
-        const websites = event.output as Website[]
-        if (websites.length === 1) {
-          return { currentWebsite: websites[0] }
-        }
-      }
-      return {}
-    }),
-
-    // Match and select a website based on URL
-    matchWebsite: assign(({ context, event }) => {
-      if (event.type === "MATCH_WEBSITE") {
-        console.log("Matching website URL:", event.url)
-
-        try {
-          // Use the utility to normalize URLs
-          const eventUrlInfo = normalizeUrlUtil(event.url)
-          const eventDomain = eventUrlInfo.domain
-
-          console.log("Normalized event URL domain:", eventDomain)
-
-          // Find a matching website
-          const matchedWebsite = context.websites.find((website) => {
-            try {
-              const websiteUrlInfo = normalizeUrlUtil(website.url)
-              const websiteDomain = websiteUrlInfo.domain
-
-              console.log("Comparing with website domain:", websiteDomain)
-
-              // Match if domains are the same
-              return eventDomain === websiteDomain
-            } catch (error) {
-              console.error(
-                "Error normalizing website URL:",
-                website.url,
-                error
-              )
-              return false
-            }
-          })
-
-          if (matchedWebsite) {
-            console.log("Found matching website:", matchedWebsite)
-            return { currentWebsite: matchedWebsite }
-          } else {
-            console.log("No matching website found for domain:", eventDomain)
-          }
-        } catch (error) {
-          console.error("Error normalizing event URL:", event.url, error)
-        }
-      }
-      return {}
-    }),
-
-    // Validate if a URL belongs to the current website
-    validateUrlOwnership: assign(({ context, event }) => {
-      if (event.type === "VALIDATE_URL_OWNERSHIP") {
-        console.log("Validating URL ownership:", event.url)
-
-        if (!context.currentWebsite) {
-          return {
-            urlValidation: {
-              isValid: false,
-              belongsToCurrentWebsite: false,
-              error: "No website selected"
-            }
-          }
-        }
-
-        try {
-          // Normalize URL and check if it belongs to current website
-          const urlInfo = normalizeUrlUtil(event.url)
-          const belongsToWebsite = urlBelongsToWebsite(
-            event.url,
-            context.currentWebsite
-          )
-
-          return {
-            urlValidation: {
-              isValid: true,
-              belongsToCurrentWebsite: belongsToWebsite,
-              error: belongsToWebsite
-                ? null
-                : `This page belongs to ${urlInfo.hostname}, but you're currently on ${context.currentWebsite.normalized_url.replace(/^https?:\/\//, "")}`
-            }
-          }
-        } catch (error) {
-          return {
-            urlValidation: {
-              isValid: false,
-              belongsToCurrentWebsite: false,
-              error: (error as Error).message
-            }
-          }
+          currentWebsite: newWebsite,
+          error: null // Clear any errors
         }
       }
       return {}
@@ -285,7 +172,10 @@ export const websiteMachine = setup({
     // Update space ID when space changes
     updateSpaceId: assign(({ event }) => {
       if (event.type === "SPACE_CHANGED") {
-        return { spaceId: event.spaceId }
+        return {
+          spaceId: event.spaceId,
+          currentWebsite: null // Clear current website when space changes
+        }
       }
       return {}
     }),
@@ -295,94 +185,20 @@ export const websiteMachine = setup({
       error: () => null
     }),
 
-    // Reset URL validation
-    resetUrlValidation: assign({
-      urlValidation: {
-        isValid: false,
-        belongsToCurrentWebsite: false,
-        error: null
-      }
+    // Clear selected website
+    clearCurrentWebsite: assign({
+      currentWebsite: () => null
     })
   },
   guards: {
-    // Check if there are no websites in the event output
-    hasNoWebsites: ({ event }) => {
-      if (event.type.startsWith("xstate.done") && "output" in event) {
-        const websites = event.output as Website[]
-        console.log(
-          "hasNoWebsites check from event:",
-          websites,
-          "length:",
-          websites.length
-        )
-        return websites.length === 0
-      }
-      return false
-    },
+    // Check if there are websites
+    hasWebsites: ({ context }) => context.websites.length > 0,
 
-    // Check if there is exactly one website in the event output
-    hasOneWebsite: ({ event }) => {
-      if (event.type.startsWith("xstate.done") && "output" in event) {
-        const websites = event.output as Website[]
-        console.log(
-          "hasOneWebsite check from event:",
-          websites,
-          "length:",
-          websites.length
-        )
-        return websites.length === 1
-      }
-      return false
-    },
+    // Check if there's exactly one website
+    hasOnlyOneWebsite: ({ context }) => context.websites.length === 1,
 
-    // Check if there are multiple websites in the event output
-    hasMultipleWebsites: ({ event }) => {
-      if (event.type.startsWith("xstate.done") && "output" in event) {
-        const websites = event.output as Website[]
-        console.log(
-          "hasMultipleWebsites check from event:",
-          websites,
-          "length:",
-          websites.length
-        )
-        return websites.length > 1
-      }
-      return false
-    },
-
-    // Check if a website matches the URL
-    hasMatchingWebsite: ({ context, event }) => {
-      if (event.type === "MATCH_WEBSITE") {
-        try {
-          // Use the utility to normalize URLs
-          const eventUrlInfo = normalizeUrlUtil(event.url)
-          const eventDomain = eventUrlInfo.domain
-
-          return context.websites.some((website) => {
-            try {
-              const websiteUrlInfo = normalizeUrlUtil(website.url)
-              const websiteDomain = websiteUrlInfo.domain
-
-              // Match if domains are the same
-              return eventDomain === websiteDomain
-            } catch (error) {
-              return false
-            }
-          })
-        } catch (error) {
-          return false
-        }
-      }
-      return false
-    },
-
-    // Check if a URL belongs to the current website
-    urlMatchesCurrentWebsite: ({ context, event }) => {
-      if (event.type === "VALIDATE_URL_OWNERSHIP" && context.currentWebsite) {
-        return urlBelongsToWebsite(event.url, context.currentWebsite)
-      }
-      return false
-    }
+    // Check if current website is set
+    hasCurrentWebsite: ({ context }) => context.currentWebsite !== null
   }
 }).createMachine({
   id: "website",
@@ -390,63 +206,80 @@ export const websiteMachine = setup({
     websites: [],
     currentWebsite: null,
     error: null,
-    spaceId: input.spaceId,
-    urlValidation: {
-      isValid: false,
-      belongsToCurrentWebsite: false,
-      error: null
-    }
+    spaceId: input.spaceId
   }),
   initial: "loading",
   states: {
     loading: {
-      entry: ({ context }) => {
-        console.log("Entered loading state with spaceId:", context.spaceId)
-      },
       invoke: {
         id: "loadWebsites",
         src: "loadWebsites",
         input: ({ context }) => ({ spaceId: context.spaceId }),
-        onDone: [
-          {
-            guard: "hasNoWebsites",
-            target: "empty",
-            actions: "setWebsites"
-          },
-          {
-            guard: "hasOneWebsite",
-            target: "loaded.selected",
-            actions: ["setWebsites", "autoSelectSingleWebsite"]
-          },
-          {
-            guard: "hasMultipleWebsites",
-            target: "loaded.options",
-            actions: "setWebsites"
-          },
-          {
-            // Default case if no guard matches
-            target: "empty",
-            actions: "setWebsites"
-          }
-        ],
+        onDone: {
+          target: "success",
+          actions: "setWebsites"
+        },
         onError: {
           target: "error",
           actions: "setError"
         }
       }
     },
-    empty: {
+    success: {
+      initial: "list",
+      entry: ["setOnlyWebsite"],
+      states: {
+        list: {
+          on: {
+            WEBSITE_SELECTED: {
+              target: "selected",
+              actions: "setCurrentWebsiteById"
+            }
+          },
+          always: [
+            // Auto-transition to selected if there's only one website
+            {
+              guard: "hasOnlyOneWebsite",
+              target: "selected"
+            },
+            // Auto-transition to selected if current website is set
+            {
+              guard: "hasCurrentWebsite",
+              target: "selected"
+            }
+          ]
+        },
+        selected: {
+          on: {
+            REFRESH: {
+              target: "#website.loading",
+              actions: "clearError"
+            }
+          },
+          // Go back to list if current website becomes null
+          always: [
+            {
+              guard: ({ context }) => context.currentWebsite === null,
+              target: "list"
+            }
+          ]
+        }
+      },
       on: {
         REFRESH: {
           target: "loading",
           actions: "clearError"
         },
-        MATCH_WEBSITE: {
-          // No matching possible in empty state
-          // But we could potentially auto-add the website here
-        },
-        VALIDATE_URL_OWNERSHIP: {
-          actions: "validateUrlOwnership"
+        ADD_WEBSITE: {
+          target: "adding"
+        }
+      }
+    },
+    error: {
+      on: {
+        REFRESH: {
+          target: "loading",
+          actions: "clearError"
         }
       }
     },
@@ -457,97 +290,19 @@ export const websiteMachine = setup({
         input: ({ context, event }) => {
           // Make sure we're handling the ADD_WEBSITE event
           if (event.type === "ADD_WEBSITE") {
-            console.log(
-              "Processing ADD_WEBSITE event with payload:",
-              event.payload
-            )
             return { payload: event.payload }
           }
-
-          // Fallback with more detailed logging
-          console.warn(
-            "Unexpected event in adding state:",
-            JSON.stringify(event)
-          )
-          console.warn("Current context:", JSON.stringify(context))
 
           // Return a default payload to prevent errors
           return { payload: { url: "", space_id: context.spaceId } }
         },
         onDone: {
-          target: "loading",
+          target: "success.selected",
           actions: "addNewWebsite"
         },
         onError: {
           target: "error",
           actions: "setError"
-        }
-      },
-      on: {
-        VALIDATE_URL_OWNERSHIP: {
-          actions: "validateUrlOwnership"
-        }
-      }
-    },
-    loaded: {
-      initial: "options",
-      states: {
-        options: {
-          on: {
-            WEBSITE_SELECTED: {
-              target: "selected",
-              actions: ["setCurrentWebsite", "resetUrlValidation"]
-            },
-            MATCH_WEBSITE: [
-              {
-                guard: "hasMatchingWebsite",
-                target: "selected",
-                actions: ["matchWebsite", "resetUrlValidation"]
-              }
-            ],
-            VALIDATE_URL_OWNERSHIP: {
-              actions: "validateUrlOwnership"
-            }
-          }
-        },
-        selected: {
-          on: {
-            WEBSITE_SELECTED: {
-              target: "selected",
-              actions: ["setCurrentWebsite", "resetUrlValidation"]
-            },
-            MATCH_WEBSITE: {
-              // If already in selected state, only change selection if there's a match
-              guard: "hasMatchingWebsite",
-              actions: ["matchWebsite", "resetUrlValidation"]
-            },
-            VALIDATE_URL_OWNERSHIP: {
-              actions: "validateUrlOwnership"
-            }
-          }
-        }
-      },
-      on: {
-        REFRESH: {
-          target: "loading",
-          actions: ["clearError", "resetUrlValidation"]
-        }
-      }
-    },
-    error: {
-      on: {
-        REFRESH: {
-          target: "loading",
-          actions: ["clearError", "resetUrlValidation"]
-        },
-        MATCH_WEBSITE: {
-          // Allow matching even in error state
-          guard: "hasMatchingWebsite",
-          target: "loaded.selected",
-          actions: ["matchWebsite", "resetUrlValidation"]
-        },
-        VALIDATE_URL_OWNERSHIP: {
-          actions: "validateUrlOwnership"
         }
       }
     }
@@ -555,10 +310,10 @@ export const websiteMachine = setup({
   on: {
     SPACE_CHANGED: {
       target: ".loading",
-      actions: ["updateSpaceId", "resetUrlValidation"]
+      actions: "updateSpaceId"
     },
-    ADD_WEBSITE: {
-      target: ".adding"
+    URL_CHANGED: {
+      actions: "setCurrentWebsiteByHostname"
     }
   }
 })

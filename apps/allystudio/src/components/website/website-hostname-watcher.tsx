@@ -8,13 +8,20 @@ export function WebsiteHostnameWatcher() {
   const { normalizedUrl } = useCurrentUrl()
 
   useEffect(() => {
-    if (!normalizedUrl) return
+    // Only send the event if there's a valid normalizedUrl with a hostname
+    if (!normalizedUrl?.hostname) return
+
+    console.log(
+      "WebsiteHostnameWatcher sending URL_CHANGED with hostname:",
+      normalizedUrl.hostname
+    )
+    console.log("Full normalizedUrl structure:", normalizedUrl)
 
     actor.send({
-      type: "HOSTNAME_CHANGED",
+      type: "URL_CHANGED",
       normalizedUrl
     })
-  }, [normalizedUrl])
+  }, [normalizedUrl, actor])
 
   return null // This is a non-rendering component
 }
