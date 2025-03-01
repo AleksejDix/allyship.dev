@@ -69,6 +69,13 @@ export function PageAdd() {
     return null
   }
 
+  // Check if the current URL belongs to the selected website
+  const currentUrlBelongsToWebsite =
+    normalizedUrl && currentWebsite
+      ? normalizedUrl.hostname ===
+        currentWebsite.normalized_url.replace(/^https?:\/\//, "")
+      : false
+
   // Check if the current page already exists in our local state
   // This is just for UI feedback, the database will handle duplicates
   const currentPath = normalizedUrl?.path || ""
@@ -79,6 +86,15 @@ export function PageAdd() {
 
   const handleAddPage = useCallback(() => {
     if (!currentWebsite || !normalizedUrl?.path) {
+      return
+    }
+
+    // Check if the current URL belongs to the current website
+    if (!currentUrlBelongsToWebsite) {
+      setError(
+        `This page belongs to ${normalizedUrl.hostname}, but you're currently on ${currentWebsite.normalized_url.replace(/^https?:\/\//, "")}`
+      )
+      setSuccess(null)
       return
     }
 
@@ -131,7 +147,8 @@ export function PageAdd() {
     normalizedUrl,
     pageActor,
     validatePath,
-    pageAlreadyExists
+    pageAlreadyExists,
+    currentUrlBelongsToWebsite
   ])
 
   if (!currentWebsite) {
@@ -139,7 +156,12 @@ export function PageAdd() {
   }
 
   // Determine button state
-  const isAddDisabled = isLoading || !normalizedUrl?.path || !!error || isAdding
+  const isAddDisabled =
+    isLoading ||
+    !normalizedUrl?.path ||
+    !!error ||
+    isAdding ||
+    !currentUrlBelongsToWebsite
 
   let buttonLabel = "Add Current Page"
 
@@ -149,6 +171,8 @@ export function PageAdd() {
     buttonLabel = "Page Already Added"
   } else if (isLoading) {
     buttonLabel = "Loading Page..."
+  } else if (!currentUrlBelongsToWebsite) {
+    buttonLabel = "Page From Different Website"
   } else if (error) {
     buttonLabel = "Cannot Add Page"
   }
