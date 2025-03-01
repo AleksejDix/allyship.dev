@@ -3,7 +3,7 @@ import { useUrl } from "@/providers/url-provider"
 import { type TablesInsert } from "@/types/database.types"
 import { useSelector } from "@xstate/react"
 import { Plus, RefreshCw, SwitchCamera } from "lucide-react"
-import { useCallback, useEffect, useId } from "react"
+import { memo, useCallback, useEffect, useId } from "react"
 
 import { Button } from "../ui/button"
 import { useWebsiteContext } from "../website/website-context"
@@ -11,7 +11,8 @@ import { usePageContext } from "./page-context"
 
 type PageInsert = TablesInsert<"Page">
 
-export function PageAdd() {
+// Wrap the component with memo to prevent unnecessary re-renders
+export const PageAdd = memo(function PageAdd() {
   const pageActor = usePageContext()
   const websiteActor = useWebsiteContext()
   const { normalizedUrl, isLoading } = useUrl()
@@ -33,41 +34,28 @@ export function PageAdd() {
   )
 
   // Get the existing pages and validation states from the page context
-  const {
-    pages,
-    pageValidationError,
-    pageValidationSuccess,
-    currentUrl,
-    isAddingPage
-  } = useSelector(
-    pageActor,
-    (state) => ({
-      pages: state.context.pages,
-      pageValidationError: state.context.pageValidationError,
-      pageValidationSuccess: state.context.pageValidationSuccess,
-      currentUrl: state.context.currentUrl,
-      isAddingPage: state.matches("adding")
-    }),
-    Object.is
-  )
+  const { pages, pageValidationError, pageValidationSuccess, isAddingPage } =
+    useSelector(
+      pageActor,
+      (state) => ({
+        pages: state.context.pages,
+        pageValidationError: state.context.pageValidationError,
+        pageValidationSuccess: state.context.pageValidationSuccess,
+        isAddingPage: state.matches("adding")
+      }),
+      Object.is
+    )
 
-  // Notify the page machine when the URL changes
+  // Send URL ownership validation event to the website machine when URL changes
   useEffect(() => {
     if (normalizedUrl && currentWebsite) {
-      // Send the URL_CHANGED event to the page machine
-      pageActor.send({
-        type: "URL_CHANGED",
-        url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`,
-        website: currentWebsite
-      })
-
       // Validate URL ownership in the website machine
       websiteActor.send({
         type: "VALIDATE_URL_OWNERSHIP",
         url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`
       })
     }
-  }, [normalizedUrl, currentWebsite, pageActor, websiteActor])
+  }, [normalizedUrl, currentWebsite, websiteActor])
 
   // Check if the current URL belongs to the selected website - use urlValidation from website machine
   const currentUrlBelongsToWebsite = urlValidation.belongsToCurrentWebsite
@@ -291,4 +279,4 @@ export function PageAdd() {
       )}
     </div>
   )
-}
+})

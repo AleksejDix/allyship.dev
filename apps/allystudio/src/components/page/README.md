@@ -154,6 +154,35 @@ const hostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
 const combinedNormalizedUrl = `${hostname}${path}`
 ```
 
+### URL Provider Integration
+
+The Page component now uses the centralized `url-provider` for current URL tracking instead of handling it internally:
+
+```typescript
+// In page-add.tsx
+import { useUrl } from "@/providers/url-provider"
+
+export function PageAdd() {
+  const { normalizedUrl, isLoading } = useUrl()
+
+  // Use normalizedUrl directly from the provider
+  // for validation and page creation
+}
+```
+
+This simplifies the page-machine by:
+
+1. Removing URL state tracking from the page context
+2. Eliminating the need for URL_CHANGED events
+3. Centralizing URL normalization and validation logic
+4. Providing consistent URL information across components
+
+The url-provider manages:
+
+- Current browser tab URL tracking
+- URL normalization and parsing
+- Loading states for URL changes
+
 ### Security Checks
 
 The Page component implements multi-layered security checks to ensure pages can only be added to their appropriate website:

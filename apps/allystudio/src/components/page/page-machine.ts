@@ -16,11 +16,6 @@ export type PageContext = {
   websiteId: string | null
   pageValidationError: string | null
   pageValidationSuccess: string | null
-  currentUrl: {
-    normalized: string | null
-    path: string | null
-    hostname: string | null
-  }
 }
 
 export type PageEvent =
@@ -31,7 +26,6 @@ export type PageEvent =
   | { type: "BACK" }
   | { type: "ADD_PAGE"; payload: PageInsert; website: Website }
   | { type: "VALIDATE_PATH"; path: string }
-  | { type: "URL_CHANGED"; url: string; website: Website }
   | { type: "CLEAR_MESSAGES" }
 
 // Utility functions for URL validation and construction
@@ -339,49 +333,14 @@ export const pageMachine = setup({
       return {}
     }),
 
-    // Update current URL in context
-    updateCurrentUrl: assign(({ event }) => {
-      if (event.type === "URL_CHANGED") {
-        try {
-          const urlData = normalizeUrl(event.url)
-          return {
-            currentUrl: {
-              normalized: urlData.hostname,
-              path: urlData.path,
-              hostname: urlData.hostname
-            },
-            // Clear validation messages when URL changes
-            pageValidationError: null,
-            pageValidationSuccess: null
-          }
-        } catch (error) {
-          return {
-            currentUrl: {
-              normalized: null,
-              path: null,
-              hostname: null
-            },
-            pageValidationError: (error as Error).message
-          }
-        }
-      }
-      return {}
-    }),
-
     // Prepare page payload with normalized URL
     preparePagePayload: assign(({ context, event }) => {
-      if (event.type === "ADD_PAGE" && context.currentUrl.path) {
-        // Hostname from the website's normalized_url (without protocol)
-        const hostname = event.website.normalized_url.replace(
-          /^https?:\/\//,
-          ""
-        )
-
-        // Return fully prepared payload with updated normalized_url
+      if (event.type === "ADD_PAGE") {
+        // Return validation success message based on existing pages
         return {
           pageValidationSuccess: checkPageExists(
             context.pages,
-            context.currentUrl.path,
+            event.payload.path,
             event.website.id
           )
             ? "Page already exists"
@@ -400,24 +359,12 @@ export const pageMachine = setup({
       return false
     },
 
-    // Check if URL belongs to website
-    urlBelongsToWebsite: ({ context, event }) => {
-      if (event.type === "URL_CHANGED" && context.currentUrl.hostname) {
-        const websiteHost = event.website.normalized_url.replace(
-          /^https?:\/\//,
-          ""
-        )
-        return context.currentUrl.hostname === websiteHost
-      }
-      return false
-    },
-
     // Check if page already exists
     pageAlreadyExists: ({ context, event }) => {
-      if (event.type === "ADD_PAGE" && context.currentUrl.path) {
+      if (event.type === "ADD_PAGE") {
         return checkPageExists(
           context.pages,
-          context.currentUrl.path,
+          event.payload.path,
           event.website.id
         )
       }
@@ -432,12 +379,7 @@ export const pageMachine = setup({
     error: null,
     websiteId: input.websiteId,
     pageValidationError: null,
-    pageValidationSuccess: null,
-    currentUrl: {
-      normalized: null,
-      path: null,
-      hostname: null
-    }
+    pageValidationSuccess: null
   }),
   initial: "idle",
   states: {
@@ -446,9 +388,6 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: "updateWebsiteId"
-        },
-        URL_CHANGED: {
-          actions: "updateCurrentUrl"
         },
         VALIDATE_PATH: {
           actions: "validatePath"
@@ -485,9 +424,6 @@ export const pageMachine = setup({
         }
       },
       on: {
-        URL_CHANGED: {
-          actions: "updateCurrentUrl"
-        },
         VALIDATE_PATH: {
           actions: "validatePath"
         },
@@ -525,9 +461,6 @@ export const pageMachine = setup({
           target: "adding",
           actions: "preparePagePayload"
         },
-        URL_CHANGED: {
-          actions: "updateCurrentUrl"
-        },
         VALIDATE_PATH: {
           actions: "validatePath"
         },
@@ -545,9 +478,6 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: ["updateWebsiteId", "clearError"]
-        },
-        URL_CHANGED: {
-          actions: "updateCurrentUrl"
         },
         VALIDATE_PATH: {
           actions: "validatePath"
