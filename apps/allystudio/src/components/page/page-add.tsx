@@ -1,0 +1,200 @@
+import { useAuth } from "@/providers/auth-provider"
+import { useUrl } from "@/providers/url-provider"
+import { type TablesInsert } from "@/types/database.types"
+import { useSelector } from "@xstate/react"
+import { Plus, RefreshCw } from "lucide-react"
+import { useCallback, useEffect, useId, useState } from "react"
+
+import { Button } from "../ui/button"
+import { useWebsiteContext } from "../website/website-context"
+import { usePageContext } from "./page-context"
+
+type PageInsert = TablesInsert<"Page">
+
+export function PageAdd() {
+  const pageActor = usePageContext()
+  const websiteActor = useWebsiteContext()
+  const { normalizedUrl, isLoading } = useUrl()
+  const auth = useAuth()
+  const addPageId = useId()
+
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [isAdding, setIsAdding] = useState(false)
+
+  // Get the current website from the website context
+  const currentWebsite = useSelector(
+    websiteActor,
+    (state) => state.context.currentWebsite,
+    Object.is
+  )
+
+  // Get the existing pages from the page context
+  const pages = useSelector(
+    pageActor,
+    (state) => state.context.pages,
+    Object.is
+  )
+
+  // Check machine state for errors
+  const addPageError = useSelector(
+    pageActor,
+    (state) => state.context.error,
+    Object.is
+  )
+
+  // Clear error and success when URL changes
+  useEffect(() => {
+    setError(null)
+    setSuccess(null)
+  }, [normalizedUrl])
+
+  // Update error message if page machine returns an error
+  useEffect(() => {
+    if (addPageError) {
+      setError(addPageError.message || "Failed to add page")
+      setSuccess(null)
+      setIsAdding(false)
+    }
+  }, [addPageError])
+
+  // Validate the path
+  const validatePath = (input: string) => {
+    if (!input.startsWith("/")) {
+      return "Path must start with /"
+    }
+    if (input.includes("?") || input.includes("#")) {
+      return "Path cannot contain query parameters or fragments"
+    }
+    return null
+  }
+
+  // Check if the current page already exists in our local state
+  // This is just for UI feedback, the database will handle duplicates
+  const currentPath = normalizedUrl?.path || ""
+  const pageAlreadyExists = pages.some(
+    (page) =>
+      page.path === currentPath && page.website_id === currentWebsite?.id
+  )
+
+  const handleAddPage = useCallback(() => {
+    if (!currentWebsite || !normalizedUrl?.path) {
+      return
+    }
+
+    const path = normalizedUrl.path
+    const validationError = validatePath(path)
+
+    if (validationError) {
+      setError(validationError)
+      setSuccess(null)
+      return
+    }
+
+    // Start loading state
+    setIsAdding(true)
+    setError(null)
+    setSuccess(null)
+
+    // Construct the full URL
+    const fullUrl = `${currentWebsite.url}${path}`
+
+    // Create the page insert payload
+    const payload: PageInsert = {
+      path,
+      url: fullUrl,
+      normalized_url: currentWebsite.normalized_url,
+      website_id: currentWebsite.id
+    }
+
+    console.log("Adding page", payload)
+
+    // Send ADD_PAGE event to the page machine
+    pageActor.send({ type: "ADD_PAGE", payload })
+
+    // Set timeout to reset adding state if no errors occur
+    const timer = setTimeout(() => {
+      setIsAdding(false)
+      setSuccess(
+        pageAlreadyExists
+          ? "Page was already in your list"
+          : "Page added successfully"
+      )
+
+      // The page is added directly to the list optimistically
+      // No need to reload all pages from the database
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [
+    currentWebsite,
+    normalizedUrl,
+    pageActor,
+    validatePath,
+    pageAlreadyExists
+  ])
+
+  if (!currentWebsite) {
+    return null
+  }
+
+  // Determine button state
+  const isAddDisabled = isLoading || !normalizedUrl?.path || !!error || isAdding
+
+  let buttonLabel = "Add Current Page"
+
+  if (isAdding) {
+    buttonLabel = "Adding..."
+  } else if (pageAlreadyExists) {
+    buttonLabel = "Page Already Added"
+  } else if (isLoading) {
+    buttonLabel = "Loading Page..."
+  } else if (error) {
+    buttonLabel = "Cannot Add Page"
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Button
+        type="button"
+        onClick={handleAddPage}
+        disabled={isAddDisabled}
+        aria-disabled={isAddDisabled}
+        aria-labelledby={`${addPageId}-button-label`}
+        className="w-full">
+        <Plus aria-hidden="true" className="mr-2 h-4 w-4" />
+        <span id={`${addPageId}-button-label`} className="sr-only">
+          {buttonLabel}
+        </span>
+        {buttonLabel}
+      </Button>
+
+      {error && (
+        <div className="flex flex-col gap-2 mt-1">
+          <p className="text-sm text-destructive text-center">{error}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setError(null)
+              // Refresh page list
+              if (currentWebsite?.id) {
+                pageActor.send({
+                  type: "LOAD_PAGES",
+                  websiteId: currentWebsite.id
+                })
+              }
+            }}
+            className="flex items-center justify-center gap-1 mx-auto">
+            <RefreshCw className="h-3 w-3" aria-hidden="true" />
+            <span>Try Again</span>
+          </Button>
+        </div>
+      )}
+
+      {success && !error && (
+        <p className="text-sm text-green-600 text-center">{success}</p>
+      )}
+    </div>
+  )
+}

@@ -5,6 +5,7 @@ import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 
 // Types
 type Page = Database["public"]["Tables"]["Page"]["Row"]
+type PageInsert = Database["public"]["Tables"]["Page"]["Insert"]
 
 export type PageContext = {
   pages: Page[]
@@ -19,6 +20,7 @@ export type PageEvent =
   | { type: "RETRY" }
   | { type: "SELECT_PAGE"; pageId: string }
   | { type: "BACK" }
+  | { type: "ADD_PAGE"; payload: PageInsert }
 
 // Actor to load pages from Supabase
 const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
@@ -29,6 +31,7 @@ const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
       .from("Page")
       .select("*")
       .eq("website_id", input.websiteId)
+      .order("created_at", { ascending: false }) // Order by creation date, newest first
 
     if (error) {
       throw error
@@ -39,6 +42,26 @@ const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
   }
 )
 
+// Actor to add a page to Supabase
+const addPageActor = fromPromise<Page, { payload: PageInsert }>(
+  async ({ input }) => {
+    console.log("Adding page:", input.payload)
+
+    const { data, error } = await supabase
+      .from("Page")
+      .upsert(input.payload, { onConflict: "normalized_url,website_id" })
+      .select()
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    console.log("Added page:", data)
+    return data
+  }
+)
+
 export const pageMachine = setup({
   types: {
     context: {} as PageContext,
@@ -46,7 +69,8 @@ export const pageMachine = setup({
     input: {} as { websiteId: string | null }
   },
   actors: {
-    loadPages: loadPagesActor
+    loadPages: loadPagesActor,
+    addPage: addPageActor
   },
   actions: {
     // Set pages in context when loaded successfully
@@ -56,7 +80,22 @@ export const pageMachine = setup({
         const pages = event.output as Page[]
         console.log("Setting pages:", pages, "length:", pages.length)
         return {
-          pages: pages
+          pages: pages, // Completely replace the pages array
+          error: null // Clear any errors
+        }
+      }
+      return {}
+    }),
+
+    // Add a single page to the pages array (optimistic update)
+    addPageToList: assign(({ context, event }) => {
+      if (event.type.startsWith("xstate.done") && "output" in event) {
+        const newPage = event.output as Page
+        console.log("Adding page to list optimistically:", newPage)
+        // Put the new page at the beginning of the array (newest first)
+        return {
+          pages: [newPage, ...context.pages],
+          error: null // Clear any errors
         }
       }
       return {}
@@ -174,6 +213,9 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: "updateWebsiteId"
+        },
+        ADD_PAGE: {
+          target: "adding"
         }
       }
     },
@@ -186,6 +228,28 @@ export const pageMachine = setup({
         LOAD_PAGES: {
           target: "loading",
           actions: ["updateWebsiteId", "clearError"]
+        }
+      }
+    },
+    adding: {
+      invoke: {
+        id: "addPage",
+        src: "addPage",
+        input: ({ event }) => {
+          if (event.type === "ADD_PAGE") {
+            return { payload: event.payload }
+          }
+          return { payload: {} as PageInsert }
+        },
+        onDone: {
+          // Go back to success state instead of loading
+          target: "success",
+          // Just add the new page to the existing list
+          actions: "addPageToList"
+        },
+        onError: {
+          target: "error",
+          actions: "setError"
         }
       }
     }
