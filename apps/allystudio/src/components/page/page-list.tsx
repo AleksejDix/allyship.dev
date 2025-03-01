@@ -68,60 +68,49 @@ export function PageList() {
           </Button>
         </div>
       )}
-
-      {/* Page list */}
-      {hasPages ? (
-        <div className="border-t">
-          {pages.map((page, index) => (
-            <div
-              key={page.id}
-              className={cn(
-                "border-b",
-                index === pages.length - 1 && "border-b-0"
-              )}>
-              <CurrentPathIndicator path={page.path}>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleSelectPage(page.id)}
-                    className="flex-1 py-3 px-4 text-left hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <FileText
-                        className="h-5 w-5 text-muted-foreground flex-shrink-0"
-                        aria-hidden="true"
-                      />
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">
-                          {page.path}
-                        </p>
-                      </div>
+      <div className="border-t">
+        {pages.map((page, index) => (
+          <div
+            key={page.id}
+            className={cn(
+              "border-b",
+              index === pages.length - 1 && "border-b-0"
+            )}>
+            <CurrentPathIndicator path={page.path}>
+              <div className="flex items-center">
+                <button
+                  onClick={() => handleSelectPage(page.id)}
+                  className="flex-1 py-3 px-4 text-left hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <FileText
+                      className="h-5 w-5 text-muted-foreground flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">
+                        {page.path}
+                      </p>
                     </div>
-                  </button>
-                  <a
-                    href={`${page.url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-labelledby={`visit-page-${page.id}`}
-                    className="flex items-center gap-1 px-3 py-2 mr-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    <span id={`visit-page-${page.id}`} className="sr-only">
-                      Visit {page.url}
-                      {page.path} (opens in new window)
-                    </span>
-                    <span className="hidden sm:inline">Visit</span>
-                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                  </a>
-                </div>
-              </CurrentPathIndicator>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center p-8 border-t border-dashed">
-          <h3 className="font-medium mb-2">No pages found</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            There are no pages associated with this website yet.
-          </p>
-        </div>
-      )}
+                  </div>
+                </button>
+                <a
+                  href={`${page.url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-labelledby={`visit-page-${page.id}`}
+                  className="flex items-center gap-1 px-3 py-2 mr-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  <span id={`visit-page-${page.id}`} className="sr-only">
+                    Visit {page.url}
+                    {page.path} (opens in new window)
+                  </span>
+                  <span className="hidden sm:inline">Visit</span>
+                  <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                </a>
+              </div>
+            </CurrentPathIndicator>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
