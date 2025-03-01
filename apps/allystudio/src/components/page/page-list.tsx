@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import { useUrl } from "@/providers/url-provider"
 import { useSelector } from "@xstate/react"
 import { ExternalLink, FileText, Plus } from "lucide-react"
-import { memo, useId } from "react"
+import { memo, useId, useMemo } from "react"
 
 import { useWebsiteContext } from "../website/website-context"
 import { PageAdd } from "./page-add"
@@ -28,6 +28,11 @@ export const PageList = memo(function PageList() {
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
   const websiteId = useSelector(actor, (state) => state.context.websiteId)
+
+  // Sort pages by path
+  const sortedPages = useMemo(() => {
+    return [...pages].sort((a, b) => a.path.localeCompare(b.path))
+  }, [pages])
 
   // Only show when in success.list state and there are pages
   if (!isSuccess) {
@@ -44,12 +49,12 @@ export const PageList = memo(function PageList() {
       {/* Title and Add section now provided by PageAddSection component */}
 
       <div className="border-t">
-        {pages.map((page, index) => (
+        {sortedPages.map((page, index) => (
           <div
             key={page.id}
             className={cn(
               "border-b",
-              index === pages.length - 1 && "border-b-0"
+              index === sortedPages.length - 1 && "border-b-0"
             )}>
             <CurrentPathIndicator path={page.path}>
               <div className="flex items-center">
