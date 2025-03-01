@@ -148,7 +148,8 @@ export const websiteMachine = setup({
     }),
 
     // Set the only website (when there's just one)
-    setOnlyWebsite: assign(({ context }) => {
+    setOnlyWebsite: assign(({ context, event }) => {
+      console.log("🧨", { context, event })
       if (context.websites.length === 1) {
         return { currentWebsite: context.websites[0] }
       }

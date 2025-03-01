@@ -41,7 +41,6 @@ const Website = memo(function Website({
       <WebsiteAdd />
       {/* <WebsiteOptions>
       </WebsiteOptions> */}
-      {children}
       <WebsiteSelected>{children}</WebsiteSelected>
       {debug && <WebsiteDebug />}
     </WebsiteProvider>
