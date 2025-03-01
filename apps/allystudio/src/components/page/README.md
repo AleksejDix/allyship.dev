@@ -25,6 +25,7 @@ Pages exist within the context of a Website, which exists within a Space.
 - `page-error.tsx`: Error handling component
 - `page-list-empty.tsx`: Empty state when no pages exist
 - `page-debug.tsx`: Development tool for debugging page state
+- `page-add.tsx`: Component for adding new pages to a website
 
 ## State Management
 
@@ -36,6 +37,7 @@ The Page component uses XState for state management with the following key state
 - `empty`: When no pages exist for the website
 - `loaded`: When pages have been successfully loaded
 - `selected`: When a specific page is selected
+- `adding`: When a new page is being added to the database
 
 ### Events
 
@@ -44,6 +46,45 @@ The Page component uses XState for state management with the following key state
 - `RETRY`: Retry loading after an error
 - `SELECT_PAGE`: Select a specific page
 - `BACK`: Go back to the page list
+- `ADD_PAGE`: Add a new page to the current website
+
+## URL Handling
+
+### Normalized URL Format
+
+Pages use a specific URL format to ensure uniqueness and proper navigation:
+
+- `normalized_url`: Combined hostname + path (e.g., "example.com/blog")
+- `path`: The path component only (e.g., "/blog")
+- `url`: The full URL including protocol (e.g., "https://example.com/blog")
+
+When adding a new page, the normalized URL is constructed by:
+
+```typescript
+// Extract hostname from the website's normalized_url
+const hostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
+// Combine hostname and path
+const pageNormalizedUrl = `${hostname}${path}`
+```
+
+### Database Operations
+
+Page uniqueness is enforced at the database level with a constraint on `(website_id, normalized_url)`. The component uses Supabase's upsert operation to handle potential duplicates:
+
+```typescript
+// In page-machine.ts
+const { data, error } = await supabase
+  .from("Page")
+  .upsert(input.payload, { onConflict: "normalized_url,website_id" })
+  .select()
+  .single()
+```
+
+This ensures that:
+
+1. Each page is uniquely identified by its website and normalized URL
+2. Attempting to add a duplicate page will update the existing one
+3. Race conditions are handled efficiently at the database level
 
 ## Usage
 
@@ -81,6 +122,7 @@ function PageComponent() {
 2. Handle loading and error states appropriately
 3. Use the debug component during development to inspect state
 4. Follow the event-based pattern for state transitions
+5. Ensure normalized_url follows the hostname + path pattern for uniqueness
 
 ## Accessibility
 
