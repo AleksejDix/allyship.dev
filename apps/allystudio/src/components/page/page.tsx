@@ -7,7 +7,7 @@ import { PageAdd } from "./page-add"
 import { PageProvider } from "./page-context"
 import { PageDebug } from "./page-debug"
 import { PageError } from "./page-error"
-import { PageList } from "./page-list"
+import { PageAddSection, PageList } from "./page-list"
 import { PageListEmpty } from "./page-list-empty"
 import { PageSelected } from "./page-selected"
 import { PageListSkeleton, Skeleton } from "./page-skeleton"
@@ -39,6 +39,7 @@ const Page = memo(function Page({
     <PageProvider websiteId={currentWebsite.id}>
       <Skeleton />
       <PageError />
+      <PageAddSection />
       <PageList />
       <PageListEmpty />
       <PageListSkeleton />
@@ -54,6 +55,7 @@ export {
   PageDebug,
   PageError,
   PageList,
+  PageAddSection,
   PageListEmpty,
   PageSelected,
   Skeleton,
