@@ -45,20 +45,56 @@ const loadPagesActor = fromPromise<Page[], { websiteId: string }>(
 // Actor to add a page to Supabase
 const addPageActor = fromPromise<Page, { payload: PageInsert }>(
   async ({ input }) => {
-    console.log("Adding page:", input.payload)
+    try {
+      console.log(
+        "Starting addPageActor with payload:",
+        JSON.stringify(input.payload, null, 2)
+      )
 
-    const { data, error } = await supabase
-      .from("Page")
-      .upsert(input.payload, { onConflict: "normalized_url,website_id" })
-      .select()
-      .single()
+      if (!input.payload || !input.payload.website_id) {
+        console.error("Invalid payload for addPageActor:", input.payload)
+        throw new Error("Missing required payload fields for adding page")
+      }
 
-    if (error) {
+      // Log normalized_url format
+      console.log(
+        "Using normalized_url (hostname + path):",
+        input.payload.normalized_url
+      )
+      console.log("Using standalone path:", input.payload.path)
+      console.log("Using website_id:", input.payload.website_id)
+      console.log(
+        "Page uniqueness will be on website_id + normalized_url:",
+        `[${input.payload.website_id}, ${input.payload.normalized_url}]`
+      )
+
+      // Log auth state
+      const { data: authData } = await supabase.auth.getSession()
+      console.log("Auth session exists:", !!authData.session)
+
+      // Perform the upsert operation
+      const { data, error } = await supabase
+        .from("Page")
+        .upsert(input.payload, { onConflict: "normalized_url,website_id" })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("Supabase upsert error:", error)
+        throw error
+      }
+
+      if (!data) {
+        console.error("No data returned from Page upsert operation")
+        throw new Error("Failed to add page - no data returned")
+      }
+
+      console.log("Successfully added page:", data)
+      return data
+    } catch (error) {
+      console.error("Error in addPageActor:", error)
       throw error
     }
-
-    console.log("Added page:", data)
-    return data
   }
 )
 
@@ -91,7 +127,11 @@ export const pageMachine = setup({
     addPageToList: assign(({ context, event }) => {
       if (event.type.startsWith("xstate.done") && "output" in event) {
         const newPage = event.output as Page
-        console.log("Adding page to list optimistically:", newPage)
+        console.log(
+          "Adding page to list optimistically:",
+          JSON.stringify(newPage, null, 2)
+        )
+        console.log("Current pages in context:", context.pages.length)
 
         // Check if the page already exists in the list to prevent duplicates
         const pageExists = context.pages.some(
@@ -106,9 +146,18 @@ export const pageMachine = setup({
           }
         }
 
+        // Log the page we're adding
+        console.log(
+          "Adding new page to context:",
+          JSON.stringify(newPage, null, 2)
+        )
+
         // Put the new page at the beginning of the array (newest first)
+        const updatedPages = [newPage, ...context.pages]
+        console.log("Updated pages length:", updatedPages.length)
+
         return {
-          pages: [newPage, ...context.pages],
+          pages: updatedPages,
           error: null // Clear any errors
         }
       }
