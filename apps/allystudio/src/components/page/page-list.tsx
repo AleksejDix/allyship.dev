@@ -188,6 +188,7 @@ export const PageAddSection = memo(function PageAddSection() {
   return (
     <div className="px-4 py-3 flex items-center justify-between">
       <h3 className="text-sm font-medium">Pages</h3>
+
       <div className="flex gap-2 items-center">
         <TooltipProvider>
           <Tooltip>

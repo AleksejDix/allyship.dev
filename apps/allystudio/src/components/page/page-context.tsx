@@ -1,4 +1,5 @@
-import { useActorRef } from "@xstate/react"
+import type { NormalizedUrl } from "@/utils/url"
+import { useActorRef, useSelector } from "@xstate/react"
 import {
   createContext,
   useContext,
@@ -10,39 +11,34 @@ import type { ActorRef, SnapshotFrom } from "xstate"
 
 import { pageMachine } from "./page-machine"
 import type { PageMachineActorRef } from "./page-machine"
+import { PagePathWatcher } from "./page-path-watcher"
+import { WebsiteWatcher } from "./page-website-watcher"
 
 const PageContext = createContext<PageMachineActorRef | undefined>(undefined)
 
+// Export the provider and hooks
 export function PageProvider({
   children,
-  websiteId
+  websiteId,
+  normalizedUrl
 }: {
   children: ReactNode
   websiteId: string | null
+  normalizedUrl: NormalizedUrl | null
 }) {
   const actorRef = useActorRef(pageMachine, {
     input: {
-      websiteId
+      websiteId,
+      normalizedUrl
     }
   })
 
-  const previousWebsiteIdRef = useRef<string | null>(websiteId)
-
-  // Send WEBSITE_CHANGED event when websiteId changes
-  useEffect(() => {
-    // Only send the event if the website ID has actually changed and is not null
-    if (previousWebsiteIdRef.current !== websiteId && websiteId !== null) {
-      console.log(
-        "Website changed, sending WEBSITE_CHANGED event with ID:",
-        websiteId
-      )
-      actorRef.send({ type: "WEBSITE_CHANGED", websiteId })
-      previousWebsiteIdRef.current = websiteId
-    }
-  }, [websiteId, actorRef])
-
   return (
-    <PageContext.Provider value={actorRef}>{children}</PageContext.Provider>
+    <PageContext.Provider value={actorRef}>
+      {websiteId && <WebsiteWatcher websiteId={websiteId} />}
+      <PagePathWatcher />
+      {children}
+    </PageContext.Provider>
   )
 }
 

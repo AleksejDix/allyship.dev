@@ -96,10 +96,7 @@ export const PageAdd = memo(function PageAdd() {
           )
         }
       )
-      // Just clear messages, no payload needed
-      pageActor.send({
-        type: "CLEAR_MESSAGES"
-      })
+
       return
     }
 
@@ -127,10 +124,7 @@ export const PageAdd = memo(function PageAdd() {
         pageHostname: normalizedUrl.hostname,
         websiteHostname: hostname
       })
-      // Just clear messages, no payload needed
-      pageActor.send({
-        type: "CLEAR_MESSAGES"
-      })
+
       return
     }
 
@@ -167,13 +161,6 @@ export const PageAdd = memo(function PageAdd() {
     pageValidationError,
     urlValidation
   ])
-
-  // Clear error and success messages when URL changes
-  useEffect(() => {
-    if (normalizedUrl) {
-      pageActor.send({ type: "CLEAR_MESSAGES" })
-    }
-  }, [normalizedUrl, pageActor])
 
   if (!currentWebsite) {
     return null
@@ -256,8 +243,6 @@ export const PageAdd = memo(function PageAdd() {
             variant="outline"
             size="sm"
             onClick={() => {
-              pageActor.send({ type: "CLEAR_MESSAGES" })
-              // Refresh page list
               if (currentWebsite?.id) {
                 pageActor.send({
                   type: "LOAD_PAGES",

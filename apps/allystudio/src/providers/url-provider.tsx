@@ -24,7 +24,10 @@ export function UrlProvider({ children }: PropsWithChildren) {
     // Get initial URL
     async function getCurrentTab() {
       try {
-        if (!chrome?.tabs) return
+        if (!chrome?.tabs) {
+          setIsLoading(false)
+          return
+        }
 
         const tabs = await chrome.tabs.query({
           active: true,
@@ -38,7 +41,6 @@ export function UrlProvider({ children }: PropsWithChildren) {
 
         setIsLoading(false)
       } catch (error) {
-        console.error("[UrlProvider] Error:", error)
         setIsLoading(false)
       }
     }
@@ -60,6 +62,7 @@ export function UrlProvider({ children }: PropsWithChildren) {
     async function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
       try {
         setIsLoading(true)
+
         const tab = await chrome.tabs.get(activeInfo.tabId)
 
         if (tab?.url) {
@@ -68,7 +71,6 @@ export function UrlProvider({ children }: PropsWithChildren) {
 
         setIsLoading(tab?.status === "loading")
       } catch (error) {
-        console.error("[UrlProvider] Error:", error)
         setIsLoading(false)
       }
     }
@@ -91,7 +93,6 @@ export function UrlProvider({ children }: PropsWithChildren) {
     try {
       return normalizeUrl(currentUrl)
     } catch (error) {
-      console.error("[UrlProvider] Normalization error:", error)
       return null
     }
   }, [currentUrl])

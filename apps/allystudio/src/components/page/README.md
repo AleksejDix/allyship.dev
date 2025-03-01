@@ -431,7 +431,6 @@ The Page component uses XState for state management with the following key state
 - `ADD_PAGE`: Add a new page to the current website
 - `VALIDATE_PATH`: Validate a path for adding a new page
 - `URL_CHANGED`: Handle when the current URL changes
-- `CLEAR_MESSAGES`: Clear validation messages
 
 ## Component Structure
 
