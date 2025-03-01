@@ -16,6 +16,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "./ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "./ui/tooltip"
 
 export function Header() {
   const { session, signOut } = useAuth()
@@ -24,13 +30,36 @@ export function Header() {
   const userInitials =
     session?.user?.email?.split("@")[0]?.slice(0, 2)?.toUpperCase() || "U"
 
+  // Function to refresh the extension
+  const handleRefresh = () => {
+    // Just reload the current page instead of the entire runtime
+    window.location.reload()
+  }
+
   // If no session, show login button instead
   if (!session) {
     return (
       <header className="border-b">
         <div className="container flex justify-between h-14 px-4 items-center">
-          <div className="flex items-center gap-2 bg-black rounded-full p-1">
-            <img src={logo} alt="Ally Studio" width={32} height={32} />
+          <div className="flex items-center gap-2">
+            <div className="bg-black rounded-full p-1">
+              <img src={logo} alt="Ally Studio" width={32} height={32} />
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleRefresh}
+                    aria-label="Refresh extension">
+                    <Icons.RefreshCw className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Refresh extension</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <Button variant="default" size="sm">
             Sign in
@@ -43,8 +72,25 @@ export function Header() {
   return (
     <header className="border-b">
       <div className="container flex justify-between h-14 px-4 items-center">
-        <div className="flex items-center gap-2 bg-black rounded-full p-1">
-          <img src={logo} alt="Ally Studio" width={32} height={32} />
+        <div className="flex items-center gap-2">
+          <div className="bg-black rounded-full p-1">
+            <img src={logo} alt="Ally Studio" width={32} height={32} />
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleRefresh}
+                  aria-label="Refresh extension">
+                  <Icons.RefreshCw className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh extension</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <SpaceOptionsDropdown />
