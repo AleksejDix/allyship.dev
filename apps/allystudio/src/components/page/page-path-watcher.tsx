@@ -7,7 +7,6 @@ export function PagePathWatcher() {
   const pageActor = usePageContext()
   const { normalizedUrl } = useCurrentUrl()
 
-  // Handle URL changes from useCurrentUrl
   useEffect(() => {
     if (!normalizedUrl) return
 
@@ -15,7 +14,7 @@ export function PagePathWatcher() {
       type: "PATH_CHANGED",
       normalizedUrl
     })
-  }, [normalizedUrl, pageActor])
+  }, [normalizedUrl])
 
   return null // This is a non-rendering component
 }
