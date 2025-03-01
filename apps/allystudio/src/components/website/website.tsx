@@ -8,6 +8,7 @@ import { WebsiteProvider } from "./website-context"
 import { WebsiteDebug } from "./website-debug"
 import { WebsiteEmpty } from "./website-empty"
 import { WebsiteOptions } from "./website-options"
+import { WebsiteSearch } from "./website-search"
 import { WebsiteSelected } from "./website-selected"
 
 // Root component that sets up the machine and provider
@@ -33,6 +34,7 @@ const Website = memo(function Website({
   return (
     <WebsiteProvider spaceId={currentSpace.id}>
       <WebsiteEmpty />
+      <WebsiteSearch />
       <WebsiteOptions>
         <WebsiteAdd />
       </WebsiteOptions>

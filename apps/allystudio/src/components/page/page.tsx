@@ -4,6 +4,7 @@ import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
 import { useWebsiteContext } from "../website/website-context"
+import { WebsiteSearch } from "../website/website-search"
 import { PageAdd } from "./page-add"
 import { PageProvider } from "./page-context"
 import { PageDebug } from "./page-debug"
@@ -13,7 +14,6 @@ import { PageListEmpty } from "./page-list-empty"
 import { PageSearch } from "./page-search"
 import { PageSelected } from "./page-selected"
 import { PageListSkeleton, Skeleton } from "./page-skeleton"
-import { PageView } from "./page-view"
 
 // Selector to get the current website from the website machine
 const selectCurrentWebsite = (state: any) => state.context.currentWebsite
@@ -44,14 +44,14 @@ const Page = memo(function Page({
     <PageProvider websiteId={currentWebsite.id} normalizedUrl={normalizedUrl}>
       <Skeleton />
       <PageError />
-      <div className="flex items-center justify-between py-2">
+      <div className="flex items-center justify-between p-2">
+        <WebsiteSearch />
         <div className="grow">
           <PageSearch />
         </div>
         <PageAdd />
       </div>
-      <PageView>{children}</PageView>
-      <PageListEmpty />
+      <PageSelected>{children}</PageSelected> <PageListEmpty />
       <PageListSkeleton />
       {debug && <PageDebug />}
     </PageProvider>
