@@ -14,18 +14,400 @@ Space → Website → Page
 
 Pages exist within the context of a Website, which exists within a Space.
 
-### Key Files
+## Flow Diagrams
 
-- `page.tsx`: Root component that sets up the context provider and renders child components based on state
-- `page-context.tsx`: Context provider and hooks for accessing the page state
-- `page-machine.ts`: XState machine that manages page state and side effects
-- `page-list.tsx`: Displays a list of pages for the selected website
-- `page-selected.tsx`: Displays the selected page and its content
-- `page-skeleton.tsx`: Loading states for page components
-- `page-error.tsx`: Error handling component
-- `page-list-empty.tsx`: Empty state when no pages exist
-- `page-debug.tsx`: Development tool for debugging page state
-- `page-add.tsx`: Component for adding new pages to a website
+### State Machine Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> idle
+    idle --> loading: LOAD_PAGES
+    loading --> error: Error occurred
+    loading --> empty: No pages
+    loading --> success: Pages loaded
+
+    success --> success.list: Default
+    success --> success.selected: SELECT_PAGE
+    success.selected --> success.list: BACK
+
+    state success {
+        list --> selected: SELECT_PAGE
+        selected --> list: BACK
+    }
+
+    success --> adding: ADD_PAGE
+    adding --> success: Success
+    adding --> error: Error
+
+    error --> loading: RETRY
+    empty --> loading: RETRY
+    empty --> adding: ADD_PAGE
+```
+
+### User Interaction Flow
+
+```mermaid
+flowchart TD
+    A[User visits website] --> B{Website selected?}
+    B -->|No| C[Show website selection]
+    B -->|Yes| D[Load pages]
+    D --> E{Pages exist?}
+    E -->|No| F[Show empty state]
+    E -->|Yes| G[Display page list]
+
+    F --> H[User clicks Add Page]
+    G --> I[User selects page]
+    G --> H
+
+    I --> J[Show page details]
+    J --> K[User clicks Back]
+    K --> G
+
+    H --> L[Validate URL]
+    L --> M{URL valid?}
+    M -->|No| N[Show error]
+    M -->|Yes| O[Add page to database]
+    O --> P{Success?}
+    P -->|Yes| Q[Update page list]
+    P -->|No| R[Show error message]
+    Q --> G
+```
+
+### Component Logic Flow
+
+```mermaid
+flowchart LR
+    subgraph "Context Providers"
+        A[UrlProvider]
+        B[WebsiteProvider]
+        C[PageProvider]
+    end
+
+    subgraph "UI Components"
+        D[PageAddSection]
+        E[PageList]
+        F[PageSelected]
+        G[PageError]
+    end
+
+    subgraph "State Machines"
+        H[websiteMachine]
+        I[pageMachine]
+    end
+
+    subgraph "Database"
+        J[Supabase]
+    end
+
+    A -->|normalizedUrl| D
+    B -->|websiteContext| C
+    B -->|websiteContext| D
+    C -->|pageContext| D
+    C -->|pageContext| E
+    C -->|pageContext| F
+    C -->|pageContext| G
+
+    D -->|VALIDATE_URL_OWNERSHIP| H
+    D -->|ADD_PAGE| I
+    E -->|SELECT_PAGE| I
+    F -->|BACK| I
+
+    H -->|urlValidation| D
+    I -->|pages| E
+    I -->|selectedPage| F
+    I -->|error| G
+
+    I -->|addPageActor| J
+    J -->|data| I
+```
+
+### Architectural Layers Flow
+
+```mermaid
+flowchart TB
+    %% Presentation Layer
+    subgraph "Presentation Layer"
+        subgraph "Components"
+            UI_ADD[PageAddSection]
+            UI_LIST[PageList]
+            UI_DETAIL[PageSelected]
+            UI_ERROR[PageError]
+            UI_EMPTY[PageListEmpty]
+        end
+    end
+
+    %% State Management Layer
+    subgraph "State Management Layer"
+        subgraph "Context Providers"
+            CP_URL[UrlProvider]
+            CP_WEBSITE[WebsiteProvider]
+            CP_PAGE[PageProvider]
+        end
+
+        subgraph "State Machines"
+            SM_WEBSITE[websiteMachine]
+            SM_PAGE[pageMachine]
+        end
+    end
+
+    %% Business Logic Layer
+    subgraph "Business Logic Layer"
+        subgraph "Actors"
+            ACTOR_ADD[addPageActor]
+            ACTOR_LOAD[loadPagesActor]
+        end
+
+        subgraph "Validators"
+            VALIDATE_URL[validateWebsiteUrl]
+            VALIDATE_PATH[validatePagePath]
+            SECURITY[securityChecks]
+        end
+    end
+
+    %% Data Access Layer
+    subgraph "Data Access Layer"
+        subgraph "Database Operations"
+            DB_QUERY[Queries]
+            DB_UPSERT[Upserts]
+            DB_CONSTRAINTS[Constraints]
+        end
+
+        subgraph "External Services"
+            SUPABASE[Supabase Client]
+        end
+    end
+
+    %% Cross-cutting Concerns
+    subgraph "Cross-cutting Concerns"
+        LOGGING[Logging]
+        ERROR_HANDLING[Error Handling]
+        SECURITY_MONITORING[Security Monitoring]
+    end
+
+    %% Data Flow: Top to Bottom (User Actions -> Database)
+    UI_ADD -->|"1. User adds page"| CP_PAGE
+    UI_LIST -->|"2. User selects page"| CP_PAGE
+    UI_DETAIL -->|"3. User navigates back"| CP_PAGE
+
+    CP_URL -->|"4. Provides normalized URL"| SM_PAGE
+    CP_WEBSITE -->|"5. Provides website context"| SM_PAGE
+    CP_PAGE -->|"6. Dispatches events"| SM_PAGE
+    CP_PAGE -->|"7. URL ownership validation"| SM_WEBSITE
+
+    SM_WEBSITE -->|"8. Domain validation"| VALIDATE_URL
+    SM_PAGE -->|"9. Invokes actors"| ACTOR_ADD
+    SM_PAGE -->|"10. Invokes actors"| ACTOR_LOAD
+
+    ACTOR_ADD -->|"11. Validates input"| VALIDATE_PATH
+    ACTOR_ADD -->|"12. Security checks"| SECURITY
+    ACTOR_LOAD -->|"13. Fetches pages"| DB_QUERY
+
+    VALIDATE_PATH -->|"14. Reports validation"| SM_PAGE
+    SECURITY -->|"15. Enforces ownership"| SM_PAGE
+    SECURITY -->|"16. Logs violations"| LOGGING
+
+    ACTOR_ADD -->|"17. Creates records"| DB_UPSERT
+    DB_UPSERT -.->|"18. Enforces constraints"| DB_CONSTRAINTS
+
+    DB_QUERY -->|"19. Executes queries"| SUPABASE
+    DB_UPSERT -->|"20. Executes upserts"| SUPABASE
+
+    SUPABASE -->|"21. Returns data"| ACTOR_LOAD
+    SUPABASE -->|"22. Returns result"| ACTOR_ADD
+
+    %% Data Flow: Bottom to Top (Database -> UI Updates)
+    ACTOR_LOAD -->|"23. Updates state"| SM_PAGE
+    ACTOR_ADD -->|"24. Updates state"| SM_PAGE
+
+    SM_PAGE -->|"25. Updates context"| CP_PAGE
+
+    CP_PAGE -->|"26. Renders pages"| UI_LIST
+    CP_PAGE -->|"27. Renders selected"| UI_DETAIL
+    CP_PAGE -->|"28. Renders errors"| UI_ERROR
+    CP_PAGE -->|"29. Renders empty"| UI_EMPTY
+
+    %% Error handling flow
+    ERROR_HANDLING -.->|"Monitors"| SM_PAGE
+    ERROR_HANDLING -.->|"Reports UI errors"| UI_ERROR
+    SECURITY_MONITORING -.->|"Audits"| SECURITY
+```
+
+### Page Component Architecture
+
+```mermaid
+flowchart TB
+    %% Presentation Layer
+    subgraph "UI Layer"
+        ROOT[Page Root Component]
+        PAGE_PROVIDER[PageProvider]
+
+        subgraph "UI Components"
+            UI_LIST[PageList]
+            UI_SELECTED[PageSelected]
+            UI_ADD[PageAddSection]
+            UI_EMPTY[PageListEmpty]
+            UI_ERROR[PageError]
+            UI_SKELETON[PageSkeleton]
+        end
+    end
+
+    %% State Layer
+    subgraph "State Layer"
+        PAGE_CONTEXT[Page Context]
+        PAGE_HOOKS["Selector Hooks\n(usePages, usePage)"]
+
+        subgraph "State Machine"
+            PAGE_MACHINE[Page Machine]
+            STATE_IDLE[idle]
+            STATE_LOADING[loading]
+            STATE_SUCCESS[success]
+            STATE_ERROR[error]
+            STATE_EMPTY[empty]
+            STATE_ADDING[adding]
+        end
+    end
+
+    %% Logic Layer
+    subgraph "Logic Layer"
+        subgraph "Actors"
+            LOAD_PAGES[loadPagesActor]
+            ADD_PAGE[addPageActor]
+        end
+
+        subgraph "Validators"
+            VALIDATE_PATH[validatePagePath]
+            URL_CHECKS[urlSecurityChecks]
+        end
+    end
+
+    %% Data Layer
+    subgraph "Data Layer"
+        DB_CLIENT[Supabase Client]
+        DB_OPERATIONS["Database Operations\n(select, upsert)"]
+        URL_NORMALIZATION[URL Normalization]
+    end
+
+    %% Key Relationships
+    ROOT -->|renders| PAGE_PROVIDER
+    PAGE_PROVIDER -->|creates| PAGE_CONTEXT
+    PAGE_PROVIDER -->|initializes| PAGE_MACHINE
+
+    PAGE_CONTEXT -->|provides state to| UI_LIST
+    PAGE_CONTEXT -->|provides state to| UI_SELECTED
+    PAGE_CONTEXT -->|provides state to| UI_ADD
+    PAGE_CONTEXT -->|provides state to| UI_EMPTY
+    PAGE_CONTEXT -->|provides state to| UI_ERROR
+
+    PAGE_HOOKS -->|selects from| PAGE_CONTEXT
+    UI_COMPONENTS --> PAGE_HOOKS
+
+    %% State Transitions
+    STATE_IDLE -->|LOAD_PAGES| STATE_LOADING
+    STATE_LOADING -->|success| STATE_SUCCESS
+    STATE_LOADING -->|empty result| STATE_EMPTY
+    STATE_LOADING -->|error| STATE_ERROR
+    STATE_SUCCESS -->|ADD_PAGE| STATE_ADDING
+    STATE_EMPTY -->|ADD_PAGE| STATE_ADDING
+    STATE_ERROR -->|RETRY| STATE_LOADING
+    STATE_ADDING -->|success| STATE_SUCCESS
+    STATE_ADDING -->|error| STATE_ERROR
+
+    %% Business Logic Flow
+    PAGE_MACHINE -->|invokes| LOAD_PAGES
+    PAGE_MACHINE -->|invokes| ADD_PAGE
+
+    LOAD_PAGES -->|uses| DB_OPERATIONS
+    ADD_PAGE -->|validates with| VALIDATE_PATH
+    ADD_PAGE -->|validates with| URL_CHECKS
+    ADD_PAGE -->|normalizes URL| URL_NORMALIZATION
+    ADD_PAGE -->|uses| DB_OPERATIONS
+
+    DB_OPERATIONS -->|executes via| DB_CLIENT
+
+    %% Data Flow
+    DB_CLIENT -.->|returns data| LOAD_PAGES
+    DB_CLIENT -.->|returns result| ADD_PAGE
+
+    LOAD_PAGES -.->|updates| PAGE_MACHINE
+    ADD_PAGE -.->|updates| PAGE_MACHINE
+
+    PAGE_MACHINE -.->|updates| PAGE_CONTEXT
+    PAGE_CONTEXT -.->|renders| UI_COMPONENTS
+```
+
+### Page Component Architecture (Focused)
+
+```mermaid
+flowchart TB
+    %% Main Component Structure
+    ROOT[Page Root Component]
+    ROOT -->|renders| PAGE_PROVIDER[PageProvider]
+
+    %% Page Context Ecosystem
+    subgraph "PageContext Ecosystem"
+        direction TB
+
+        PAGE_PROVIDER -->|creates & manages| CTX[PageContext]
+
+        subgraph "State Machine"
+            direction LR
+            PAGE_MACHINE[Page Machine]
+            PAGE_MACHINE -->|updates| CTX
+        end
+
+        subgraph "Selector Hooks"
+            HOOKS["usePages()\nusePage()\nusePageState()"]
+            HOOKS -->|select from| CTX
+        end
+
+        subgraph "UI Components"
+            direction TB
+            UI_LIST[PageList]
+            UI_SELECTED[PageSelected]
+            UI_ADD[PageAddSection]
+            UI_EMPTY[PageListEmpty]
+            UI_ERROR[PageError]
+        end
+
+        %% Context relationships
+        CTX -->|context.pages| UI_LIST
+        CTX -->|context.selectedPage| UI_SELECTED
+        CTX -->|context.validationState| UI_ADD
+        CTX -->|context.pages.length| UI_EMPTY
+        CTX -->|context.error| UI_ERROR
+
+        %% Event flow
+        UI_LIST -->|"send(SELECT_PAGE)"| PAGE_MACHINE
+        UI_SELECTED -->|"send(BACK)"| PAGE_MACHINE
+        UI_ADD -->|"send(ADD_PAGE)"| PAGE_MACHINE
+        UI_EMPTY -->|"send(RETRY)"| PAGE_MACHINE
+        UI_ERROR -->|"send(RETRY)"| PAGE_MACHINE
+    end
+
+    %% Business Logic Layer (condensed)
+    subgraph "Business Logic"
+        direction LR
+        ACTORS["Page Actors\n(addPageActor, loadPagesActor)"]
+        VALIDATORS["Validators\n(path, security)"]
+        DB_OPS["Database Operations"]
+    end
+
+    %% Key relationships between layers
+    PAGE_MACHINE -->|invokes| ACTORS
+    ACTORS -->|use| VALIDATORS
+    ACTORS -->|perform| DB_OPS
+    ACTORS -->|update| PAGE_MACHINE
+```
+
+The updated diagram focuses on the PageContext as the central element of the architecture. Key improvements:
+
+1. **Clear Context Boundaries**: The PageContext ecosystem is now shown as a cohesive unit with well-defined boundaries
+2. **Bidirectional Data Flow**: Shows how components both consume context data and dispatch events back to the state machine
+3. **Specific Data Relationships**: Each UI component is now shown with the specific context data it uses (e.g., PageList uses context.pages)
+4. **Event-based Communication**: Visualizes how UI components send events to the state machine to trigger state changes
+5. **Simplified Business Logic**: The business logic layer is condensed to focus on the context relationships
+
+This approach better illustrates how the PageContext acts as the central hub connecting the state machine, UI components, and business logic in a clean, unidirectional data flow.
 
 ## State Management
 
@@ -50,6 +432,77 @@ The Page component uses XState for state management with the following key state
 - `VALIDATE_PATH`: Validate a path for adding a new page
 - `URL_CHANGED`: Handle when the current URL changes
 - `CLEAR_MESSAGES`: Clear validation messages
+
+## Component Structure
+
+The Page module uses a composite component pattern to provide a clean API and separation of concerns.
+
+### Core Components
+
+```jsx
+// Example usage in page.tsx
+<PageProvider websiteId={currentWebsite.id}>
+  <Skeleton />
+  <PageError />
+  <PageAddSection />
+  <PageList />
+  <PageListEmpty />
+  <PageListSkeleton />
+  <PageSelected>{children}</PageSelected>
+  {debug && <PageDebug />}
+</PageProvider>
+```
+
+### Component Separation
+
+To prevent performance issues and unnecessary re-renders, the Page module uses a careful separation of components:
+
+1. **Separate UI Components**: Different visual aspects of the UI are broken into distinct components, each with its own well-defined responsibility
+2. **Isolated State Consumers**: Each component only subscribes to the state data it needs through selective selectors
+3. **Memoized Components**: All components are wrapped with `React.memo()` to prevent re-renders when props haven't changed
+
+For example, the page addition UI is now split into two components:
+
+- `PageAddSection`: Lightweight header with "Pages" title and add button
+- `PageAdd`: Full implementation of page addition logic
+
+This prevents the entire page list from re-rendering when a user adds a new page.
+
+## Performance Optimizations
+
+The Page component implements several performance optimizations:
+
+### Selective Re-rendering
+
+```jsx
+// In page-list.tsx
+export const PageList = memo(function PageList() {
+  // Only subscribe to state needed by this component
+  const isSuccess = useSelector(actor, (state) =>
+    state.matches({ success: "list" })
+  )
+  const pages = useSelector(actor, (state) => state.context.pages)
+
+  // Rest of component...
+})
+```
+
+### Optimistic Updates
+
+When adding a page, the UI is updated optimistically before the server confirms the operation:
+
+1. UI enters "adding" state immediately on button click
+2. Button is disabled and shows loading state
+3. Server request is made in the background
+4. UI reacts to success or error as needed
+
+### Compact UI Elements
+
+The page addition UI has been optimized for density:
+
+- Compact header with "Pages" label on the left
+- Small icon button on the right for adding pages
+- Tooltips for additional context without cluttering the UI
 
 ## Business Logic
 
@@ -248,38 +701,6 @@ This ensures that:
 
 1. Each page is uniquely identified by its website and normalized URL
 2. Attempting to add a duplicate page will update the existing one
-3. Race conditions are handled efficiently at the database level
-4. Pages can only be associated with their correct website
-
-## Usage
-
-The Page component is designed to be used within the Website component:
-
-```tsx
-<WebsiteProvider spaceId={spaceId}>
-  <PageProvider websiteId={websiteId}>{/* Page content */}</PageProvider>
-</WebsiteProvider>
-```
-
-### Accessing Page State
-
-```tsx
-import { usePageContext } from "./page-context"
-
-function PageComponent() {
-  const pageActor = usePageContext()
-  const pageState = useSelector(pageActor, (state) => state)
-
-  // Use page state...
-}
-```
-
-## Data Flow
-
-1. The Space component provides a Space context
-2. The Website component consumes the Space context and provides a Website context
-3. The Page component consumes the Website context and provides a Page context
-4. Child components consume the Page context to render UI based on the current state
 
 ## Best Practices
 
@@ -295,6 +716,9 @@ function PageComponent() {
 10. Always maintain the multi-layered security approach (UI, state machine, actor function, database)
 11. Log potential security violations for monitoring and auditing
 12. Verify that the hostname of a page always matches the hostname of its parent website
+13. Use React.memo for components to prevent unnecessary re-renders
+14. Split complex components into smaller focused ones to allow selective updates
+15. Use selectors with Object.is comparison to prevent state thrashing
 
 ## Accessibility
 
@@ -304,9 +728,32 @@ The Page component implements accessibility best practices:
 - Loading indicators with appropriate ARIA roles
 - Error messages with role="alert"
 - Focus management between page states
+- Tooltips for contextual information
+- Using aria-labelledby instead of aria-label for better translation support
+- Including sr-only text for screen readers
+- Marking icons as aria-hidden="true" to prevent duplicate announcements
+- Dynamic tooltips that reflect current state (e.g., "Page already added", "Adding page...")
+- Unique IDs for ARIA references using React's useId() hook
+- Appropriate button states for loading, disabled, and error conditions
+- Keyboard navigable interface with proper focus styles
 
 ## Related Components
 
 - `Space`: Parent component that provides space context
 - `Website`: Intermediary component that provides website context within a space
 - Child components that consume page context
+
+## Future Improvements
+
+Future enhancements to consider for the Page module:
+
+1. **Drag and Drop Reordering**: Allow users to reorder pages using drag and drop
+2. **Batch Operations**: Support selecting multiple pages for bulk actions
+3. **Selective Loading**: Implement pagination or virtual scrolling for sites with many pages
+4. **Advanced Filtering**: Add search and filter capabilities for large page collections
+5. **Offline Support**: Cache pages locally for offline access
+6. **Change Tracking**: Show which pages have been modified since last scan
+7. **Detailed Analytics**: Integrate with analytics to show page-specific metrics
+8. **Custom Metadata**: Allow users to add custom metadata to pages
+9. **Keyboard Shortcuts**: Add keyboard shortcuts for common operations
+10. **Enhanced Search**: Implement full-text search across page content
