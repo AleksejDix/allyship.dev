@@ -34,9 +34,9 @@ export const WebsiteSearch = memo(function WebsiteSearch({
 
   // Get websites from the state machine context
   const websites = useSelector(websiteActor, (state) => state.context.websites)
-  const currentWebsite = useSelector(
+  const selectedWebsite = useSelector(
     websiteActor,
-    (state) => state.context.currentWebsite,
+    (state) => state.context.selectedWebsite,
     Object.is
   )
 
@@ -61,24 +61,19 @@ export const WebsiteSearch = memo(function WebsiteSearch({
 
   // Display the current website name/URL or placeholder
   const displayText = useMemo(() => {
-    if (currentWebsite) {
-      return currentWebsite.normalized_url
+    if (selectedWebsite) {
+      return selectedWebsite.normalized_url
     }
     return placeholder
-  }, [currentWebsite, placeholder])
+  }, [selectedWebsite, placeholder])
 
-  // Handle website selection
+  // Handle website selection - moved to top level
   const handleSelectWebsite = useCallback(
     (websiteId: string) => {
-      const selectedWebsite = websites.find(
-        (website) => website.id === websiteId
-      )
-      if (!selectedWebsite) return
-
       setOpen(false)
       websiteActor.send({
-        type: "WEBSITE_SELECTED",
-        website: selectedWebsite
+        type: "SELECT_WEBSITE",
+        websiteId
       })
 
       // Navigate to the website URL if needed
@@ -100,7 +95,7 @@ export const WebsiteSearch = memo(function WebsiteSearch({
       }
       */
     },
-    [websiteActor, websites, setOpen]
+    [websiteActor, setOpen]
   )
 
   return (
@@ -142,7 +137,7 @@ export const WebsiteSearch = memo(function WebsiteSearch({
                       aria-hidden="true"
                     />
                     <span className="truncate">{website.normalized_url}</span>
-                    {currentWebsite?.id === website.id && (
+                    {selectedWebsite?.id === website.id && (
                       <Check
                         className="ml-auto h-3.5 w-3.5"
                         aria-hidden="true"

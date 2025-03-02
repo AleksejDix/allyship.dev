@@ -26,19 +26,19 @@ export const WebsiteOptions = memo(function WebsiteOptions({
 
   const shouldRender = useSelector(
     actor,
-    (state) => state.matches({ loaded: "options" }),
+    (state) => state.matches({ success: "list" }),
     Object.is
   )
 
   // Memoize the selection handler to prevent unnecessary recreations
   const handleSelect = useCallback(
     (website: Website) => {
-      actor.send({ type: "WEBSITE_SELECTED", website })
+      actor.send({ type: "SELECT_WEBSITE", websiteId: website.id })
     },
     [actor]
   )
 
-  // Only render when in the loaded.options state
+  // Only render when in the success.list state
   if (!shouldRender) {
     return null
   }

@@ -17,9 +17,9 @@ export function PageListEmpty() {
     state.matches({ success: "list" })
   )
   const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
-  const currentWebsite = useSelector(
+  const selectedWebsite = useSelector(
     websiteActor,
-    (state) => state.context.currentWebsite,
+    (state) => state.context.selectedWebsite,
     Object.is
   )
 
@@ -30,9 +30,9 @@ export function PageListEmpty() {
 
   // Check if the current URL belongs to the selected website
   const currentUrlBelongsToWebsite =
-    normalizedUrl && currentWebsite
+    normalizedUrl && selectedWebsite
       ? normalizedUrl.hostname ===
-        currentWebsite.normalized_url.replace(/^https?:\/\//, "")
+        selectedWebsite.normalized_url.replace(/^https?:\/\//, "")
       : false
 
   return (
@@ -47,17 +47,17 @@ export function PageListEmpty() {
           <p className="text-xs text-amber-500 mb-2">
             Note: The current page ({normalizedUrl.hostname}) is from a
             different website than the selected one (
-            {currentWebsite?.normalized_url.replace(/^https?:\/\//, "")}).
+            {selectedWebsite?.normalized_url.replace(/^https?:\/\//, "")}).
           </p>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              // Use the MATCH_WEBSITE event to find the website matching the current URL
+              // Use the URL_CHANGED event to find the website matching the current URL
               if (normalizedUrl) {
                 websiteActor.send({
-                  type: "MATCH_WEBSITE",
-                  url: `https://${normalizedUrl.hostname}${normalizedUrl.path}`
+                  type: "URL_CHANGED",
+                  normalizedUrl
                 })
               }
             }}
