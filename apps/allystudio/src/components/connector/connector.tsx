@@ -4,7 +4,6 @@ import { useSpaceContext } from "@/components/space/space-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCurrentUrl } from "@/providers/url-provider"
 import { useSelector } from "@xstate/react"
 import { PlusCircle } from "lucide-react"
@@ -12,7 +11,7 @@ import { useEffect, useState, type FC } from "react"
 import { toast } from "sonner"
 
 import { type Page, type Website } from "./api/sdk"
-import { PageCreateForm, PageSelector, WebsiteSelector } from "./components"
+import { PageSelector, WebsiteSelector } from "./components"
 import { usePageCreator, usePageData, useWebsiteData } from "./hooks"
 
 /**
@@ -334,74 +333,46 @@ export const Connector: FC = () => {
         </div>
 
         <div className="md:col-span-2">
-          <Tabs defaultValue="create">
-            <TabsList>
-              <TabsTrigger value="create">Create</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="create" className="space-y-4">
-              <PageCreateForm
-                websiteUrl={websiteUrl}
-                onWebsiteUrlChange={setWebsiteUrl}
-                pagePath={pagePath}
-                onPagePathChange={setPagePath}
-                onSubmit={() => createPage(selectedWebsite || undefined)}
-                isCreating={isCreating}
-                error={createError}
-                isDisabled={!spaceId}
-                currentDomain={currentDomain}
-                currentPath={currentPath}
-              />
-            </TabsContent>
-
-            <TabsContent value="details">
-              <Card className="border-muted">
-                <CardHeader>
-                  <CardTitle>Selected Item Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {selectedWebsite && (
-                    <div>
-                      <h3 className="font-medium">Website</h3>
-                      <Separator className="my-2" />
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="text-sm font-medium">URL:</div>
-                        <div className="text-sm">
-                          {selectedWebsite.normalized_url}
-                        </div>
-                        <div className="text-sm font-medium">ID:</div>
-                        <div className="text-sm truncate">
-                          {selectedWebsite.id}
-                        </div>
-                      </div>
+          <Card className="border-muted">
+            <CardHeader>
+              <CardTitle>Selected Item Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {selectedWebsite && (
+                <div>
+                  <h3 className="font-medium">Website</h3>
+                  <Separator className="my-2" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="text-sm font-medium">URL:</div>
+                    <div className="text-sm">
+                      {selectedWebsite.normalized_url}
                     </div>
-                  )}
+                    <div className="text-sm font-medium">ID:</div>
+                    <div className="text-sm truncate">{selectedWebsite.id}</div>
+                  </div>
+                </div>
+              )}
 
-                  {selectedPage && (
-                    <div>
-                      <h3 className="font-medium">Page</h3>
-                      <Separator className="my-2" />
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="text-sm font-medium">Path:</div>
-                        <div className="text-sm">{selectedPage.path}</div>
-                        <div className="text-sm font-medium">ID:</div>
-                        <div className="text-sm truncate">
-                          {selectedPage.id}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+              {selectedPage && (
+                <div>
+                  <h3 className="font-medium">Page</h3>
+                  <Separator className="my-2" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="text-sm font-medium">Path:</div>
+                    <div className="text-sm">{selectedPage.path}</div>
+                    <div className="text-sm font-medium">ID:</div>
+                    <div className="text-sm truncate">{selectedPage.id}</div>
+                  </div>
+                </div>
+              )}
 
-                  {!selectedWebsite && !selectedPage && (
-                    <div className="text-center py-4 text-gray-500">
-                      No items selected
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+              {!selectedWebsite && !selectedPage && (
+                <div className="text-center py-4 text-gray-500">
+                  No items selected
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
