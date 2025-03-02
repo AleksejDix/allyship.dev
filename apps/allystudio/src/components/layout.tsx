@@ -1,3 +1,4 @@
+import { Connector } from "@/components/connector/connector"
 import { Page } from "@/components/page/page"
 import { Space } from "@/components/space/space"
 import { Website } from "@/components/website/website"
@@ -12,9 +13,10 @@ export function Layout({ children }: PropsWithChildren) {
       <AuthProvider>
         <UrlProvider>
           <Space>
-            <Website debug={true}>
+            <Connector />
+            {/* <Website debug={true}>
               <Page>{children}</Page>
-            </Website>
+            </Website> */}
           </Space>
         </UrlProvider>
       </AuthProvider>

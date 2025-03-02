@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/button"
-import {
-  CurrentIndicator,
-  CurrentPathIndicator
-} from "@/components/ui/current-indicator"
+import { CurrentPathIndicator } from "@/components/ui/current-indicator"
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +13,6 @@ import { ExternalLink, FileText, Plus } from "lucide-react"
 import { memo, useId, useMemo } from "react"
 
 import { useWebsiteContext } from "../website/website-context"
-import { PageAdd } from "./page-add"
 import { usePageContext } from "./page-context"
 
 // Component that displays the list of pages
@@ -25,9 +21,7 @@ export const PageList = memo(function PageList() {
   const isSuccess = useSelector(actor, (state) =>
     state.matches({ success: "list" })
   )
-  const hasPages = useSelector(actor, (state) => state.context.pages.length > 0)
   const pages = useSelector(actor, (state) => state.context.pages)
-  const websiteId = useSelector(actor, (state) => state.context.websiteId)
 
   // Sort pages by path
   const sortedPages = useMemo(() => {
@@ -103,15 +97,9 @@ export const PageAddSection = memo(function PageAddSection() {
   const addPageButtonId = useId()
 
   // Get necessary state from machines
-  const currentWebsite = useSelector(
+  const selectedWebsite = useSelector(
     websiteActor,
-    (state) => state.context.currentWebsite,
-    Object.is
-  )
-
-  const urlValidation = useSelector(
-    websiteActor,
-    (state) => state.context.urlValidation,
+    (state) => state.context.selectedWebsite,
     Object.is
   )
 
@@ -125,13 +113,17 @@ export const PageAddSection = memo(function PageAddSection() {
   )
 
   // Check if the current URL belongs to the selected website
-  const currentUrlBelongsToWebsite = urlValidation.belongsToCurrentWebsite
+  const currentUrlBelongsToWebsite =
+    normalizedUrl && selectedWebsite
+      ? normalizedUrl.hostname ===
+        selectedWebsite.normalized_url.replace(/^https?:\/\//, "")
+      : false
 
   // Check if the current page already exists
   const currentPath = normalizedUrl?.path || ""
   const pageAlreadyExists = pages.some(
     (page) =>
-      page.path === currentPath && page.website_id === currentWebsite?.id
+      page.path === currentPath && page.website_id === selectedWebsite?.id
   )
 
   // Determine if add button should be disabled
@@ -142,21 +134,21 @@ export const PageAddSection = memo(function PageAddSection() {
     pageAlreadyExists
 
   const handleQuickAdd = () => {
-    if (isAddDisabled || !normalizedUrl?.path || !currentWebsite) return
+    if (isAddDisabled || !normalizedUrl?.path || !selectedWebsite) return
 
     // Use the path from the normalized URL
     const path = normalizedUrl.path
 
     // Construct normalized_url as hostname + path
-    const hostname = currentWebsite.normalized_url.replace(/^https?:\/\//, "")
+    const hostname = selectedWebsite.normalized_url.replace(/^https?:\/\//, "")
     const combinedNormalizedUrl = `${hostname}${path}`
 
     // Create the page insert payload
     const payload = {
       path,
-      url: `${currentWebsite.url}${path}`,
+      url: `${selectedWebsite.url}${path}`,
       normalized_url: combinedNormalizedUrl,
-      website_id: currentWebsite.id,
+      website_id: selectedWebsite.id,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
@@ -165,7 +157,7 @@ export const PageAddSection = memo(function PageAddSection() {
     pageActor.send({
       type: "ADD_PAGE",
       payload,
-      website: currentWebsite
+      website: selectedWebsite
     })
   }
 

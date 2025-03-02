@@ -32,6 +32,29 @@ export function WebsiteAdd() {
     )
   }, [normalizedUrl, websites])
 
+  // Create the payload early, even though we might not use it
+  const payload = useMemo(() => {
+    if (!normalizedUrl || !currentSpace) return null
+
+    return {
+      normalized_url: normalizedUrl.hostname,
+      url: normalizedUrl.raw,
+      theme: "LIGHT",
+      space_id: currentSpace.id,
+      user_id: auth.user?.id
+    } as WebsiteInsert
+  }, [normalizedUrl, currentSpace, auth.user?.id])
+
+  // Move the useCallback to the top level
+  const handleAddWebsite = useCallback(() => {
+    if (!payload) return
+
+    console.log("Adding website", payload)
+    console.log("Current actor state:", actor.getSnapshot())
+
+    actor.send({ type: "ADD_WEBSITE", payload })
+  }, [actor, payload])
+
   if (!currentSpace) {
     return null
   }
@@ -43,26 +66,11 @@ export function WebsiteAdd() {
   // Add a log to verify the normalizedUrl structure
   console.log("WebsiteAdd normalizedUrl structure:", normalizedUrl)
 
-  const payload: WebsiteInsert = {
-    normalized_url: normalizedUrl.hostname,
-    url: normalizedUrl.raw,
-    theme: "LIGHT",
-    space_id: currentSpace.id,
-    user_id: auth.user?.id
-  }
-
-  const handleAddWebsite = useCallback(() => {
-    console.log("Adding website", payload)
-    console.log("Current actor state:", actor.getSnapshot())
-
-    actor.send({ type: "ADD_WEBSITE", payload })
-  }, [actor, payload])
-
   return (
     <Button
       type="button"
       onClick={handleAddWebsite}
-      disabled={websiteAlreadyExists}
+      disabled={websiteAlreadyExists || !payload}
       aria-disabled={websiteAlreadyExists}
       title={
         websiteAlreadyExists

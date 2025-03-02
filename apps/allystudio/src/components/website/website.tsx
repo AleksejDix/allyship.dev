@@ -36,13 +36,14 @@ const Website = memo(function Website({
 
   return (
     <WebsiteProvider spaceId={currentSpace.id} normalizedUrl={normalizedUrl}>
-      <WebsiteEmpty />
-      <WebsiteSearch />
-      <WebsiteAdd />
+      {/* <WebsiteEmpty /> */}
+      {/* <WebsiteSearch /> */}
+      {/* <WebsiteAdd /> */}
       {/* <WebsiteOptions>
       </WebsiteOptions> */}
-      <WebsiteSelected>{children}</WebsiteSelected>
-      {debug && <WebsiteDebug />}
+
+      {children}
+      {/* {debug && <WebsiteDebug />} */}
     </WebsiteProvider>
   )
 })

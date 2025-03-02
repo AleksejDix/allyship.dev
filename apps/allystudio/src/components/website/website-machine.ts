@@ -9,39 +9,21 @@ type Website = Database["public"]["Tables"]["Website"]["Row"]
 type WebsiteInsert = TablesInsert<"Website">
 
 // Define context type
-type WebsiteContext = {
+export type WebsiteContext = {
   websites: Website[]
-  currentWebsite: Website | null
+  selectedWebsite: Website | null // Renamed from currentWebsite for consistency
   error: PostgrestError | null
   spaceId: string
 }
 
-// Define user events
+// Define user events - simplified to match page-machine
 export type WebsiteEvent =
-  | { type: "REFRESH" }
+  | { type: "LOAD_WEBSITES"; spaceId: string } // Renamed from REFRESH
   | { type: "SPACE_CHANGED"; spaceId: string }
-  | { type: "WEBSITE_SELECTED"; websiteId: string }
+  | { type: "SELECT_WEBSITE"; websiteId: string } // Renamed from WEBSITE_SELECTED
   | { type: "ADD_WEBSITE"; payload: WebsiteInsert }
   | { type: "URL_CHANGED"; normalizedUrl: NormalizedUrl }
-
-// Define event types for better typing
-type LoadWebsitesSuccessEvent = {
-  type: "done.invoke.loadWebsites"
-  output: Website[]
-}
-
-type LoadWebsitesErrorEvent = {
-  type: "error.invoke.loadWebsites"
-  error: PostgrestError
-}
-
-// Combine all event types
-type AllEvents =
-  | WebsiteEvent
-  | LoadWebsitesSuccessEvent
-  | LoadWebsitesErrorEvent
-  | { type: "done.invoke.addWebsite"; output: Website }
-  | { type: "error.invoke.addWebsite"; error: PostgrestError }
+  | { type: "BACK" } // Added to match page-machine
 
 // Actor to load websites from Supabase
 const loadWebsitesActor = fromPromise<Website[], { spaceId: string }>(
@@ -83,11 +65,10 @@ const addWebsiteActor = fromPromise<Website, { payload: WebsiteInsert }>(
   }
 )
 
-// Create the machine with proper typing
 export const websiteMachine = setup({
   types: {
     context: {} as WebsiteContext,
-    events: {} as AllEvents,
+    events: {} as WebsiteEvent,
     input: {} as { spaceId: string; normalizedUrl: NormalizedUrl | null }
   },
   actors: {
@@ -95,19 +76,15 @@ export const websiteMachine = setup({
     addWebsite: addWebsiteActor
   },
   actions: {
-    // Set current website by hostname (URL-based matching)
-    setCurrentWebsiteByHostname: assign(({ context, event }) => {
+    // Set selected website by hostname (URL-based matching)
+    setSelectedWebsiteByHostname: assign(({ context, event }) => {
       if (event.type === "URL_CHANGED") {
-        console.log("URL_CHANGED event received:", event.normalizedUrl)
         const hostname = event.normalizedUrl.hostname
-
         const website = context.websites.find(
           (website) => website.normalized_url === hostname
         )
-
-        console.log("Matched website:", website || "No match found")
         return {
-          currentWebsite: website || null
+          selectedWebsite: website || null
         }
       }
       return {}
@@ -126,9 +103,48 @@ export const websiteMachine = setup({
       return {}
     }),
 
-    // Set error in context when loading fails
+    // Set selected website by ID
+    setSelectedWebsiteById: assign(({ context, event }) => {
+      if (event.type === "SELECT_WEBSITE") {
+        const website = context.websites.find(
+          (website) => website.id === event.websiteId
+        )
+        return {
+          selectedWebsite: website || null
+        }
+      }
+      return {}
+    }),
+
+    // Add a new website to the list
+    addWebsiteToList: assign(({ context, event }) => {
+      if (event.type.startsWith("xstate.done") && "output" in event) {
+        const newWebsite = event.output as Website
+        return {
+          websites: [...context.websites, newWebsite],
+          selectedWebsite: newWebsite
+        }
+      }
+      return {}
+    }),
+
+    // Clear the selected website
+    clearSelectedWebsite: assign(() => ({
+      selectedWebsite: null
+    })),
+
+    // Update the space ID
+    updateSpaceId: assign(({ event }) => {
+      if (event.type === "LOAD_WEBSITES" || event.type === "SPACE_CHANGED") {
+        return {
+          spaceId: event.spaceId
+        }
+      }
+      return {}
+    }),
+
+    // Set error in context
     setError: assign(({ event }) => {
-      // Check if this is an error event from an actor
       if (event.type.startsWith("xstate.error") && "error" in event) {
         return {
           error: event.error as PostgrestError
@@ -137,89 +153,69 @@ export const websiteMachine = setup({
       return {}
     }),
 
-    // Set website by ID (manual selection)
-    setCurrentWebsiteById: assign(({ context, event }) => {
-      if (event.type === "WEBSITE_SELECTED") {
-        const website =
-          context.websites.find((w) => w.id === event.websiteId) || null
-        return { currentWebsite: website }
-      }
-      return {}
-    }),
-
-    // Set the only website (when there's just one)
-    setOnlyWebsite: assign(({ context, event }) => {
-      console.log("🧨", { context, event })
-      if (context.websites.length === 1) {
-        return { currentWebsite: context.websites[0] }
-      }
-      return {}
-    }),
-
-    // Add a new website to the list and select it
-    addNewWebsite: assign(({ context, event }) => {
-      // Check if this is a done event from an actor
-      if (event.type.startsWith("xstate.done") && "output" in event) {
-        const newWebsite = event.output as Website
-        return {
-          websites: [...context.websites, newWebsite],
-          currentWebsite: newWebsite,
-          error: null // Clear any errors
-        }
-      }
-      return {}
-    }),
-
-    // Update space ID when space changes
-    updateSpaceId: assign(({ event }) => {
-      if (event.type === "SPACE_CHANGED") {
-        return {
-          spaceId: event.spaceId,
-          currentWebsite: null // Clear current website when space changes
-        }
-      }
-      return {}
-    }),
-
-    // Clear error when refreshing
-    clearError: assign({
-      error: () => null
-    }),
-
-    // Clear selected website
-    clearCurrentWebsite: assign({
-      currentWebsite: () => null
-    })
-  },
-  guards: {
-    // Check if there are websites
-    hasWebsites: ({ context }) => context.websites.length > 0,
-
-    // Check if there's exactly one website
-    hasOnlyOneWebsite: ({ context }) => context.websites.length === 1,
-
-    // Check if current website is set
-    hasCurrentWebsite: ({ context }) => context.currentWebsite !== null
+    // Clear error in context
+    clearError: assign(() => ({
+      error: null
+    }))
   }
 }).createMachine({
   id: "website",
-  context: ({ input }) => ({
+  context: ({
+    input
+  }: {
+    input: { spaceId: string; normalizedUrl: NormalizedUrl | null }
+  }) => ({
     websites: [],
-    currentWebsite: null,
+    selectedWebsite: null,
     error: null,
     spaceId: input.spaceId
   }),
-  initial: "loading",
+  initial: "idle",
   states: {
+    idle: {
+      on: {
+        LOAD_WEBSITES: {
+          target: "loading",
+          actions: "updateSpaceId"
+        }
+      },
+      // Auto-load websites when entering idle state
+      always: {
+        target: "loading"
+      }
+    },
     loading: {
       invoke: {
         id: "loadWebsites",
         src: "loadWebsites",
-        input: ({ context }) => ({ spaceId: context.spaceId }),
-        onDone: {
-          target: "success",
-          actions: "setWebsites"
-        },
+        input: ({ context }) => ({
+          spaceId: context.spaceId
+        }),
+        onDone: [
+          {
+            // If websites are loaded and there's only one, auto-select it
+            guard: ({ event }) => {
+              const websites = event.output as Website[]
+              return websites.length === 1
+            },
+            target: "success.selected",
+            actions: [
+              "setWebsites",
+              // Auto-select the only website
+              assign(({ event }) => {
+                const websites = event.output as Website[]
+                return {
+                  selectedWebsite: websites[0]
+                }
+              })
+            ]
+          },
+          {
+            // If websites are loaded but there are multiple or none
+            target: "success.list",
+            actions: "setWebsites"
+          }
+        ],
         onError: {
           target: "error",
           actions: "setError"
@@ -228,48 +224,32 @@ export const websiteMachine = setup({
     },
     success: {
       initial: "list",
-      entry: ["setOnlyWebsite"],
       states: {
         list: {
           on: {
-            WEBSITE_SELECTED: {
+            SELECT_WEBSITE: {
               target: "selected",
-              actions: "setCurrentWebsiteById"
+              actions: "setSelectedWebsiteById"
             }
-          },
-          always: [
-            // Auto-transition to selected if there's only one website
-            {
-              guard: "hasOnlyOneWebsite",
-              target: "selected"
-            },
-            // Auto-transition to selected if current website is set
-            {
-              guard: "hasCurrentWebsite",
-              target: "selected"
-            }
-          ]
+          }
         },
         selected: {
           on: {
-            REFRESH: {
-              target: "#website.loading",
-              actions: "clearError"
+            SELECT_WEBSITE: {
+              target: "selected",
+              actions: "setSelectedWebsiteById"
+            },
+            BACK: {
+              target: "list",
+              actions: "clearSelectedWebsite"
             }
-          },
-          // Go back to list if current website becomes null
-          always: [
-            {
-              guard: ({ context }) => context.currentWebsite === null,
-              target: "list"
-            }
-          ]
+          }
         }
       },
       on: {
-        REFRESH: {
+        LOAD_WEBSITES: {
           target: "loading",
-          actions: "clearError"
+          actions: "updateSpaceId"
         },
         ADD_WEBSITE: {
           target: "adding"
@@ -278,9 +258,9 @@ export const websiteMachine = setup({
     },
     error: {
       on: {
-        REFRESH: {
+        LOAD_WEBSITES: {
           target: "loading",
-          actions: "clearError"
+          actions: ["updateSpaceId", "clearError"]
         }
       }
     },
@@ -288,18 +268,16 @@ export const websiteMachine = setup({
       invoke: {
         id: "addWebsite",
         src: "addWebsite",
-        input: ({ context, event }) => {
-          // Make sure we're handling the ADD_WEBSITE event
+        input: ({ event }) => {
           if (event.type === "ADD_WEBSITE") {
             return { payload: event.payload }
           }
-
-          // Return a default payload to prevent errors
-          return { payload: { url: "", space_id: context.spaceId } }
+          // TypeScript needs a return value, but this should never happen
+          return { payload: {} as WebsiteInsert }
         },
         onDone: {
           target: "success.selected",
-          actions: "addNewWebsite"
+          actions: "addWebsiteToList"
         },
         onError: {
           target: "error",
@@ -314,7 +292,7 @@ export const websiteMachine = setup({
       actions: "updateSpaceId"
     },
     URL_CHANGED: {
-      actions: "setCurrentWebsiteByHostname"
+      actions: ["setSelectedWebsiteByHostname"]
     }
   }
 })

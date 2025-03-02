@@ -6,7 +6,6 @@ import { Werkzeug } from "@/components/werkzeug"
 export default function SidePanel() {
   return (
     <Layout>
-      {/* <Connector /> */}
       <Werkzeug />
     </Layout>
   )

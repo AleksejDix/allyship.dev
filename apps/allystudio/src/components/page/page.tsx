@@ -3,8 +3,11 @@ import { useSelector } from "@xstate/react"
 import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
-import { useWebsiteContext } from "../website/website-context"
-import { WebsiteSearch } from "../website/website-search"
+import {
+  useWebsiteContext,
+  WebsiteSearch,
+  WebsiteSelectRequired
+} from "../website"
 import { PageAdd } from "./page-add"
 import { PageProvider } from "./page-context"
 import { PageDebug } from "./page-debug"
@@ -15,8 +18,8 @@ import { PageSearch } from "./page-search"
 import { PageSelected } from "./page-selected"
 import { PageListSkeleton, Skeleton } from "./page-skeleton"
 
-// Selector to get the current website from the website machine
-const selectCurrentWebsite = (state: any) => state.context.currentWebsite
+// Selector to get the selected website from the website machine
+const selectSelectedWebsite = (state: any) => state.context.selectedWebsite
 
 // Root component that sets up the machine and provider
 // Use memo to prevent unnecessary re-renders
@@ -24,37 +27,39 @@ const Page = memo(function Page({
   children,
   debug = false
 }: PropsWithChildren<{ debug?: boolean }>) {
+  const { normalizedUrl } = useCurrentUrl()
   const websiteActor = useWebsiteContext()
 
-  // Get the current website from the website context
-  const currentWebsite = useSelector(
+  // Get the selected website from the website state machine
+  const selectedWebsite = useSelector(
     websiteActor,
-    selectCurrentWebsite,
+    selectSelectedWebsite,
     Object.is
   )
 
-  const { normalizedUrl } = useCurrentUrl()
-
-  // Only render when a website is selected
-  if (!currentWebsite) {
-    return null
+  if (!selectedWebsite) {
+    return <WebsiteSelectRequired />
   }
 
   return (
-    <PageProvider websiteId={currentWebsite.id} normalizedUrl={normalizedUrl}>
-      <Skeleton />
-      <PageError />
-      <div className="flex items-center justify-between p-2">
-        <WebsiteSearch />
-        <div className="grow">
-          <PageSearch />
+    <>
+      <PageProvider
+        websiteId={selectedWebsite.id}
+        normalizedUrl={normalizedUrl}>
+        {/* <Skeleton /> */}
+        {/* <PageError /> */}
+        <div className="flex items-center justify-between p-2">
+          <WebsiteSearch />
+          <div className="grow">
+            <PageSearch />
+          </div>
+          <PageAdd />
         </div>
-        <PageAdd />
-      </div>
-      <PageSelected>{children}</PageSelected> <PageListEmpty />
-      <PageListSkeleton />
-      {debug && <PageDebug />}
-    </PageProvider>
+        <PageSelected>{children}</PageSelected>
+        <PageListSkeleton />
+        {debug && <PageDebug />}
+      </PageProvider>
+    </>
   )
 })
 
@@ -65,9 +70,6 @@ export {
   PageError,
   PageList,
   PageListEmpty,
-  PageSelected,
-  Skeleton,
   PageListSkeleton,
-  PageAdd,
-  PageSearch
+  PageProvider
 }

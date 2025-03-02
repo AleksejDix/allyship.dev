@@ -17,9 +17,9 @@ export const PageAdd = memo(function PageAdd() {
   const { normalizedUrl, isLoading } = useUrl()
 
   // Get the current website from the website context
-  const currentWebsite = useSelector(
+  const selectedWebsite = useSelector(
     websiteActor,
-    (state) => state.context.currentWebsite,
+    (state) => state.context.selectedWebsite,
     Object.is
   )
 
@@ -40,7 +40,7 @@ export const PageAdd = memo(function PageAdd() {
   )
 
   // Get domain from website URL
-  const websiteDomain = currentWebsite?.normalized_url.replace(
+  const websiteDomain = selectedWebsite?.normalized_url.replace(
     /^https?:\/\//,
     ""
   )
@@ -53,11 +53,11 @@ export const PageAdd = memo(function PageAdd() {
 
   // Find existing page for current URL (if any)
   const existingPage =
-    currentWebsite && normalizedUrl?.path
+    selectedWebsite && normalizedUrl?.path
       ? pages.find(
           (page) =>
             page.path === normalizedUrl.path &&
-            page.website_id === currentWebsite.id
+            page.website_id === selectedWebsite.id
         )
       : null
 
@@ -66,7 +66,7 @@ export const PageAdd = memo(function PageAdd() {
 
   const handleAddPage = useCallback(() => {
     if (
-      !currentWebsite ||
+      !selectedWebsite ||
       !normalizedUrl?.path ||
       pageAlreadyExists ||
       !currentUrlBelongsToWebsite
@@ -80,19 +80,19 @@ export const PageAdd = memo(function PageAdd() {
     // Create payload with only required fields
     const payload: PageInsert = {
       path,
-      url: `${currentWebsite.url}${path}`,
+      url: `${selectedWebsite.url}${path}`,
       normalized_url: combinedNormalizedUrl,
-      website_id: currentWebsite.id
+      website_id: selectedWebsite.id
     }
 
     // Send ADD_PAGE event
     pageActor.send({
       type: "ADD_PAGE",
       payload,
-      website: currentWebsite
+      website: selectedWebsite
     })
   }, [
-    currentWebsite,
+    selectedWebsite,
     normalizedUrl,
     pageActor,
     pageAlreadyExists,
@@ -100,7 +100,7 @@ export const PageAdd = memo(function PageAdd() {
     websiteDomain
   ])
 
-  if (!currentWebsite) return null
+  if (!selectedWebsite) return null
 
   // Determine button state - ensure it's always a boolean
   const isAddDisabled = Boolean(
@@ -121,7 +121,7 @@ export const PageAdd = memo(function PageAdd() {
             className="w-8 h-8 text-red-600 border-red-600 animate-pulse"
             asChild>
             <a
-              href={`https://${currentWebsite.normalized_url}`}
+              href={`https://${selectedWebsite.normalized_url}`}
               target="_blank">
               <SwitchCamera className="h-4 w-4" aria-hidden="true" />
               <span className="sr-only">
