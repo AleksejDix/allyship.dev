@@ -33,7 +33,7 @@ const websiteApi = createEntityApi<Website, WebsiteInsert>({
   }
 })
 
-// Export individual functions for tree-shaking
+// Export individual functions
 export const {
   list: listWebsites,
   get: getWebsite,

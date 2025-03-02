@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { useCurrentUrl } from "@/providers/url-provider"
 import { useSelector } from "@xstate/react"
 import { PlusCircle } from "lucide-react"
-import { useEffect, useState, type FC } from "react"
+import { useCallback, useEffect, useMemo, useState, type FC } from "react"
 import { toast } from "sonner"
 
 import { type Page, type Website } from "./api/sdk"
@@ -20,10 +20,11 @@ import { usePageCreator, usePageData, useWebsiteData } from "./hooks"
  */
 export const Connector: FC = () => {
   const spaceActor = useSpaceContext()
+  // Use a memoized selector with proper comparison
   const currentSpace = useSelector(
     spaceActor,
     (state) => state.context.currentSpace,
-    Object.is
+    (a, b) => a?.id === b?.id // Custom equality function
   )
   const spaceId = currentSpace?.id
 
@@ -36,6 +37,7 @@ export const Connector: FC = () => {
 
   // Get the current URL from the Chrome extension
   const { normalizedUrl, isLoading: isLoadingUrl } = useCurrentUrl()
+
   const currentDomain = normalizedUrl?.hostname || null
   const currentPath = normalizedUrl?.path || null
 
@@ -48,7 +50,8 @@ export const Connector: FC = () => {
     isLoading: isLoadingWebsites,
     error: websitesError,
     fetchWebsites,
-    addOptimisticWebsite
+    addOptimisticWebsite,
+    forceResetLoading
   } = useWebsiteData(spaceId)
 
   // Page state management with custom hook
@@ -60,7 +63,8 @@ export const Connector: FC = () => {
     isLoading: isLoadingPages,
     error: pagesError,
     fetchPages,
-    addOptimisticPage
+    addOptimisticPage,
+    forceResetLoading: forceResetLoadingPages
   } = usePageData(selectedWebsite)
 
   // Page creation with custom hook
@@ -82,22 +86,29 @@ export const Connector: FC = () => {
     }
   })
 
-  // Handle website change
-  const handleWebsiteChange = (websiteId: string) => {
-    setSelectedWebsiteId(websiteId)
-    setSelectedPageId(null)
-  }
-
-  // Check if current domain matches any known website
-  const knownWebsite = websiteOptions.find(
-    (website) => website.normalized_url === currentDomain
+  // Handle website change - use callback to maintain referential equality
+  const handleWebsiteChange = useCallback(
+    (websiteId: string) => {
+      setSelectedWebsiteId(websiteId)
+      setSelectedPageId(null)
+    },
+    [setSelectedWebsiteId, setSelectedPageId]
   )
 
-  // Check if current path matches any known page (if we have a selected website)
-  const knownPage = pageOptions.find((page) => page.path === currentPath)
+  // Check if current domain matches any known website - memoize result
+  const knownWebsite = useMemo(
+    () =>
+      websiteOptions.find(
+        (website) => website.normalized_url === currentDomain
+      ),
+    [websiteOptions, currentDomain]
+  )
 
-  // Note: Auto-selection is now handled in the individual selectors
-  // This maintains the variables for status checks
+  // Check if current path matches any known page - memoize result
+  const knownPage = useMemo(
+    () => pageOptions.find((page) => page.path === currentPath),
+    [pageOptions, currentPath]
+  )
 
   // Always keep form values in sync with current URL
   useEffect(() => {
@@ -109,13 +120,14 @@ export const Connector: FC = () => {
     }
   }, [currentDomain, currentPath, setWebsiteUrl, setPagePath])
 
-  // Handle quick page creation
-  const handleQuickPageCreate = async () => {
+  // Handle quick page creation - use callback for performance
+  const handleQuickPageCreate = useCallback(async () => {
     if (!currentDomain || !currentPath || !spaceId) {
       toast.error("Missing URL information")
       return
     }
 
+    if (isCreatingQuick) return // Prevent duplicate calls
     setIsCreatingQuick(true)
 
     try {
@@ -192,7 +204,37 @@ export const Connector: FC = () => {
         setOptimisticPage(null)
       })
     }
-  }
+  }, [
+    currentDomain,
+    currentPath,
+    spaceId,
+    isCreatingQuick,
+    knownWebsite,
+    addOptimisticPage,
+    createPage,
+    addOptimisticWebsite,
+    createWebsiteAndPage,
+    fetchWebsites,
+    fetchPages
+  ])
+
+  // Compute the quick add button disabled state
+  const quickAddDisabled = useMemo(
+    () =>
+      isCreatingQuick ||
+      !spaceId ||
+      !currentDomain ||
+      !currentPath ||
+      Boolean(knownWebsite && knownPage),
+    [
+      isCreatingQuick,
+      spaceId,
+      currentDomain,
+      currentPath,
+      knownWebsite,
+      knownPage
+    ]
+  )
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -217,13 +259,7 @@ export const Connector: FC = () => {
           <Button
             size="sm"
             onClick={handleQuickPageCreate}
-            disabled={
-              isCreatingQuick ||
-              !spaceId ||
-              !currentDomain ||
-              !currentPath ||
-              Boolean(knownWebsite && knownPage)
-            }
+            disabled={quickAddDisabled}
             className="flex items-center gap-1">
             <PlusCircle size={16} />
             <span>
@@ -272,8 +308,10 @@ export const Connector: FC = () => {
                 websiteOptions={websiteOptions}
                 selectedWebsiteId={selectedWebsiteId}
                 onWebsiteChange={handleWebsiteChange}
-                onRefresh={fetchWebsites}
+                onRefresh={() => fetchWebsites(true)} // Force refresh with true parameter
                 isLoading={isLoadingWebsites}
+                error={websitesError}
+                forceResetLoading={forceResetLoading}
                 highlightStatus={
                   !isLoadingUrl && currentDomain
                     ? knownWebsite
@@ -311,8 +349,10 @@ export const Connector: FC = () => {
                   pageOptions={pageOptions}
                   selectedPageId={selectedPageId}
                   onPageChange={setSelectedPageId}
-                  onRefresh={fetchPages}
+                  onRefresh={() => fetchPages(true)} // Force refresh with true parameter
                   isLoading={isLoadingPages}
+                  error={pagesError}
+                  forceResetLoading={forceResetLoadingPages}
                   disabled={!selectedWebsiteId}
                   highlightStatus={
                     !isLoadingUrl &&
