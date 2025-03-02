@@ -20,6 +20,60 @@ The Connector component establishes connections between the current URL in the b
   - `ConnectorHostname`: Displays hostname with status highlighting
   - `ConnectorPath`: Displays path with status highlighting
 
+## Business Requirements
+
+### Core Requirements
+
+- [ ] Establish connections between browser URLs and database resources
+- [ ] Track websites at the domain level (e.g., "example.com")
+- [ ] Track pages at the path level (e.g., "/products")
+- [ ] Associate websites with specific spaces for organization
+- [ ] Allow quick creation of website and page entries from current URL
+- [ ] Provide status indicators for the connection state
+
+### URL Handling
+
+- [ ] Support proper URL normalization (remove www., http://, etc.)
+- [ ] Handle path normalization (handle trailing slashes, etc.)
+- [ ] Strip query parameters and fragments for consistent matching
+- [ ] Support manual URL input for non-browser-extension scenarios
+- [ ] Validate URL input to prevent malformed entries
+- [ ] Prevent duplicate URL entries within the same space
+
+### Real-Time Status
+
+- [ ] Visual feedback for URL matching status (connected/disconnected)
+- [ ] Status indicator for hostname matches
+- [ ] Status indicator for path matches
+- [ ] Loading indicators during connection state changes
+- [ ] Clear error states for failed connections
+
+### User Workflows
+
+- [ ] Support direct navigation to tracked pages
+- [ ] Enable quick tracking of new URLs
+- [ ] Allow selection from previously tracked websites/pages
+- [ ] Support manual refresh of connection state
+- [ ] Provide form pre-filling based on current URL
+- [ ] Support keyboard-accessible navigation and actions
+
+### Data Management
+
+- [ ] Efficiently fetch website data for the current space
+- [ ] Fetch page data only for the currently selected website
+- [ ] Cache website and page data to minimize API calls
+- [ ] Handle error states for failed data fetching
+- [ ] Support optimistic updates for better user experience
+- [ ] Clean up data subscriptions when component unmounts
+
+### Integration
+
+- [ ] Integrate with space context for proper data scoping
+- [ ] Connect with URL provider for current browser location
+- [ ] Expose clean APIs for parent components
+- [ ] Support proper theme integration for light/dark mode
+- [ ] Ensure accessibility throughout all connection states
+
 ## State Management
 
 ### Local State

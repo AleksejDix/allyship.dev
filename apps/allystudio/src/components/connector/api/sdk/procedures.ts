@@ -97,10 +97,17 @@ export async function createPageWithWebsite(
       pageUrl ||
       `${websiteUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`
 
+    // Ensure path starts with a slash for consistency
+    const normalizedPath = pagePath.startsWith("/") ? pagePath : `/${pagePath}`
+
+    // Create the normalized URL for the page by combining the normalized website URL and path
+    const normalizedPageUrl = `${normalizedWebsiteUrl}${normalizedPath}`
+
     const newPage: PageInsert = {
       website_id: website.id,
       url: fullPageUrl,
-      path: pagePath
+      path: pagePath,
+      normalized_url: normalizedPageUrl
     }
 
     return await createPage(newPage)
