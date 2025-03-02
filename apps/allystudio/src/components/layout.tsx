@@ -14,6 +14,7 @@ export function Layout({ children }: PropsWithChildren) {
         <UrlProvider>
           <Space>
             <Connector />
+            {children}
             {/* <Website debug={true}>
               <Page>{children}</Page>
             </Website> */}
