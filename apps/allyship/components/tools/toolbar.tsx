@@ -18,6 +18,7 @@ import {
   Settings,
   SquareAsterisk,
   Type,
+  Brain,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -44,6 +45,7 @@ import { checkKeyboardShortcuts } from './tools/keyboard-shortcuts'
 import { checkLandmarks } from './tools/landmarks'
 import { checkLanguage } from './tools/language-check'
 import { checkLinkLabels } from './tools/link-labels'
+import { checkReadability } from './ai-tools'
 
 const TOOLS = {
   headings: {
