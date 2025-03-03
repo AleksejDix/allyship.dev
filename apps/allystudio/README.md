@@ -211,11 +211,12 @@ export function setupMessageHandlers() {
 
 2. Analysis Events
 
-   - `HEADING_ANALYSIS_COMPLETE`
-   - `HEADING_NAVIGATE_REQUEST`
+   - `TEST_ANALYSIS_REQUEST`
+   - `TEST_ANALYSIS_COMPLETE`
 
 3. UI Events
-   - `HIGHLIGHT`
+   - `HIGHLIGHT_ELEMENT`
+   - `CLEAR_HIGHLIGHTS`
    - `NAVIGATE_REQUEST`
 
 ## Development

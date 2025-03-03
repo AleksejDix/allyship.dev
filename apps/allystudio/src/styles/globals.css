@@ -63,12 +63,43 @@
   * {
     @apply border-border;
   }
+
+  /* Modern height setup with fallbacks */
+  :root {
+    /* Fallback for older browsers */
+    min-height: 100vh;
+    /* Dynamic viewport height - adjusts for mobile UI elements */
+    min-height: 100dvh;
+  }
+
+  html {
+    /* Fallback */
+    height: 100%;
+    /* Use the largest viewport height to prevent content jumping */
+    min-height: 100lvh;
+  }
+
+  /* Basic body styles */
   body {
+    /* Fallback */
+    min-height: 100%;
+    /* Dynamic viewport height - adjusts for mobile UI */
+    min-height: 100dvh;
+    /* Prevent overflow issues */
+    position: relative;
+    margin: 0;
+    overflow-y: auto;
     @apply bg-background text-foreground;
   }
 }
 
-#plasmo-shadow-container {
-  all: initial;
-  box-sizing: border-box;
+/* Ensure Plasmo container takes full height */
+#__plasmo {
+  /* Use dynamic viewport height */
+  min-height: 100dvh;
+  height: 100dvh;
+  width: 100dvw;
+  grid-template-columns: minmax(0, 100%);
+  display: grid;
+  grid-template-rows: 1fr auto;
 }

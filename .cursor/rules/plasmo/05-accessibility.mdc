@@ -1,0 +1,178 @@
+---
+description: "Accessibility best practices for Plasmo extension UI components"
+globs:
+  - "apps/allystudio/src/components/**/*.tsx"
+  - "apps/allystudio/src/sidepanel/**/*.tsx"
+  - "apps/allystudio/src/options/**/*.tsx"
+---
+
+# Accessibility Best Practices
+
+Maintaining high accessibility standards is especially important for AllyStudio since it is an accessibility auditing tool. We must lead by example.
+
+## Icon Accessibility
+
+1. **Always Make Icons Decorative**:
+   ```tsx
+   <Button>
+     <Icon aria-hidden="true" />
+     <span>Button Text</span>
+   </Button>
+
+   // For icon-only buttons
+   <Button aria-labelledby="button-label">
+     <Icon aria-hidden="true" />
+     <span id="button-label" className="sr-only">
+       Button Description
+     </span>
+   </Button>
+   ```
+
+2. **Never Expose Icons to Screen Readers** unless they convey meaning that isn't available in text
+
+## Focus Management
+
+### Focus Trapping for Modals
+
+```tsx
+import { useEffect, useRef } from "react"
+
+// Example of focus trapping for modals
+export function useFocusTrap(isActive: boolean) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isActive || !ref.current) return
+
+    const focusableElements = ref.current.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const firstElement = focusableElements[0] as HTMLElement
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement.focus()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement.focus()
+        }
+      }
+    }
+
+    ref.current.addEventListener('keydown', handleKeyDown)
+    firstElement.focus()
+
+    return () => {
+      ref.current?.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isActive])
+
+  return ref
+}
+
+// Example usage in a modal
+export function AccessibilityModal({ isOpen, onClose }) {
+  const trapRef = useFocusTrap(isOpen)
+
+  return (
+    isOpen ? (
+      <div
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <h2 id="modal-title">Accessibility Options</h2>
+        <button onClick={onClose}>Close</button>
+      </div>
+    ) : null
+  )
+}
+```
+
+### Focus Restoration
+
+Always restore focus when closing dialogs or completing flows:
+
+```tsx
+function Dialog({ isOpen, onClose }) {
+  // Reference to the element that had focus before dialog opened
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      // Save the currently focused element
+      previousFocusRef.current = document.activeElement as HTMLElement
+    } else if (previousFocusRef.current) {
+      // Restore focus when dialog closes
+      previousFocusRef.current.focus()
+    }
+  }, [isOpen])
+
+  // Dialog implementation...
+}
+```
+
+## Keyboard Shortcuts
+
+Provide keyboard shortcuts for common actions:
+
+```tsx
+function KeyboardShortcutsProvider({ children }) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + Shift + A to open accessibility panel
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'a') {
+        e.preventDefault()
+        // Open accessibility panel
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  return <>{children}</>
+}
+```
+
+## Screen Reader Considerations
+
+1. **Test with Screen Readers**: VoiceOver (macOS), NVDA (Windows), JAWS (Windows)
+2. **Use Proper ARIA Attributes**:
+   - `aria-label` for elements without visible text
+   - `aria-labelledby` to reference existing text
+   - `aria-describedby` for additional descriptions
+   - `aria-expanded` for disclosure elements
+   - `aria-controls` to associate controls with their targets
+   - `aria-live` for dynamic content
+
+3. **Proper Heading Structure**:
+   - Use `h1` to `h6` elements in a meaningful hierarchy
+   - Never skip heading levels
+
+4. **Semantic HTML**:
+   - Use `<button>` for actions, not `<div>` with click handlers
+   - Use `<a>` for navigation
+   - Use `<ul>` and `<ol>` for lists
+   - Use `<table>` for tabular data
+
+## Accessibility Testing
+
+Include screen reader testing in QA process:
+
+1. Test with keyboard navigation only
+2. Test with screen readers
+3. Test with high contrast modes
+4. Test with zoom/magnification
+5. Verify color contrast meets WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
+
+## Color and Visual Accessibility
+
+1. **Don't Rely on Color Alone**: Always use other visual cues (icons, patterns)
+2. **Support High Contrast**: Test with high contrast mode enabled
+3. **Maintain Contrast Ratios**: Use tools to verify contrast
+4. **Support Text Zoom**: Test with browser zoom up to 200%

@@ -11,7 +11,7 @@ import { useServerAction } from 'zsa-react'
 
 import { Button } from '@workspace/ui/components/button'
 import { Form } from '@workspace/ui/components/form'
-import { Field } from '@/components/forms/field'
+import { Field } from '@workspace/ui/components/field'
 
 interface Props {
   page: Tables<'Page'>

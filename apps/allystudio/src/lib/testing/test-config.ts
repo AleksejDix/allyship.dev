@@ -1,29 +1,34 @@
-import { altTests } from "./alt-tests"
-import { headingTests } from "./heading-tests"
-import { interactiveTests } from "./interactive-tests"
-import { linkTests } from "./link-tests"
+// No imports needed - all tests now use ACT rules
 
-export type TestType = "headings" | "links" | "alt" | "interactive"
+export type TestType =
+  | "headings"
+  | "links"
+  | "alt"
+  | "interactive"
+  | "buttons"
+  | "forms"
+  | "landmarks"
+  | "aria"
+  | "color"
+  | "tables"
+  | "language"
+  | "structure"
+  | "focus"
 
+/**
+ * Configuration for accessibility tests
+ *
+ * MIGRATION COMPLETE: We've fully migrated to generic events.
+ * All components now use the generic TEST_ANALYSIS_COMPLETE event
+ * instead of specific event types.
+ *
+ * ACT MIGRATION COMPLETE: All tests now use ACT rules.
+ */
 export interface TestConfig {
+  // Test identification
   type: TestType
-  suite:
-    | typeof headingTests
-    | typeof linkTests
-    | typeof altTests
-    | typeof interactiveTests
-  events: {
-    complete:
-      | "HEADING_ANALYSIS_COMPLETE"
-      | "LINK_ANALYSIS_COMPLETE"
-      | "ALT_ANALYSIS_COMPLETE"
-      | "INTERACTIVE_ANALYSIS_COMPLETE"
-    request:
-      | "HEADING_ANALYSIS_REQUEST"
-      | "LINK_ANALYSIS_REQUEST"
-      | "ALT_ANALYSIS_REQUEST"
-      | "INTERACTIVE_ANALYSIS_REQUEST"
-  }
+
+  // UI display configuration
   displayName: string
   buttonText: {
     enable: string
@@ -33,33 +38,27 @@ export interface TestConfig {
     label: string
     itemName: string
   }
+
+  // Layer mapping for visualization
+  layerName: string // Maps test types to layer names
 }
 
 export const TEST_CONFIGS: Record<TestType, TestConfig> = {
   headings: {
     type: "headings",
-    suite: headingTests,
-    events: {
-      complete: "HEADING_ANALYSIS_COMPLETE",
-      request: "HEADING_ANALYSIS_REQUEST"
-    },
     displayName: "Heading Structure",
     buttonText: {
       enable: "Enable Heading Analysis",
       disable: "Disable Heading Analysis"
     },
     statsText: {
-      label: "Found",
-      itemName: "headings"
-    }
+      label: "Headings",
+      itemName: "heading"
+    },
+    layerName: "headings"
   },
   links: {
     type: "links",
-    suite: linkTests,
-    events: {
-      complete: "LINK_ANALYSIS_COMPLETE",
-      request: "LINK_ANALYSIS_REQUEST"
-    },
     displayName: "Link Accessibility",
     buttonText: {
       enable: "Enable Link Analysis",
@@ -68,15 +67,11 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "links"
-    }
+    },
+    layerName: "links"
   },
   alt: {
     type: "alt",
-    suite: altTests,
-    events: {
-      complete: "ALT_ANALYSIS_COMPLETE",
-      request: "ALT_ANALYSIS_REQUEST"
-    },
     displayName: "Alt Text Analysis",
     buttonText: {
       enable: "Enable Alt Text Analysis",
@@ -85,15 +80,11 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "images"
-    }
+    },
+    layerName: "images"
   },
   interactive: {
     type: "interactive",
-    suite: interactiveTests,
-    events: {
-      complete: "INTERACTIVE_ANALYSIS_COMPLETE",
-      request: "INTERACTIVE_ANALYSIS_REQUEST"
-    },
     displayName: "Interactive Elements",
     buttonText: {
       enable: "Enable Interactive Analysis",
@@ -102,6 +93,125 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     statsText: {
       label: "Found",
       itemName: "elements"
-    }
+    },
+    layerName: "interactive"
+  },
+  // New ACT rule-based tests
+  buttons: {
+    type: "buttons",
+    displayName: "Button Accessibility",
+    buttonText: {
+      enable: "Enable Button Analysis",
+      disable: "Disable Button Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "buttons"
+    },
+    layerName: "buttons"
+  },
+  forms: {
+    type: "forms",
+    displayName: "Form Accessibility",
+    buttonText: {
+      enable: "Enable Form Analysis",
+      disable: "Disable Form Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "form elements"
+    },
+    layerName: "forms"
+  },
+  landmarks: {
+    type: "landmarks",
+    displayName: "Landmark Regions",
+    buttonText: {
+      enable: "Enable Landmark Analysis",
+      disable: "Disable Landmark Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "landmarks"
+    },
+    layerName: "landmarks"
+  },
+  aria: {
+    type: "aria",
+    displayName: "ARIA Usage",
+    buttonText: {
+      enable: "Enable ARIA Analysis",
+      disable: "Disable ARIA Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "ARIA elements"
+    },
+    layerName: "aria"
+  },
+  color: {
+    type: "color",
+    displayName: "Color & Contrast",
+    buttonText: {
+      enable: "Enable Color Analysis",
+      disable: "Disable Color Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "contrast issues"
+    },
+    layerName: "color"
+  },
+  tables: {
+    type: "tables",
+    displayName: "Table Accessibility",
+    buttonText: {
+      enable: "Enable Table Analysis",
+      disable: "Disable Table Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "tables"
+    },
+    layerName: "tables"
+  },
+  language: {
+    type: "language",
+    displayName: "Language Settings",
+    buttonText: {
+      enable: "Enable Language Analysis",
+      disable: "Disable Language Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "language issues"
+    },
+    layerName: "language"
+  },
+  structure: {
+    type: "structure",
+    displayName: "Document Structure",
+    buttonText: {
+      enable: "Enable Structure Analysis",
+      disable: "Disable Structure Analysis"
+    },
+    statsText: {
+      label: "Structure Elements",
+      itemName: "element"
+    },
+    layerName: "structure"
+  },
+  focus: {
+    type: "focus",
+    displayName: "Focus Indicators",
+    buttonText: {
+      enable: "Enable Focus Analysis",
+      disable: "Disable Focus Analysis"
+    },
+    statsText: {
+      label: "Focus Elements",
+      itemName: "element"
+    },
+    layerName: "focus"
   }
 }

@@ -1,0 +1,8 @@
+---
+description: Always write as litle code as possible
+globs: *.ts, *tsx
+alwaysApply: false
+---
+Write less but better code 
+Avoid classes and complex abstracion
+Use DRY and SRP

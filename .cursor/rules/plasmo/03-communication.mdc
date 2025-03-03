@@ -1,0 +1,119 @@
+---
+description: "Guidelines for communication between extension parts in Plasmo"
+globs:
+  - "apps/allystudio/src/background/**/*"
+  - "apps/allystudio/src/contents/**/*"
+  - "apps/allystudio/src/sidepanel/**/*"
+  - "apps/allystudio/src/options/**/*"
+---
+
+# Communication Between Extension Parts
+
+## Core Architecture Principle
+
+**Important**: For all new features, communication between UI components should go through background scripts. Different parts of the Plasmo framework cannot talk to each other directly.
+
+The communication flow should be:
+1. UI Component (sidepanel, popup, options) → Background Script
+2. Background Script → Content Script (if needed)
+3. Content Script → Background Script (if needed)
+4. Background Script → UI Component (response)
+
+## Extension Parts Communication
+
+| Extension Part | How to Communicate |
+|----------------|-------------------|
+| Content Scripts | Use `sendToBackground` to send messages to background scripts |
+| Background Scripts | Define message handlers that UI and content scripts can call |
+| Side Panel | Use `sendToBackground` for data operations and DOM manipulation |
+| Options Page | Use `sendToBackground` for settings operations |
+| Popup UI | Use `sendToBackground` for quick actions and data fetching |
+| Tab Script UI | Use `sendToBackground` for tab-specific operations |
+
+This architecture ensures a clean separation of concerns and prevents complex dependencies between extension components.
+
+## Messaging Examples
+
+### Sending Messages from Content Scripts
+
+```tsx
+// In content script
+import { sendToBackground } from "@plasmohq/messaging"
+
+const sendAccessibilityData = async (data) => {
+  const response = await sendToBackground({
+    name: "save-accessibility-data",
+    body: {
+      url: window.location.href,
+      data: data
+    }
+  })
+
+  return response
+}
+```
+
+### Sending Messages from UI Components
+
+```tsx
+// In side panel component
+import { sendToBackground } from "@plasmohq/messaging"
+
+const SidePanel = () => {
+  const [data, setData] = useState(null)
+
+  const fetchPageData = async () => {
+    try {
+      const response = await sendToBackground({
+        name: "get-page-data",
+        body: {
+          url: window.location.href
+        }
+      })
+
+      setData(response.data)
+    } catch (error) {
+      console.error("Failed to fetch page data:", error)
+    }
+  }
+
+  return (
+    <div>
+      <button onClick={fetchPageData}>Analyze Page</button>
+      {data && <DataDisplay data={data} />}
+    </div>
+  )
+}
+```
+
+### Handling Messages in Background Scripts
+
+```tsx
+// In src/background/[message-name].ts
+export {};
+
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+
+const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
+  const { body } = req
+
+  // Process request
+
+  res.send({
+    success: true,
+    data: {
+      // response data
+    }
+  })
+}
+
+export default handler
+```
+
+## Best Practices
+
+1. **Use Types**: Define TypeScript interfaces for message bodies and responses
+2. **Error Handling**: Always include try/catch blocks when sending messages
+3. **Response Formatting**: Use consistent response formats (success, data, error)
+4. **Message Naming**: Use descriptive names for message handlers
+5. **Avoid Direct Communication**: Never try to communicate directly between UI components

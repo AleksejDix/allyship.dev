@@ -1,260 +1,237 @@
-import { Button } from "@/components/ui/button"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
-import { Eye, EyeOff } from "lucide-react"
-import { useEffect, useState } from "react"
+import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
-interface TestResults {
-  type: TestType
-  stats: {
-    total: number
-    invalid: number
-  }
-  issues: Array<{
-    id: string
-    message: string
-    severity: "Critical" | "High" | "Medium" | "Low"
-  }>
-}
+import {
+  TestContext,
+  TestEventMonitor,
+  TestResults,
+  TestSelector
+} from "./werkzeug/index"
 
+// Main Werkzeug Component with TestProvider
 export function Werkzeug() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  // Core state management
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
-  const [results, setResults] = useState<TestResults[]>([])
+  const [testResults, setTestResults] = useState<any[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
 
+  // Event handling for test completion
   useEffect(() => {
-    const unsubscribe = eventBus.subscribe((event) => {
-      // Find test type by matching the complete event type
-      const testConfig = Object.entries(TEST_CONFIGS).find(
-        ([, config]) => config.events.complete === event.type
-      )
+    const handleTestComplete = (event: any) => {
+      // Only handle generic test completion events
+      if (event.type === "TEST_ANALYSIS_COMPLETE") {
+        console.log("[werkzeug] Handling test completion:", event)
+        const testId = event.data?.testId || event.data?.testType
 
-      if (
-        testConfig &&
-        (event.type === "HEADING_ANALYSIS_COMPLETE" ||
-          event.type === "LINK_ANALYSIS_COMPLETE" ||
-          event.type === "ALT_ANALYSIS_COMPLETE" ||
-          event.type === "INTERACTIVE_ANALYSIS_COMPLETE")
-      ) {
-        const [type] = testConfig
-        setResults((current) => [
-          ...current,
-          {
-            type: type as TestType,
-            stats: {
-              total: event.data.stats.total,
-              invalid: event.data.stats.invalid
-            },
-            issues: event.data.issues
+        // Always reset loading state when we receive a completion event
+        if (activeTest) {
+          console.log(`[werkzeug] Resetting activeTest from ${activeTest}`)
+          setActiveTest(null)
+        }
+
+        // Skip fallback events if we already have results
+        if (event.data?.isFallbackEvent && testResults.length > 0) {
+          console.log(
+            "[werkzeug] Ignoring fallback event since we already have results"
+          )
+          return
+        }
+
+        // Use a timeout to prevent UI flashing and ensure state updates properly
+        setTimeout(() => {
+          // Check for ACT format (results object with details)
+          if (
+            event.data?.results?.details &&
+            event.data.results.details.length > 0
+          ) {
+            console.log(
+              `[werkzeug] Setting ACT test results:`,
+              event.data.results.details
+            )
+            // Append new results instead of replacing
+            setTestResults((prevResults) => {
+              // Create a map of existing results by ID to avoid duplicates
+              const existingMap = new Map(
+                prevResults.map((r) => [r.id || JSON.stringify(r), r])
+              )
+
+              // Add new results, avoiding duplicates
+              event.data.results.details.forEach((detail: any) => {
+                const id = detail.id || JSON.stringify(detail)
+                if (!existingMap.has(id)) {
+                  existingMap.set(id, detail)
+                }
+              })
+
+              return Array.from(existingMap.values())
+            })
           }
-        ])
-        setIsAnalyzing(false)
-        setActiveTest(null)
+          // If no results found and we don't have any existing results, show a message
+          else if (testResults.length === 0 && !event.data?.isFallbackEvent) {
+            console.log(`[werkzeug] No issues found in test results`)
+            // Show empty results with a message
+            setTestResults([
+              {
+                id: "no-issues",
+                message: `No issues found in ${testId} test`,
+                severity: "Low",
+                outcome: "passed"
+              }
+            ])
+          }
+        }, 100) // Small delay to ensure state updates properly
       }
-    })
+    }
 
-    return unsubscribe
-  }, [])
+    console.log(
+      "[werkzeug] Setting up event listener for test completion events"
+    )
+    const cleanup = eventBus.subscribe(handleTestComplete)
+    return () => {
+      console.log("[werkzeug] Cleaning up event listener")
+      cleanup()
+    }
+  }, [activeTest, testResults])
 
-  const toggleLayer = (layerName: string) => {
-    // Map test types to layer names first
-    const layerMap = {
-      headings: "headings",
-      links: "links",
-      alt: "images",
-      interactive: "interactive"
-    } as const
+  // Layer toggling functionality
+  const toggleLayer = useCallback((testType: string) => {
+    console.log("[Werkzeug] Toggle requested for layer:", testType)
 
-    console.log("[Werkzeug] Toggle requested for layer:", layerName)
-
-    // Get the mapped layer name
-    const mappedLayer =
-      layerMap[layerName as keyof typeof layerMap] || layerName
-    console.log("[Werkzeug] Mapped layer name:", mappedLayer)
+    // Get the corresponding layer name from the test config if it's a valid test type
+    const layerName =
+      testType in TEST_CONFIGS
+        ? TEST_CONFIGS[testType as TestType].layerName || testType
+        : testType
 
     setHiddenLayers((current) => {
       const newHidden = new Set(current)
-      if (newHidden.has(mappedLayer)) {
-        console.log(
-          "[Werkzeug] Showing layer (removing from hidden):",
-          mappedLayer
-        )
-        newHidden.delete(mappedLayer)
+      if (newHidden.has(layerName)) {
+        newHidden.delete(layerName)
       } else {
-        console.log("[Werkzeug] Hiding layer (adding to hidden):", mappedLayer)
-        newHidden.add(mappedLayer)
+        newHidden.add(layerName)
       }
 
-      const isVisible = !newHidden.has(mappedLayer)
-      console.log("[Werkzeug] Publishing LAYER_TOGGLE_REQUEST:", {
-        layer: mappedLayer,
-        visible: isVisible
-      })
-
+      const isVisible = !newHidden.has(layerName)
       eventBus.publish({
         type: "LAYER_TOGGLE_REQUEST",
         timestamp: Date.now(),
         data: {
-          layer: mappedLayer,
+          layer: layerName,
           visible: isVisible
         }
       })
 
       return newHidden
     })
-  }
+  }, [])
 
-  const startAnalysis = async () => {
-    // Clear previous results and layer states
-    setResults([])
-    setHiddenLayers(new Set())
-    setIsAnalyzing(true)
+  // Test running functionality
+  const runTest = useCallback(async (type: TestType) => {
+    console.log(`[werkzeug] Running test: ${type}`)
+    setActiveTest(type)
 
-    // Get current tab
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (!tab?.id) return
+    try {
+      // Use our helper function
+      await runTestHelper(type)
 
-    // Run all test suites in sequence
-    const testTypes = Object.entries(TEST_CONFIGS)
-    for (const [type, config] of testTypes) {
-      setActiveTest(type as TestType)
-      console.log("Starting test:", type) // Debug log
+      // Set a safety timeout to reset the loading state
+      // This is a backup in case no completion event is received
+      setTimeout(() => {
+        setActiveTest((current) => {
+          if (current === type) {
+            console.log(`[werkzeug] Safety timeout for test: ${type}`)
+            return null
+          }
+          return current
+        })
+      }, 6000) // 6 seconds - slightly longer than the fallback event timeout
+    } catch (error) {
+      console.error(`[werkzeug] Error running test ${type}:`, error)
+      setActiveTest(null)
+    }
+  }, [])
 
-      // Start this test
-      eventBus.publish({
-        type: config.events.request,
-        timestamp: Date.now(),
-        tabId: tab.id
-      })
-
-      // Wait for completion before starting next test
-      await new Promise<void>((resolve, reject) => {
-        let timeout: NodeJS.Timeout
-
-        const cleanup = eventBus.subscribe((event) => {
-          if (event.type === config.events.complete) {
-            clearTimeout(timeout)
-            cleanup()
-            resolve()
+  const stopTest = useCallback(() => {
+    setActiveTest((current) => {
+      if (current) {
+        console.log(`[Werkzeug] Stopping test: ${current}`)
+        eventBus.publish({
+          type: "TOOL_STATE_CHANGE",
+          timestamp: Date.now(),
+          data: {
+            tool: current,
+            enabled: false
           }
         })
+      }
+      return null
+    })
+  }, [])
 
-        // Add timeout to prevent hanging
-        timeout = setTimeout(() => {
-          cleanup()
-          reject(new Error(`Test ${type} timed out`))
-        }, 10000) // 10 second timeout
-      }).catch((error) => {
-        console.error("Test error:", error)
-        // Continue with next test even if current one fails
-      })
+  const clearResults = useCallback(() => {
+    console.log("[werkzeug] Clearing test results")
+    setTestResults([])
 
-      // Add small delay between tests to ensure highlights are properly handled
-      await new Promise((resolve) => setTimeout(resolve, 100))
-    }
+    // Hide any visible layers when clearing results
+    console.log("[werkzeug] Hiding all layers")
 
-    setIsAnalyzing(false)
-    setActiveTest(null)
-  }
+    // Get all test types to find their layer names
+    Object.keys(TEST_CONFIGS).forEach((testType) => {
+      const layerName = TEST_CONFIGS[testType as TestType].layerName || testType
 
-  const stopAnalysis = () => {
-    if (activeTest) {
-      eventBus.publish({
-        type: "TOOL_STATE_CHANGE",
-        timestamp: Date.now(),
-        data: {
-          tool: activeTest,
-          enabled: false
-        }
-      })
-    }
-    setIsAnalyzing(false)
-    setActiveTest(null)
-  }
+      // Only send event if layer is not already hidden
+      if (!hiddenLayers.has(layerName)) {
+        eventBus.publish({
+          type: "LAYER_TOGGLE_REQUEST",
+          timestamp: Date.now(),
+          data: {
+            layer: layerName,
+            visible: false // explicitly set to not visible
+          }
+        })
+      }
+    })
+
+    // Update hidden layers state
+    setHiddenLayers(
+      new Set(
+        Object.keys(TEST_CONFIGS).map(
+          (testType) => TEST_CONFIGS[testType as TestType].layerName || testType
+        )
+      )
+    )
+  }, [hiddenLayers])
+
+  // Create a memoized context value to prevent unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({
+      activeTest,
+      testResults,
+      isRunning: !!activeTest,
+      runTest,
+      stopTest,
+      clearResults
+    }),
+    [activeTest, testResults, runTest, stopTest, clearResults]
+  )
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex justify-between items-center">
-        <Button
-          onClick={startAnalysis}
-          disabled={isAnalyzing}
-          className="w-full">
-          {isAnalyzing ? "Analyzing..." : "Start Accessibility Analysis"}
-        </Button>
-        {isAnalyzing && (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={stopAnalysis}
-            className="ml-2">
-            Stop
-          </Button>
-        )}
-      </div>
+    <TestContext.Provider value={contextValue}>
+      <TooltipProvider>
+        <div className="p-2 space-y-4">
+          {/* Test Selector */}
+          <TestSelector />
 
-      {/* Analysis Progress */}
-      {isAnalyzing && activeTest && (
-        <div className="text-sm text-muted-foreground">
-          Running {TEST_CONFIGS[activeTest].displayName}...
-        </div>
-      )}
+          {/* Event Monitor */}
+          <TestEventMonitor />
 
-      {/* Results Summary */}
-      {results.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Analysis Results</h2>
-          {results.map((result) => (
-            <div
-              key={result.type}
-              className="p-4 rounded-lg border bg-card text-card-foreground">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">
-                  {TEST_CONFIGS[result.type].displayName}
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => toggleLayer(result.type)}
-                  aria-pressed={!hiddenLayers.has(result.type)}
-                  aria-label={`Toggle ${TEST_CONFIGS[result.type].displayName} layer visibility`}
-                  className="h-8 w-8">
-                  {hiddenLayers.has(result.type) ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Found {result.stats.invalid} issues in {result.stats.total}{" "}
-                {TEST_CONFIGS[result.type].statsText.itemName}
-              </p>
-              {result.issues.length > 0 && (
-                <ul className="mt-2 space-y-1">
-                  {result.issues.map((issue, index) => (
-                    <li
-                      key={`${result.type}-${issue.id}-${issue.severity}-${index}`}
-                      className="text-sm flex items-center gap-2">
-                      <span
-                        className={`px-1.5 py-0.5 rounded-full text-xs ${
-                          issue.severity === "Critical"
-                            ? "bg-destructive text-destructive-foreground"
-                            : issue.severity === "High"
-                              ? "bg-warning text-warning-foreground"
-                              : "bg-muted text-muted-foreground"
-                        }`}>
-                        {issue.severity}
-                      </span>
-                      {issue.message}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+          {/* Results Summary */}
+          <TestResults />
         </div>
-      )}
-    </div>
+      </TooltipProvider>
+    </TestContext.Provider>
   )
 }

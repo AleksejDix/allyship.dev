@@ -1,0 +1,791 @@
+---
+description: "Guidelines for using the accessibility testing framework in AllyStudio"
+globs:
+  - "apps/allystudio/src/lib/testing/**/*"
+  - "apps/allystudio/src/contents/test-runner.ts"
+  - "apps/allystudio/src/background/machines/test.ts"
+  - "apps/allystudio/src/background/messages/toggle-test.ts"
+  - "apps/allystudio/src/sidepanel/**/*"
+  - "apps/allystudio/src/components/werkzeug.tsx"
+---
+
+# Accessibility Testing Framework
+
+## Overview
+
+AllyStudio includes a robust testing framework for running automated accessibility tests directly on web pages. This framework enables the extension to detect accessibility issues in real-time and provide actionable feedback.
+
+## Testing Architecture
+
+The testing framework consists of:
+
+1. **Test Runner** - Orchestrates test execution and result collection
+2. **Test Suites** - Grouped sets of related accessibility tests
+3. **Test Configurations** - Settings and metadata for different test types
+4. **Test Logger** - Records and formats test results
+5. **State Management** - XState-based lifecycle management
+6. **Sidepanel UI** - User interface for running tests and viewing results
+
+## Available Test Types
+
+AllyStudio currently implements several accessibility test types:
+
+| Test Type | File | Purpose |
+|-----------|------|---------|
+| Alt Text | `alt-tests.ts` | Tests for proper image alt attributes |
+| Headings | `heading-tests.ts` | Tests heading structure and hierarchy |
+| Interactive | `interactive-tests.ts` | Tests interactive elements for accessibility |
+| Links | `link-tests.ts` | Tests link accessibility and usability |
+
+## Test Runner Implementation
+
+The test runner is implemented as a content script that listens for test requests from the extension UI:
+
+```tsx
+// src/contents/test-runner.ts
+import { eventBus } from "@/lib/events/event-bus"
+import { createTestRunner } from "@/lib/testing/create-test-runner"
+import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
+import type { PlasmoCSConfig } from "plasmo"
+
+export const config: PlasmoCSConfig = {
+  matches: ["<all_urls>"]
+}
+
+// Create a single test runner instance
+const testRunner = createTestRunner()
+
+// Subscribe to test requests
+eventBus.subscribe((event) => {
+  // Find test type by matching the request event type
+  const testConfig = Object.entries(TEST_CONFIGS).find(
+    ([, config]) => config.events.request === event.type
+  )
+
+  if (testConfig) {
+    const [type] = testConfig
+    console.log("Running test:", type) // Debug log
+    testRunner.runTest(type as TestType).catch((error) => {
+      console.error("Error running test:", error)
+    })
+  }
+})
+```
+
+## ACT Test Implementation
+
+AllyStudio implements tests following the Accessibility Conformance Testing (ACT) methodology. This standardized approach ensures tests are consistent, reliable and based on internationally recognized accessibility requirements.
+
+### ACT Test Runner
+
+The `ACTTestRunner` class manages test execution and result processing:
+
+```tsx
+// Simplified from act-test-runner.ts
+export class ACTTestRunner {
+  private suites: ACTSuite[] = []
+  private abortController: AbortController | null = null
+  private logger: TestLogger
+  private elementResults: Map<string, ElementResult> = new Map()
+  private currentTestType: TestType | null = null
+
+  // Add a test suite to the runner
+  addSuite(suite: ACTSuite) {
+    this.suites.push(suite)
+  }
+
+  // Cancel any running tests
+  stopTests() {
+    this.abortController?.abort()
+    this.clearHighlights()
+  }
+
+  // Run all tests for a specific type
+  async *runTests(type: TestType): AsyncGenerator<TestUpdate, void, unknown> {
+    // Test implementation
+    // Yields progress updates and results
+  }
+}
+```
+
+### ACT Test Suite
+
+Tests are organized into suites using a fluent API:
+
+```tsx
+// Example test suite definition
+export const altTextTestSuite = suite("Image Alt Text", "img", () => {
+  test(
+    "Images must have alt text",
+    (element) => {
+      const hasAlt = element.hasAttribute("alt")
+
+      return {
+        passed: hasAlt,
+        message: hasAlt
+          ? "Image has alt attribute"
+          : "Image is missing alt attribute"
+      }
+    },
+    {
+      severity: "High",
+      description: "Images must have alternative text to be accessible"
+    }
+  )
+
+  test(
+    "Decorative images must have empty alt",
+    (element) => {
+      // Test implementation
+    },
+    { severity: "Medium" }
+  )
+})
+```
+
+## Sidepanel Integration
+
+The AllyStudio sidepanel is the main interface for users to run accessibility audits and view results. The sidepanel integrates with the testing framework to provide a comprehensive audit experience.
+
+### Sidepanel Structure
+
+The sidepanel is implemented as a Plasmo extension side panel component:
+
+```tsx
+// src/sidepanel/index.tsx
+import "@/styles/globals.css"
+
+import { Layout } from "@/components/layout"
+import { Werkzeug } from "@/components/werkzeug"
+
+export default function SidePanel() {
+  return (
+    <Layout>
+      <Werkzeug />
+    </Layout>
+  )
+}
+```
+
+The `Layout` component provides the structural foundation with nested context providers:
+
+```tsx
+// src/components/layout.tsx
+export function Layout({ children }: PropsWithChildren) {
+  return (
+    <ThemeProvider defaultTheme="system" storageKey="ally-studio-theme">
+      <AuthProvider>
+        <UrlProvider>
+          <Space>
+            <Website>
+              <Page>{children}</Page>
+            </Website>
+          </Space>
+        </UrlProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  )
+}
+```
+
+### Werkzeug - The Main Audit Interface
+
+The `Werkzeug` component is the main interface for running accessibility audits. "Werkzeug" means "tool" in German, reflecting its purpose as the primary tool for accessibility testing.
+
+Key features of the Werkzeug component:
+
+1. **Test Initiation** - Start and stop accessibility tests
+2. **Progress Tracking** - Monitor testing progress
+3. **Results Visualization** - Display test results with severity indicators
+4. **Layer Toggling** - Show/hide visual overlays for different test types
+
+#### Test Results Interface
+
+The Werkzeug component stores and displays test results:
+
+```tsx
+// src/components/werkzeug.tsx
+interface TestResults {
+  type: TestType
+  stats: {
+    total: number
+    invalid: number
+  }
+  issues: Array<{
+    id: string
+    message: string
+    severity: "Critical" | "High" | "Medium" | "Low"
+  }>
+}
+```
+
+#### Running Tests
+
+The Werkzeug component coordinates the sequential execution of test suites:
+
+```tsx
+// Simplified from werkzeug.tsx
+const startAnalysis = async () => {
+  // Clear previous results and layer states
+  setResults([])
+  setHiddenLayers(new Set())
+  setIsAnalyzing(true)
+
+  // Get current tab
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+  if (!tab?.id) return
+
+  // Run all test suites in sequence
+  const testTypes = Object.entries(TEST_CONFIGS)
+  for (const [type, config] of testTypes) {
+    setActiveTest(type as TestType)
+
+    // Start this test
+    eventBus.publish({
+      type: config.events.request,
+      timestamp: Date.now(),
+      tabId: tab.id
+    })
+
+    // Wait for completion before starting next test
+    await new Promise<void>((resolve, reject) => {
+      // Setup event listener for test completion
+      const cleanup = eventBus.subscribe((event) => {
+        if (event.type === config.events.complete) {
+          cleanup()
+          resolve()
+        }
+      })
+
+      // Add timeout to prevent hanging
+      setTimeout(() => {
+        cleanup()
+        reject(new Error(`Test ${type} timed out`))
+      }, 10000)
+    }).catch(error => console.error("Test error:", error))
+  }
+
+  setIsAnalyzing(false)
+  setActiveTest(null)
+}
+```
+
+#### Displaying Results
+
+The sidepanel presents accessibility issues with severity indicators and allows toggling the visibility of issue highlights:
+
+```tsx
+// Simplified from werkzeug.tsx
+{results.map((result) => (
+  <div key={result.type} className="p-4 rounded-lg border bg-card">
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="font-medium">
+        {TEST_CONFIGS[result.type].displayName}
+      </h3>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => toggleLayer(result.type)}
+        aria-pressed={!hiddenLayers.has(result.type)}
+        aria-label={`Toggle ${TEST_CONFIGS[result.type].displayName} layer visibility`}
+      >
+        {hiddenLayers.has(result.type) ? (
+          <EyeOff className="h-4 w-4" />
+        ) : (
+          <Eye className="h-4 w-4" />
+        )}
+      </Button>
+    </div>
+
+    <p className="text-sm text-muted-foreground">
+      Found {result.stats.invalid} issues in {result.stats.total}{" "}
+      {TEST_CONFIGS[result.type].statsText.itemName}
+    </p>
+
+    {result.issues.length > 0 && (
+      <ul className="mt-2 space-y-1">
+        {result.issues.map((issue, index) => (
+          <li
+            key={`${result.type}-${issue.id}-${issue.severity}-${index}`}
+            className="text-sm flex items-center gap-2"
+          >
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-xs ${
+                issue.severity === "Critical"
+                  ? "bg-destructive text-destructive-foreground"
+                  : issue.severity === "High"
+                    ? "bg-warning text-warning-foreground"
+                    : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {issue.severity}
+            </span>
+            {issue.message}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+))}
+```
+
+### Layer Visibility Management
+
+The sidepanel allows toggling the visibility of element highlights on the page:
+
+```tsx
+// Simplified from werkzeug.tsx
+const toggleLayer = (layerName: string) => {
+  setHiddenLayers((current) => {
+    const newHidden = new Set(current)
+    const isVisible = current.has(layerName)
+
+    if (isVisible) {
+      newHidden.delete(layerName)
+    } else {
+      newHidden.add(layerName)
+    }
+
+    // Notify content script about visibility change
+    eventBus.publish({
+      type: "LAYER_VISIBILITY_CHANGED",
+      data: {
+        layer: layerName,
+        visible: isVisible
+      }
+    })
+
+    return newHidden
+  })
+}
+```
+
+## State Management with XState
+
+Tests are managed using XState state machines, providing a robust lifecycle:
+
+```tsx
+// Background/machines/test.ts
+export const testMachine = setup({
+  // Configuration
+}).createMachine({
+  id: "testMachine",
+  initial: "idle",
+  context: {
+    activeTests: new Set<string>(),
+    results: [],
+    error: null
+  },
+  states: {
+    idle: {
+      on: {
+        TEST_ENABLED: {
+          target: "running",
+          actions: ["enableTest", "clearError", "clearResults"]
+        }
+      }
+    },
+    running: {
+      on: {
+        TEST_ENABLED: {
+          actions: ["enableTest", "clearError"]
+        },
+        TEST_DISABLED: [
+          {
+            guard: ({ context, event }) => {
+              // Check if all tests disabled
+              const newTests = new Set(context.activeTests)
+              newTests.delete(event.test)
+              return newTests.size === 0
+            },
+            target: "idle",
+            actions: ["disableTest", "clearResults"]
+          },
+          {
+            actions: "disableTest"
+          }
+        ],
+        RESULTS_RECEIVED: {
+          actions: "updateResults"
+        },
+        error: {
+          target: "idle",
+          actions: ["assignError", "clearResults"]
+        }
+      }
+    }
+  }
+})
+```
+
+## Messaging between Components
+
+Tests are triggered through a message passing system:
+
+```tsx
+// background/messages/toggle-test.ts
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+
+const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
+  const { test, enabled } = req.body
+  await storage.set(`test_enabled_${test}`, enabled)
+  res.send({ status: "ok" })
+}
+
+export default handler
+```
+
+## Test Runner Factory
+
+The `createTestRunner` function creates a configured test runner instance:
+
+```tsx
+// Simplified example from create-test-runner.ts
+export function createTestRunner() {
+  return {
+    runTest: async (testType: TestType) => {
+      const config = TEST_CONFIGS[testType]
+      const testLogger = createTestLogger(testType)
+
+      // Run the tests
+      const results = await runTestsForType(testType, config)
+
+      // Log results
+      testLogger.logResults(results)
+
+      // Emit generic completion event
+      eventBus.emit({
+        type: "TEST_ANALYSIS_COMPLETE",
+        data: {
+          testId: testType,
+          results: results
+        }
+      })
+
+      return results
+    }
+  }
+}
+```
+
+## Generic Event System
+
+AllyStudio uses a generic event system to standardize test execution and result handling:
+
+```tsx
+// Key event types
+export type EventType =
+  | "TEST_ANALYSIS_REQUEST"  // Request to run a specific test
+  | "TEST_ANALYSIS_COMPLETE" // Test has completed with results
+  | "LAYER_VISIBILITY_CHANGED"
+  | "HIGHLIGHT_ELEMENT"
+  | "CLEAR_HIGHLIGHTS"
+  // Other event types...
+
+// Generic test request event
+interface TestAnalysisRequestEvent {
+  type: "TEST_ANALYSIS_REQUEST";
+  data: {
+    testId: TestType;
+    options?: Record<string, unknown>;
+  };
+}
+
+// Generic test completion event
+interface TestAnalysisCompleteEvent {
+  type: "TEST_ANALYSIS_COMPLETE";
+  data: {
+    testId: TestType;
+    results: TestResult[];
+  };
+}
+```
+
+## Test Configurations
+
+Test configurations define the behavior of each test type:
+
+```tsx
+// Simplified example from test-config.ts
+export const TEST_CONFIGS: Record<TestType, TestConfig> = {
+  alt: {
+    displayName: "Image Alt Text",
+    description: "Tests images for proper alternative text",
+    selectors: ["img", "input[type='image']"],
+    statsText: {
+      itemName: "images",
+      actionVerb: "analyzing"
+    }
+  },
+  headings: {
+    displayName: "Heading Structure",
+    description: "Tests heading structure and hierarchy",
+    selectors: ["h1", "h2", "h3", "h4", "h5", "h6"],
+    statsText: {
+      itemName: "headings",
+      actionVerb: "analyzing"
+    }
+  },
+  // ...other test types
+}
+```
+
+## Test Implementation Example
+
+Here's a simplified example of a test implementation:
+
+```tsx
+// Simplified example similar to alt-tests.ts
+export function runAltTests() {
+  const images = document.querySelectorAll('img, input[type="image"]')
+  const results = []
+
+  for (const image of images) {
+    const hasAlt = image.hasAttribute('alt')
+    const altText = image.getAttribute('alt') || ''
+    const isEmpty = altText.trim() === ''
+
+    const isDecorative = image.getAttribute('role') === 'presentation' ||
+                         image.getAttribute('aria-hidden') === 'true'
+
+    if (!hasAlt) {
+      results.push({
+        element: image,
+        status: 'fail',
+        message: 'Image is missing alt attribute',
+        code: 'missing-alt'
+      })
+    } else if (isEmpty && !isDecorative) {
+      results.push({
+        element: image,
+        status: 'fail',
+        message: 'Image has empty alt text but is not marked as decorative',
+        code: 'empty-alt'
+      })
+    } else {
+      results.push({
+        element: image,
+        status: 'pass',
+        message: 'Image has appropriate alt text',
+        code: 'valid-alt'
+      })
+    }
+  }
+
+  return results
+}
+```
+
+## Running Tests from UI
+
+To run a test from the extension UI:
+
+```tsx
+// Example of triggering a test from UI
+import { sendToBackground } from "@plasmohq/messaging"
+import { eventBus } from "../lib/events/event-bus"
+
+function AccessibilityPanel() {
+  const runAltTest = async () => {
+    // Request test run via generic event
+    eventBus.publish({
+      type: "TEST_ANALYSIS_REQUEST",
+      data: {
+        testId: "alt"
+      }
+    })
+  }
+
+  return (
+    <div>
+      <button onClick={runAltTest}>
+        Test Image Alt Text
+      </button>
+    </div>
+  )
+}
+```
+
+## Test Results Handling
+
+Test results are emitted as events that can be captured by the extension UI:
+
+```tsx
+// Example of handling test results
+import { useEffect, useState } from "react"
+import { Storage } from "@plasmohq/storage"
+import { useStorage } from "@plasmohq/storage/hook"
+import { eventBus } from "../lib/events/event-bus"
+
+function TestResultsDisplay() {
+  const [altTestResults, setAltTestResults] = useStorage({
+    key: "alt-test-results",
+    instance: new Storage()
+  })
+
+  useEffect(() => {
+    // Listen for test results using generic event
+    const handleTestResults = (event) => {
+      if (event.type === "TEST_ANALYSIS_COMPLETE" && event.data.testId === "alt") {
+        setAltTestResults(event.data.results)
+      }
+    }
+
+    // Set up listener
+    eventBus.subscribe(handleTestResults)
+
+    return () => {
+      // Clean up
+      eventBus.unsubscribe(handleTestResults)
+    }
+  }, [])
+
+  return (
+    <div>
+      <h2>Alt Text Test Results</h2>
+      {altTestResults?.map(result => (
+        <div key={result.id} className={`test-result test-${result.status}`}>
+          <span className="status">{result.status}</span>
+          <p>{result.message}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+## Extending the Testing Framework
+
+To add a new test type:
+
+1. Create a new test file in `src/lib/testing/`
+2. Add the test configuration to `test-config.ts`
+3. Implement the test logic
+4. Register with the generic event system
+
+Example of adding a new test type:
+
+```tsx
+// 1. Add to test-config.ts
+export const TEST_CONFIGS: Record<TestType, TestConfig> = {
+  // ...existing tests
+  colorContrast: {
+    displayName: "Color Contrast",
+    description: "Tests elements for sufficient color contrast",
+    selectors: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "span", "a"],
+    statsText: {
+      itemName: "text elements",
+      actionVerb: "analyzing"
+    }
+  }
+}
+
+// 2. Create an ACT test suite
+export const colorContrastTestSuite = suite(
+  "Color Contrast",
+  "text elements",
+  () => {
+    test(
+      "Text must have sufficient contrast",
+      (element) => {
+        // Implementation using color contrast calculation
+        return {
+          passed: contrastRatio >= 4.5,
+          message: passed
+            ? "Element has sufficient contrast"
+            : `Element has insufficient contrast ratio (${contrastRatio})`
+        }
+      },
+      { severity: "High" }
+    )
+  }
+)
+```
+
+## Sidepanel User Flow
+
+The typical user flow when working with the AllyStudio sidepanel is:
+
+1. **Open the sidepanel** - Click the AllyStudio extension icon to open the side panel
+2. **Select a page/website** - The sidepanel automatically detects the current page
+3. **Run tests** - Click the "Start Analysis" button to run all accessibility tests
+4. **Review results** - Examine the test results organized by test type
+5. **Toggle highlights** - Use the eye icons to show/hide element highlights on the page
+6. **Fix issues** - Make changes to the page based on the test results
+7. **Re-run tests** - Verify that issues have been fixed
+
+## Element Highlighting
+
+Test results can highlight elements in the page:
+
+```tsx
+// Simplified example
+private updateHighlights() {
+  // Remove existing highlights
+  this.clearHighlights()
+
+  // Add new highlights
+  this.elementResults.forEach((result, id) => {
+    const element = result.element
+
+    // Skip if element no longer in DOM
+    if (!element.isConnected) return
+
+    // Create outline
+    const rect = element.getBoundingClientRect()
+    const highlight = document.createElement('div')
+
+    // Style based on test result
+    highlight.className = `ally-highlight ${
+      result.failures.length > 0 ? 'ally-highlight-fail' : 'ally-highlight-pass'
+    }`
+
+    // Position around element
+    highlight.style.position = 'absolute'
+    highlight.style.left = `${rect.left + window.scrollX}px`
+    highlight.style.top = `${rect.top + window.scrollY}px`
+    highlight.style.width = `${rect.width}px`
+    highlight.style.height = `${rect.height}px`
+
+    // Add to document
+    document.body.appendChild(highlight)
+  })
+}
+```
+
+## Sidepanel Best Practices
+
+When working with the AllyStudio sidepanel:
+
+1. **Responsive Updates** - Ensure the UI remains responsive during test execution
+2. **Consistent Messaging** - Maintain consistent terminology between tests and UI
+3. **Progress Indication** - Always show test progress for long-running tests
+4. **Result Persistence** - Save results between sidepanel reopens
+5. **Clear Reporting** - Provide clear, actionable information about each issue
+6. **Context Sensitivity** - Only show relevant controls for the current context
+7. **Keyboard Navigation** - Ensure the sidepanel is fully keyboard accessible
+
+## Best Practices for Tests
+
+1. **Element References**: Be careful with element references in test results to avoid memory leaks
+2. **Performance**: Optimize test implementations for large DOM trees
+3. **Error Handling**: Always include error handling in test functions
+4. **Selective Testing**: Allow running tests on specific elements or sections of the page
+5. **Clear Messaging**: Provide clear, actionable messages for any failures
+6. **Abort Handling**: Always check abort signals for long-running tests
+7. **Avoid Side Effects**: Tests should not modify the DOM
+8. **Use Generic Events**: Use the standardized event system for communication
+9. **Provide Test ID**: Always include the testId in events for proper routing
+
+## Test Development Guidelines
+
+When developing new accessibility tests:
+
+1. **Research Standards**: Base tests on recognized standards like WCAG 2.1
+2. **Specify Rule**: Each test should test exactly one accessibility rule
+3. **Consider Edge Cases**: Account for various ways elements can be made accessible
+4. **Provide Remediation**: Include helpful suggestions for fixing issues
+5. **Document Tests**: Add clear documentation about what each test checks
+6. **Include Severity**: Correctly categorize severity of each issue
+7. **Test Cross-browser**: Ensure tests work across supported browsers
+8. **Implement Generic Events**: Use the standardized event system for communication

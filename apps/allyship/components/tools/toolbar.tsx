@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { checkReadability } from './tools/readability-tool'
 import {
   BookOpen,
   Check,

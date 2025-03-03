@@ -26,7 +26,7 @@ import {
   CardTitle,
 } from '@workspace/ui/components/card'
 import { Form } from '@workspace/ui/components/form'
-import { Field } from '@/components/forms/field'
+import { Field } from '@workspace/ui/components/field'
 
 const formSchema = z.object({
   url: z.string().transform((url, ctx) => {
