@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { FileText, Search, Wrench } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrowserWindow } from '@/components/BrowserWindow'
 
 const steps = [
   {
@@ -122,10 +123,12 @@ export function ScanProcess() {
             ))}
           </div>
 
-          {/* Content Area */}
-          <div className="relative aspect-video">
-            {steps[activeStep]?.mockContent}
-          </div>
+          {/* Content Area - Replace with BrowserWindow */}
+          <BrowserWindow url="example.com">
+            <div className="relative aspect-video">
+              {steps[activeStep]?.mockContent}
+            </div>
+          </BrowserWindow>
         </div>
       </div>
     </div>
