@@ -81,7 +81,7 @@ const TestResults = memo(function TestResults() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 px-2">
         <h2 className="text-lg font-semibold">Analysis Results</h2>
         {testResults.length > 0 && (
           <Button
@@ -102,7 +102,7 @@ const TestResults = memo(function TestResults() {
               groupedResults[category] &&
               groupedResults[category].length > 0 ? (
                 <div key={category} className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between px-2">
                     <h3
                       className={`text-sm font-medium ${
                         category === "Critical"
@@ -119,7 +119,7 @@ const TestResults = memo(function TestResults() {
                     </h3>
                     <div className="h-px flex-1 bg-border/20 dark:bg-border/10 mx-3"></div>
                   </div>
-                  <div>
+                  <div className="mx-2 rounded-md border border-border divide-y divide-border">
                     {groupedResults[category].map(
                       (result: any, index: number) => (
                         <ResultItem

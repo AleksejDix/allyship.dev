@@ -144,7 +144,6 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
   return (
     <div
       className={cn(
-        "border rounded-md mb-3 transition-colors shadow-sm",
         isPassed
           ? "bg-muted/30 hover:bg-muted/50 border-green-500/20 dark:border-green-500/30"
           : isSerious
@@ -154,44 +153,45 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
       {/* Header section with main details */}
       <div
         className={cn(
-          "p-3 flex items-center justify-between cursor-pointer",
+          "p-3  cursor-pointer",
           "hover:bg-muted/60",
           isExpanded && "border-b border-border/30"
         )}
         onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="flex-shrink-0">{outcomeIcon}</div>
-          <div className="text-sm text-foreground break-words overflow-hidden font-medium">
-            {result.message || "Issue detected"}
-          </div>
-        </div>
+        <div className="flex items-start justify-between gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <div className="flex-shrink-0">{outcomeIcon}</div>
 
-        <div className="flex items-center gap-2">
-          {result.impact && (
-            <div
-              className={cn(
-                "text-xs px-2 py-1 rounded-full bg-muted text-foreground/80",
-                isSerious ? "border border-red-500/30" : "border-muted/50"
-              )}>
-              {result.impact}
+            <div className="flex items-start gap-2">
+              {result.impact && (
+                <div
+                  className={cn(
+                    "text-xs px-2 py-1 rounded-full bg-muted text-foreground/80",
+                    isSerious ? "border border-red-500/30" : "border-muted/50"
+                  )}>
+                  {result.impact}
+                </div>
+              )}
+              {result.severity && result.severity !== "unknown" && (
+                <div
+                  className={cn(
+                    "text-xs px-2 py-1 rounded-full",
+                    result.severity === "Critical"
+                      ? "bg-red-500/80 text-white border border-red-500/40"
+                      : result.severity === "High" ||
+                          result.severity === "serious"
+                        ? "bg-red-500/70 text-white border border-red-500/40"
+                        : result.severity === "Medium" ||
+                            result.severity === "moderate"
+                          ? "bg-amber-500/70 text-amber-50 dark:text-amber-950 border border-amber-500/40"
+                          : "bg-muted text-muted-foreground border border-border"
+                  )}>
+                  {result.severity}
+                </div>
+              )}
             </div>
-          )}
-          {result.severity && result.severity !== "unknown" && (
-            <div
-              className={cn(
-                "text-xs px-2 py-1 rounded-full",
-                result.severity === "Critical"
-                  ? "bg-red-500/80 text-white border border-red-500/40"
-                  : result.severity === "High" || result.severity === "serious"
-                    ? "bg-red-500/70 text-white border border-red-500/40"
-                    : result.severity === "Medium" ||
-                        result.severity === "moderate"
-                      ? "bg-amber-500/70 text-amber-50 dark:text-amber-950 border border-amber-500/40"
-                      : "bg-muted text-muted-foreground border border-border"
-              )}>
-              {result.severity}
-            </div>
-          )}
+          </div>
+
           {isExpanded ? (
             <ChevronUp
               size={16}
@@ -205,6 +205,9 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
               aria-hidden="true"
             />
           )}
+        </div>
+        <div className="text-sm mt-1 text-foreground break-words overflow-hidden font-medium">
+          {result.message || "Issue detected"}
         </div>
       </div>
 
