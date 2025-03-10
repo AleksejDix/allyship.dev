@@ -1,8 +1,12 @@
+import { Badge } from "@/components/ui/badge"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Info } from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+
+import { Storage } from "@plasmohq/storage"
 
 import {
   TestContext,
@@ -17,6 +21,55 @@ export function Werkzeug() {
   const [activeTest, setActiveTest] = useState<TestType | null>(null)
   const [testResults, setTestResults] = useState<any[]>([])
   const [hiddenLayers, setHiddenLayers] = useState<Set<string>>(new Set())
+  const [lastActiveTest, setLastActiveTest] = useState<TestType | null>(null)
+  const [isDOMMonitorEnabled, setIsDOMMonitorEnabled] = useState(false)
+  const [recentDOMChange, setRecentDOMChange] = useState(false)
+  const [autoRerunCount, setAutoRerunCount] = useState(0)
+
+  // Use refs to track debounce timeouts
+  const debounceTimeoutRef = useRef<number | null>(null)
+  const recentChangeTimeoutRef = useRef<number | null>(null)
+
+  // Check DOM monitor state on mount
+  useEffect(() => {
+    const checkDOMMonitorState = async () => {
+      try {
+        const storage = new Storage()
+        const enabled = await storage.get("dom_monitor_enabled")
+        setIsDOMMonitorEnabled(!!enabled)
+
+        // Set up a listener for DOM monitor state changes
+        storage.watch({
+          dom_monitor_enabled: (c) => {
+            setIsDOMMonitorEnabled(!!c.newValue)
+
+            // When DOM monitor is disabled, clear any pending auto-reruns
+            if (!c.newValue && debounceTimeoutRef.current) {
+              window.clearTimeout(debounceTimeoutRef.current)
+              debounceTimeoutRef.current = null
+            }
+          }
+        })
+
+        return () => {
+          storage.unwatch({
+            dom_monitor_enabled: () => {}
+          })
+        }
+      } catch (error) {
+        console.error("[werkzeug] Error checking DOM monitor state:", error)
+      }
+    }
+
+    checkDOMMonitorState()
+  }, [])
+
+  // Track the last active test for auto-rerunning
+  useEffect(() => {
+    if (activeTest) {
+      setLastActiveTest(activeTest)
+    }
+  }, [activeTest])
 
   // Event handling for test completion
   useEffect(() => {
@@ -96,6 +149,65 @@ export function Werkzeug() {
     }
   }, [activeTest, testResults])
 
+  // Listen for DOM changes and auto-rerun the last active test if DOM monitoring is enabled
+  useEffect(() => {
+    const handleDOMChange = (event: any) => {
+      if (
+        event.type === "DOM_CHANGE" &&
+        isDOMMonitorEnabled &&
+        lastActiveTest &&
+        !activeTest
+      ) {
+        // Set recent DOM change indicator - useful for UI feedback
+        setRecentDOMChange(true)
+
+        // Clear any existing recent change timeout
+        if (recentChangeTimeoutRef.current) {
+          window.clearTimeout(recentChangeTimeoutRef.current)
+        }
+
+        // Set a timeout to clear the recent change indicator
+        recentChangeTimeoutRef.current = window.setTimeout(() => {
+          setRecentDOMChange(false)
+          recentChangeTimeoutRef.current = null
+        }, 2000)
+
+        // Log the change
+        console.log("[werkzeug] Detected DOM change:", {
+          type: event.data?.changeType,
+          elements: (event.data?.elements || []).length
+        })
+
+        // Debounce to avoid running tests too frequently
+        if (debounceTimeoutRef.current) {
+          window.clearTimeout(debounceTimeoutRef.current)
+        }
+
+        debounceTimeoutRef.current = window.setTimeout(() => {
+          console.log(
+            "[werkzeug] Rerunning test after DOM change:",
+            lastActiveTest
+          )
+          setAutoRerunCount((prev) => prev + 1)
+          runTest(lastActiveTest)
+          debounceTimeoutRef.current = null
+        }, 500) // Simple 500ms debounce for all changes
+      }
+    }
+
+    const cleanup = eventBus.subscribe(handleDOMChange)
+
+    return () => {
+      cleanup()
+      if (debounceTimeoutRef.current) {
+        window.clearTimeout(debounceTimeoutRef.current)
+      }
+      if (recentChangeTimeoutRef.current) {
+        window.clearTimeout(recentChangeTimeoutRef.current)
+      }
+    }
+  }, [lastActiveTest, activeTest, isDOMMonitorEnabled])
+
   // Layer toggling functionality
   const toggleLayer = useCallback((testType: string) => {
     console.log("[Werkzeug] Toggle requested for layer:", testType)
@@ -174,6 +286,8 @@ export function Werkzeug() {
   const clearResults = useCallback(() => {
     console.log("[werkzeug] Clearing test results")
     setTestResults([])
+    setLastActiveTest(null)
+    setAutoRerunCount(0)
 
     // Hide any visible layers when clearing results
     console.log("[werkzeug] Hiding all layers")
@@ -218,12 +332,37 @@ export function Werkzeug() {
     [activeTest, testResults, runTest, stopTest, clearResults]
   )
 
+  // Simple display for monitor status
+  const renderMonitoringStatus = () => {
+    if (!isDOMMonitorEnabled || !lastActiveTest) return null
+
+    return (
+      <div className="text-xs px-2 py-1 flex items-center gap-2 rounded-md">
+        <Info
+          className="w-3.5 h-3.5 text-muted-foreground/70"
+          aria-hidden="true"
+        />
+        <span className="flex-1">
+          Real-time monitoring for {TEST_CONFIGS[lastActiveTest]?.displayName}
+        </span>
+        {autoRerunCount > 0 && (
+          <Badge variant="outline" className="text-[10px] h-4 px-1 rounded-sm">
+            {autoRerunCount} {autoRerunCount === 1 ? "rerun" : "reruns"}
+          </Badge>
+        )}
+      </div>
+    )
+  }
+
   return (
     <TestContext.Provider value={contextValue}>
       <TooltipProvider>
         <div className="p-2 space-y-4">
           {/* Test Selector */}
           <TestSelector />
+
+          {/* Monitoring Status */}
+          {renderMonitoringStatus()}
 
           {/* Event Monitor */}
           <TestEventMonitor />
