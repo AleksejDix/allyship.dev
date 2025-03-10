@@ -416,8 +416,9 @@ export function Werkzeug() {
   return (
     <TestContext.Provider value={contextValue}>
       <TooltipProvider>
-        <div className="p-2 space-y-4">
+        <div className="space-y-4">
           {/* Test Selector */}
+
           <TestSelector />
 
           {/* Monitoring Status */}

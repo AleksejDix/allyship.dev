@@ -531,10 +531,12 @@ export const linkTouchTargetSizeRule = createACTRule(
 // Register all link rules
 export function registerLinkRules() {
   registerACTRule(linkAccessibleNameRule)
-  registerACTRule(linkDescriptiveTextRule)
+  // TODO: fix with AI beucase this test has a language bias
+  // registerACTRule(linkDescriptiveTextRule)
   registerACTRule(linkTextLengthRule)
   registerACTRule(linkDuplicateTextRule)
   registerACTRule(linkExternalMarkedRule)
   registerACTRule(linkValidHrefRule)
-  registerACTRule(linkTouchTargetSizeRule)
+  // TODO: this is not relevant for wcag 2.1
+  // registerACTRule(linkTouchTargetSizeRule)
 }
