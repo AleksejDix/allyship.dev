@@ -4,9 +4,10 @@ import { useSpaceContext } from "@/components/space/space-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
 import { useCurrentUrl } from "@/providers/url-provider"
 import { useSelector } from "@xstate/react"
-import { PlusCircle } from "lucide-react"
+import { FlaskConical, FlaskConicalOffIcon, PlusCircle } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState, type FC } from "react"
 import { toast } from "sonner"
 
@@ -237,32 +238,39 @@ export const Connector: FC = () => {
   )
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">Website & Page Connector</h1>
-
+    <div className="p-2">
       {!isLoadingUrl && currentDomain && (
-        <div className="p-4 bg-primary/10 text-primary rounded flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span>Current URL: </span>
-            <span className="font-medium">{currentDomain}</span>
-            {currentPath && (
-              <>
-                <span className="mx-1">/</span>
-                <span className="font-medium">
-                  {currentPath.replace(/^\//, "")}
-                </span>
-              </>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {knownWebsite && knownPage ? (
+              <FlaskConical size={16} aria-hidden="true" />
+            ) : (
+              <FlaskConicalOffIcon size={16} aria-hidden="true" />
             )}
+            <div>
+              <span
+                className={cn(
+                  knownWebsite ? "text-green-500" : "text-red-500"
+                )}>
+                {currentDomain}
+              </span>
+              {currentPath && (
+                <span
+                  className={cn(knownPage ? "text-green-500" : "text-red-500")}>
+                  {currentPath}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Quick add button */}
           <Button
-            size="sm"
+            size="icon"
+            className="w-8 h-8"
             onClick={handleQuickPageCreate}
-            disabled={quickAddDisabled}
-            className="flex items-center gap-1">
-            <PlusCircle size={16} />
-            <span>
+            disabled={quickAddDisabled}>
+            <PlusCircle size={16} aria-hidden="true" />
+            <span className="sr-only">
               {isCreatingQuick
                 ? "Adding..."
                 : knownPage
@@ -285,136 +293,136 @@ export const Connector: FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-6">
-          <Card className="border-muted">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Select Website</span>
-                {!isLoadingUrl && currentDomain && (
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      knownWebsite
-                        ? "bg-success/20 text-success"
-                        : "bg-destructive/20 text-destructive"
-                    }`}>
-                    {knownWebsite ? "Known" : "Unknown"}
-                  </span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <WebsiteSelector
-                websiteOptions={websiteOptions}
-                selectedWebsiteId={selectedWebsiteId}
-                onWebsiteChange={handleWebsiteChange}
-                onRefresh={() => fetchWebsites(true)} // Force refresh with true parameter
-                isLoading={isLoadingWebsites}
-                error={websitesError}
-                forceResetLoading={forceResetLoading}
-                highlightStatus={
-                  !isLoadingUrl && currentDomain
-                    ? knownWebsite
-                      ? "known"
-                      : "unknown"
-                    : undefined
-                }
-                currentDomain={currentDomain}
-                optimisticWebsite={optimisticWebsite}
-              />
-            </CardContent>
-          </Card>
-
-          {selectedWebsiteId && (
-            <Card className="border-muted">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Select Page</span>
-                  {!isLoadingUrl &&
-                    currentPath &&
-                    selectedWebsite?.normalized_url === currentDomain && (
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          knownPage
-                            ? "bg-success/20 text-success"
-                            : "bg-destructive/20 text-destructive"
-                        }`}>
-                        {knownPage ? "Known" : "Unknown"}
-                      </span>
-                    )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PageSelector
-                  pageOptions={pageOptions}
-                  selectedPageId={selectedPageId}
-                  onPageChange={setSelectedPageId}
-                  onRefresh={() => fetchPages(true)} // Force refresh with true parameter
-                  isLoading={isLoadingPages}
-                  error={pagesError}
-                  forceResetLoading={forceResetLoadingPages}
-                  disabled={!selectedWebsiteId}
-                  highlightStatus={
-                    !isLoadingUrl &&
-                    currentPath &&
-                    selectedWebsite?.normalized_url === currentDomain
-                      ? knownPage
-                        ? "known"
-                        : "unknown"
-                      : undefined
-                  }
-                  currentPath={currentPath}
-                  optimisticPage={optimisticPage}
-                  currentDomain={currentDomain}
-                />
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        <div className="md:col-span-2">
-          <Card className="border-muted">
-            <CardHeader>
-              <CardTitle>Selected Item Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {selectedWebsite && (
-                <div>
-                  <h3 className="font-medium">Website</h3>
-                  <Separator className="my-2" />
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-sm font-medium">URL:</div>
-                    <div className="text-sm">
-                      {selectedWebsite.normalized_url}
-                    </div>
-                    <div className="text-sm font-medium">ID:</div>
-                    <div className="text-sm truncate">{selectedWebsite.id}</div>
-                  </div>
-                </div>
-              )}
-
-              {selectedPage && (
-                <div>
-                  <h3 className="font-medium">Page</h3>
-                  <Separator className="my-2" />
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-sm font-medium">Path:</div>
-                    <div className="text-sm">{selectedPage.path}</div>
-                    <div className="text-sm font-medium">ID:</div>
-                    <div className="text-sm truncate">{selectedPage.id}</div>
-                  </div>
-                </div>
-              )}
-
-              {!selectedWebsite && !selectedPage && (
-                <div className="text-center py-4 text-gray-500">
-                  No items selected
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {
+        // <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        //   <div className="space-y-6">
+        //     <Card className="border-muted">
+        //       <CardHeader>
+        //         <CardTitle className="flex items-center justify-between">
+        //           <span>Select Website</span>
+        //           {!isLoadingUrl && currentDomain && (
+        //             <span
+        //               className={`text-xs px-2 py-1 rounded ${
+        //                 knownWebsite
+        //                   ? "bg-success/20 text-success"
+        //                   : "bg-destructive/20 text-destructive"
+        //               }`}>
+        //               {knownWebsite ? "Known" : "Unknown"}
+        //             </span>
+        //           )}
+        //         </CardTitle>
+        //       </CardHeader>
+        //       <CardContent>
+        //         <WebsiteSelector
+        //           websiteOptions={websiteOptions}
+        //           selectedWebsiteId={selectedWebsiteId}
+        //           onWebsiteChange={handleWebsiteChange}
+        //           onRefresh={() => fetchWebsites(true)} // Force refresh with true parameter
+        //           isLoading={isLoadingWebsites}
+        //           error={websitesError}
+        //           forceResetLoading={forceResetLoading}
+        //           highlightStatus={
+        //             !isLoadingUrl && currentDomain
+        //               ? knownWebsite
+        //                 ? "known"
+        //                 : "unknown"
+        //               : undefined
+        //           }
+        //           currentDomain={currentDomain}
+        //           optimisticWebsite={optimisticWebsite}
+        //         />
+        //       </CardContent>
+        //     </Card>
+        //     {selectedWebsiteId && (
+        //       <Card className="border-muted">
+        //         <CardHeader>
+        //           <CardTitle className="flex items-center justify-between">
+        //             <span>Select Page</span>
+        //             {!isLoadingUrl &&
+        //               currentPath &&
+        //               selectedWebsite?.normalized_url === currentDomain && (
+        //                 <span
+        //                   className={`text-xs px-2 py-1 rounded ${
+        //                     knownPage
+        //                       ? "bg-success/20 text-success"
+        //                       : "bg-destructive/20 text-destructive"
+        //                   }`}>
+        //                   {knownPage ? "Known" : "Unknown"}
+        //                 </span>
+        //               )}
+        //           </CardTitle>
+        //         </CardHeader>
+        //         <CardContent>
+        //           <PageSelector
+        //             pageOptions={pageOptions}
+        //             selectedPageId={selectedPageId}
+        //             onPageChange={setSelectedPageId}
+        //             onRefresh={() => fetchPages(true)} // Force refresh with true parameter
+        //             isLoading={isLoadingPages}
+        //             error={pagesError}
+        //             forceResetLoading={forceResetLoadingPages}
+        //             disabled={!selectedWebsiteId}
+        //             highlightStatus={
+        //               !isLoadingUrl &&
+        //               currentPath &&
+        //               selectedWebsite?.normalized_url === currentDomain
+        //                 ? knownPage
+        //                   ? "known"
+        //                   : "unknown"
+        //                 : undefined
+        //             }
+        //             currentPath={currentPath}
+        //             optimisticPage={optimisticPage}
+        //             currentDomain={currentDomain}
+        //           />
+        //         </CardContent>
+        //       </Card>
+        //     )}
+        //   </div>
+        //   <div className="md:col-span-2">
+        //     <Card className="border-muted">
+        //       <CardHeader>
+        //         <CardTitle>Selected Item Details</CardTitle>
+        //       </CardHeader>
+        //       <CardContent className="space-y-4">
+        //         {selectedWebsite && (
+        //           <div>
+        //             <h3 className="font-medium">Website</h3>
+        //             <Separator className="my-2" />
+        //             <div className="grid grid-cols-2 gap-2">
+        //               <div className="text-sm font-medium">URL:</div>
+        //               <div className="text-sm">
+        //                 {selectedWebsite.normalized_url}
+        //               </div>
+        //               <div className="text-sm font-medium">ID:</div>
+        //               <div className="text-sm truncate">
+        //                 {selectedWebsite.id}
+        //               </div>
+        //             </div>
+        //           </div>
+        //         )}
+        //         {selectedPage && (
+        //           <div>
+        //             <h3 className="font-medium">Page</h3>
+        //             <Separator className="my-2" />
+        //             <div className="grid grid-cols-2 gap-2">
+        //               <div className="text-sm font-medium">Path:</div>
+        //               <div className="text-sm">{selectedPage.path}</div>
+        //               <div className="text-sm font-medium">ID:</div>
+        //               <div className="text-sm truncate">{selectedPage.id}</div>
+        //             </div>
+        //           </div>
+        //         )}
+        //         {!selectedWebsite && !selectedPage && (
+        //           <div className="text-center py-4 text-gray-500">
+        //             No items selected
+        //           </div>
+        //         )}
+        //       </CardContent>
+        //     </Card>
+        //   </div>
+        // </div>
+      }
     </div>
   )
 }
