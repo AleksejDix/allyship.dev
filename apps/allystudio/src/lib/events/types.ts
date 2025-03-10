@@ -13,6 +13,8 @@ export type EventType =
   | "DOM_CHANGE"
   | "TEST_ANALYSIS_REQUEST"
   | "TEST_ANALYSIS_COMPLETE"
+  | "VISUAL_ACUITY_COMMAND"
+  | "VISUAL_ACUITY_STATE_CHANGE"
 
 // Base Event Interface
 export interface BaseEvent {
@@ -243,6 +245,27 @@ export interface InteractiveIssue {
   }
 }
 
+// Visual Acuity Simulator Events
+export interface VisualAcuityCommandEvent extends BaseEvent {
+  type: "VISUAL_ACUITY_COMMAND"
+  data: {
+    command: "start" | "stop" | "toggle" | "setType" | "setStrength"
+    options?: {
+      acuityType?: string
+      prescriptionStrength?: string
+    }
+  }
+}
+
+export interface VisualAcuityStateChangeEvent extends BaseEvent {
+  type: "VISUAL_ACUITY_STATE_CHANGE"
+  data: {
+    isActive: boolean
+    acuityType: string
+    prescriptionStrength?: string
+  }
+}
+
 // Union type of all events
 export type AllyStudioEvent =
   | ToolStateEvent
@@ -258,6 +281,8 @@ export type AllyStudioEvent =
   | DOMChangeEvent
   | TestAnalysisRequestEvent
   | TestAnalysisCompleteEvent
+  | VisualAcuityCommandEvent
+  | VisualAcuityStateChangeEvent
 
 // Event handler type
 export type EventHandler = (event: AllyStudioEvent) => void
