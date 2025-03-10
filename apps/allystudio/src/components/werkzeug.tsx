@@ -26,9 +26,10 @@ export function Werkzeug() {
   const [recentDOMChange, setRecentDOMChange] = useState(false)
   const [autoRerunCount, setAutoRerunCount] = useState(0)
 
-  // Use refs to track debounce timeouts
+  // Use refs to track debounce timeouts and auto-rerun status
   const debounceTimeoutRef = useRef<number | null>(null)
   const recentChangeTimeoutRef = useRef<number | null>(null)
+  const currentAutoRerunTestRef = useRef<TestType | null>(null)
 
   // Check DOM monitor state on mount
   useEffect(() => {
@@ -79,6 +80,14 @@ export function Werkzeug() {
         console.log("[werkzeug] Handling test completion:", event)
         const testId = event.data?.testId || event.data?.testType
 
+        // Check if this is an auto-rerun completion
+        const isAutoRerun = currentAutoRerunTestRef.current === testId
+
+        // Reset the auto-rerun ref after we've used it
+        if (isAutoRerun) {
+          currentAutoRerunTestRef.current = null
+        }
+
         // Always reset loading state when we receive a completion event
         if (activeTest) {
           console.log(`[werkzeug] Resetting activeTest from ${activeTest}`)
@@ -101,21 +110,38 @@ export function Werkzeug() {
             event.data.results.details.length > 0
           ) {
             console.log(
-              `[werkzeug] Setting ACT test results:`,
+              `[werkzeug] Adding ACT test results${isAutoRerun ? " (auto-rerun)" : ""}:`,
               event.data.results.details
             )
-            // Append new results instead of replacing
-            setTestResults((prevResults) => {
-              // Create a map of existing results by ID to avoid duplicates
-              const existingMap = new Map(
-                prevResults.map((r) => [r.id || JSON.stringify(r), r])
-              )
 
-              // Add new results, avoiding duplicates
+            // Add new results only if they don't already exist
+            setTestResults((prevResults) => {
+              // Create a map of existing results by content hash to avoid duplicates
+              const existingMap = new Map()
+
+              // First add all existing results to our map
+              prevResults.forEach((result) => {
+                // Create a deterministic hash/key for each result based on its content
+                // This helps identify genuinely unique issues
+                const contentHash = createContentHash(result)
+                existingMap.set(contentHash, result)
+              })
+
+              // Then add new results that don't already exist
               event.data.results.details.forEach((detail: any) => {
-                const id = detail.id || JSON.stringify(detail)
-                if (!existingMap.has(id)) {
-                  existingMap.set(id, detail)
+                // Add testType to help with identification
+                const enrichedDetail = {
+                  ...detail,
+                  testType: testId,
+                  discoveredAt: new Date().toISOString(),
+                  autoRerun: isAutoRerun
+                }
+
+                const contentHash = createContentHash(enrichedDetail)
+
+                // Only add if this exact issue doesn't already exist
+                if (!existingMap.has(contentHash)) {
+                  existingMap.set(contentHash, enrichedDetail)
                 }
               })
 
@@ -129,9 +155,11 @@ export function Werkzeug() {
             setTestResults([
               {
                 id: "no-issues",
+                testType: testId,
                 message: `No issues found in ${testId} test`,
                 severity: "Low",
-                outcome: "passed"
+                outcome: "passed",
+                discoveredAt: new Date().toISOString()
               }
             ])
           }
@@ -189,7 +217,10 @@ export function Werkzeug() {
             lastActiveTest
           )
           setAutoRerunCount((prev) => prev + 1)
-          runTest(lastActiveTest)
+
+          // Mark this as an auto-rerun for results handling
+          runTestWithFlag(lastActiveTest, true)
+
           debounceTimeoutRef.current = null
         }, 500) // Simple 500ms debounce for all changes
       }
@@ -240,31 +271,39 @@ export function Werkzeug() {
     })
   }, [])
 
-  // Test running functionality
-  const runTest = useCallback(async (type: TestType) => {
-    console.log(`[werkzeug] Running test: ${type}`)
-    setActiveTest(type)
+  // Test running functionality with optional isAutoRerun flag
+  const runTestWithFlag = useCallback(
+    async (type: TestType, isAutoRerun = false) => {
+      console.log(
+        `[werkzeug] Running test: ${type}${isAutoRerun ? " (auto-rerun)" : ""}`
+      )
+      setActiveTest(type)
 
-    try {
-      // Use our helper function
-      await runTestHelper(type)
+      // Set the auto-rerun ref if this is an auto-rerun
+      if (isAutoRerun) {
+        currentAutoRerunTestRef.current = type
+      }
 
-      // Set a safety timeout to reset the loading state
-      // This is a backup in case no completion event is received
-      setTimeout(() => {
-        setActiveTest((current) => {
-          if (current === type) {
-            console.log(`[werkzeug] Safety timeout for test: ${type}`)
-            return null
-          }
-          return current
-        })
-      }, 6000) // 6 seconds - slightly longer than the fallback event timeout
-    } catch (error) {
-      console.error(`[werkzeug] Error running test ${type}:`, error)
-      setActiveTest(null)
-    }
-  }, [])
+      try {
+        // Use our helper function - only pass the test type
+        await runTestHelper(type)
+      } catch (error) {
+        console.error(`[werkzeug] Error running test:`, error)
+        setActiveTest(null)
+        // Clear the auto-rerun ref if there was an error
+        if (isAutoRerun) {
+          currentAutoRerunTestRef.current = null
+        }
+      }
+    },
+    []
+  )
+
+  // Maintain the original runTest function for compatibility
+  const runTest = useCallback(
+    (type: TestType) => runTestWithFlag(type, false),
+    [runTestWithFlag]
+  )
 
   const stopTest = useCallback(() => {
     setActiveTest((current) => {
@@ -352,6 +391,26 @@ export function Werkzeug() {
         )}
       </div>
     )
+  }
+
+  // Helper to create a content hash for deduplication
+  const createContentHash = (result: any) => {
+    // Extract the properties that define uniqueness
+    // Adjust these based on what makes an issue truly unique in your system
+    const uniqueData = {
+      selector: result.selector || "",
+      html: result.html || "",
+      message: result.message || "",
+      impact: result.impact || "",
+      severity: result.severity || "",
+      // For element-based tests, include the element details
+      target: result.target || result.targetElement || "",
+      // DOM position might be important for uniqueness
+      xpath: result.xpath || ""
+    }
+
+    // Create a deterministic string representation
+    return JSON.stringify(uniqueData)
   }
 
   return (
