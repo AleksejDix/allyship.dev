@@ -3,10 +3,9 @@ import { generateMetadata } from '@/lib/metadata'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@workspace/ui/components/button'
 import { Clock, ArrowRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { Loader } from '@/components/loader'
 import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
-
+import { Badge } from '@workspace/ui/components/badge'
 // Import component blocks
 import { Faqs } from '@/components/blocks/Faqs'
 import { Issues } from '@/components/blocks/Issues'
@@ -17,6 +16,11 @@ import { WebScanner } from '@/components/blocks/WebScanner'
 import { Compliance } from '@/components/charts/Compliance'
 import { UserTestimonials } from '@/components/blocks/UserTestimonials'
 import { BenefitsSection } from '@/components/blocks/BenefitsSection'
+import { BlogBlock } from '@/components/blocks/blog'
+import { getAllPosts } from '@/app/(marketing)/blog/page'
+import { BorderBeam } from '@workspace/ui/components/magicui/border-beam'
+
+const posts = await getAllPosts()
 
 // Component wrapper for consistent styling of pre-built components
 const ComponentWrapper = ({
@@ -57,17 +61,21 @@ const Page = async () => {
         <div className="container px-4 pt-16 pb-24 mx-auto">
           <div className="space-y-12 max-w-5xl mx-auto text-center">
             <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-orange-500/20 rounded-full animate-pulse"></div>
-              <div className="relative flex items-center justify-center">
-                <Loader size={64} />
-              </div>
+              <Loader size={64} />
             </div>
 
             <div className="space-y-6">
-              <div className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-orange-500/30 px-3 py-1 text-xs font-medium">
-                <span className="px-3 py-1 bg-background/80 backdrop-blur-sm rounded-full">
-                  Limited Beta Access Available
-                </span>
+              <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center relative overflow-hidden shadow-lg rounded-2xl">
+                  <Badge variant="outline" className="m-0 leading-none">
+                    Limited Beta Access Available
+                  </Badge>
+                  <BorderBeam
+                    size={40}
+                    initialOffset={20}
+                    className="from-transparent via-yellow-500 to-transparent absolute inset-0"
+                  />
+                </div>
               </div>
 
               <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-7xl max-w-2xl mx-auto font-display">
@@ -86,10 +94,6 @@ const Page = async () => {
               {!user ? (
                 <div className="space-y-8">
                   <div className="flex flex-col items-center gap-4">
-                    <div className="inline-flex items-center rounded-full bg-orange-500/10 dark:bg-orange-600/20 px-3 py-1 text-xs font-semibold text-orange-600 dark:text-orange-400">
-                      <Clock className="w-3 h-3 mr-1" /> Limited spots available
-                    </div>
-
                     <div className="flex flex-wrap justify-center gap-4 mt-2">
                       <Button size="lg" variant="default" asChild>
                         <Link href="/auth/signup">
@@ -161,9 +165,9 @@ const Page = async () => {
                     <span>Enterprise-ready implementation and support</span>
                   </li>
                 </ul>
-                <Button variant="outline" className="w-full mt-2" asChild>
+                {/* <Button variant="outline" className="w-full mt-2" asChild>
                   <Link href="/products/allyship">Learn more</Link>
-                </Button>
+                </Button> */}
               </div>
             </CardContent>
           </Card>
@@ -199,9 +203,9 @@ const Page = async () => {
                     <span>Measurable ROI with compliance reporting</span>
                   </li>
                 </ul>
-                <Button variant="outline" className="w-full mt-2" asChild>
+                {/* <Button variant="outline" className="w-full mt-2" asChild>
                   <Link href="/products/allystudio">Learn more</Link>
-                </Button>
+                </Button> */}
               </div>
             </CardContent>
           </Card>
@@ -246,6 +250,17 @@ const Page = async () => {
         </div>
         <Compliance />
       </div>
+
+      <BlogBlock
+        title="Latest News"
+        subtitle="Updates from our team"
+        posts={posts}
+        showMax={3} // Show up to 5 posts
+        footerLink={{
+          text: 'View all posts',
+          href: '/blog',
+        }}
+      />
 
       <ComponentWrapper title="Frequently Asked Questions">
         <Faqs />
