@@ -82,7 +82,6 @@ function UrlDebug() {
 
   return (
     <div>
-      <div>Current URL: {currentUrl}</div>
       <div>Normalized URL: {normalizedUrl?.full}</div>
       <div>Domain: {normalizedDomain}</div>
     </div>

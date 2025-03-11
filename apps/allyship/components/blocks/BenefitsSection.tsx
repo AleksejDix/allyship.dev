@@ -6,20 +6,17 @@ type BenefitGroup = {
   title: string
   description: string
   features: string[]
-  icon: 'code' | 'glasses' | 'chart'
-  color: 'blue' | 'purple' | 'amber'
+  icon: 'code' | 'glasses' | 'chart' | 'clipboard-check'
+  color: 'blue' | 'purple' | 'amber' | 'green'
 }
 
 const benefitGroups: BenefitGroup[] = [
   {
-    title: 'Development Teams',
-    description: 'Find issues early in development to save costly rework',
-    features: [
-      'Integrate with CI/CD pipelines',
-      'Actionable fix recommendations',
-    ],
-    icon: 'code',
-    color: 'blue',
+    title: 'Accessibility Auditors',
+    description: 'Conduct thorough assessments with detailed reporting',
+    features: ['WCAG compliance verification', 'Automated evidence collection'],
+    icon: 'clipboard-check',
+    color: 'green',
   },
   {
     title: 'Accessibility Specialists',
@@ -46,6 +43,23 @@ const getIconComponent = (iconType: string, colorClass: string) => {
     case 'chart':
       return (
         <BarChart2 className={`h-6 w-6 ${colorClass}`} aria-hidden="true" />
+      )
+    case 'clipboard-check':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className={`h-6 w-6 ${colorClass}`}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
       )
     default:
       return null
@@ -74,6 +88,13 @@ const getColorStyles = (color: string) => {
         bgIcon: 'bg-amber-900/20 dark:bg-amber-800/30',
         textIcon: 'text-amber-500',
         checkIcon: 'text-amber-500 dark:text-amber-400',
+      }
+    case 'green':
+      return {
+        border: 'from-green-500 to-lime-500',
+        bgIcon: 'bg-green-900/20 dark:bg-green-800/30',
+        textIcon: 'text-green-500',
+        checkIcon: 'text-green-500 dark:text-green-400',
       }
     default:
       return {

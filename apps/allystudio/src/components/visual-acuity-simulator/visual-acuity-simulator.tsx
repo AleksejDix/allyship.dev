@@ -16,13 +16,20 @@ import {
 } from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { cn } from "@/lib/utils"
-import { Eye, Glasses } from "lucide-react"
+import { Eye, Glasses, Info } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
 import {
   VisualAcuityType,
   type PrescriptionStrength
 } from "../../lib/vision/visual-acuity-simulator"
+
+// Specific string values to represent our diopter options
+// This ensures + signs are correctly preserved
+type DiopterValue = "3" | "2" | "1" | "0" | "-1" | "-2" | "-3"
+
+// Standard viewing distance for computer use
+const VIEWING_DISTANCE = 50 // cm
 
 export function VisualAcuitySimulator() {
   // Core state
@@ -33,6 +40,7 @@ export function VisualAcuitySimulator() {
   const [prescriptionStrength, setPrescriptionStrength] =
     useState<PrescriptionStrength>("moderate")
   const [diopters, setDiopters] = useState(0)
+  const [showInfo, setShowInfo] = useState(false)
 
   // Toggle simulation
   const toggleSimulation = useCallback(() => {
@@ -48,7 +56,7 @@ export function VisualAcuitySimulator() {
   }, [isActive])
 
   // Map diopter value to vision settings
-  const updateVisionFromDiopters = useCallback(
+  const updateVisionSettings = useCallback(
     (value: number) => {
       // Set vision type based on positive/negative value
       const type =
@@ -91,13 +99,16 @@ export function VisualAcuitySimulator() {
     [acuityType, prescriptionStrength]
   )
 
-  // Handle option selection
-  const handleDiopterChange = useCallback(
-    (value: number) => {
-      setDiopters(value)
-      updateVisionFromDiopters(value)
+  // Set the diopter value and update vision settings
+  const setDiopterValue = useCallback(
+    (value: DiopterValue) => {
+      // Parse the string value to number
+      const numValue = parseInt(value, 10)
+
+      setDiopters(numValue)
+      updateVisionSettings(numValue)
     },
-    [updateVisionFromDiopters]
+    [updateVisionSettings]
   )
 
   // Listen for state changes from the content script
@@ -140,7 +151,49 @@ export function VisualAcuitySimulator() {
       acuityType === VisualAcuityType.NEARSIGHTED
         ? "Nearsightedness"
         : "Farsightedness"
-    return `${type} (${diopters > 0 ? "+" : ""}${diopters})`
+    return `${type} (${diopters > 0 ? "+" : ""}${diopters}D)`
+  }
+
+  // Calculate the actual dioptric blur for a given prescription
+  const getDioptricBlur = (refractiveError: number): number => {
+    // Formula: D = 100/d - P
+    // Where D = dioptric blur, d = viewing distance in cm, P = refractive error
+    return Math.round((100 / VIEWING_DISTANCE - refractiveError) * 10) / 10
+  }
+
+  // Get visual explanation of the blur based on diopter value
+  const getBlurExplanation = (refractiveError: number): string => {
+    // Special case for normal vision
+    if (refractiveError === 0) {
+      return "No blur"
+    }
+
+    // Calculate the dioptric blur
+    const dioptricBlur = getDioptricBlur(refractiveError)
+    const absBlur = Math.abs(dioptricBlur)
+
+    // Return appropriate description based on blur amount
+    if (absBlur < 0.5) {
+      return "Minimal blur"
+    } else if (absBlur < 1.5) {
+      return "Slight blur"
+    } else if (absBlur < 2.5) {
+      return "Moderate blur"
+    } else if (absBlur < 3.5) {
+      return "Significant blur"
+    } else {
+      return "Severe blur"
+    }
+  }
+
+  // Format diopter value for display (with sign)
+  const formatDiopters = (value: number): string => {
+    return `${value > 0 ? "+" : ""}${value}D`
+  }
+
+  // Handler for radio group value change
+  const handleRadioValueChange = (value: string) => {
+    setDiopterValue(value as DiopterValue)
   }
 
   return (
@@ -179,31 +232,112 @@ export function VisualAcuitySimulator() {
             </TooltipTrigger>
           </ContextMenuTrigger>
 
-          <ContextMenuContent>
+          <ContextMenuContent className="w-52 min-w-[240px]">
+            <div className="px-4 py-1.5 flex justify-between items-center">
+              <div className="text-sm font-medium">Vision Simulator</div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setShowInfo(!showInfo)}>
+                <Info className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            {showInfo && (
+              <div className="px-4 py-2 border-t text-xs text-muted-foreground">
+                <p className="mb-1">
+                  Using <strong>scientifically accurate</strong> diopter blur
+                  calculated at {VIEWING_DISTANCE}cm viewing distance.
+                </p>
+                <p>
+                  Formula: D = 100/d - P<br />
+                  Where D = dioptric blur, d = viewing distance (cm), P =
+                  refractive error
+                </p>
+              </div>
+            )}
+
+            <ContextMenuSeparator />
+
             <ContextMenuRadioGroup
               value={diopters.toString()}
-              onValueChange={(value) => handleDiopterChange(parseInt(value))}>
-              <ContextMenuLabel>Diopter</ContextMenuLabel>
-              <ContextMenuRadioItem value="3">
-                <span className="text-right grow">+3</span>
+              onValueChange={handleRadioValueChange}>
+              <div className="pt-2 px-4 pb-0.5">
+                <div className="text-sm font-medium">Farsightedness</div>
+              </div>
+              <ContextMenuRadioItem value="3" className="px-10 relative">
+                {formatDiopters(3)}
+                {diopters === 3 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  {getBlurExplanation(3)}
+                </span>
               </ContextMenuRadioItem>
-              <ContextMenuRadioItem value="2">
-                <span className="text-right grow">+2</span>
+              <ContextMenuRadioItem value="2" className="px-10 relative">
+                {formatDiopters(2)}
+                {diopters === 2 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  {getBlurExplanation(2)}
+                </span>
               </ContextMenuRadioItem>
-              <ContextMenuRadioItem value="1">
-                <span className="text-right grow">+1</span>
+              <ContextMenuRadioItem value="1" className="px-10 relative">
+                {formatDiopters(1)}
+                {diopters === 1 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  {getBlurExplanation(1)}
+                </span>
               </ContextMenuRadioItem>
-              <ContextMenuRadioItem value="0">
-                <span className="text-right grow">0</span>
+
+              <ContextMenuSeparator />
+
+              {/* Normal Vision */}
+              <ContextMenuRadioItem value="0" className="px-10 relative">
+                0 - Normal
+                {diopters === 0 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  No blur
+                </span>
               </ContextMenuRadioItem>
-              <ContextMenuRadioItem value="-1">
-                <span className="text-right grow">-1</span>
+
+              <ContextMenuSeparator />
+
+              <div className="pt-2 px-4 pb-0.5">
+                <div className="text-sm font-medium">Nearsightedness</div>
+              </div>
+              <ContextMenuRadioItem value="-1" className="px-10 relative">
+                {formatDiopters(-1)}
+                {diopters === -1 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  {getBlurExplanation(-1)}
+                </span>
               </ContextMenuRadioItem>
-              <ContextMenuRadioItem value="-2">
-                <span className="text-right grow">-2</span>
+              <ContextMenuRadioItem value="-2" className="px-10 relative">
+                {formatDiopters(-2)}
+                {diopters === -2 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  {getBlurExplanation(-2)}
+                </span>
               </ContextMenuRadioItem>
-              <ContextMenuRadioItem value="-3">
-                <span className="text-right grow">-3</span>
+              <ContextMenuRadioItem value="-3" className="px-10 relative">
+                {formatDiopters(-3)}
+                {diopters === -3 && (
+                  <div className="absolute left-4 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+                <span className="absolute right-4 text-xs text-muted-foreground">
+                  {getBlurExplanation(-3)}
+                </span>
               </ContextMenuRadioItem>
             </ContextMenuRadioGroup>
           </ContextMenuContent>
