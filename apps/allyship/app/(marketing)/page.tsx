@@ -266,7 +266,7 @@ const Page = async () => {
         <Faqs />
       </ComponentWrapper>
 
-      {!user && (
+      {/* {!user && (
         <div className="w-full mt-16 flex justify-center z-50">
           <div className="bg-card/95 dark:bg-card/90 backdrop-blur-md border border-border/30 shadow-lg rounded-lg flex flex-col md:flex-row items-start md:items-center p-4 gap-4 max-w-xl">
             <div className="flex-1">
@@ -293,7 +293,7 @@ const Page = async () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   )
 }
