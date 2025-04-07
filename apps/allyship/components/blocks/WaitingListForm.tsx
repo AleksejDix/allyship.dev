@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
@@ -52,7 +52,8 @@ interface WaitingListFormProps {
   preview?: React.ReactNode
 }
 
-export function WaitingListForm({
+// Client component that handles the search params
+function FormWithSearchParams({
   campaign,
   title,
   description,
@@ -60,8 +61,29 @@ export function WaitingListForm({
 }: WaitingListFormProps) {
   const searchParams = useSearchParams()
   const showSuccess = searchParams.get('success') === 'true'
+
+  return (
+    <FormContent
+      campaign={campaign}
+      title={title}
+      description={description}
+      preview={preview}
+      initialShowSuccess={showSuccess}
+    />
+  )
+}
+
+// Form content that doesn't directly use useSearchParams
+function FormContent({
+  campaign,
+  title,
+  description,
+  preview,
+  initialShowSuccess,
+}: WaitingListFormProps & { initialShowSuccess: boolean }) {
   const [submitting, setSubmitting] = useState(false)
-  const [showSuccessMessage, setShowSuccessMessage] = useState(showSuccess)
+  const [showSuccessMessage, setShowSuccessMessage] =
+    useState(initialShowSuccess)
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true)
@@ -117,7 +139,7 @@ export function WaitingListForm({
                   disabled={submitting}
                 >
                   {submitting ? 'Submitting...' : 'Join Waiting List'}
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Button>
               </form>
             </div>
@@ -143,6 +165,28 @@ export function WaitingListForm({
       </Card>
     </>
   )
+}
+
+// Wrapper with suspense boundary for useSearchParams
+function WaitingListFormWrapper(props: WaitingListFormProps) {
+  return (
+    <Suspense
+      fallback={
+        <Card className="border border-border/40 bg-card/30 backdrop-blur-sm">
+          <CardContent className="p-8 flex items-center justify-center min-h-[200px]">
+            <div className="text-center text-muted-foreground">Loading...</div>
+          </CardContent>
+        </Card>
+      }
+    >
+      <FormWithSearchParams {...props} />
+    </Suspense>
+  )
+}
+
+// Export the component with proper suspense handling
+export function WaitingListForm(props: WaitingListFormProps) {
+  return <WaitingListFormWrapper {...props} />
 }
 
 /**

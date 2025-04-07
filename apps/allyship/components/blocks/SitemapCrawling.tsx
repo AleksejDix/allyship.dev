@@ -11,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '../ui/card'
+} from '@workspace/ui/components/card'
 
 const data: TreeDataItem[] = [
   {

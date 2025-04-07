@@ -1,12 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import Link from 'next/link'
 import { compareDesc } from 'date-fns'
 
 import { generateMetadata } from '@/lib/metadata'
-import { formatDate } from '@/lib/utils'
-import { Separator } from '@workspace/ui/components/separator'
-import { PageHeader } from '@/components/page-header'
+
 import BlogBlock from '@/components/blocks/blog'
 
 export const metadata = generateMetadata({
