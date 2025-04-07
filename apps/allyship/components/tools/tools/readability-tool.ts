@@ -271,7 +271,6 @@ export class ReadabilityTool extends BaseTool {
     container.querySelector('.readability-indicator')?.remove()
 
     const indicator = document.createElement('div')
-    const bgColor = this.getScoreBackgroundColor(result.score)
     const borderColor = this.getScoreBorderColor(result.score)
 
     indicator.className = 'readability-indicator'
