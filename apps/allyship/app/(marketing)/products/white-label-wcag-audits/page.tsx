@@ -7,8 +7,6 @@ import {
   Shield,
   LineChart,
   Users,
-  Store,
-  Code,
   Star,
   X,
 } from 'lucide-react'
@@ -26,7 +24,6 @@ import { Badge } from '@workspace/ui/components/badge'
 import { BrowserWindow } from '@/components/BrowserWindow'
 import { BorderBeam } from '@workspace/ui/components/magicui/border-beam'
 import { WhiteLabelLeadForm } from '@/components/blocks/WaitingListForm'
-import { Separator } from '@workspace/ui/components/separator'
 
 export const metadata: Metadata = {
   title:
