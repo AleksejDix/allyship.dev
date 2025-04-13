@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 
 import { siteConfig } from '@/config/site'
 
@@ -135,6 +136,13 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} dark  dark:bg-zinc-950 antialiased`}
     >
+      <head>
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="9d10bf4e-ce72-4a3d-bdf0-a0205ecae10b"
+        />
+      </head>
       <body>
         <AccessibleNavigation />
         <ThemeProvider
