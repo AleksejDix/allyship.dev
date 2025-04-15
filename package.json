@@ -8,7 +8,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules",
+    "clean": "turbo run clean && rimraf node_modules",
     "check-types": "turbo run check-types",
     "format": "turbo run format"
   },
@@ -21,6 +21,7 @@
     "jsdom": "^26.0.0",
     "prettier": "^3.5.1",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "rimraf": "^6.0.1",
     "turbo": "^2.4.2",
     "typescript": "5.7.3"
   },
