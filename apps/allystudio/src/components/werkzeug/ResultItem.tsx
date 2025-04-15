@@ -12,8 +12,6 @@ import {
 } from "lucide-react"
 import { memo, useState } from "react"
 
-// Replace custom severity color function with shadcn UI variables
-// const getSeverityColorClass = (severity, outcome) => { ... }
 
 interface ResultItemProps {
   result: {
@@ -36,6 +34,12 @@ interface ResultItemProps {
       attributes?: Record<string, string>
     }
     remediation?: string
+    metaInfo?: {
+      analysisTime: string;
+      url: string; 
+      cacheStatus: string;
+      formattedString: string;
+    }
   }
 }
 
@@ -160,7 +164,59 @@ const ResultItem = memo(function ResultItem({ result }: ResultItemProps) {
         onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex items-start justify-between gap-2 flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <div className="flex-shrink-0">{outcomeIcon}</div>
+            <div className="flex-shrink-0 flex items-center gap-1">
+              {outcomeIcon}
+              
+              {/* WCAG criteria next to the icon */}
+              {result.wcagCriteria && result.wcagCriteria.length > 0 && (
+                <div className="flex flex-wrap gap-1 items-center group relative">
+                  {/* Always show first 2 criteria */}
+                  {result.wcagCriteria.slice(0, 2).map((criteria) => (
+                    <div
+                      key={criteria}
+                      title={`WCAG criterion ${criteria}`}
+                      className="bg-blue-500/30 text-blue-700 dark:text-blue-200 px-1 py-0.5 rounded-sm text-[10px] font-medium border border-blue-500/40 leading-tight inline-flex items-center justify-center min-w-5">
+                      <span className="font-bold mr-0.5">W</span>{criteria}
+                    </div>
+                  ))}
+                  
+                  {/* Show "+N" if there are more than 2 criteria */}
+                  {result.wcagCriteria.length > 2 && (
+                    <div className="bg-blue-500/20 text-blue-700 dark:text-blue-200 px-1 py-0.5 rounded-sm text-[10px] font-medium border border-blue-500/40 leading-tight inline-flex items-center justify-center">
+                      +{result.wcagCriteria.length - 2}
+                    </div>
+                  )}
+                  
+                  {/* Show all criteria in tooltip on hover, if there are > 2 */}
+                  {result.wcagCriteria.length > 2 && (
+                    <div className="absolute left-0 top-full mt-1 z-50 hidden group-hover:flex flex-wrap gap-1 p-1 bg-popover border border-border rounded shadow-md">
+                      {result.wcagCriteria.map((criteria) => (
+                        <div 
+                          key={`tooltip-${criteria}`}
+                          className="bg-blue-500/30 text-blue-700 dark:text-blue-200 px-1 py-0.5 rounded-sm text-[10px] font-medium border border-blue-500/40 leading-tight inline-flex items-center justify-center min-w-5">
+                          <span className="font-bold mr-0.5">W</span>{criteria}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Add information about time and URL, if available */}
+              {result.metaInfo && (
+                <div className="ml-2 text-[10px] text-muted-foreground flex flex-col">
+                  <span title={`Analysis time: ${result.metaInfo.analysisTime}`} className="leading-tight">
+                    📊 {result.metaInfo.analysisTime}
+                  </span>
+                  <span title={`URL: ${result.metaInfo.url}`} className="leading-tight">
+                    📌 {result.metaInfo.url.split('/').slice(2, 3).join('/')}
+                  </span>
+                  <span title={`Cache status: ${result.metaInfo.cacheStatus}`} className="leading-tight">
+                    ⏱️ {result.metaInfo.cacheStatus}
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="flex items-start gap-2">
               {result.impact && (
