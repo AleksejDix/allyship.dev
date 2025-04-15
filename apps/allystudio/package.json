@@ -19,8 +19,7 @@
     "package:chrome": "plasmo package",
     "package:firefox": "plasmo package --target=firefox-mv2",
     "package:safari": "plasmo package --target=safari-mv3",
-    "clean": "rm -rf build",
-    "setup": "sh scripts/copy-ui.sh",
+    "clean": "rimraf build",
     "test": "vitest run"
   },
   "dependencies": {
@@ -87,6 +86,7 @@
     "postcss": "8.4.33",
     "prettier": "3.2.4",
     "prettier-plugin-tailwindcss": "0.6.11",
+    "rimraf": "^6.0.1",
     "tailwindcss": "3.4.1",
     "typescript": "5.3.3",
     "vitest": "^3.0.7"
