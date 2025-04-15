@@ -1,4 +1,5 @@
 // Import rule categories
+import { aiLanguageCheckRule, registerAILanguageRules } from "./ai-language-check"
 import {
   buttonAccessibleNameRule,
   registerButtonRules
@@ -31,6 +32,7 @@ import {
 
 // Export all rules
 export {
+  aiLanguageCheckRule,
   buttonAccessibleNameRule,
   firstHeadingIsH1Rule,
   focusOrderRule,
@@ -54,6 +56,7 @@ export function registerAllRules() {
   console.log("[rules] Registering all ACT rules")
 
   // Explicitly call registration functions
+  registerAILanguageRules()
   registerButtonRules()
   registerFocusRules()
   registerFormRules()
@@ -66,6 +69,7 @@ export function registerAllRules() {
 }
 
 // Re-export all rules for direct use
+export * from "./ai-language-check"
 export * from "./button-accessible-name"
 export * from "./focus-rules"
 export * from "./form-rules"

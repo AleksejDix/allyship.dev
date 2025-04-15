@@ -61,6 +61,12 @@ export interface ACTRuleResult {
   impact?: ACTSeverity // How severe the issue is
   wcagCriteria?: string[] // Which WCAG criteria this relates to
   helpUrl?: string // Link to more information
+  metaInfo?: {
+    analysisTime: string; // Analysis execution time
+    url: string; // Page URL
+    cacheStatus: string; // Cache status
+    formattedString: string; // Formatted string for output
+  } // Additional meta information about the analysis
 }
 
 /**

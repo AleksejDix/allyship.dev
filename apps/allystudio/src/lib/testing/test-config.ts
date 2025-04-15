@@ -12,6 +12,7 @@ export type TestType =
   | "color"
   | "tables"
   | "language"
+  | "ai-language"
   | "structure"
   | "focus"
 
@@ -181,6 +182,19 @@ export const TEST_CONFIGS: Record<TestType, TestConfig> = {
     buttonText: {
       enable: "Enable Language Analysis",
       disable: "Disable Language Analysis"
+    },
+    statsText: {
+      label: "Found",
+      itemName: "language issues"
+    },
+    layerName: "language"
+  },
+  "ai-language": {
+    type: "ai-language",
+    displayName: "AI Language Check",
+    buttonText: {
+      enable: "Enable AI Language Check",
+      disable: "Disable AI Language Check"
     },
     statsText: {
       label: "Found",
