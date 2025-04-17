@@ -6,50 +6,9 @@ import {
   registerACTRule
 } from "../act-rules-registry"
 import { getAccessibleName } from "../act-test-runner"
+import { isHiddenFromAT } from "../utils/accessibility-utils"
 import { formatACTResult } from "../utils/act-result-formatter"
 import { getValidSelector } from "../utils/selector-utils"
-
-/**
- * Common helper to check if an element is hidden from assistive technology
- * Elements are hidden from AT if they:
- * - Have aria-hidden="true"
- * - Are ancestors of an element with aria-hidden="true"
- * - Have display:none in CSS
- * - Have visibility:hidden in CSS
- */
-function isHiddenFromAT(element: Element): boolean {
-  // Check if the element itself has aria-hidden="true"
-  if (element.getAttribute("aria-hidden") === "true") {
-    return true
-  }
-
-  // Check computed styles for display:none or visibility:hidden
-  const computedStyle = window.getComputedStyle(element as HTMLElement)
-  if (
-    computedStyle.display === "none" ||
-    computedStyle.visibility === "hidden"
-  ) {
-    return true
-  }
-
-  // Check if any ancestor has aria-hidden="true" or display:none
-  let parent = element.parentElement
-  while (parent) {
-    if (parent.getAttribute("aria-hidden") === "true") {
-      return true
-    }
-
-    // Check parent's computed style
-    const parentStyle = window.getComputedStyle(parent)
-    if (parentStyle.display === "none" || parentStyle.visibility === "hidden") {
-      return true
-    }
-
-    parent = parent.parentElement
-  }
-
-  return false
-}
 
 /**
  * ACT Rule: Image has non-empty accessible name
