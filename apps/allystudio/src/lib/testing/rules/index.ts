@@ -4,6 +4,10 @@ import {
   registerAILanguageRules
 } from "./ai-language-check"
 import {
+  autocompleteValidValueRule,
+  registerAutocompleteRules
+} from "./autocomplete-valid-value"
+import {
   buttonAccessibleNameRule,
   registerButtonRules
 } from "./button-accessible-name"
@@ -34,6 +38,7 @@ import { registerRoleRules, roleValidValueRule } from "./role-valid-value"
 // Export all rules
 export {
   aiLanguageCheckRule,
+  autocompleteValidValueRule,
   buttonAccessibleNameRule,
   firstHeadingIsH1Rule,
   focusOrderRule,
@@ -57,6 +62,7 @@ export function registerAllRules(): void {
 
   // Register each category of rules
   registerAILanguageRules()
+  registerAutocompleteRules()
   registerButtonRules()
   registerFocusRules()
   registerFormRules()
@@ -71,6 +77,7 @@ export function registerAllRules(): void {
 
 // Re-export all rules for direct use
 export * from "./ai-language-check"
+export * from "./autocomplete-valid-value"
 export * from "./button-accessible-name"
 export * from "./focus-rules"
 export * from "./form-rules"
