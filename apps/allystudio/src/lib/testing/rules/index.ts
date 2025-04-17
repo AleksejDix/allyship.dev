@@ -1,5 +1,8 @@
 // Import rule categories
-import { aiLanguageCheckRule, registerAILanguageRules } from "./ai-language-check"
+import {
+  aiLanguageCheckRule,
+  registerAILanguageRules
+} from "./ai-language-check"
 import {
   buttonAccessibleNameRule,
   registerButtonRules
@@ -16,10 +19,7 @@ import {
   headingOrderRule,
   registerHeadingRules
 } from "./heading-rules"
-import {
-  imageAccessibleNameRule,
-  registerImageRules
-} from "./image-accessible-name"
+import { registerImageRules } from "./image-accessible-name"
 // Import language rules with their registration function
 import { languageOfPageRule, registerLanguageRules } from "./language-of-page"
 import {
@@ -29,6 +29,7 @@ import {
   linkTextLengthRule,
   registerLinkRules
 } from "./link-rules"
+import { registerRoleRules, roleValidValueRule } from "./role-valid-value"
 
 // Export all rules
 export {
@@ -40,22 +41,21 @@ export {
   formLabelAssociationRule,
   headingAccessibleNameRule,
   headingOrderRule,
-  imageAccessibleNameRule,
   languageOfPageRule,
   linkAccessibleNameRule,
   linkDescriptiveTextRule,
   linkTextLengthRule,
-  linkDuplicateTextRule
+  linkDuplicateTextRule,
+  roleValidValueRule
 }
 
 /**
  * Register all rules
  */
-export function registerAllRules() {
-  // Explicitly register all rule types to prevent tree-shaking issues
-  console.log("[rules] Registering all ACT rules")
+export function registerAllRules(): void {
+  console.log("Registering all ACT rules...")
 
-  // Explicitly call registration functions
+  // Register each category of rules
   registerAILanguageRules()
   registerButtonRules()
   registerFocusRules()
@@ -64,8 +64,9 @@ export function registerAllRules() {
   registerImageRules()
   registerLanguageRules()
   registerLinkRules()
+  registerRoleRules()
 
-  console.log("[rules] All ACT rules registered")
+  console.log("All ACT rules registered.")
 }
 
 // Re-export all rules for direct use
@@ -77,3 +78,4 @@ export * from "./heading-rules"
 export * from "./image-accessible-name"
 export * from "./language-of-page"
 export * from "./link-rules"
+export * from "./role-valid-value"
