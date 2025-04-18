@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { generateMetadata } from '@/lib/metadata'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@workspace/ui/components/button'
-import { ArrowRight, BookOpen, ExternalLink } from 'lucide-react'
+import { ArrowRight, BookOpen, ExternalLink, Volume2 } from 'lucide-react'
 import { Loader } from '@/components/loader'
 import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
@@ -19,6 +19,7 @@ import { BenefitsSection } from '@/components/blocks/BenefitsSection'
 import { BlogBlock } from '@/components/blocks/blog'
 import { getAllPosts } from '@/app/(marketing)/blog/page'
 import { BorderBeam } from '@workspace/ui/components/magicui/border-beam'
+import { TextToSpeechButton } from '@/components/accessibility/TextToSpeechButton'
 
 const posts = await getAllPosts()
 
@@ -87,6 +88,18 @@ const Page = async () => {
                 provides complete coverage by combining automated monitoring
                 with real-world interaction testing.
               </p>
+
+              {/* Text-to-speech button */}
+              <div className="flex justify-center">
+                <TextToSpeechButton
+                  text={`
+                  Complete Web Accessibility Coverage.
+                  Capture accessibility issues that static scanners miss. Allyship
+                  provides complete coverage by combining automated monitoring
+                  with real-world interaction testing.
+                `}
+                />
+              </div>
             </div>
 
             {/* CTA Section */}
@@ -152,6 +165,21 @@ const Page = async () => {
                   simplified guide breaks down complex legal requirements into
                   clear, actionable steps.
                 </p>
+
+                {/* Text-to-speech button for EAA section */}
+                <div className="flex">
+                  <TextToSpeechButton
+                    text={`
+                    European Accessibility Act in Simple Language.
+                    Understanding the EAA doesn't have to be complicated. Our
+                    simplified guide breaks down complex legal requirements into
+                    clear, actionable steps.
+                    Our guide includes plain language explanations that anyone can understand,
+                    visual diagrams and examples for complex concepts, and
+                    practical compliance steps for businesses of all sizes.
+                  `}
+                  />
+                </div>
 
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
