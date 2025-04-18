@@ -150,6 +150,54 @@ body {
   }
 }
 
+@property --angle {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --c1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.violet.500');
+}
+
+@property --c2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.red.500');
+}
+
+@property --c3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.orange.500');
+}
+
+@property --c4 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.yellow.500');
+}
+
+@property --c5 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.green.500');
+}
+
+@property --c6 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.blue.500');
+}
+
+@property --c7 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: theme('colors.indigo.500');
+}
+
 .logo {
   --base: 16;
   --base-width: calc(var(--base) * 1px);
@@ -157,13 +205,6 @@ body {
   width: calc(var(--base-width) * 1.7);
   margin: 0 auto;
   grid-template-columns: 1fr 1fr;
-  --c1: theme('colors.violet.500');
-  --c2: theme('colors.red.500');
-  --c3: theme('colors.orange.500');
-  --c4: theme('colors.yellow.500');
-  --c5: theme('colors.green.500');
-  --c6: theme('colors.blue.500');
-  --c7: theme('colors.indigo.500');
 }
 
 .circle {
@@ -179,22 +220,38 @@ body {
 .g-1 {
   background: conic-gradient(
     from 180deg at 50% 50%,
-    var(--c1) 0,
-    var(--c2) 90deg,
-    var(--c3) 180deg,
-    var(--c4) 270deg
+    var(--c1) var(--angle),
+    var(--c2) calc(var(--angle) + 90deg),
+    var(--c3) calc(var(--angle) + 180deg),
+    var(--c4) calc(var(--angle) + 270deg)
   );
   transform: rotate(-45deg);
+  transition:
+    --angle 1s ease-in-out,
+    --c2 1s ease-in-out,
+    --c5 1s ease-in-out,
+    --c6 1s ease-in-out,
+    --c7 1s ease-in-out;
 }
 
 .g-2 {
   background: conic-gradient(
     from 0deg at 50% 50%,
-    var(--c7) 0,
-    var(--c6) 90deg,
-    var(--c5) 180deg,
-    var(--c4) 270deg
+    var(--c7) var(--angle),
+    var(--c6) calc(var(--angle) + 90deg),
+    var(--c5) calc(var(--angle) + 180deg),
+    var(--c4) calc(var(--angle) + 270deg)
   );
+  transition:
+    --angle 1s ease-in-out,
+    --c2 1s ease-in-out,
+    --c5 1s ease-in-out,
+    --c6 1s ease-in-out,
+    --c7 1s ease-in-out;
+}
+
+.logo:hover {
+  --angle: -180deg;
 }
 
 a:not(.button)[aria-current='page'] {
