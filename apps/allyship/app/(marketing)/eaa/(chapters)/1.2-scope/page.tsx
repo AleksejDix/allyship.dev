@@ -1,13 +1,9 @@
 import React from 'react'
-import { Metadata } from 'next'
 import Link from 'next/link'
-import {
-  INTRODUCTION_LINKS,
-  REQUIREMENTS_LINKS,
-  EXTERNAL_LINKS,
-} from '../../constants/links'
+import { Metadata } from 'next'
 import { ArrowLeft, ArrowRight, ExternalLink, List } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
+import { INTRODUCTION_LINKS, EXTERNAL_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
   title: 'Scope and Application - European Accessibility Act',
@@ -19,18 +15,19 @@ export default function ScopePage() {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
-        <div className="lg:sticky lg:top-20 text-left lg:text-right">
-          <Button asChild variant="secondary">
-            <Link
-              className="no-underline"
-              href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-              aria-labelledby="toc-button-label"
-              id="toc-button"
-            >
-              <List size={16} aria-hidden="true" />
-              <span id="toc-button-label">EAA Table of Contents</span>
-            </Link>
-          </Button>
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
+          </div>
 
           <h1 className="text-4xl font-bold mb-[23px]">
             Scope and Application
@@ -45,7 +42,7 @@ export default function ScopePage() {
                 <a
                   className="underline"
                   href="#products-covered"
-                  id="products-link"
+                  id="products-covered-link"
                 >
                   Products Covered
                 </a>
@@ -54,7 +51,7 @@ export default function ScopePage() {
                 <a
                   className="underline"
                   href="#services-covered"
-                  id="services-link"
+                  id="services-covered-link"
                 >
                   Services Covered
                 </a>
@@ -99,11 +96,12 @@ export default function ScopePage() {
           </nav>
         </div>
       </header>
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert">
+
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
         <div className="space-y-8">
           <section aria-labelledby="products-covered">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="products-covered"
               tabIndex={-1}
             >
@@ -153,7 +151,7 @@ export default function ScopePage() {
 
           <section aria-labelledby="services-covered">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="services-covered"
               tabIndex={-1}
             >
@@ -186,7 +184,7 @@ export default function ScopePage() {
 
           <section aria-labelledby="microenterprises">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="microenterprises"
               tabIndex={-1}
             >
@@ -210,7 +208,7 @@ export default function ScopePage() {
 
           <section aria-labelledby="built-environment">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="built-environment"
               tabIndex={-1}
             >
@@ -229,7 +227,7 @@ export default function ScopePage() {
 
           <section aria-labelledby="emergency-services">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="emergency-services"
               tabIndex={-1}
             >
@@ -249,7 +247,7 @@ export default function ScopePage() {
 
           <section aria-labelledby="specifications">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="specifications"
               tabIndex={-1}
             >
@@ -269,31 +267,19 @@ export default function ScopePage() {
 
           <footer>
             <nav
-              className="flex justify-between items-center mt-10 pt-4 border-t"
+              className="flex justify-end items-center mt-10 pt-4 border-t"
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
                 Chapter navigation
               </h2>
-              <Button asChild id="prev-chapter-button">
-                <Link
-                  href={INTRODUCTION_LINKS.PURPOSE_AND_DEFINITIONS.fullPath}
-                  className="no-underline"
-                  aria-labelledby="prev-chapter-label"
-                >
-                  <ArrowLeft size={16} aria-hidden="true" />
-                  <span id="prev-chapter-label">
-                    EAA Purpose and Definitions
-                  </span>
-                </Link>
-              </Button>
-              <Button asChild id="next-chapter-button">
+              <Button asChild>
                 <Link
                   href={INTRODUCTION_LINKS.EXISTING_LAW.fullPath}
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">EAA Existing Union Law</span>
+                  <span id="next-chapter-label">Existing Union Law</span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>

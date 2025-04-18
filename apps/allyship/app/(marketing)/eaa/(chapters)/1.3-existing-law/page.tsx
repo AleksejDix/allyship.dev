@@ -1,13 +1,9 @@
 import React from 'react'
-import { Metadata } from 'next'
 import Link from 'next/link'
-import {
-  INTRODUCTION_LINKS,
-  REQUIREMENTS_LINKS,
-  EXTERNAL_LINKS,
-} from '../../constants/links'
+import { Metadata } from 'next'
 import { ArrowRight, List } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
+import { INTRODUCTION_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
   title: 'Existing Union Law | European Accessibility Act',
@@ -19,18 +15,19 @@ export default function ExistingLawPage() {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
-        <div className="lg:sticky lg:top-20 text-left lg:text-right">
-          <Button asChild variant="secondary">
-            <Link
-              className="no-underline"
-              href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-              aria-labelledby="toc-button-label"
-              id="toc-button"
-            >
-              <List size={16} aria-hidden="true" />
-              <span id="toc-button-label">EAA Table of Contents</span>
-            </Link>
-          </Button>
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
+          </div>
 
           <h1 className="text-4xl font-bold mb-[23px]">
             Existing Union Law in the Field of Passenger Transport
@@ -72,11 +69,12 @@ export default function ExistingLawPage() {
           </nav>
         </div>
       </header>
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert">
+
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
         <div className="space-y-8">
           <section aria-labelledby="compliance-rules">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="compliance-rules"
               tabIndex={-1}
             >
@@ -109,7 +107,7 @@ export default function ExistingLawPage() {
 
           <section aria-labelledby="existing-regs">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="existing-regs"
               tabIndex={-1}
             >
@@ -167,7 +165,7 @@ export default function ExistingLawPage() {
 
           <section aria-labelledby="additional-requirements">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="additional-requirements"
               tabIndex={-1}
             >
@@ -208,15 +206,12 @@ export default function ExistingLawPage() {
               <h2 id="footer-nav-heading" className="sr-only">
                 Chapter navigation
               </h2>
-              <Button asChild id="next-chapter-button">
+              <Button asChild>
                 <Link
                   href={INTRODUCTION_LINKS.FREE_MOVEMENT.fullPath}
                   className="no-underline"
-                  aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">
-                    Free Movement of Products and Services
-                  </span>
+                  Free Movement
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>

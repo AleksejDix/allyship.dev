@@ -1,14 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import { ArrowRight, List } from 'lucide-react'
+import { Button } from '@workspace/ui/components/button'
 import {
   INTRODUCTION_LINKS,
-  REQUIREMENTS_LINKS,
   OBLIGATIONS_LINKS,
-  EXTERNAL_LINKS,
+  REQUIREMENTS_LINKS,
 } from '../../constants/links'
-import { ArrowLeft, ArrowRight, ExternalLink, List } from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
 
 export const metadata: Metadata = {
   title: 'Free Movement | European Accessibility Act',
@@ -20,18 +19,19 @@ export default function FreeMovementPage() {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
-        <div className="lg:sticky lg:top-20 text-left lg:text-right">
-          <Button asChild variant="secondary">
-            <Link
-              className="no-underline"
-              href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-              aria-labelledby="toc-button-label"
-              id="toc-button"
-            >
-              <List size={16} aria-hidden="true" />
-              <span id="toc-button-label">EAA Table of Contents</span>
-            </Link>
-          </Button>
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
+          </div>
 
           <h1 className="text-4xl font-bold mb-[23px]">Free Movement</h1>
 
@@ -44,7 +44,7 @@ export default function FreeMovementPage() {
                 <a
                   className="underline"
                   href="#free-movement-principle"
-                  id="principle-link"
+                  id="free-movement-principle-link"
                 >
                   The Principle of Free Movement
                 </a>
@@ -62,7 +62,7 @@ export default function FreeMovementPage() {
                 <a
                   className="underline"
                   href="#market-barriers"
-                  id="barriers-link"
+                  id="market-barriers-link"
                 >
                   Eliminating Market Barriers
                 </a>
@@ -80,11 +80,12 @@ export default function FreeMovementPage() {
           </nav>
         </div>
       </header>
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert">
+
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
         <div className="space-y-8">
           <section aria-labelledby="free-movement-principle">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="free-movement-principle"
               tabIndex={-1}
             >
@@ -113,7 +114,7 @@ export default function FreeMovementPage() {
 
           <section aria-labelledby="harmonization">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="harmonization"
               tabIndex={-1}
             >
@@ -141,7 +142,7 @@ export default function FreeMovementPage() {
 
           <section aria-labelledby="market-barriers">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="market-barriers"
               tabIndex={-1}
             >
@@ -191,7 +192,7 @@ export default function FreeMovementPage() {
 
           <section aria-labelledby="ce-marking">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="ce-marking"
               tabIndex={-1}
             >
@@ -227,30 +228,20 @@ export default function FreeMovementPage() {
 
           <footer>
             <nav
-              className="flex justify-between items-center mt-10 pt-4 border-t"
+              className="flex justify-end items-center mt-10 pt-4 border-t"
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
                 Chapter navigation
               </h2>
-              <Button asChild id="prev-chapter-button">
+              <Button asChild>
                 <Link
-                  href={INTRODUCTION_LINKS.EXISTING_LAW.fullPath}
-                  className="no-underline"
-                  aria-labelledby="prev-chapter-label"
-                >
-                  <ArrowLeft size={16} aria-hidden="true" />
-                  <span id="prev-chapter-label">EAA Existing Union Law</span>
-                </Link>
-              </Button>
-              <Button asChild id="next-chapter-button">
-                <Link
-                  href={OBLIGATIONS_LINKS.OVERVIEW.fullPath}
+                  href={REQUIREMENTS_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
                   <span id="next-chapter-label">
-                    EAA Obligations of Economic Operators
+                    Accessibility Requirements
                   </span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>

@@ -1,14 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import { ArrowRight, List } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { ArrowLeft, ArrowRight, ExternalLink, List } from 'lucide-react'
-import {
-  INTRODUCTION_LINKS,
-  REQUIREMENTS_LINKS,
-  EXTERNAL_LINKS,
-  OBLIGATIONS_LINKS,
-} from '../../constants/links'
+import { INTRODUCTION_LINKS, OBLIGATIONS_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
   title: 'Obligations of Economic Operators | European Accessibility Act',
@@ -18,23 +13,21 @@ export const metadata: Metadata = {
 
 export default function ObligationsPage() {
   return (
-    <main
-      className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12"
-      id="main-content"
-    >
+    <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
-        <div className="lg:sticky lg:top-20 text-left lg:text-right">
-          <Button asChild variant="secondary">
-            <Link
-              className="no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
-              href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-              aria-labelledby="toc-button-label"
-              id="toc-button"
-            >
-              <List size={16} aria-hidden="true" />
-              <span id="toc-button-label">EAA Table of Contents</span>
-            </Link>
-          </Button>
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
+          </div>
 
           <h1 className="text-4xl font-bold mb-[23px]">
             Obligations of Economic Operators
@@ -46,72 +39,65 @@ export default function ObligationsPage() {
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
-                <a
-                  className="underline hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
-                  href="#overview"
-                  id="overview-link"
-                >
+                <a className="underline" href="#overview" id="overview-link">
                   Overview of Obligations
                 </a>
               </li>
               <li>
                 <a
-                  className="underline hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
+                  className="underline"
                   href="#manufacturers-summary"
-                  id="manufacturers-link"
+                  id="manufacturers-summary-link"
                 >
                   Manufacturers: Key Obligations
                 </a>
               </li>
               <li>
                 <a
-                  className="underline hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
+                  className="underline"
                   href="#importers-summary"
-                  id="importers-link"
+                  id="importers-summary-link"
                 >
                   Importers: Key Obligations
                 </a>
               </li>
               <li>
                 <a
-                  className="underline hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
+                  className="underline"
                   href="#distributors-summary"
-                  id="distributors-link"
+                  id="distributors-summary-link"
                 >
                   Distributors: Key Obligations
                 </a>
               </li>
               <li>
                 <a
-                  className="underline hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
+                  className="underline"
                   href="#service-providers-summary"
-                  id="service-providers-link"
+                  id="service-providers-summary-link"
                 >
                   Service Providers: Key Obligations
                 </a>
               </li>
               <li>
                 <a
-                  className="underline hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
+                  className="underline"
                   href="#multiple-roles"
                   id="multiple-roles-link"
                 >
-                  Economic Operators with Multiple Roles
+                  Multiple Roles
                 </a>
               </li>
             </ul>
           </nav>
         </div>
       </header>
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert">
+
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
         <div className="space-y-8">
-          <section
-            aria-labelledby="overview"
-            id="overview-section"
-            className="scroll-mt-16"
-          >
+          <section aria-labelledby="overview">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="overview"
               tabIndex={-1}
             >
@@ -155,13 +141,9 @@ export default function ObligationsPage() {
             </div>
           </section>
 
-          <section
-            aria-labelledby="manufacturers-summary"
-            id="manufacturers-summary-section"
-            className="scroll-mt-16"
-          >
+          <section aria-labelledby="manufacturers-summary">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="manufacturers-summary"
               tabIndex={-1}
             >
@@ -197,25 +179,17 @@ export default function ObligationsPage() {
               <p className="mt-4">
                 <Link
                   href={OBLIGATIONS_LINKS.MANUFACTURERS.fullPath}
-                  className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md inline-flex items-center gap-1"
-                  aria-labelledby="manufacturer-details-link"
+                  className="text-blue-600 hover:underline"
                 >
-                  <span id="manufacturer-details-link">
-                    Learn more about manufacturers' obligations
-                  </span>
-                  <ArrowRight size={16} aria-hidden="true" />
+                  Learn more about manufacturers' obligations →
                 </Link>
               </p>
             </div>
           </section>
 
-          <section
-            aria-labelledby="importers-summary"
-            id="importers-summary-section"
-            className="scroll-mt-16"
-          >
+          <section aria-labelledby="importers-summary">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="importers-summary"
               tabIndex={-1}
             >
@@ -250,25 +224,17 @@ export default function ObligationsPage() {
               <p className="mt-4">
                 <Link
                   href={OBLIGATIONS_LINKS.IMPORTERS.fullPath}
-                  className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md inline-flex items-center gap-1"
-                  aria-labelledby="importer-details-link"
+                  className="text-blue-600 hover:underline"
                 >
-                  <span id="importer-details-link">
-                    Learn more about importers' obligations
-                  </span>
-                  <ArrowRight size={16} aria-hidden="true" />
+                  Learn more about importers' obligations →
                 </Link>
               </p>
             </div>
           </section>
 
-          <section
-            aria-labelledby="distributors-summary"
-            id="distributors-summary-section"
-            className="scroll-mt-16"
-          >
+          <section aria-labelledby="distributors-summary">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="distributors-summary"
               tabIndex={-1}
             >
@@ -276,55 +242,47 @@ export default function ObligationsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                Distributors are the economic operators who make products
-                available on the market after they have been placed by the
-                manufacturer or importer. Their key obligations include:
+                Distributors make products available on the market after they
+                have been placed on the market by the manufacturer or importer.
+                Their key obligations include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
+                <li>Verifying that products bear the CE marking</li>
                 <li>
-                  Acting with due care in relation to accessibility requirements
+                  Ensuring that products are accompanied by required
+                  documentation in appropriate languages
                 </li>
                 <li>
-                  Verifying that the product bears the CE marking and is
-                  accompanied by the required documentation
+                  Checking that manufacturers and importers have complied with
+                  their requirements
                 </li>
                 <li>
-                  Checking that the manufacturer and importer have complied with
-                  their obligations
-                </li>
-                <li>
-                  Ensuring that storage or transport conditions do not
+                  Ensuring that storage and transport conditions do not
                   jeopardize compliance
                 </li>
-                <li>Taking corrective measures when necessary</li>
                 <li>
-                  Informing authorities about products presenting a risk related
-                  to accessibility
+                  Taking corrective measures when aware of non-compliant
+                  products
                 </li>
-                <li>Cooperating with competent authorities</li>
+                <li>
+                  Providing all necessary information and documentation to
+                  authorities
+                </li>
               </ul>
               <p className="mt-4">
                 <Link
                   href={OBLIGATIONS_LINKS.DISTRIBUTORS.fullPath}
-                  className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md inline-flex items-center gap-1"
-                  aria-labelledby="distributor-details-link"
+                  className="text-blue-600 hover:underline"
                 >
-                  <span id="distributor-details-link">
-                    Learn more about distributors' obligations
-                  </span>
-                  <ArrowRight size={16} aria-hidden="true" />
+                  Learn more about distributors' obligations →
                 </Link>
               </p>
             </div>
           </section>
 
-          <section
-            aria-labelledby="service-providers-summary"
-            id="service-providers-summary-section"
-            className="scroll-mt-16"
-          >
+          <section aria-labelledby="service-providers-summary">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="service-providers-summary"
               tabIndex={-1}
             >
@@ -332,59 +290,49 @@ export default function ObligationsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                Service providers have distinct obligations under the European
-                Accessibility Act that focus on ensuring the accessibility of
-                services. Their key obligations include:
+                Service providers must ensure that their services comply with
+                the accessibility requirements of the Directive. Their main
+                obligations include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Designing and providing services in accordance with the
+                  Designing and providing services in accordance with
                   accessibility requirements
                 </li>
                 <li>
-                  Preparing the necessary information explaining how the
-                  services meet the accessibility requirements
+                  Preparing the necessary information explaining how services
+                  meet accessibility requirements
                 </li>
                 <li>
-                  Establishing procedures to ensure that service provision
-                  remains in conformity with applicable requirements
+                  Making information available to the public on how the service
+                  meets requirements
                 </li>
                 <li>
-                  Taking necessary corrective measures to bring a non-conforming
-                  service into conformity
+                  Ensuring ongoing compliance with accessibility requirements
                 </li>
                 <li>
-                  Informing competent authorities about non-compliance and
-                  corrective actions
+                  Implementing appropriate procedures for service provision
                 </li>
                 <li>
-                  Providing information to demonstrate service conformity upon
-                  reasoned request
+                  Providing information to market surveillance authorities upon
+                  request
                 </li>
-                <li>Cooperating with competent authorities</li>
+                <li>Taking corrective measures when services fail to comply</li>
               </ul>
               <p className="mt-4">
                 <Link
                   href={OBLIGATIONS_LINKS.SERVICE_PROVIDERS.fullPath}
-                  className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md inline-flex items-center gap-1"
-                  aria-labelledby="service-provider-details-link"
+                  className="text-blue-600 hover:underline"
                 >
-                  <span id="service-provider-details-link">
-                    Learn more about service providers' obligations
-                  </span>
-                  <ArrowRight size={16} aria-hidden="true" />
+                  Learn more about service providers' obligations →
                 </Link>
               </p>
             </div>
           </section>
 
-          <section
-            aria-labelledby="multiple-roles"
-            id="multiple-roles-section"
-            className="scroll-mt-16"
-          >
+          <section aria-labelledby="multiple-roles">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="multiple-roles"
               tabIndex={-1}
             >
@@ -392,109 +340,55 @@ export default function ObligationsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                It's important to note that a single company may fulfill
-                multiple roles under the European Accessibility Act and would
-                need to comply with the obligations for each role. For example:
+                In cases where an economic operator performs multiple roles
+                (e.g., a manufacturer also acting as a distributor), they must
+                fulfill the obligations associated with each role they undertake
+                in the supply chain.
+              </p>
+              <p>
+                Additionally, importers or distributors are considered
+                manufacturers for the purposes of the Directive when they:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  A company might be both a manufacturer of certain products and
-                  an importer of others
+                  Place a product on the market under their own name or
+                  trademark
                 </li>
                 <li>
-                  A retailer might be considered both a distributor of
-                  third-party products and a service provider for its online
-                  shopping platform
-                </li>
-                <li>
-                  A software developer might be both a manufacturer (for
-                  software products) and a service provider (for cloud services)
+                  Modify a product already placed on the market in a way that
+                  affects compliance
                 </li>
               </ul>
               <p>
-                In such cases, the company must ensure compliance with all
-                applicable obligations corresponding to each role they perform
-                in the market.
+                In such cases, they assume all the obligations of manufacturers.
               </p>
             </div>
           </section>
 
-          <section
-            aria-labelledby="legal-references"
-            id="legal-references-section"
-            className="scroll-mt-16"
-          >
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
-              id="legal-references"
-              tabIndex={-1}
+          <footer>
+            <nav
+              className="flex justify-end items-center mt-10 pt-4 border-t"
+              aria-labelledby="footer-nav-heading"
             >
-              Legal References
-            </h2>
-            <div className="space-y-4">
-              <p>
-                The specific obligations for economic operators are defined in
-                the following articles of the European Accessibility Act:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Article 7:</strong> Obligations of manufacturers
-                </li>
-                <li>
-                  <strong>Article 8:</strong> Authorised representatives
-                </li>
-                <li>
-                  <strong>Article 9:</strong> Obligations of importers
-                </li>
-                <li>
-                  <strong>Article 10:</strong> Obligations of distributors
-                </li>
-                <li>
-                  <strong>Article 11:</strong> Cases in which obligations of
-                  manufacturers apply to importers and distributors
-                </li>
-                <li>
-                  <strong>Article 13:</strong> Obligations of service providers
-                </li>
-              </ul>
-              <p className="mt-4">
-                <a
-                  href={EXTERNAL_LINKS.OFFICIAL_EAA_TEXT}
-                  className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md inline-flex items-center gap-1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-labelledby="legal-reference-link"
+              <h2 id="footer-nav-heading" className="sr-only">
+                Chapter navigation
+              </h2>
+              <Button asChild>
+                <Link
+                  href={OBLIGATIONS_LINKS.MANUFACTURERS.fullPath}
+                  className="no-underline"
+                  aria-labelledby="next-chapter-label"
                 >
-                  <span id="legal-reference-link">
-                    View the full text of the European Accessibility Act
+                  <span id="next-chapter-label">
+                    Manufacturers' Obligations
                   </span>
-                  <ExternalLink size={16} aria-hidden="true" />
-                  <span className="sr-only">(opens in new window)</span>
-                </a>
-              </p>
-            </div>
-          </section>
-
-          <nav className="py-8 border-t mt-4" aria-label="Chapter navigation">
-            <div className="flex justify-between">
-              <Link
-                href={INTRODUCTION_LINKS.SCOPE.fullPath}
-                className="inline-flex items-center gap-2 text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
-              >
-                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                <span>Previous: Scope & Application</span>
-              </Link>
-              <Link
-                href={REQUIREMENTS_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
-                className="inline-flex items-center gap-2 text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-md"
-              >
-                <span>Next: Accessibility Requirements</span>
-                <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </Link>
-            </div>
-          </nav>
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </Button>
+            </nav>
+          </footer>
         </div>
       </div>
-    </main>
+    </section>
   )
 }

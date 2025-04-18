@@ -1,13 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { ArrowLeft, ArrowRight, ExternalLink, List } from 'lucide-react'
 import {
   INTRODUCTION_LINKS,
-  REQUIREMENTS_LINKS,
+  OBLIGATIONS_LINKS,
+  ANNEXES_LINKS,
   EXTERNAL_LINKS,
-  OBLIGATIONS_LINKS
 } from '../../constants/links'
 
 export const metadata: Metadata = {
@@ -20,18 +20,19 @@ export default function AccessibilityRequirementsPage() {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
-        <div className="lg:sticky lg:top-20 text-left lg:text-right">
-          <Button asChild variant="secondary">
-            <Link
-              className="no-underline"
-              href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-              aria-labelledby="toc-button-label"
-              id="toc-button"
-            >
-              <List size={16} aria-hidden="true" />
-              <span id="toc-button-label">EAA Table of Contents</span>
-            </Link>
-          </Button>
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
+          </div>
 
           <h1 className="text-4xl font-bold mb-[23px]">
             Accessibility Requirements
@@ -91,11 +92,12 @@ export default function AccessibilityRequirementsPage() {
           </nav>
         </div>
       </header>
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert">
+
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
         <div className="space-y-8">
           <section aria-labelledby="general-principles">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="general-principles"
               tabIndex={-1}
             >
@@ -112,7 +114,17 @@ export default function AccessibilityRequirementsPage() {
               <p>
                 The accessibility requirements are formulated in terms of
                 functional performance criteria, following four key principles
-                derived from the Web Content Accessibility Guidelines (WCAG):
+                derived from the{' '}
+                <a
+                  href={EXTERNAL_LINKS.W3C_WCAG}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1"
+                >
+                  Web Content Accessibility Guidelines (WCAG)
+                  <ExternalLink size={14} aria-hidden="true" />
+                </a>
+                :
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
@@ -139,7 +151,7 @@ export default function AccessibilityRequirementsPage() {
 
           <section aria-labelledby="products-requirements">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="products-requirements"
               tabIndex={-1}
             >
@@ -147,8 +159,14 @@ export default function AccessibilityRequirementsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                For products covered by this Directive, the accessibility
-                requirements include:
+                For products covered by this Directive (see{' '}
+                <Link
+                  href={INTRODUCTION_LINKS.SCOPE.fullPath}
+                  className="underline"
+                >
+                  Scope and Application
+                </Link>
+                ), the accessibility requirements include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
@@ -185,7 +203,7 @@ export default function AccessibilityRequirementsPage() {
 
           <section aria-labelledby="services-requirements">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="services-requirements"
               tabIndex={-1}
             >
@@ -224,7 +242,7 @@ export default function AccessibilityRequirementsPage() {
 
           <section aria-labelledby="specific-sectors">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="specific-sectors"
               tabIndex={-1}
             >
@@ -296,7 +314,7 @@ export default function AccessibilityRequirementsPage() {
 
           <section aria-labelledby="annex-reference">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-20"
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
               id="annex-reference"
               tabIndex={-1}
             >
@@ -304,8 +322,14 @@ export default function AccessibilityRequirementsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                The specific technical requirements are detailed in Annex I of
-                the Directive, which is organized into several sections:
+                The specific technical requirements are detailed in{' '}
+                <Link
+                  href={ANNEXES_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
+                  className="underline"
+                >
+                  Annex I of the Directive
+                </Link>
+                , which is organized into several sections:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
@@ -334,50 +358,39 @@ export default function AccessibilityRequirementsPage() {
                 <li>Section VII: Functional performance criteria</li>
               </ul>
               <p>
-                Additionally, Annex II provides non-binding examples of possible
-                solutions that contribute to meeting the accessibility
-                requirements, which Member States may inform economic operators
-                about.
+                Additionally,{' '}
+                <Link
+                  href={ANNEXES_LINKS.IMPLEMENTATION_EXAMPLES.fullPath}
+                  className="underline"
+                >
+                  Annex II
+                </Link>{' '}
+                provides non-binding examples of possible solutions that
+                contribute to meeting the accessibility requirements, which
+                Member States may inform economic operators about.
+              </p>
+              <p className="mt-6">
+                For a comprehensive overview of all annexes, visit the{' '}
+                <Link
+                  href={ANNEXES_LINKS.OVERVIEW.fullPath}
+                  className="underline"
+                >
+                  Annexes Overview page
+                </Link>
+                .
               </p>
             </div>
           </section>
 
           <footer>
             <nav
-              className="flex justify-between items-center mt-10 pt-4 border-t"
+              className="flex justify-end items-center mt-10 pt-4 border-t"
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
                 Chapter navigation
               </h2>
-              <Button asChild id="prev-chapter-button">
-                <Link
-                  href={INTRODUCTION_LINKS.FREE_MOVEMENT.fullPath}
-                  className="no-underline"
-                  aria-labelledby="prev-chapter-label"
-                >
-                  <ArrowLeft size={16} aria-hidden="true" />
-                  <span id="prev-chapter-label">Free Movement</span>
-                </Link>
-              </Button>
-
-              <a
-                href={EXTERNAL_LINKS.OFFICIAL_EAA_TEXT}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
-                aria-labelledby="official-document-link"
-                id="official-doc-link"
-              >
-                <span id="official-document-link" className="sr-only">
-                  Official European Accessibility Act document (opens in new
-                  window)
-                </span>
-                <ExternalLink size={14} aria-hidden="true" />
-                <span>Official EAA Document</span>
-              </a>
-
-              <Button asChild id="next-chapter-button">
+              <Button asChild>
                 <Link
                   href={OBLIGATIONS_LINKS.OVERVIEW.fullPath}
                   className="no-underline"

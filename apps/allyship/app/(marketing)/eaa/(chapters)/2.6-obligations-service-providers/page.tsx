@@ -1,338 +1,419 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
+import { Button } from '@workspace/ui/components/button'
+import {
+  INTRODUCTION_LINKS,
+  OBLIGATIONS_LINKS,
+  COMPLIANCE_LINKS,
+  EXTERNAL_LINKS,
+  ANNEXES_LINKS,
+} from '../../constants/links'
 
 export const metadata: Metadata = {
   title: 'Service Provider Obligations | European Accessibility Act',
   description:
-    'Legal responsibilities of service providers under the European Accessibility Act, including accessibility requirements for services, documentation, and compliance procedures.',
+    'Legal obligations for service providers under the European Accessibility Act, including digital accessibility requirements, documentation, exemptions, and compliance procedures.',
 }
 
 export default function ServiceProvidersObligationsPage() {
   return (
-    <main tabIndex={-1} id="main-content" className="focus:outline-none">
-      <nav aria-label="Breadcrumb" className="mb-6">
-        <Link
-          href="/eaa"
-          className="inline-flex items-center text-sm text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-        >
-          ← Back to Table of Contents
-        </Link>
-      </nav>
-
-      <h1 className="text-4xl font-bold mb-8">
-        Obligations of Service Providers
-      </h1>
-
-      <div className="space-y-8">
-        <section
-          aria-labelledby="role-service-providers"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="role-service-providers"
-          >
-            Role of Service Providers
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Article 13 of the European Accessibility Act outlines the
-              obligations of service providers. Service providers are any
-              natural or legal person who provides a service, as defined in the
-              Directive, that falls within the scope of the Act.
-            </p>
-            <p>
-              Service providers have a direct responsibility to ensure that
-              their services are designed and provided in accordance with the
-              accessibility requirements of this Directive. This includes
-              digital services, e-commerce, banking services, transportation,
-              and more.
-            </p>
+    <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
+      <header className="lg:col-span-3">
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+                id="toc-button"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
           </div>
-        </section>
 
-        <section
-          aria-labelledby="design-responsibility"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="design-responsibility"
-          >
-            Design and Provision Responsibility
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Service providers shall ensure that they design and provide
-              services in accordance with the accessibility requirements of this
-              Directive. Their primary obligations include:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
+          <h1 className="text-4xl font-bold mb-[23px]">
+            Obligations of Service Providers
+          </h1>
+
+          <nav aria-labelledby="page-sections-heading">
+            <h2 id="page-sections-heading" className="sr-only">
+              Page sections
+            </h2>
+            <ul className="space-y-1 text-lg">
               <li>
-                Designing services to be accessible from the outset, following
-                the principles of "universal design" where possible
+                <a
+                  className="underline"
+                  href="#role-service-providers"
+                  id="role-service-providers-link"
+                >
+                  Role of Service Providers
+                </a>
               </li>
               <li>
-                Ensuring that existing services are gradually brought into
-                compliance with accessibility requirements
+                <a
+                  className="underline"
+                  href="#design-requirements"
+                  id="design-requirements-link"
+                >
+                  Design Requirements
+                </a>
               </li>
               <li>
-                Making information about how the service meets accessibility
-                requirements available to the public
+                <a
+                  className="underline"
+                  href="#documentation"
+                  id="documentation-link"
+                >
+                  Documentation
+                </a>
               </li>
               <li>
-                Ensuring that the service and its accessibility features remain
-                consistent over time
+                <a
+                  className="underline"
+                  href="#non-compliance"
+                  id="non-compliance-link"
+                >
+                  Non-Compliance
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#cooperation"
+                  id="cooperation-link"
+                >
+                  Cooperation
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#disproportionate-burden"
+                  id="disproportionate-burden-link"
+                >
+                  Disproportionate Burden
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#microenterprise-exemption"
+                  id="microenterprise-exemption-link"
+                >
+                  Microenterprise Exemption
+                </a>
               </li>
             </ul>
-          </div>
-        </section>
+          </nav>
+        </div>
+      </header>
 
-        <section
-          aria-labelledby="information-requirements"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="information-requirements"
-          >
-            Information Requirements
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Service providers shall prepare the necessary information in
-              accordance with Annex V of the Directive. This information must
-              explain how the service meets the applicable accessibility
-              requirements and must be:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                Made available to the public in written and oral format,
-                including in a manner accessible to persons with disabilities
-              </li>
-              <li>Kept for as long as the service is in operation</li>
-              <li>Provided upon reasoned request to competent authorities</li>
-            </ul>
-            <p>
-              This information must detail the accessibility features of the
-              service, how they are implemented, and any limitations in
-              accessibility that might exist.
-            </p>
-          </div>
-        </section>
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
+        <div className="space-y-8">
+          <section aria-labelledby="role-service-providers">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="role-service-providers"
+              tabIndex={-1}
+            >
+              Role of Service Providers
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Service providers have specific obligations under the European
+                Accessibility Act to ensure their services are accessible to
+                persons with disabilities. These obligations focus on ensuring
+                that digital services and their related components meet
+                established accessibility standards.
+              </p>
 
-        <section
-          aria-labelledby="compliance-assessment"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="compliance-assessment"
-          >
-            Compliance Assessment
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Service providers are required to carry out and document a
-              compliance assessment of their services. This assessment should:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                Identify which accessibility requirements apply to their
-                specific service
-              </li>
-              <li>
-                Evaluate how the service currently meets those requirements
-              </li>
-              <li>Identify any gaps or areas of non-compliance</li>
-              <li>Develop a plan for addressing non-compliance</li>
-              <li>Document the assessment process and outcomes</li>
-            </ul>
-            <p>
-              This assessment forms part of the documentation that service
-              providers must maintain regarding accessibility compliance.
-            </p>
-          </div>
-        </section>
+              <div className="bg-blue-50 border border-blue-400 px-6 text-blue-800 dark:text-blue-400 dark:bg-blue-950 py-4 rounded-md mt-4">
+                <h3 className="font-semibold mb-2 mt-0">Related Resources:</h3>
+                <p>
+                  For a comprehensive overview of all economic operators' roles
+                  and responsibilities:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 mt-2">
+                  <li>
+                    <Link
+                      href={OBLIGATIONS_LINKS.OVERVIEW.fullPath}
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                      id="overview-link"
+                    >
+                      Overview of Economic Operators' Obligations
+                    </Link>
+                  </li>
+                  <li>
+                    <a
+                      href={EXTERNAL_LINKS.OFFICIAL_EAA_TEXT}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
+                      id="official-text-link"
+                    >
+                      <span>Official EAA Text (Article 13)</span>
+                      <ExternalLink size={14} aria-hidden="true" />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
 
-        <section
-          aria-labelledby="non-compliance-action"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="non-compliance-action"
-          >
-            Action on Non-Compliance
-          </h2>
-          <div className="space-y-4">
-            <p>
-              When a service does not comply with accessibility requirements,
-              service providers shall:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                Take the corrective measures necessary to bring the service into
-                conformity with the applicable accessibility requirements
-              </li>
-              <li>
-                Immediately inform the competent national authorities of any
-                identified non-compliance and the corrective measures being
-                taken
-              </li>
-            </ul>
-            <p>
-              The corrective measures must be appropriate to the nature and
-              impact of the non-compliance and must be implemented within a
-              reasonable timeframe.
-            </p>
-          </div>
-        </section>
+          <section aria-labelledby="design-requirements">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="design-requirements"
+              tabIndex={-1}
+            >
+              Design and Provision Requirements
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Service providers must ensure that they design and provide
+                services in accordance with the accessibility requirements of
+                the EAA by:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Designing and providing services in accordance with the
+                  accessibility requirements set out in the EAA
+                </li>
+                <li>
+                  Preparing the necessary technical documentation to demonstrate
+                  that services meet the applicable accessibility requirements
+                </li>
+                <li>
+                  Providing information on how the service meets applicable
+                  accessibility requirements
+                </li>
+              </ul>
 
-        <section aria-labelledby="documentation" className="scroll-mt-24">
-          <h2 className="text-2xl font-semibold mb-4" id="documentation">
-            Documentation Requirements
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Service providers must maintain documentation regarding
-              accessibility that includes:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>A general description of the service</li>
-              <li>
-                The criteria and methods used to ensure ongoing compliance with
-                accessibility requirements
-              </li>
-              <li>Records of accessibility assessments carried out</li>
-              <li>Documentation of any corrective measures implemented</li>
-              <li>User feedback mechanisms related to accessibility</li>
-            </ul>
-            <p>
-              This documentation must be kept up to date and available for
-              inspection by competent authorities upon request.
-            </p>
-          </div>
-        </section>
+              <p className="mt-4">
+                For detailed guidance on accessibility requirements, see
+                <Link
+                  href={COMPLIANCE_LINKS.SERVICE_COMPLIANCE.fullPath}
+                  className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+                  id="service-compliance-link"
+                >
+                  the service compliance guidelines
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
 
-        <section
-          aria-labelledby="fundamental-alteration"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="fundamental-alteration"
-          >
-            Fundamental Alteration Exception
-          </h2>
-          <div className="space-y-4">
-            <p>
-              The accessibility requirements only need to be applied to the
-              extent that they:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                Do not require a significant change in a service that would
-                result in the fundamental alteration of its basic nature
-              </li>
-              <li>
-                Do not impose a disproportionate burden on the service provider
-              </li>
-            </ul>
-            <p>
-              Service providers claiming either exception must perform and
-              document an assessment to justify their claim. The assessment must
-              consider:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                The relationship between the costs of compliance and the overall
-                resources of the service provider
-              </li>
-              <li>
-                The estimated costs and benefits for the service provider in
-                relation to the estimated benefit for persons with disabilities
-              </li>
-              <li>The type and frequency of use of the particular service</li>
-            </ul>
-          </div>
-        </section>
+          <section aria-labelledby="documentation">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="documentation"
+              tabIndex={-1}
+            >
+              Documentation and Information
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Service providers are required to maintain proper documentation
+                about accessibility features:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Explaining how the accessibility requirements have been met
+                </li>
+                <li>
+                  Making this information available to the public in written and
+                  oral format, including in a manner which is accessible to
+                  persons with disabilities
+                </li>
+                <li>
+                  Retaining this documentation for a period of five years after
+                  the service was last provided
+                </li>
+              </ul>
+            </div>
+          </section>
 
-        <section
-          aria-labelledby="microenterprise-exemption"
-          className="scroll-mt-24"
-        >
-          <h2
-            className="text-2xl font-semibold mb-4"
-            id="microenterprise-exemption"
-          >
-            Microenterprise Exemption
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Microenterprises (fewer than 10 employees and annual turnover
-              and/or annual balance sheet total of €2M or less) providing
-              services are exempt from complying with the accessibility
-              requirements and from having to document their assessment
-              regarding disproportionate burden.
-            </p>
-            <p>
-              However, microenterprises that provide services must still comply
-              with any national rules implementing the Directive. Additionally,
-              upon request from a competent authority, microenterprises must
-              provide information relevant to assess compliance with applicable
-              accessibility requirements.
-            </p>
-          </div>
-        </section>
+          <section aria-labelledby="non-compliance">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="non-compliance"
+              tabIndex={-1}
+            >
+              Addressing Non-Compliance
+            </h2>
+            <div className="space-y-4">
+              <p>
+                When a service does not conform to applicable accessibility
+                requirements, service providers must:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Take immediate corrective measures to bring the service into
+                  conformity, withdraw it, or cease its provision as appropriate
+                </li>
+                <li>
+                  Immediately inform the competent national authorities where
+                  the service presents a risk related to accessibility, giving
+                  details about the non-compliance and corrective measures taken
+                </li>
+                <li>
+                  Cooperate with competent authorities on any measures to ensure
+                  compliance
+                </li>
+              </ul>
 
-        <section aria-labelledby="cooperation" className="scroll-mt-24">
-          <h2 className="text-2xl font-semibold mb-4" id="cooperation">
-            Cooperation with Authorities
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Service providers shall, further to a reasoned request from a
-              competent authority, provide it with all information necessary to
-              demonstrate the conformity of the service with the applicable
-              accessibility requirements.
-            </p>
-            <p>
-              They shall cooperate with that authority on any action taken to
-              bring the service into compliance with those requirements. This
-              cooperation may include:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Providing access to service documentation</li>
-              <li>Sharing details of accessibility assessments conducted</li>
-              <li>Outlining corrective measures undertaken</li>
-              <li>
-                Participating in any investigation or audit conducted by the
-                authority
-              </li>
-            </ul>
-          </div>
-        </section>
+              <p className="mt-4">
+                For more information about handling non-compliance issues, visit
+                the
+                <Link
+                  href={COMPLIANCE_LINKS.NON_COMPLIANCE.fullPath}
+                  className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+                  id="non-compliance-procedures-link"
+                >
+                  non-compliance procedures page
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
 
-        <nav
-          className="flex justify-between mt-10 pt-4 border-t"
-          aria-label="Chapter navigation"
-        >
-          <Link
-            href="/eaa/2.5-obligations-distributors"
-            className="text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-          >
-            ← Distributors' Obligations
-          </Link>
-          <Link
-            href="/eaa/3.1-conformity-assessment"
-            className="text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-          >
-            Conformity Assessment →
-          </Link>
-        </nav>
+          <section aria-labelledby="cooperation">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="cooperation"
+              tabIndex={-1}
+            >
+              Cooperation with Authorities
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Service providers are obligated to cooperate with authorities
+                by:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Demonstrating compliance with the applicable accessibility
+                  requirements, when requested
+                </li>
+                <li>
+                  Providing all information and documentation necessary to
+                  demonstrate conformity
+                </li>
+                <li>
+                  Cooperating on any action taken to eliminate non-compliance
+                  with the applicable accessibility requirements
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section aria-labelledby="disproportionate-burden">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="disproportionate-burden"
+              tabIndex={-1}
+            >
+              Disproportionate Burden Exception
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Service providers may be exempt from accessibility requirements
+                if they can demonstrate that meeting them would:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Impose a disproportionate burden on them based on criteria
+                  specified in Annex VI
+                </li>
+                <li>
+                  Require a fundamental alteration in the nature of the service
+                </li>
+              </ul>
+              <p className="mt-4">
+                When claiming disproportionate burden, service providers must:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Conduct an assessment of whether compliance would require a
+                  fundamental change or impose a disproportionate burden
+                </li>
+                <li>
+                  Document this assessment according to the requirements in
+                  Annex VI
+                </li>
+                <li>
+                  Re-evaluate the exemption at least every five years, or when
+                  the service offering is modified
+                </li>
+              </ul>
+
+              <p className="mt-4">
+                For detailed guidance on assessing disproportionate burden, see
+                <Link
+                  href={ANNEXES_LINKS.DISPROPORTIONATE_BURDEN.fullPath}
+                  className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+                  id="disproportionate-burden-link"
+                >
+                  Annex IV: Disproportionate Burden Assessment
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
+
+          <section aria-labelledby="microenterprise-exemption">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="microenterprise-exemption"
+              tabIndex={-1}
+            >
+              Microenterprise Exemption
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Service providers that are microenterprises (fewer than 10
+                persons and an annual turnover not exceeding €2 million or an
+                annual balance sheet total not exceeding €2 million) are exempt
+                from compliance with the accessibility requirements. However,
+                they must still:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  Notify the relevant market surveillance authority when
+                  applying this exemption, if requested
+                </li>
+                <li>Provide relevant information on request</li>
+              </ul>
+            </div>
+          </section>
+
+          <footer>
+            <nav
+              className="flex justify-end items-center mt-10 pt-4 border-t"
+              aria-labelledby="footer-nav-heading"
+            >
+              <h2 id="footer-nav-heading" className="sr-only">
+                Chapter navigation
+              </h2>
+              <Button asChild id="next-chapter-button">
+                <Link
+                  href={COMPLIANCE_LINKS.CONFORMITY.fullPath}
+                  className="no-underline"
+                  aria-labelledby="next-chapter-label"
+                >
+                  <span id="next-chapter-label">Conformity Assessment</span>
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </Button>
+            </nav>
+          </footer>
+        </div>
       </div>
-    </main>
+    </section>
   )
 }
