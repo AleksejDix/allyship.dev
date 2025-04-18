@@ -2,12 +2,13 @@ import React from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { EXTERNAL_LINKS } from '../constants/links'
 import { RouterLink } from '../components/RouterLink'
+import { KeyDatesTimeline } from './page'
 
 export default function EAALayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="eaa-book min-h-screen">
       <div className="container mx-auto  pt-6 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
           <div className="lg:col-span-2">
             <RouterLink
               href="/"
@@ -16,6 +17,8 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               <span>Back to home</span>
             </RouterLink>
+
+            <KeyDatesTimeline />
           </div>
 
           <div className="lg:col-span-6">
