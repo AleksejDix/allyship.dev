@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { generateMetadata } from '@/lib/metadata'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@workspace/ui/components/button'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, BookOpen, ExternalLink } from 'lucide-react'
 import { Loader } from '@/components/loader'
 import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
@@ -126,6 +126,262 @@ const Page = async () => {
                   </Button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured EAA Simple Language Guide */}
+      <div className="relative bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/30 dark:to-background">
+        <div className="container px-4 py-20 mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="order-2 lg:order-1">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-900">
+                    NEW RESOURCE
+                  </Badge>
+                </div>
+
+                <h2 className="text-3xl md:text-4xl font-bold font-display">
+                  European Accessibility Act in Simple Language
+                </h2>
+
+                <p className="text-lg text-muted-foreground">
+                  Understanding the EAA doesn't have to be complicated. Our
+                  simplified guide breaks down complex legal requirements into
+                  clear, actionable steps.
+                </p>
+
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="rounded-full bg-blue-100 dark:bg-blue-900 p-1 mt-0.5">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="text-blue-600 dark:text-blue-400"
+                      >
+                        <path
+                          d="M12 5L6.5 10.5L4 8"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <span>
+                      Plain language explanations that anyone can understand
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="rounded-full bg-blue-100 dark:bg-blue-900 p-1 mt-0.5">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="text-blue-600 dark:text-blue-400"
+                      >
+                        <path
+                          d="M12 5L6.5 10.5L4 8"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <span>
+                      Visual diagrams and examples for complex concepts
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="rounded-full bg-blue-100 dark:bg-blue-900 p-1 mt-0.5">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="text-blue-600 dark:text-blue-400"
+                      >
+                        <path
+                          d="M12 5L6.5 10.5L4 8"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <span>
+                      Practical compliance steps for businesses of all sizes
+                    </span>
+                  </li>
+                </ul>
+
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <Button asChild size="lg">
+                    <Link href="/eaa/" className="group">
+                      Read Simple Guide
+                      <ArrowRight
+                        className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2 relative">
+              <div className="rounded-xl  shadow-xl relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 mix-blend-multiply"></div>
+                <div
+                  className="w-full h-[400px] bg-blue-50 dark:bg-blue-900/20 p-8 relative"
+                  role="img"
+                  aria-label="Preview of the EAA Simple Language Guide"
+                >
+                  {/* Document header */}
+                  <div className="bg-white dark:bg-gray-800 rounded-t-lg border border-border shadow-sm p-4 mb-4 flex items-center">
+                    <BookOpen
+                      className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3"
+                      aria-hidden="true"
+                    />
+                    <h3 className="text-lg font-semibold">
+                      European Accessibility Act Guide
+                    </h3>
+                  </div>
+
+                  {/* Content sections */}
+                  <div className="space-y-4">
+                    {/* Title */}
+                    <div className="bg-white dark:bg-gray-800 rounded-md border border-border p-4">
+                      <div className="h-6 w-48 bg-blue-600/90 dark:bg-blue-500/90 rounded mb-2"></div>
+                      <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+
+                    {/* Section 1 */}
+                    <div className="bg-white dark:bg-gray-800 rounded-md border border-border p-4">
+                      <div className="h-5 w-32 bg-blue-500/80 dark:bg-blue-600/80 rounded mb-3"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        <div className="h-3 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* Section 2 with bullet points */}
+                    <div className="bg-white dark:bg-gray-800 rounded-md border border-border p-4">
+                      <div className="h-5 w-40 bg-blue-500/80 dark:bg-blue-600/80 rounded mb-3"></div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                          <div className="h-3 w-5/6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                          <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                          <div className="h-3 w-4/5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Free Access badge */}
+                  <div className="absolute bottom-2 right-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
+                    <span>Free Access</span>
+                    <span className="text-[10px] opacity-80">
+                      (No registration required)
+                    </span>
+                  </div>
+
+                  {/* Visual elements */}
+                  <div className="absolute bottom-6 right-6 bg-blue-100 dark:bg-blue-800/70 rounded-full p-2">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-blue-600 dark:text-blue-300"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M12 8V12"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M12 16H12.01"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Decorative elements */}
+                  <div className="absolute top-4 right-4 opacity-30">
+                    <svg
+                      width="80"
+                      height="80"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-blue-600 dark:text-blue-400"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-4 -right-4 bg-white dark:bg-card p-3 rounded-lg shadow-lg border border-border">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/40"
+                    >
+                      Free Access
+                    </Badge>
+                    <span className="text-sm font-medium">
+                      No registration required
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

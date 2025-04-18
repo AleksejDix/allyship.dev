@@ -11,12 +11,24 @@ import {
   EXCEPTIONS_LINKS,
   ANNEXES_LINKS,
   EXTERNAL_LINKS,
+  IMPLEMENTATION_LINKS,
+  ALL_NAVIGATION_SECTIONS,
 } from '../constants/links'
 
 export const metadata: Metadata = {
   title: 'European Accessibility Act | Complete Guide',
   description:
     'Comprehensive guide to understanding and implementing the European Accessibility Act (EAA) requirements for accessible products and services.',
+}
+
+// Timeline component to be displayed in the left sidebar
+export function KeyDatesTimeline() {
+  return (
+    <div className="mb-8 mt-12">
+      <h4 className="text-lg font-medium mb-4">Key Implementation Dates</h4>
+      <EaaTimeline />
+    </div>
+  )
 }
 
 export default function EaaIndexPage() {
@@ -45,6 +57,7 @@ export default function EaaIndexPage() {
 
         <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
 
+        {/* Chapter 1: Introduction */}
         <section className="mb-12">
           <div className="mb-6">
             <h2 className="text-sm font-medium tracking-widest uppercase">
@@ -79,6 +92,14 @@ export default function EaaIndexPage() {
             </li>
             <li>
               <Link
+                href={INTRODUCTION_LINKS.EXISTING_LAW.fullPath}
+                className="text-lg hover:text-blue-600"
+              >
+                {INTRODUCTION_LINKS.EXISTING_LAW.label}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href={INTRODUCTION_LINKS.FREE_MOVEMENT.fullPath}
                 className="text-lg hover:text-blue-600"
               >
@@ -86,22 +107,11 @@ export default function EaaIndexPage() {
               </Link>
             </li>
           </ul>
-
-          <div
-            className="my-8 border-t border-gray-200"
-            aria-hidden="true"
-          ></div>
-
-          <div className="mb-8">
-            <h4 className="text-xl font-medium mb-4">
-              Key Implementation Dates
-            </h4>
-            <EaaTimeline />
-          </div>
         </section>
 
         <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
 
+        {/* Chapter 2: Requirements & Obligations */}
         <section className="mb-12">
           <div className="mb-6">
             <h2 className="text-sm font-medium tracking-widest uppercase">
@@ -112,7 +122,7 @@ export default function EaaIndexPage() {
                 href={REQUIREMENTS_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
                 className="hover:text-blue-600"
               >
-                Requirements
+                Requirements & Obligations
               </Link>
             </h3>
           </div>
@@ -120,41 +130,20 @@ export default function EaaIndexPage() {
           <ul className="space-y-2 mb-6 pl-2 border-l-2 border-slate-200 list-none">
             <li>
               <Link
-                href={INTRODUCTION_LINKS.EXISTING_LAW.fullPath}
+                href={REQUIREMENTS_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
                 className="text-lg hover:text-blue-600"
               >
-                {INTRODUCTION_LINKS.EXISTING_LAW.label}
+                {REQUIREMENTS_LINKS.ACCESSIBILITY_REQUIREMENTS.label}
               </Link>
             </li>
             <li>
-              <Link
-                href={COMPLIANCE_LINKS.HARMONIZED_STANDARDS.fullPath}
-                className="text-lg hover:text-blue-600"
-              >
-                {COMPLIANCE_LINKS.HARMONIZED_STANDARDS.label}
-              </Link>
-            </li>
-          </ul>
-        </section>
-
-        <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
-
-        <section className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-sm font-medium tracking-widest uppercase">
-              Chapter 3
-            </h2>
-            <h3 className="text-2xl font-semibold mt-2">
               <Link
                 href={OBLIGATIONS_LINKS.OVERVIEW.fullPath}
-                className="hover:text-blue-600"
+                className="text-lg hover:text-blue-600"
               >
-                Obligations
+                {OBLIGATIONS_LINKS.OVERVIEW.label}
               </Link>
-            </h3>
-          </div>
-
-          <ul className="space-y-2 mb-6 pl-2 border-l-2 border-slate-200 list-none">
+            </li>
             <li>
               <Link
                 href={OBLIGATIONS_LINKS.MANUFACTURERS.fullPath}
@@ -192,22 +181,31 @@ export default function EaaIndexPage() {
 
         <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
 
+        {/* Chapter 3: Compliance & Exceptions */}
         <section className="mb-12">
           <div className="mb-6">
             <h2 className="text-sm font-medium tracking-widest uppercase">
-              Chapter 4
+              Chapter 3
             </h2>
             <h3 className="text-2xl font-semibold mt-2">
               <Link
                 href={COMPLIANCE_LINKS.CONFORMITY.fullPath}
                 className="hover:text-blue-600"
               >
-                Compliance
+                Compliance & Exceptions
               </Link>
             </h3>
           </div>
 
           <ul className="space-y-2 mb-6 pl-2 border-l-2 border-slate-200 list-none">
+            <li>
+              <Link
+                href={COMPLIANCE_LINKS.CONFORMITY.fullPath}
+                className="text-lg hover:text-blue-600"
+              >
+                {COMPLIANCE_LINKS.CONFORMITY.label}
+              </Link>
+            </li>
             <li>
               <Link
                 href={COMPLIANCE_LINKS.EU_DECLARATION.fullPath}
@@ -248,33 +246,32 @@ export default function EaaIndexPage() {
                 {COMPLIANCE_LINKS.NON_COMPLIANCE.label}
               </Link>
             </li>
+            <li>
+              <Link
+                href={COMPLIANCE_LINKS.HARMONIZED_STANDARDS.fullPath}
+                className="text-lg hover:text-blue-600"
+              >
+                {COMPLIANCE_LINKS.HARMONIZED_STANDARDS.label}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={EXCEPTIONS_LINKS.FUNDAMENTAL_ALTERATION.fullPath}
+                className="text-lg hover:text-blue-600"
+              >
+                {EXCEPTIONS_LINKS.FUNDAMENTAL_ALTERATION.label}
+              </Link>
+            </li>
           </ul>
         </section>
 
         <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
 
+        {/* Chapter 4: Annexes */}
         <section className="mb-12">
           <div className="mb-6">
             <h2 className="text-sm font-medium tracking-widest uppercase">
-              Chapter 5
-            </h2>
-            <h3 className="text-2xl font-semibold mt-2">
-              <Link
-                href={EXCEPTIONS_LINKS.FUNDAMENTAL_ALTERATION.fullPath}
-                className="hover:text-blue-600"
-              >
-                Exceptions
-              </Link>
-            </h3>
-          </div>
-        </section>
-
-        <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
-
-        <section className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-sm font-medium tracking-widest uppercase">
-              Appendices
+              Chapter 4
             </h2>
             <h3 className="text-2xl font-semibold mt-2">
               <Link
@@ -287,6 +284,14 @@ export default function EaaIndexPage() {
           </div>
 
           <ul className="space-y-2 mb-6 pl-2 border-l-2 border-slate-200 list-none">
+            <li>
+              <Link
+                href={ANNEXES_LINKS.OVERVIEW.fullPath}
+                className="text-lg hover:text-blue-600"
+              >
+                {ANNEXES_LINKS.OVERVIEW.label}
+              </Link>
+            </li>
             <li>
               <Link
                 href={ANNEXES_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
@@ -337,6 +342,47 @@ export default function EaaIndexPage() {
             </li>
           </ul>
         </section>
+
+        {/* Implementation section could be included if needed, currently not in folder structure */}
+        {IMPLEMENTATION_LINKS &&
+          Object.keys(IMPLEMENTATION_LINKS).length > 0 && (
+            <>
+              <div
+                className="my-8 border-t border-gray-200"
+                aria-hidden="true"
+              ></div>
+              <section className="mb-12">
+                <div className="mb-6">
+                  <h2 className="text-sm font-medium tracking-widest uppercase">
+                    Chapter 5
+                  </h2>
+                  <h3 className="text-2xl font-semibold mt-2">
+                    <Link
+                      href={
+                        IMPLEMENTATION_LINKS.IMPLEMENTATION?.fullPath || '#'
+                      }
+                      className="hover:text-blue-600"
+                    >
+                      Implementation
+                    </Link>
+                  </h3>
+                </div>
+
+                <ul className="space-y-2 mb-6 pl-2 border-l-2 border-slate-200 list-none">
+                  {Object.values(IMPLEMENTATION_LINKS).map((link, index) => (
+                    <li key={index}>
+                      <Link
+                        href={link.fullPath}
+                        className="text-lg hover:text-blue-600"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          )}
       </div>
 
       <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
