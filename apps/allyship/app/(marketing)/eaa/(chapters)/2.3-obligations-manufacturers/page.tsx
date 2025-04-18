@@ -1,176 +1,163 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { List } from 'lucide-react'
-import {
-  INTRODUCTION_LINKS,
-  REQUIREMENTS_LINKS,
-  EXTERNAL_LINKS,
-  OBLIGATIONS_LINKS,
-} from '../../constants/links'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { buttonVariants } from '@/components/ui/button'
-import { ChevronRight } from 'lucide-react'
+import { INTRODUCTION_LINKS, OBLIGATIONS_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
-  title: 'EAA: Obligations for Manufacturers',
+  title: 'Obligations for Manufacturers | European Accessibility Act',
   description:
     'Specific obligations for manufacturers under the European Accessibility Act (EAA).',
 }
 
 export default function ManufacturerObligationsPage() {
   return (
-    <div className="container relative mt-10">
-      <div className="flex flex-col space-y-6">
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <Link
-            href="/eaa"
-            className="hover:text-foreground hover:underline focus-visible:underline"
-          >
-            European Accessibility Act
-          </Link>
-          <ChevronRight aria-hidden="true" className="h-4 w-4" />
-          <Link
-            href="/eaa/obligations-overview"
-            className="hover:text-foreground hover:underline focus-visible:underline"
-          >
-            Obligations Overview
-          </Link>
-          <ChevronRight aria-hidden="true" className="h-4 w-4" />
-          <p>Manufacturers</p>
-        </div>
+    <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
+      <header className="lg:col-span-3">
+        <div className="lg:sticky lg:top-2 text-left lg:text-right">
+          <div className="py-2">
+            <Button asChild variant="secondary">
+              <Link
+                className="no-underline"
+                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
+                aria-labelledby="toc-button-label"
+              >
+                <List size={16} aria-hidden="true" />
+                <span id="toc-button-label">EAA Table of Contents</span>
+              </Link>
+            </Button>
+          </div>
 
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold" id="top">
-            Obligations for Manufacturers Under the EAA
+          <h1 className="text-4xl font-bold mb-[23px]">
+            Obligations for Manufacturers
           </h1>
-          <p className="text-xl text-muted-foreground">
-            Detailed guidance on the specific obligations that manufacturers
-            must meet under the European Accessibility Act.
-          </p>
+
+          <nav aria-labelledby="page-sections-heading">
+            <h2 id="page-sections-heading" className="sr-only">
+              Page sections
+            </h2>
+            <ul className="space-y-1 text-lg">
+              <li>
+                <a
+                  className="underline"
+                  href="#definition"
+                  id="definition-link"
+                >
+                  Definition
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#key-responsibilities"
+                  id="key-responsibilities-link"
+                >
+                  Key Responsibilities
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#accessibility-requirements"
+                  id="accessibility-requirements-link"
+                >
+                  Accessibility Requirements
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#conformity-procedures"
+                  id="conformity-procedures-link"
+                >
+                  Conformity Procedures
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#technical-documentation"
+                  id="technical-documentation-link"
+                >
+                  Technical Documentation
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#declaration-of-conformity"
+                  id="declaration-of-conformity-link"
+                >
+                  Declaration of Conformity
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#product-marking"
+                  id="product-marking-link"
+                >
+                  Product Marking
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#non-conformity"
+                  id="non-conformity-link"
+                >
+                  Non-conformity
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#records-keeping"
+                  id="records-keeping-link"
+                >
+                  Record Keeping
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#cooperation"
+                  id="cooperation-link"
+                >
+                  Cooperation
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#exemptions"
+                  id="exemptions-link"
+                >
+                  Exemptions
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
+      </header>
 
-        <div className="flex flex-col lg:flex-row gap-10">
-          <div className="lg:w-3/4 space-y-8">
-            <nav
-              className="sticky top-20 z-10 bg-background pt-4 pb-2 border-b"
-              aria-label="Page navigation"
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
+        <div className="space-y-8">
+          <section
+            aria-labelledby="definition-heading"
+            id="definition"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="definition-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                <li>
-                  <a
-                    href="#definition"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="definition"
-                  >
-                    Definition
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#key-responsibilities"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="key-responsibilities"
-                  >
-                    Key Responsibilities
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#accessibility-requirements"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="accessibility-requirements"
-                  >
-                    Accessibility Requirements
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#conformity-procedures"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="conformity-procedures"
-                  >
-                    Conformity Procedures
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#technical-documentation"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="technical-documentation"
-                  >
-                    Technical Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#declaration-of-conformity"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="declaration-of-conformity"
-                  >
-                    Declaration of Conformity
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#product-marking"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="product-marking"
-                  >
-                    Product Marking
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#non-conformity"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="non-conformity"
-                  >
-                    Non-conformity
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#records-keeping"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="records-keeping"
-                  >
-                    Record Keeping
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#cooperation"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="cooperation"
-                  >
-                    Cooperation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#exemptions"
-                    className="hover:text-foreground hover:underline text-muted-foreground"
-                    data-scroll-margin-target="exemptions"
-                  >
-                    Exemptions
-                  </a>
-                </li>
-              </ul>
-            </nav>
-
-            <section
-              id="definition"
-              className="scroll-mt-20"
-              aria-labelledby="definition-heading"
-            >
-              <h2 id="definition-heading" className="text-2xl font-bold mb-4">
-                Definition of a Manufacturer under the EAA
-              </h2>
+              Definition of a Manufacturer under the EAA
+            </h2>
+            <div className="space-y-4">
               <p>
                 According to the European Accessibility Act, a{' '}
                 <strong>manufacturer</strong> is any natural or legal person
@@ -194,19 +181,22 @@ export default function ManufacturerObligationsPage() {
                 </li>
                 <li>Substantially modify products already on the market</li>
               </ul>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="key-responsibilities"
-              className="scroll-mt-20"
-              aria-labelledby="key-responsibilities-heading"
+          <section
+            aria-labelledby="key-responsibilities-heading"
+            id="key-responsibilities"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="key-responsibilities-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="key-responsibilities-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                Key Responsibilities
-              </h2>
+              Key Responsibilities
+            </h2>
+            <div className="space-y-4">
               <p>
                 As primary economic operators in the supply chain, manufacturers
                 hold the greatest responsibility for ensuring product compliance
@@ -232,19 +222,22 @@ export default function ManufacturerObligationsPage() {
                   formats
                 </li>
               </ul>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="accessibility-requirements"
-              className="scroll-mt-20"
-              aria-labelledby="accessibility-requirements-heading"
+          <section
+            aria-labelledby="accessibility-requirements-heading"
+            id="accessibility-requirements"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="accessibility-requirements-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="accessibility-requirements-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                Meeting Accessibility Requirements
-              </h2>
+              Meeting Accessibility Requirements
+            </h2>
+            <div className="space-y-4">
               <p>
                 Manufacturers must design and produce products that comply with
                 the accessibility requirements set out in Section I of Annex I
@@ -269,10 +262,12 @@ export default function ManufacturerObligationsPage() {
                 earliest stages of product design and development, following the
                 principles of "universal design" or "design for all."
               </p>
-              <div className="bg-muted p-4 rounded-md mt-4">
-                <h3 className="font-semibold mb-2">Practical Approach:</h3>
+              <div className="bg-blue-50 border border-blue-400 px-6 text-blue-800 dark:text-blue-400 dark:bg-blue-950 py-4 rounded-md mt-4">
+                <h3 className="font-semibold mb-2 mt-0 ">
+                  Practical Approach:
+                </h3>
                 <p>To meet accessibility requirements, manufacturers should:</p>
-                <ol className="list-decimal pl-6 space-y-2 mt-2">
+                <ol className="list-decimal pl-6 space-y-2 mt-2 ">
                   <li>
                     Conduct accessibility assessments during product development
                   </li>
@@ -284,19 +279,22 @@ export default function ManufacturerObligationsPage() {
                   </li>
                 </ol>
               </div>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="conformity-procedures"
-              className="scroll-mt-20"
-              aria-labelledby="conformity-procedures-heading"
+          <section
+            aria-labelledby="conformity-procedures-heading"
+            id="conformity-procedures"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="conformity-procedures-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="conformity-procedures-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                Conformity Assessment Procedures
-              </h2>
+              Conformity Assessment Procedures
+            </h2>
+            <div className="space-y-4">
               <p>
                 Manufacturers must carry out appropriate conformity assessment
                 procedures to verify that their products comply with the
@@ -336,19 +334,22 @@ export default function ManufacturerObligationsPage() {
                 must ensure and declare that their services comply with the
                 accessibility requirements.
               </p>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="technical-documentation"
-              className="scroll-mt-20"
-              aria-labelledby="technical-documentation-heading"
+          <section
+            aria-labelledby="technical-documentation-heading"
+            id="technical-documentation"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="technical-documentation-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="technical-documentation-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                Technical Documentation
-              </h2>
+              Technical Documentation
+            </h2>
+            <div className="space-y-4">
               <p>
                 Manufacturers must prepare and maintain technical documentation
                 that demonstrates how their products meet the accessibility
@@ -384,19 +385,22 @@ export default function ManufacturerObligationsPage() {
                   required period.
                 </p>
               </div>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="declaration-of-conformity"
-              className="scroll-mt-20"
-              aria-labelledby="declaration-of-conformity-heading"
+          <section
+            aria-labelledby="declaration-of-conformity-heading"
+            id="declaration-of-conformity"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="declaration-of-conformity-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="declaration-of-conformity-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                EU Declaration of Conformity
-              </h2>
+              EU Declaration of Conformity
+            </h2>
+            <div className="space-y-4">
               <p>
                 Manufacturers must draw up an EU Declaration of Conformity when
                 a product has been proven to comply with the applicable
@@ -425,97 +429,79 @@ export default function ManufacturerObligationsPage() {
                 authorities for 5 years after the product has been placed on the
                 market.
               </p>
-              <div className="bg-muted p-4 rounded-md mt-4">
-                <p>
-                  <Link
-                    href="/eaa/3.3-eu-declaration"
-                    className="text-primary hover:underline"
-                  >
-                    Learn more about the EU Declaration of Conformity
-                    requirements &rarr;
-                  </Link>
-                </p>
-              </div>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="product-marking"
-              className="scroll-mt-20"
-              aria-labelledby="product-marking-heading"
+          <section
+            aria-labelledby="product-marking-heading"
+            id="product-marking"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="product-marking-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="product-marking-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                CE Marking and Product Identification
-              </h2>
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                <div className="flex-grow">
-                  <p>
-                    Manufacturers must affix the CE marking to products that
-                    comply with the accessibility requirements of the EAA. The
-                    CE marking must be:
-                  </p>
-                  <ul className="list-disc pl-6 space-y-2 mt-4">
-                    <li>
-                      Visibly, legibly, and indelibly affixed to the product
-                    </li>
-                    <li>Affixed before the product is placed on the market</li>
-                    <li>
-                      Followed by the identification number of the notified body
-                      (if involved in the conformity assessment)
-                    </li>
-                  </ul>
-                  <p className="mt-4">
-                    In addition to the CE marking, manufacturers must ensure
-                    that their products bear:
-                  </p>
-                  <ul className="list-disc pl-6 space-y-2 mt-2">
-                    <li>
-                      A type, batch, or serial number allowing product
-                      identification
-                    </li>
-                    <li>
-                      The manufacturer's name, registered trade name, or
-                      registered trademark
-                    </li>
-                    <li>The manufacturer's postal address</li>
-                  </ul>
-                </div>
-                <div className="md:w-1/3 flex justify-center">
-                  <Image
-                    src="/images/eaa/ce-mark.svg"
-                    alt="CE Marking logo"
-                    width={100}
-                    height={80}
-                    className="mt-2"
-                  />
-                </div>
-              </div>
-              <div className="bg-muted p-4 rounded-md mt-4">
+              CE Marking and Product Identification
+            </h2>
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              <div className="flex-grow">
                 <p>
-                  <Link
-                    href="/eaa/3.4-ce-marking"
-                    className="text-primary hover:underline"
-                  >
-                    Learn more about CE marking requirements and procedures
-                    &rarr;
-                  </Link>
+                  Manufacturers must affix the CE marking to products that
+                  comply with the accessibility requirements of the EAA. The CE
+                  marking must be:
                 </p>
+                <ul className="list-disc pl-6 space-y-2 mt-4">
+                  <li>
+                    Visibly, legibly, and indelibly affixed to the product
+                  </li>
+                  <li>Affixed before the product is placed on the market</li>
+                  <li>
+                    Followed by the identification number of the notified body
+                    (if involved in the conformity assessment)
+                  </li>
+                </ul>
+                <p className="mt-4">
+                  In addition to the CE marking, manufacturers must ensure that
+                  their products bear:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 mt-2">
+                  <li>
+                    A type, batch, or serial number allowing product
+                    identification
+                  </li>
+                  <li>
+                    The manufacturer's name, registered trade name, or
+                    registered trademark
+                  </li>
+                  <li>The manufacturer's postal address</li>
+                </ul>
               </div>
-            </section>
+              <div className="md:w-1/3 flex justify-center">
+                <Image
+                  src="/images/eaa/ce-mark.svg"
+                  alt="CE Marking logo"
+                  width={100}
+                  height={80}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          </section>
 
-            <section
-              id="non-conformity"
-              className="scroll-mt-20"
-              aria-labelledby="non-conformity-heading"
+          <section
+            aria-labelledby="non-conformity-heading"
+            id="non-conformity"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="non-conformity-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="non-conformity-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                Handling Non-Conformity
-              </h2>
+              Handling Non-Conformity
+            </h2>
+            <div className="space-y-4">
               <p>
                 When manufacturers have reason to believe that a product they
                 have placed on the market does not comply with the accessibility
@@ -545,19 +531,22 @@ export default function ManufacturerObligationsPage() {
                 </li>
                 <li>Keep distributors informed of any such monitoring</li>
               </ul>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="records-keeping"
-              className="scroll-mt-20"
-              aria-labelledby="records-keeping-heading"
+          <section
+            aria-labelledby="records-keeping-heading"
+            id="records-keeping"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="records-keeping-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2
-                id="records-keeping-heading"
-                className="text-2xl font-bold mb-4"
-              >
-                Record Keeping Requirements
-              </h2>
+              Record Keeping Requirements
+            </h2>
+            <div className="space-y-4">
               <p>
                 Manufacturers must maintain comprehensive records to demonstrate
                 compliance with the EAA. They must keep:
@@ -578,16 +567,22 @@ export default function ManufacturerObligationsPage() {
                 These records must be made available to market surveillance
                 authorities upon request.
               </p>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="cooperation"
-              className="scroll-mt-20"
-              aria-labelledby="cooperation-heading"
+          <section
+            aria-labelledby="cooperation-heading"
+            id="cooperation"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="cooperation-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2 id="cooperation-heading" className="text-2xl font-bold mb-4">
-                Cooperation with Authorities
-              </h2>
+              Cooperation with Authorities
+            </h2>
+            <div className="space-y-4">
               <p>
                 Manufacturers must cooperate with competent national authorities
                 when requested. This includes:
@@ -612,16 +607,22 @@ export default function ManufacturerObligationsPage() {
                 clear internal procedures for how to respond to official
                 requests.
               </p>
-            </section>
+            </div>
+          </section>
 
-            <section
-              id="exemptions"
-              className="scroll-mt-20"
-              aria-labelledby="exemptions-heading"
+          <section
+            aria-labelledby="exemptions-heading"
+            id="exemptions"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="exemptions-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
             >
-              <h2 id="exemptions-heading" className="text-2xl font-bold mb-4">
-                Exemptions and Limitations
-              </h2>
+              Exemptions and Limitations
+            </h2>
+            <div className="space-y-4">
               <p>
                 The EAA recognizes that in some cases, compliance with
                 accessibility requirements might impose a disproportionate
@@ -673,125 +674,31 @@ export default function ManufacturerObligationsPage() {
                   </li>
                 </ol>
               </div>
-            </section>
-
-            <div className="flex justify-end mt-8">
-              <Link
-                href="#top"
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'sm' }),
-                  'gap-1'
-                )}
-              >
-                Back to top
-              </Link>
             </div>
-          </div>
+          </section>
 
-          <div className="lg:w-1/4">
-            <div className="sticky top-20">
-              <ScrollArea className="h-[calc(100vh-100px)] pr-6">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <h3 className="font-semibold">In this chapter</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>
-                        <Link
-                          href="/eaa/2.2-obligations-overview"
-                          className="text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          2.2 Obligations Overview
-                        </Link>
-                      </li>
-                      <li>
-                        <span className="text-foreground font-medium">
-                          2.3 Obligations for Manufacturers
-                        </span>
-                      </li>
-                      <li>
-                        <Link
-                          href="/eaa/2.4-importers"
-                          className="text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          2.4 Obligations for Importers
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/eaa/2.5-distributors"
-                          className="text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          2.5 Obligations for Distributors
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/eaa/2.6-service-providers"
-                          className="text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          2.6 Obligations for Service Providers
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-semibold">Next chapter</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>
-                        <Link
-                          href="/eaa/3.1-conformity-assessment"
-                          className="text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          3.1 Conformity Assessment Procedures
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="border rounded-md p-4 space-y-4">
-                    <h3 className="font-semibold">More resources</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>
-                        <Link
-                          href="/resources/eaa-checklist-manufacturers"
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          Manufacturer compliance checklist
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/resources/eaa-documentation-templates"
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          Documentation templates
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/blog/eaa-case-studies-manufacturers"
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          Case studies: Manufacturers
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          href="/resources/eaa-training-manufacturers"
-                          className="text-primary hover:underline flex items-center"
-                        >
-                          Training for manufacturers
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </ScrollArea>
-            </div>
-          </div>
+          <footer>
+            <nav
+              className="flex justify-end items-center mt-10 pt-4 border-t"
+              aria-labelledby="footer-nav-heading"
+            >
+              <h2 id="footer-nav-heading" className="sr-only">
+                Chapter navigation
+              </h2>
+              <Button asChild>
+                <Link
+                  href={OBLIGATIONS_LINKS.IMPORTERS.fullPath}
+                  className="no-underline"
+                  aria-labelledby="next-chapter-label"
+                >
+                  <span id="next-chapter-label">Importers' Obligations</span>
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </Button>
+            </nav>
+          </footer>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
