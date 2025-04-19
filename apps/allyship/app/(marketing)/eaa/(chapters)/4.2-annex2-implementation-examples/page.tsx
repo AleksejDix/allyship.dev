@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowRight, List } from 'lucide-react'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { INTRODUCTION_LINKS, ANNEXES_LINKS } from '../../constants/links'
 
@@ -869,6 +869,52 @@ export default function ImplementationExamplesPage() {
                 These resources can help expand on the examples provided in
                 Annex II, offering more detailed technical guidance and
                 industry-specific applications.
+              </p>
+            </div>
+          </section>
+
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The implementation examples discussed on this page are drawn
+                directly from Annex II of the European Accessibility Act.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Directive (EU) 2019/882 - Annex II:</strong>{' '}
+                  Indicative Non-Binding Examples of Possible Solutions That
+                  Contribute to Meeting the Accessibility Requirements in Annex
+                  I. This annex provides practical examples for achieving
+                  compliance.
+                </li>
+              </ul>
+              <p>
+                For the full legal text and context, please refer to the
+                official{' '}
+                <a
+                  href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  aria-labelledby="official-directive-link-4-2"
+                >
+                  <span id="official-directive-link-4-2" className="sr-only">
+                    Directive (EU) 2019/882 (opens in new window)
+                  </span>
+                  Directive (EU) 2019/882
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="inline-block w-4 h-4 ml-1"
+                  />
+                </a>
+                .
               </p>
             </div>
           </section>

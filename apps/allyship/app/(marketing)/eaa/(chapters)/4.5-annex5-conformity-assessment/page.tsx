@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowRight, List } from 'lucide-react'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { ANNEXES_LINKS } from '../../constants/links'
 
@@ -891,6 +891,64 @@ export default function ConformityAssessmentProductsPage() {
                 Understanding these relationships is important for manufacturers
                 to correctly apply the conformity assessment procedures in the
                 context of the EAA as a whole.
+              </p>
+            </div>
+          </section>
+
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The conformity assessment procedures for products discussed on
+                this page are detailed in Annex IV of the European Accessibility
+                Act.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Directive (EU) 2019/882 - Annex IV:</strong>{' '}
+                  Conformity Assessment Procedure - Products. This annex
+                  outlines the Internal Production Control (Module A) procedure
+                  manufacturers must follow.
+                </li>
+                <li>
+                  <strong>Directive (EU) 2019/882 - Article 7(2):</strong>{' '}
+                  Requires manufacturers to draw up technical documentation
+                  according to Annex IV and carry out the conformity assessment
+                  procedure set out therein.
+                </li>
+                <li>
+                  <strong>Directive (EU) 2019/882 - Article 16:</strong>{' '}
+                  Specifies the requirements for the EU Declaration of
+                  Conformity, which is prepared after successful conformity
+                  assessment.
+                </li>
+              </ul>
+              <p>
+                For the full legal text and detailed procedure, please refer to
+                the official{' '}
+                <a
+                  href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  aria-labelledby="official-directive-link-4-5"
+                >
+                  <span id="official-directive-link-4-5" className="sr-only">
+                    Directive (EU) 2019/882 (opens in new window)
+                  </span>
+                  Directive (EU) 2019/882
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="inline-block w-4 h-4 ml-1"
+                  />
+                </a>
+                .
               </p>
             </div>
           </section>

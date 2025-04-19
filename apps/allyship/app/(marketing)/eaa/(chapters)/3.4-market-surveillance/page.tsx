@@ -349,6 +349,43 @@ export default function MarketSurveillancePage() {
             </div>
           </section>
 
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882 and Regulation (EC) No 765/2008:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 19 (Market surveillance of products, referencing
+                Regulation (EC) No 765/2008 and check of Article 14 claims)
+              </li>
+              <li>
+                Article 20 (Procedure at national level for dealing with
+                non-complying products)
+              </li>
+              <li>Article 21 (Union safeguard procedure)</li>
+              <li>
+                Annex VI (Criteria for disproportionate burden, referenced in
+                Article 19(2))
+              </li>
+              <li>
+                Regulation (EC) No 765/2008 (General framework for market
+                surveillance)
+              </li>
+              <li>
+                Recitals 80, 84, 86, 87, 88, 89 (Context on market surveillance)
+              </li>
+            </ul>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

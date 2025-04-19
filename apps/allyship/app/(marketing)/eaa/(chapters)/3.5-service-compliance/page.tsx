@@ -352,6 +352,44 @@ export default function ServiceCompliancePage() {
             </div>
           </section>
 
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 4, Paragraph 5 (Microenterprise exemption for services)
+              </li>
+              <li>
+                Article 13 (Obligations of service providers, including
+                demonstrating compliance and corrective actions)
+              </li>
+              <li>
+                Article 14 (Exemptions: Fundamental alteration /
+                Disproportionate burden)
+              </li>
+              <li>Article 15 (Presumption of conformity via standards)</li>
+              <li>Article 23 (Compliance of services - Authority checks)</li>
+              <li>
+                Annex V (Information on services meeting accessibility
+                requirements)
+              </li>
+              <li>
+                Recitals 81, 85 (Context on service information and Member State
+                checks)
+              </li>
+            </ul>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

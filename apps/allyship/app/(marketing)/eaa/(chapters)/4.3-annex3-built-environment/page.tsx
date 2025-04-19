@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowRight, List } from 'lucide-react'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { INTRODUCTION_LINKS, ANNEXES_LINKS } from '../../constants/links'
 
@@ -626,6 +626,60 @@ export default function BuiltEnvironmentPage() {
                 service providers develop comprehensive accessibility strategies
                 that address both digital and physical aspects of service
                 delivery.
+              </p>
+            </div>
+          </section>
+
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The requirements for the built environment discussed on this
+                page are based on Annex III of the European Accessibility Act,
+                which Member States may choose to implement.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Directive (EU) 2019/882 - Annex III:</strong>{' '}
+                  Accessibility Requirements for the Purpose of Article 4(4)
+                  Concerning the Built Environment Where the Services Under the
+                  Scope of This Directive Are Provided. This annex details the
+                  aspects of the built environment to be considered for
+                  accessibility.
+                </li>
+                <li>
+                  <strong>Directive (EU) 2019/882 - Article 4(4):</strong> This
+                  article enables Member States to decide whether to require
+                  compliance with the built environment requirements outlined in
+                  Annex III.
+                </li>
+              </ul>
+              <p>
+                For the full legal text and context, please refer to the
+                official{' '}
+                <a
+                  href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  aria-labelledby="official-directive-link-4-3"
+                >
+                  <span id="official-directive-link-4-3" className="sr-only">
+                    Directive (EU) 2019/882 (opens in new window)
+                  </span>
+                  Directive (EU) 2019/882
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="inline-block w-4 h-4 ml-1"
+                  />
+                </a>
+                .
               </p>
             </div>
           </section>

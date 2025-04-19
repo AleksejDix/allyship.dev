@@ -119,7 +119,7 @@ export default function DistributorsObligationsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                Article 9 of the European Accessibility Act outlines the
+                Article 10 of the European Accessibility Act outlines the
                 obligations of distributors. Distributors are any natural or
                 legal person in the supply chain, other than the manufacturer or
                 the importer, who makes a product available on the market.
@@ -155,7 +155,7 @@ export default function DistributorsObligationsPage() {
                       className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
                       id="official-text-link"
                     >
-                      <span>Official EAA Text (Article 9)</span>
+                      <span>Official EAA Text (Article 10)</span>
                       <ExternalLink size={14} aria-hidden="true" />
                     </a>
                   </li>
@@ -421,6 +421,29 @@ export default function DistributorsObligationsPage() {
                 <li>Responding to customer queries about accessibility</li>
               </ul>
             </div>
+          </section>
+
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>Article 3, Point 20 (Definition: Distributor)</li>
+              <li>Article 10 (Obligations of distributors)</li>
+              <li>
+                Article 11 (Cases where obligations apply to
+                Importers/Distributors)
+              </li>
+              <li>Recital 62 (Context on distributor's role)</li>
+            </ul>
           </section>
 
           <footer>

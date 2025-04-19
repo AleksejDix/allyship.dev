@@ -8,6 +8,7 @@ import {
   COMPLIANCE_LINKS,
   EXTERNAL_LINKS,
 } from '../../constants/links'
+import { CEMark } from '../../components/ce-mark'
 
 export const metadata: Metadata = {
   title: 'CE Marking | European Accessibility Act',
@@ -166,35 +167,47 @@ export default function CeMarkingPage() {
               Rules for Affixing the CE Marking
             </h2>
             <div className="space-y-4">
-              <p>
-                According to Article 18 of the EAA, there are specific rules for
-                affixing the CE marking:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  The CE marking must be affixed visibly, legibly, and indelibly
-                  to the product or to its data plate
-                </li>
-                <li>
-                  If this is not possible or warranted due to the nature of the
-                  product, the marking must be affixed to the packaging and to
-                  the accompanying documents
-                </li>
-                <li>
-                  The CE marking must be affixed before the product is placed on
-                  the market
-                </li>
-                <li>
-                  The marking must follow the standard proportions and design as
-                  specified in EU legislation
-                </li>
-              </ul>
-              <p>
-                The CE marking is the final step in the conformity assessment
-                process and can only be applied after the manufacturer has drawn
-                up the EU Declaration of Conformity confirming that the product
-                meets all applicable requirements.
-              </p>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className="flex-grow">
+                  <p>
+                    According to Article 18 of the EAA, there are specific rules
+                    for affixing the CE marking:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li>
+                      The CE marking must be affixed visibly, legibly, and
+                      indelibly to the product or to its data plate
+                    </li>
+                    <li>
+                      If this is not possible or warranted due to the nature of
+                      the product, the marking must be affixed to the packaging
+                      and to the accompanying documents
+                    </li>
+                    <li>
+                      The CE marking must be affixed before the product is
+                      placed on the market
+                    </li>
+                    <li>
+                      The marking must follow the standard proportions and
+                      design as specified in EU legislation
+                    </li>
+                  </ul>
+                  <p>
+                    The CE marking is the final step in the conformity
+                    assessment process and can only be applied after the
+                    manufacturer has drawn up the EU Declaration of Conformity
+                    confirming that the product meets all applicable
+                    requirements.
+                  </p>
+                </div>
+                <div className="md:w-1/3 flex justify-center">
+                  <CEMark
+                    width={150}
+                    height={120}
+                    className="text-gray-800 dark:text-gray-200 mt-2"
+                  />
+                </div>
+              </div>
 
               <div className="bg-blue-50 border border-blue-400 p-4 rounded-md text-blue-800 dark:text-blue-400 dark:bg-blue-950 mt-4">
                 <p>
@@ -349,6 +362,46 @@ export default function CeMarkingPage() {
                 </li>
               </ul>
             </div>
+          </section>
+
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 7, Paragraph 2 (Manufacturer obligation to affix CE
+                mark)
+              </li>
+              <li>
+                Article 16, Paragraph 4 (Manufacturer responsibility assumption
+                via DoC/CE mark)
+              </li>
+              <li>
+                Article 17 (General principles of CE marking, referencing
+                Regulation (EC) No 765/2008)
+              </li>
+              <li>
+                Article 18 (Rules and conditions for affixing the CE marking)
+              </li>
+              <li>Article 22 (Formal non-compliance related to CE marking)</li>
+              <li>
+                Annex IV (Conformity assessment procedure leading to CE mark)
+              </li>
+              <li>Recital 82 (Context on CE marking as visible consequence)</li>
+              <li>
+                Recital 83 (Context on manufacturer declaration via CE mark)
+              </li>
+            </ul>
           </section>
 
           <footer>

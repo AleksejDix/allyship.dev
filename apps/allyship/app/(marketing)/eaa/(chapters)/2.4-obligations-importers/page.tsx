@@ -132,7 +132,7 @@ export default function ImportersObligationsPage() {
             </h2>
             <div className="space-y-4">
               <p>
-                Article 8 of the European Accessibility Act defines the
+                Article 9 of the European Accessibility Act defines the
                 obligations of importers. Importers play a crucial role in the
                 supply chain as they are the economic operators who place
                 products from third countries onto the EU market.
@@ -391,6 +391,25 @@ export default function ImportersObligationsPage() {
                 the market.
               </p>
             </div>
+          </section>
+
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>Article 3, Point 19 (Definition: Importer)</li>
+              <li>Article 9 (Obligations of importers)</li>
+              <li>Recitals 59, 60, 61 (Context on importer's role)</li>
+            </ul>
           </section>
 
           <footer>
