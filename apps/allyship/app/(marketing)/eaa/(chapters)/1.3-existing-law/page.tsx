@@ -185,6 +185,28 @@ export default function ExistingLawPage() {
             </div>
           </section>
 
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 5 (Existing Union law in the field of passenger
+                transport)
+              </li>
+              <li>Recital 36 (Context on existing transport regulations)</li>
+            </ul>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

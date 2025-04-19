@@ -253,6 +253,32 @@ export default function PurposeAndDefinitionsPage() {
             </div>
           </section>
 
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>Article 1 (Subject matter)</li>
+              <li>
+                Article 3, Point 1 (Definition: persons with disabilities)
+              </li>
+              <li>Recital 1 (Purpose and Internal Market)</li>
+              <li>Recital 3 (Definition Alignment with UN CRPD)</li>
+              <li>Recital 4 (Persons with Functional Limitations)</li>
+              <li>Recital 5, 6 (Internal Market Barriers)</li>
+              <li>Recital 7 (Consumer Issues)</li>
+              <li>Recital 8, 9 (Benefits of Harmonization)</li>
+            </ul>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

@@ -404,6 +404,84 @@ export default function HarmonizedStandardsPage() {
             </div>
           </section>
 
+          <section aria-labelledby="eaa-references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="eaa-references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The information on this page relates to the following articles
+                and recitals of the European Accessibility Act:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <Link
+                    href="/eaa/article-15"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Article 15: Harmonized standards and technical
+                    specifications
+                  </Link>
+                  : Establishes the framework for using standards and
+                  specifications for presumption of conformity.
+                </li>
+                <li>
+                  <Link
+                    href="/eaa/article-27#paragraph-2"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Article 27(2): Committee procedure
+                  </Link>
+                  : Refers to the examination procedure for adopting technical
+                  specifications.
+                </li>
+                <li>
+                  <Link
+                    href="/eaa/recitals#recital-57"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Recital 57
+                  </Link>
+                  : Presumption of conformity based on harmonized standards.
+                </li>
+                <li>
+                  <Link
+                    href="/eaa/recitals#recital-58"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Recital 58
+                  </Link>
+                  : Use of technical specifications in the absence of harmonized
+                  standards.
+                </li>
+                <li>
+                  <Link
+                    href="/eaa/recitals#recital-59"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Recital 59
+                  </Link>
+                  : Process for developing technical specifications, including
+                  stakeholder involvement.
+                </li>
+                <li>
+                  <Link
+                    href="/eaa/recitals#recital-60"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Recital 60
+                  </Link>
+                  : Conditions under which the Commission adopts technical
+                  specifications.
+                </li>
+              </ul>
+            </div>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

@@ -3,7 +3,13 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { ArrowRight, List } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { INTRODUCTION_LINKS, COMPLIANCE_LINKS } from '../../constants/links'
+import {
+  INTRODUCTION_LINKS,
+  COMPLIANCE_LINKS,
+  ANNEXES_LINKS,
+} from '../../constants/links'
+import { SeeAlso } from '../../components/see-also'
+import { CEMark } from '../../components/ce-mark'
 
 export const metadata: Metadata = {
   title: 'Conformity of Products | European Accessibility Act',
@@ -175,6 +181,17 @@ export default function ConformityPage() {
                   accessibility requirements.
                 </li>
               </ul>
+              <p className="mt-4">
+                For detailed information on these procedures, refer to{' '}
+                <Link
+                  href={ANNEXES_LINKS.CONFORMITY_ASSESSMENT.fullPath}
+                  className="text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  Annex V: Conformity Assessment for Products
+                </Link>
+                , which outlines the complete methodology for assessing product
+                conformity with accessibility requirements.
+              </p>
             </div>
           </section>
 
@@ -187,33 +204,44 @@ export default function ConformityPage() {
               Documentation Requirements
             </h2>
             <div className="space-y-4">
-              <p>
-                Economic operators must maintain comprehensive documentation to
-                demonstrate conformity:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Technical documentation</strong> - containing all
-                  relevant data or details of the means used by the economic
-                  operator to ensure the product or service meets accessibility
-                  requirements.
-                </li>
-                <li>
-                  <strong>EU Declaration of Conformity</strong> - a formal
-                  declaration that the product meets all the essential
-                  requirements of the EAA.
-                </li>
-                <li>
-                  <strong>CE marking</strong> - for products, indicating
-                  conformity with EU legislation and enabling free movement in
-                  the European market.
-                </li>
-                <li>
-                  <strong>Records of complaints</strong> and non-conforming
-                  products and services, along with product recalls and
-                  information provided to distributors.
-                </li>
-              </ul>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className="flex-grow">
+                  <p>
+                    Economic operators must maintain comprehensive documentation
+                    to demonstrate conformity:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li>
+                      <strong>Technical documentation</strong> - containing all
+                      relevant data or details of the means used by the economic
+                      operator to ensure the product or service meets
+                      accessibility requirements.
+                    </li>
+                    <li>
+                      <strong>EU Declaration of Conformity</strong> - a formal
+                      declaration that the product meets all the essential
+                      requirements of the EAA.
+                    </li>
+                    <li>
+                      <strong>CE marking</strong> - for products, indicating
+                      conformity with EU legislation and enabling free movement
+                      in the European market.
+                    </li>
+                    <li>
+                      <strong>Records of complaints</strong> and non-conforming
+                      products and services, along with product recalls and
+                      information provided to distributors.
+                    </li>
+                  </ul>
+                </div>
+                <div className="md:w-1/3 flex justify-center">
+                  <CEMark
+                    width={100}
+                    height={80}
+                    className="text-gray-800 dark:text-gray-200 mt-2"
+                  />
+                </div>
+              </div>
             </div>
           </section>
 
@@ -292,53 +320,85 @@ export default function ConformityPage() {
               id="related-topics"
               tabIndex={-1}
             >
-              Related Conformity Topics
+              Related Topics
             </h2>
             <div className="space-y-4">
               <p>
                 Explore detailed information about specific aspects of
                 conformity under the EAA:
               </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <Link
-                    href={COMPLIANCE_LINKS.HARMONIZED_STANDARDS.fullPath}
-                    className="text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    Harmonized Standards
-                  </Link>{' '}
-                  - Understanding the role of harmonized standards in ensuring
-                  conformity
-                </li>
-                <li>
-                  <Link
-                    href={COMPLIANCE_LINKS.EU_DECLARATION.fullPath}
-                    className="text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    EU Declaration of Conformity
-                  </Link>{' '}
-                  - Requirements for the EU Declaration of Conformity document
-                </li>
-                <li>
-                  <Link
-                    href={COMPLIANCE_LINKS.CE_MARKING.fullPath}
-                    className="text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    CE Marking
-                  </Link>{' '}
-                  - Rules for applying the CE marking to products under the EAA
-                </li>
-                <li>
-                  <Link
-                    href={COMPLIANCE_LINKS.SERVICE_COMPLIANCE.fullPath}
-                    className="text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    Conformity of Services
-                  </Link>{' '}
-                  - Specific conformity assessment procedures for services
-                </li>
-              </ul>
+
+              <SeeAlso
+                links={[
+                  {
+                    href: COMPLIANCE_LINKS.HARMONIZED_STANDARDS.fullPath,
+                    label: 'Harmonized Standards',
+                    description:
+                      'Understanding the role of harmonized standards in ensuring conformity',
+                  },
+                  {
+                    href: COMPLIANCE_LINKS.EU_DECLARATION.fullPath,
+                    label: 'EU Declaration of Conformity',
+                    description:
+                      'Requirements for the EU Declaration of Conformity document',
+                  },
+                  {
+                    href: COMPLIANCE_LINKS.CE_MARKING.fullPath,
+                    label: 'CE Marking',
+                    description:
+                      'Rules for applying the CE marking to products under the EAA',
+                  },
+                  {
+                    href: COMPLIANCE_LINKS.SERVICE_COMPLIANCE.fullPath,
+                    label: 'Compliance of Services',
+                    description:
+                      'Specific conformity assessment procedures for services',
+                  },
+                  {
+                    href: ANNEXES_LINKS.CONFORMITY_ASSESSMENT.fullPath,
+                    label: 'Annex V: Conformity Assessment for Products',
+                    description:
+                      'Detailed methodology for product conformity assessment',
+                  },
+                ]}
+              />
             </div>
+          </section>
+
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 7 (Manufacturer obligations related to conformity, docs,
+                CE mark)
+              </li>
+              <li>
+                Article 13 (Service provider obligations related to conformity)
+              </li>
+              <li>Article 14 (Exemptions)</li>
+              <li>Article 15 (Presumption of conformity)</li>
+              <li>Article 16 (EU Declaration of Conformity)</li>
+              <li>Articles 17, 18 (CE marking)</li>
+              <li>Annex IV (Conformity assessment procedure - Products)</li>
+              <li>
+                Annex V (Information on services meeting accessibility
+                requirements / Service conformity)
+              </li>
+              <li>
+                Recitals 54, 79, 81, 82, 83 (Context on conformity framework)
+              </li>
+            </ul>
           </section>
 
           <footer>

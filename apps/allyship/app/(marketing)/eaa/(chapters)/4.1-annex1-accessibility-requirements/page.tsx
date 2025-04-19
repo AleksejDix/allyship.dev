@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowRight, List } from 'lucide-react'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { INTRODUCTION_LINKS, ANNEXES_LINKS } from '../../constants/links'
 
@@ -533,6 +533,53 @@ export default function AccessibilityRequirementsPage() {
                 National authorities in EU Member States are responsible for
                 monitoring compliance with the accessibility requirements and
                 can perform checks to verify conformity.
+              </p>
+            </div>
+          </section>
+
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The accessibility requirements detailed on this page correspond
+                directly to the content outlined in Annex I of the European
+                Accessibility Act.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Directive (EU) 2019/882 - Annex I:</strong>{' '}
+                  Accessibility Requirements for Products and Services. This
+                  annex provides the detailed technical specifications across
+                  its various sections (I-VII) that products and services must
+                  meet.
+                </li>
+              </ul>
+              <p>
+                For the full legal text and specific requirements, please refer
+                to the official{' '}
+                <a
+                  href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  aria-labelledby="official-directive-link-4-1"
+                >
+                  <span id="official-directive-link-4-1" className="sr-only">
+                    Directive (EU) 2019/882 (opens in new window)
+                  </span>
+                  Directive (EU) 2019/882
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="inline-block w-4 h-4 ml-1"
+                  />
+                </a>
+                .
               </p>
             </div>
           </section>

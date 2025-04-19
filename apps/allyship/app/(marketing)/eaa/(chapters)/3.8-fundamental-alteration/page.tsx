@@ -790,6 +790,36 @@ export default function FundamentalAlterationPage() {
             </div>
           </section>
 
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>EAA Article 14(2):</strong> This article establishes
+                  the fundamental alteration provision, stating that
+                  accessibility requirements do not apply if they would require
+                  a fundamental alteration of the basic nature of the product or
+                  service.
+                </li>
+                <li>
+                  <strong>EAA Recital 53:</strong> This recital provides context
+                  for the fundamental alteration concept, clarifying its purpose
+                  and distinguishing it from disproportionate burden.
+                </li>
+              </ul>
+              <p>
+                Consult the official EAA text for the full legal definitions and
+                context.
+              </p>
+            </div>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

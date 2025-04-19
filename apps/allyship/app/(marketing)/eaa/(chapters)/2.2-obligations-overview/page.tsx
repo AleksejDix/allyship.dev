@@ -352,6 +352,38 @@ export default function ObligationsPage() {
             </div>
           </section>
 
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page provides an overview and primarily references the
+              following sections of Directive (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 3 (Definitions: Manufacturer, Importer, Distributor,
+                Service Provider, Economic Operator)
+              </li>
+              <li>Article 7 (Summary of Manufacturer Obligations)</li>
+              <li>Article 9 (Summary of Importer Obligations)</li>
+              <li>Article 10 (Summary of Distributor Obligations)</li>
+              <li>
+                Article 11 (Cases where obligations apply to
+                Importers/Distributors)
+              </li>
+              <li>Article 13 (Summary of Service Provider Obligations)</li>
+              <li>
+                Recitals 55-59, 62, 63 (Context on roles and responsibilities)
+              </li>
+            </ul>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

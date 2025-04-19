@@ -399,6 +399,88 @@ export default function NonComplianceProcedurePage() {
             </div>
           </section>
 
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The procedures outlined in this section are based on the
+                following provisions of the European Accessibility Act:
+              </p>
+              <h3 className="text-xl font-semibold">Articles</h3>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>
+                  <strong>Article 21:</strong> Procedure for dealing with
+                  products presenting a risk at national level
+                </li>
+                <li>
+                  <strong>Article 22:</strong> Union safeguard procedure
+                </li>
+                <li>
+                  <strong>Article 23:</strong> Compliant products which present
+                  a risk
+                </li>
+                <li>
+                  <strong>Article 24:</strong> Procedure for dealing with
+                  services presenting a risk at national level
+                </li>
+                <li>
+                  <strong>Article 25:</strong> Compliance of services
+                </li>
+                <li>
+                  <strong>Article 26:</strong> Formal non-compliance
+                </li>
+                <li>
+                  <strong>Article 30:</strong> Penalties
+                </li>
+              </ul>
+              <h3 className="text-xl font-semibold">Recitals</h3>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>
+                  <strong>(72)-(76):</strong> Rationale for market surveillance,
+                  corrective actions, and the Union safeguard procedure for
+                  products.
+                </li>
+                <li>
+                  <strong>(77):</strong> Rationale for procedures related to
+                  non-compliant services.
+                </li>
+                <li>
+                  <strong>(78):</strong> Rationale for addressing formal
+                  non-compliance.
+                </li>
+                <li>
+                  <strong>(89):</strong> Rationale for penalties.
+                </li>
+              </ul>
+              <p>
+                For the full legal text, please refer to the official{' '}
+                <a
+                  href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  aria-labelledby="official-directive-link-3-6"
+                >
+                  <span id="official-directive-link-3-6" className="sr-only">
+                    Directive (EU) 2019/882 (opens in new window)
+                  </span>
+                  Directive (EU) 2019/882
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="inline-block w-4 h-4 ml-1"
+                  />
+                </a>
+                .
+              </p>
+            </div>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

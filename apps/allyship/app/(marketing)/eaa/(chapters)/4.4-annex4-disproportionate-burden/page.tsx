@@ -1,9 +1,10 @@
 import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, List } from 'lucide-react'
+import { ArrowRight, List, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { INTRODUCTION_LINKS, ANNEXES_LINKS } from '../../constants/links'
+import { EAARelationshipDiagram } from '../../components/EAARelationshipDiagram'
 
 export const metadata: Metadata = {
   title:
@@ -589,6 +590,63 @@ export default function DisproportionateBurdenAssessment() {
                 Understanding these relationships helps economic operators
                 conduct comprehensive assessments that consider all relevant
                 aspects of the EAA.
+              </p>
+
+              <EAARelationshipDiagram />
+            </div>
+          </section>
+
+          <section aria-labelledby="references">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="references"
+              tabIndex={-1}
+            >
+              References
+            </h2>
+            <div className="space-y-4">
+              <p>
+                The criteria for assessing disproportionate burden discussed on
+                this page are outlined in Annex VI of the European Accessibility
+                Act, referenced by Article 14.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Directive (EU) 2019/882 - Annex VI:</strong> Criteria
+                  for Assessment of Disproportionate Burden. This annex
+                  specifies the factors to consider when evaluating whether
+                  compliance with accessibility requirements imposes a
+                  disproportionate burden.
+                </li>
+                <li>
+                  <strong>Directive (EU) 2019/882 - Article 14:</strong>{' '}
+                  Fundamental Alteration and Disproportionate Burden. This
+                  article allows economic operators to claim exemption from
+                  accessibility requirements if compliance results in a
+                  fundamental alteration or imposes a disproportionate burden,
+                  requiring an assessment based on Annex VI criteria.
+                </li>
+              </ul>
+              <p>
+                For the full legal text and specific criteria, please refer to
+                the official{' '}
+                <a
+                  href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  aria-labelledby="official-directive-link-4-4"
+                >
+                  <span id="official-directive-link-4-4" className="sr-only">
+                    Directive (EU) 2019/882 (opens in new window)
+                  </span>
+                  Directive (EU) 2019/882
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="inline-block w-4 h-4 ml-1"
+                  />
+                </a>
+                .
               </p>
             </div>
           </section>

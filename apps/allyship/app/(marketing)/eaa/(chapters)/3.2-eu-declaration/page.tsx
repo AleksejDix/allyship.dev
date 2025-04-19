@@ -455,6 +455,37 @@ export default function EuDeclarationPage() {
             </div>
           </section>
 
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>
+                Article 7, Paragraph 2 (Manufacturer obligation to draw up DoC)
+              </li>
+              <li>Article 7, Paragraph 3 (Manufacturer retention period)</li>
+              <li>Article 9, Paragraph 7 (Importer retention period)</li>
+              <li>
+                Article 16 (EU declaration of conformity - content, structure,
+                exceptions, single DoC)
+              </li>
+              <li>Article 18, Paragraph 1 (Relation to CE marking)</li>
+              <li>
+                Annex IV (Elements of technical documentation related to DoC)
+              </li>
+              <li>Recital 78 (Context for single DoC)</li>
+            </ul>
+          </section>
+
           <footer>
             <nav
               className="flex justify-end items-center mt-10 pt-4 border-t"

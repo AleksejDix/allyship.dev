@@ -9,6 +9,7 @@ import {
   ANNEXES_LINKS,
   EXTERNAL_LINKS,
 } from '../../constants/links'
+import { SeeAlso } from '../../components/see-also'
 
 export const metadata: Metadata = {
   title: 'Accessibility Requirements | European Accessibility Act',
@@ -80,11 +81,11 @@ export default function AccessibilityRequirementsPage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4 pt-2">
         <div className="space-y-8">
           <section aria-labelledby="general-principles">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              className="text-2xl font-semibold mb-4 mt-0 scroll-mt-6"
               id="general-principles"
               tabIndex={-1}
             >
@@ -356,17 +357,66 @@ export default function AccessibilityRequirementsPage() {
                 contribute to meeting the accessibility requirements, which
                 Member States may inform economic operators about.
               </p>
-              <p className="mt-6">
-                For a comprehensive overview of all annexes, visit the{' '}
-                <Link
-                  href={ANNEXES_LINKS.OVERVIEW.fullPath}
-                  className="underline"
-                >
-                  Annexes Overview page
-                </Link>
-                .
-              </p>
+
+              <SeeAlso
+                title="Relevant Annexes"
+                links={[
+                  {
+                    href: ANNEXES_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath,
+                    label: 'Annex I: Accessibility Requirements',
+                    description:
+                      'Detailed technical accessibility requirements for products and services',
+                  },
+                  {
+                    href: ANNEXES_LINKS.IMPLEMENTATION_EXAMPLES.fullPath,
+                    label: 'Annex II: Implementation Examples',
+                    description:
+                      'Non-binding examples of solutions that meet accessibility requirements',
+                  },
+                  {
+                    href: ANNEXES_LINKS.DISPROPORTIONATE_BURDEN.fullPath,
+                    label: 'Annex IV: Disproportionate Burden Assessment',
+                    description:
+                      'Process for assessing when requirements may impose a disproportionate burden',
+                  },
+                  {
+                    href: ANNEXES_LINKS.ASSESSMENT_CRITERIA.fullPath,
+                    label: 'Annex VI: Assessment Criteria',
+                    description:
+                      'Criteria for assessing disproportionate burden claims',
+                  },
+                  {
+                    href: ANNEXES_LINKS.OVERVIEW.fullPath,
+                    label: 'All Annexes',
+                    description: 'Complete overview of all EAA annexes',
+                  },
+                ]}
+              />
             </div>
+          </section>
+
+          {/* Add References Section Here */}
+          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+            <h2
+              id="references"
+              className="text-xl font-semibold mb-4 scroll-mt-6"
+              tabIndex={-1}
+            >
+              Source References
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              This page primarily references the following sections of Directive
+              (EU) 2019/882:
+            </p>
+            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
+              <li>Article 4 (Accessibility requirements)</li>
+              <li>
+                Annex I (Accessibility requirements for products and services -
+                Sections I, II, III, IV)
+              </li>
+              <li>Recital 47 (Four principles of accessibility)</li>
+              <li>Annexes II, III, IV, V, VI (Referenced as related topics)</li>
+            </ul>
           </section>
 
           <footer>
