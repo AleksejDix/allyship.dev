@@ -142,29 +142,39 @@ Add proper metadata (title and description) to each chapter page:
 
 ### Chapter 3: Compliance
 
-- [x] 3.1-conformity: ✅ Title and description added
-- [x] 3.2-eu-declaration: ✅ Title and description added
-- [x] 3.3-ce-marking: ✅ Title and description added
-- [x] 3.4-market-surveillance: ✅ Title and description added
-- [x] 3.5-service-compliance: ✅ Title and description added
-- [x] 3.6-non-compliance-procedure: ✅ Title and description added
-- [x] 3.7-harmonized-standards: ✅ Title and description added
-- [x] 3.8-fundamental-alteration: ✅ Title and description added
+- [x] 3.1-conformity: Check footer links
+- [x] 3.2-eu-declaration: Check footer links
+- [x] 3.3-ce-marking: Check footer links
+- [x] 3.4-market-surveillance: Check footer links
+- [x] 3.5-service-compliance: Check footer links
+- [x] 3.6-non-compliance-procedure: Check footer links
+- [x] 3.7-harmonized-standards: Check footer links
+- [x] 3.8-fundamental-alteration: Check footer links
 
 ### Chapter 4: Annexes
 
-- [x] 4.0-annexes: ✅ Title and description added
-- [x] 4.1-annex1-accessibility-requirements: ✅ Title and description added
-- [x] 4.2-annex2-implementation-examples: ✅ Title and description added
-- [x] 4.3-annex3-built-environment: ✅ Title and description added
-- [x] 4.4-annex4-disproportionate-burden: ✅ Title and description added
-- [x] 4.5-annex5-conformity-assessment: ✅ Title and description added
-- [x] 4.6-annex6-assessment-criteria: ✅ Title and description added
+- [x] 4.0-annexes: Check footer links
+- [x] 4.1-annex1-accessibility-requirements: Check footer links
+- [x] 4.2-annex2-implementation-examples: Check footer links
+- [x] 4.3-annex3-built-environment: Check footer links
+- [x] 4.4-annex4-disproportionate-burden: Check footer links
+- [x] 4.5-annex5-conformity-assessment: Check footer links
+- [x] 4.6-annex6-assessment-criteria: Check footer links
 
 ### Chapter 5: Additional Content
 
-- [x] 5.1-implementation: ✅ Title and description added
-- [x] 5.2-technical-standards: ✅ Title and description added
+> Note: Chapter 5 pages do not exist in the current project structure yet.
+> Footer links check is not applicable at this time.
+
+- [ ] ~5.1-implementation: Check footer links~ (Not yet implemented)
+- [ ] ~5.2-technical-standards: Check footer links~ (Not yet implemented)
+
+### Cross-Reference Improvements
+
+- [ ] Add related content links between chapters
+- [ ] Link from Conformity of Products to Annex V
+- [ ] Link from Requirements to related Annexes
+- [ ] Create "See Also" component for related pages
 
 ## Next Steps
 
@@ -190,38 +200,41 @@ Add proper metadata (title and description) to each chapter page:
 
 ### Chapter 2: Requirements
 
-- [ ] 2.1-accessibility-requirements: Check footer links
-- [ ] 2.2-obligations-overview: Check footer links
-- [ ] 2.3-obligations-manufacturers: Check footer links
+- [x] 2.1-accessibility-requirements: Check footer links
+- [x] 2.2-obligations-overview: Check footer links
+- [x] 2.3-obligations-manufacturers: Check footer links
 - [x] 2.4-obligations-importers: Check footer links
-- [ ] 2.5-obligations-distributors: Check footer links
-- [ ] 2.6-obligations-service-providers: Check footer links
+- [x] 2.5-obligations-distributors: Check footer links
+- [x] 2.6-obligations-service-providers: Check footer links
 
 ### Chapter 3: Compliance
 
-- [ ] 3.1-conformity: Check footer links
-- [ ] 3.2-eu-declaration: Check footer links
-- [ ] 3.3-ce-marking: Check footer links
-- [ ] 3.4-market-surveillance: Check footer links
-- [ ] 3.5-service-compliance: Check footer links
-- [ ] 3.6-non-compliance-procedure: Check footer links
-- [ ] 3.7-harmonized-standards: Check footer links
-- [ ] 3.8-fundamental-alteration: Check footer links
+- [x] 3.1-conformity: Check footer links
+- [x] 3.2-eu-declaration: Check footer links
+- [x] 3.3-ce-marking: Check footer links
+- [x] 3.4-market-surveillance: Check footer links
+- [x] 3.5-service-compliance: Check footer links
+- [x] 3.6-non-compliance-procedure: Check footer links
+- [x] 3.7-harmonized-standards: Check footer links
+- [x] 3.8-fundamental-alteration: Check footer links
 
 ### Chapter 4: Annexes
 
-- [ ] 4.0-annexes: Check footer links
-- [ ] 4.1-annex1-accessibility-requirements: Check footer links
-- [ ] 4.2-annex2-implementation-examples: Check footer links
-- [ ] 4.3-annex3-built-environment: Check footer links
-- [ ] 4.4-annex4-disproportionate-burden: Check footer links
-- [ ] 4.5-annex5-conformity-assessment: Check footer links
-- [ ] 4.6-annex6-assessment-criteria: Check footer links
+- [x] 4.0-annexes: Check footer links
+- [x] 4.1-annex1-accessibility-requirements: Check footer links
+- [x] 4.2-annex2-implementation-examples: Check footer links
+- [x] 4.3-annex3-built-environment: Check footer links
+- [x] 4.4-annex4-disproportionate-burden: Check footer links
+- [x] 4.5-annex5-conformity-assessment: Check footer links
+- [x] 4.6-annex6-assessment-criteria: Check footer links
 
 ### Chapter 5: Additional Content
 
-- [ ] 5.1-implementation: Check footer links
-- [ ] 5.2-technical-standards: Check footer links
+> Note: Chapter 5 pages do not exist in the current project structure yet.
+> Footer links check is not applicable at this time.
+
+- [ ] ~5.1-implementation: Check footer links~ (Not yet implemented)
+- [ ] ~5.2-technical-standards: Check footer links~ (Not yet implemented)
 
 ### Cross-Reference Improvements
 
