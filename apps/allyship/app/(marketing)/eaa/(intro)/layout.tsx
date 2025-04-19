@@ -3,25 +3,35 @@ import { ArrowLeft } from 'lucide-react'
 import { EXTERNAL_LINKS } from '../constants/links'
 import { RouterLink } from '../components/RouterLink'
 import { KeyDatesTimeline } from './page'
+import { Button } from '@workspace/ui/components/button'
 
 export default function EAALayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="eaa-book min-h-screen">
-      <div className="container mx-auto  pt-6 pb-12">
+      <div className="container mx-auto py-6">
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
-          <div className="lg:col-span-2">
-            <RouterLink
-              href="/"
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              <span>Back to home</span>
-            </RouterLink>
+          <div className="lg:col-span-3">
+            <div className="lg:sticky lg:top-2 text-left lg:text-right">
+              <div className="py-2">
+                <Button variant="secondary" asChild>
+                  <RouterLink href="/">
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    <span>Back to home</span>
+                  </RouterLink>
+                </Button>
+              </div>
 
-            <KeyDatesTimeline />
+              <h1 className="text-4xl font-bold">European Accessibility Act</h1>
+              <p className="text-xl text-muted-foreground">
+                A comprehensive guide to understanding and implementing the EAA
+                requirements
+              </p>
+
+              <KeyDatesTimeline />
+            </div>
           </div>
 
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-5">
             <div className="prose prose-lg dark:prose-invert">{children}</div>
           </div>
         </div>

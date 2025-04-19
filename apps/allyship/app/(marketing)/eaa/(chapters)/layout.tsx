@@ -1,12 +1,52 @@
 import React from 'react'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { EXTERNAL_LINKS, INTRODUCTION_LINKS } from '../constants/links'
+import { List } from 'lucide-react'
+import { EXTERNAL_LINKS } from '../constants/links'
 import { Button } from '@workspace/ui/components/button'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@workspace/ui/components/sheet'
+import { TableOfContent } from '../components/TableOfContent'
 
 export default function EAALayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="eaa-book min-h-screen flex flex-col">
+    <div className="eaa-book min-h-screen">
+      <div className="container">
+        <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
+          <div className="lg:col-span-3">
+            <div className="lg:sticky lg:top-2 text-left lg:text-right">
+              <div className="py-2">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button>
+                      <List size={16} aria-hidden="true" />
+                      EAA Table of Contents
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="overflow-y-auto h-full">
+                    <SheetHeader className="pb-8">
+                      <SheetTitle className="text-2xl font-bold">
+                        <div>European Accessibility Act</div>
+                        <div>in Simple Language</div>
+                      </SheetTitle>
+                      <SheetDescription className=" text-muted-foreground">
+                        Stop guessing what the EAA is all about.
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div>
+                      <TableOfContent />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto py-6">{children}</div>
 
       <footer className="mt-auto border-t py-6">

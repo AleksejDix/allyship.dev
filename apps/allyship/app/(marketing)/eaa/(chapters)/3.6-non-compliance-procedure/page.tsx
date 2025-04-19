@@ -20,20 +20,6 @@ export default function NonComplianceProcedurePage() {
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
-          <div className="py-2">
-            <Button asChild variant="secondary">
-              <Link
-                className="no-underline"
-                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-                aria-labelledby="toc-button-label"
-                id="toc-button"
-              >
-                <List size={16} aria-hidden="true" />
-                <span id="toc-button-label">EAA Table of Contents</span>
-              </Link>
-            </Button>
-          </div>
-
           <h1 className="text-4xl font-bold mb-[23px]">
             Procedures for Non-Compliant Products and Services
           </h1>
@@ -94,11 +80,11 @@ export default function NonComplianceProcedurePage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
         <div className="space-y-8">
           <section aria-labelledby="overview">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              className="text-2xl font-semibold mb-4 mt-0 scroll-mt-6"
               id="overview"
               tabIndex={-1}
             >

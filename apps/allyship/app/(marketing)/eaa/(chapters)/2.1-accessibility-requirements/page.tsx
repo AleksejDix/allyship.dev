@@ -21,19 +21,6 @@ export default function AccessibilityRequirementsPage() {
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
-          <div className="py-2">
-            <Button asChild variant="secondary">
-              <Link
-                className="no-underline"
-                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-                aria-labelledby="toc-button-label"
-              >
-                <List size={16} aria-hidden="true" />
-                <span id="toc-button-label">EAA Table of Contents</span>
-              </Link>
-            </Button>
-          </div>
-
           <h1 className="text-4xl font-bold mb-[23px]">
             Accessibility Requirements
           </h1>

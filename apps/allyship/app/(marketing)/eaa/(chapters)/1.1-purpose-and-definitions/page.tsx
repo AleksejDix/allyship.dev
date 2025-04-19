@@ -1,8 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { INTRODUCTION_LINKS, EXTERNAL_LINKS } from '../../constants/links'
-import { ArrowLeft, ArrowRight, ExternalLink, List } from 'lucide-react'
+import { INTRODUCTION_LINKS } from '../../constants/links'
+import { ArrowRight } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 
 export const metadata: Metadata = {
@@ -16,20 +16,6 @@ export default function PurposeAndDefinitionsPage() {
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
-          <div className="py-2">
-            <Button asChild variant="secondary">
-              <Link
-                className="no-underline"
-                href={INTRODUCTION_LINKS.OVERVIEW.fullPath}
-                aria-labelledby="toc-button-label"
-                id="toc-button"
-              >
-                <List size={16} aria-hidden="true" />
-                <span id="toc-button-label">EAA Table of Contents</span>
-              </Link>
-            </Button>
-          </div>
-
           <h1 className="text-4xl font-bold mb-[23px]">
             Purpose and Definitions
           </h1>
@@ -93,11 +79,11 @@ export default function PurposeAndDefinitionsPage() {
           </nav>
         </div>
       </header>
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert py-4">
+      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pt-2 pb-4">
         <div className="space-y-8">
           <section aria-labelledby="purpose">
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              className="text-2xl font-semibold mb-4 mt-0 scroll-mt-6"
               id="purpose"
               tabIndex={-1}
             >
@@ -269,27 +255,13 @@ export default function PurposeAndDefinitionsPage() {
 
           <footer>
             <nav
-              className="flex justify-between items-center mt-10 pt-4 border-t"
+              className="flex justify-end items-center mt-10 pt-4 border-t"
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
                 Chapter navigation
               </h2>
-              <a
-                href={EXTERNAL_LINKS.OFFICIAL_EAA_TEXT}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
-                aria-labelledby="official-document-link"
-                id="official-doc-link"
-              >
-                <span id="official-document-link" className="sr-only">
-                  Official European Accessibility Act document (opens in new
-                  window)
-                </span>
-                <ExternalLink size={14} aria-hidden="true" />
-                <span>Official EAA Document</span>
-              </a>
+
               <Button asChild id="next-chapter-button">
                 <Link
                   href={INTRODUCTION_LINKS.SCOPE.fullPath}
