@@ -1,15 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowRight, List, ExternalLink } from 'lucide-react'
+import { ArrowRight, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { INTRODUCTION_LINKS, ANNEXES_LINKS } from '../../constants/links'
+import { ANNEXES_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
-  title:
-    'Annex III: Requirements for Built Environment | European Accessibility Act',
+  title: 'Annex III: Built Environment | European Accessibility Act.',
   description:
-    'Requirements for the built environment where services are provided under the European Accessibility Act, ensuring physical accessibility for persons with disabilities.',
+    'Plain language guide to the built environment accessibility rules in the European Accessibility Act.',
 }
 
 export default function BuiltEnvironmentPage() {
@@ -18,89 +17,67 @@ export default function BuiltEnvironmentPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Annex III: Requirements for Built Environment
+            Annex III: Built Environment.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview
+                  Overview.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#scope-application"
-                  id="scope-application-link"
+                  href="#specific-requirements"
+                  id="specific-requirements-link"
                 >
-                  Scope of Application
+                  Specific Requirements.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#key-requirements"
-                  id="key-requirements-link"
+                  href="#entrances-and-exits"
+                  id="entrances-and-exits-link"
                 >
-                  Key Requirements
+                  Entrances and Exits.
+                </a>
+              </li>
+              <li>
+                <a className="underline" href="#paths" id="paths-link">
+                  Indoor and Outdoor Paths.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#information-communication"
-                  id="information-communication-link"
+                  href="#facilities"
+                  id="facilities-link"
                 >
-                  Information and Communication
+                  Facilities and Services.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#emergency-provisions"
-                  id="emergency-provisions-link"
+                  href="#information"
+                  id="information-link"
                 >
-                  Emergency Provisions
+                  Information and Signage.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#technical-standards"
-                  id="technical-standards-link"
+                  href="#emergencies"
+                  id="emergencies-link"
                 >
-                  Technical Standards
-                </a>
-              </li>
-              <li>
-                <a
-                  className="underline"
-                  href="#implementation-approaches"
-                  id="implementation-approaches-link"
-                >
-                  Implementation Approaches
-                </a>
-              </li>
-              <li>
-                <a
-                  className="underline"
-                  href="#member-state-variations"
-                  id="member-state-variations-link"
-                >
-                  Member State Variations
-                </a>
-              </li>
-              <li>
-                <a
-                  className="underline"
-                  href="#relationship-other-annexes"
-                  id="relationship-other-annexes-link"
-                >
-                  Relationship with Other Annexes
+                  Safety and Emergencies.
                 </a>
               </li>
             </ul>
@@ -116,517 +93,287 @@ export default function BuiltEnvironmentPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview
+              Overview.
             </h2>
             <div className="space-y-4">
               <p>
-                Annex III of the European Accessibility Act establishes
-                accessibility requirements for the built environment where
-                services covered by the EAA are provided to the public. These
-                requirements aim to ensure that the physical spaces where
-                services are delivered are accessible to persons with
-                disabilities, maximizing their foreseeable use.
+                Annex III of the European Accessibility Act covers the built
+                environment. This means the physical spaces where services are
+                provided, such as buildings, walkways, and facilities.
               </p>
+
               <p>
-                It's important to note that Member States can choose whether to
-                require compliance with these built environment requirements. If
-                a Member State decides to require compliance, the built
-                environment where the service is provided must conform to the
-                requirements outlined in this annex.
+                The accessibility of the built environment is optional, not
+                mandatory. Member States can choose to include these
+                requirements, but they don't have to.
+              </p>
+
+              <p>
+                If Member States decide to require accessible built
+                environments, they should follow the rules in Annex III. These
+                rules make it easier for people with disabilities to access and
+                use the services.
               </p>
             </div>
           </section>
 
-          <section aria-labelledby="scope-application">
+          <section aria-labelledby="specific-requirements">
             <h2
               className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="scope-application"
+              id="specific-requirements"
               tabIndex={-1}
             >
-              Scope of Application
+              Specific Requirements.
             </h2>
             <div className="space-y-4">
-              <p>The requirements in Annex III apply to:</p>
-              <ul className="list-disc pl-6 space-y-2">
+              <p>The built environment needs to meet these key requirements:</p>
+
+              <ul>
+                <li>Use the spaces without special tools or assistance.</li>
+                <li>Have information available in multiple formats.</li>
+                <li>Include alternatives to visual information.</li>
+                <li>Present visual information with proper contrast.</li>
                 <li>
-                  <strong>Service areas:</strong> Physical locations where
-                  services falling under the scope of the EAA are provided to
-                  the public
+                  Allow for options to change how information is presented.
                 </li>
-                <li>
-                  <strong>Service infrastructure:</strong> Buildings,
-                  facilities, and environments designed for public access where
-                  covered services are delivered
-                </li>
-                <li>
-                  <strong>New constructions:</strong> Requirements typically
-                  apply to newly constructed facilities or major renovations
-                </li>
-                <li>
-                  <strong>Existing buildings:</strong> When Member States
-                  require it, the requirements may also apply to existing
-                  facilities (often with reasonable adaptation periods)
-                </li>
+                <li>Include alternatives to sound-based information.</li>
+                <li>Have proper spacing for controls and features.</li>
+                <li>Allow operation with limited strength or movement.</li>
+                <li>Avoid triggering seizures.</li>
+                <li>Protect privacy when using accessibility features.</li>
               </ul>
-              <p>
-                The built environment requirements focus on ensuring that
-                persons with various disabilities can access and use the
-                physical spaces where they receive services covered by the EAA.
-              </p>
             </div>
           </section>
 
-          <section aria-labelledby="key-requirements">
+          <section aria-labelledby="entrances-and-exits">
             <h2
               className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="key-requirements"
+              id="entrances-and-exits"
               tabIndex={-1}
             >
-              Key Requirements
+              Entrances and Exits.
             </h2>
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                1. Use of Related Spaces and Facilities
+              <h3 className="text-xl font-semibold mb-2">
+                Requirements for Accessible Entrances.
               </h3>
               <p>
-                For the independent use of spaces and facilities open to the
-                public:
+                For people to enter and move through a building, these features
+                should be made accessible:
               </p>
-              <ul className="list-disc pl-6 space-y-2">
+              <ul>
                 <li>
-                  <strong>Adjacent outdoor areas:</strong> Design outdoor areas
-                  and facilities that are under the responsibility of the
-                  service provider to be accessible
+                  Parking areas with accessible spaces close to entrances.
                 </li>
+                <li>Routes to the building that are accessible to everyone.</li>
+                <li>Main entrances that people with disabilities can use.</li>
                 <li>
-                  <strong>Approaches to buildings:</strong> Provide accessible
-                  paths to buildings from public areas, including parking
-                  facilities and public transportation stops
+                  Clear signs showing where accessible entrances are located.
                 </li>
+                <li>Door designs that are easy for everyone to use.</li>
+                <li>Alternatives to revolving doors and turnstiles.</li>
                 <li>
-                  <strong>Service delivery areas:</strong> Ensure all areas
-                  where the service is delivered are designed for independent
-                  navigation and use
+                  Entrances that are protected from weather when possible.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                2. Access to Building Entrances
+                Emergency Exits.
               </h3>
-              <p>To ensure accessible building entrances:</p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Step-free access:</strong> Provide at least one
-                  accessible, step-free entrance route
-                </li>
-                <li>
-                  <strong>Door clearance:</strong> Ensure doorways have
-                  sufficient width for wheelchair users
-                </li>
-                <li>
-                  <strong>Door operation:</strong> Install doors that can be
-                  opened with minimal force or provide automated door systems
-                </li>
-                <li>
-                  <strong>Thresholds:</strong> Design thresholds to be level or
-                  with minimal height differences to prevent tripping hazards
-                </li>
-                <li>
-                  <strong>Clear markings:</strong> Make entrances clearly
-                  visible through appropriate visual contrast and lighting
-                </li>
+              <p>Emergency exits need to be accessible with these features:</p>
+              <ul>
+                <li>Clearly marked exits that are easy to find.</li>
+                <li>Emergency exit routes without steps when possible.</li>
+                <li>Safe waiting areas for people who need evacuation help.</li>
+                <li>Emergency communication systems that work for everyone.</li>
+                <li>Doors that can be opened easily during emergencies.</li>
+              </ul>
+            </div>
+          </section>
+
+          <section aria-labelledby="paths">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="paths"
+              tabIndex={-1}
+            >
+              Indoor and Outdoor Paths.
+            </h2>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold mb-2">
+                Hallways and Corridors.
+              </h3>
+              <p>Indoor pathways should include:</p>
+              <ul>
+                <li>Wide enough paths for wheelchair users.</li>
+                <li>Smooth, non-slip flooring.</li>
+                <li>Good lighting throughout all areas.</li>
+                <li>No objects sticking out that people might bump into.</li>
+                <li>Resting areas for people who need them.</li>
+                <li>Visual and tactile guides along routes.</li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                3. Horizontal Circulation
+                Stairs and Ramps.
               </h3>
-              <p>For accessible horizontal circulation within buildings:</p>
-              <ul className="list-disc pl-6 space-y-2">
+              <p>For level changes:</p>
+              <ul>
+                <li>Ramps with proper slope for wheelchair users.</li>
+                <li>Stairs with handrails on both sides.</li>
+                <li>Visual markings on step edges.</li>
                 <li>
-                  <strong>Corridor width:</strong> Design corridors and
-                  passageways with sufficient width for wheelchair users,
-                  including passing spaces where needed
+                  Tactile warning surfaces at the top and bottom of stairs.
                 </li>
-                <li>
-                  <strong>Floor surfaces:</strong> Provide stable, firm, and
-                  slip-resistant floor surfaces
-                </li>
-                <li>
-                  <strong>Level changes:</strong> Identify any small level
-                  changes with visual contrast and tactile warnings
-                </li>
-                <li>
-                  <strong>Clear space:</strong> Ensure adequate clear space for
-                  maneuvering, particularly at doors and intersections
-                </li>
-                <li>
-                  <strong>Wayfinding:</strong> Implement consistent and
-                  accessible wayfinding systems with visual, tactile, and where
-                  appropriate, audible information
-                </li>
+                <li>Elevators as alternatives to stairs when needed.</li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                4. Vertical Circulation
+                Outdoor Areas.
               </h3>
-              <p>
-                For accessible vertical circulation between building levels:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
+              <p>Outdoor spaces should include:</p>
+              <ul>
+                <li>Accessible paths connecting all important areas.</li>
+                <li>Even surfaces without hazards.</li>
+                <li>Proper drainage to prevent puddles.</li>
+                <li>Seating areas that are accessible to everyone.</li>
+                <li>Shaded areas for protection from the sun.</li>
+              </ul>
+            </div>
+          </section>
+
+          <section aria-labelledby="facilities">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="facilities"
+              tabIndex={-1}
+            >
+              Facilities and Services.
+            </h2>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold mb-2">Service Areas.</h3>
+              <p>For areas where services are provided:</p>
+              <ul>
                 <li>
-                  <strong>Accessible routes:</strong> Provide accessible routes
-                  between all floors where services are delivered
+                  Service counters at different heights for standing and seated
+                  users.
                 </li>
+                <li>Waiting areas with accessible seating options.</li>
+                <li>Queue management systems that work for everyone.</li>
                 <li>
-                  <strong>Elevators:</strong> Install accessible elevators with
-                  appropriate dimensions, controls at accessible heights, and
-                  audible and visual signals
+                  Assistive listening systems for people with hearing loss.
                 </li>
-                <li>
-                  <strong>Ramps:</strong> Where necessary, provide ramps with
-                  appropriate slope, width, non-slip surfaces, handrails, and
-                  landing areas
-                </li>
-                <li>
-                  <strong>Stairs:</strong> Design stairs with consistent step
-                  dimensions, visual contrast on step edges, and handrails on
-                  both sides
-                </li>
-                <li>
-                  <strong>Platform lifts:</strong> Where appropriate, install
-                  platform lifts as an alternative vertical circulation option
-                </li>
+                <li>Space for service animals to rest.</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold mt-6 mb-2">Restrooms.</h3>
+              <p>Accessible restrooms need:</p>
+              <ul>
+                <li>At least one fully accessible restroom on each floor.</li>
+                <li>Doors wide enough for wheelchairs.</li>
+                <li>Enough space for wheelchair users to move around.</li>
+                <li>Support rails near toilets.</li>
+                <li>Sinks that wheelchair users can reach.</li>
+                <li>Accessible mirrors, soap dispensers, and hand dryers.</li>
+                <li>Emergency call systems.</li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                5. Service Counters and Information Points
+                Interactive Elements.
               </h3>
-              <p>For accessible service delivery points:</p>
-              <ul className="list-disc pl-6 space-y-2">
+              <p>For interactive devices and controls:</p>
+              <ul>
+                <li>Machines placed at heights that everyone can reach.</li>
+                <li>Clear instructions that are easy to understand.</li>
+                <li>Controls that can be used with limited hand strength.</li>
+                <li>Interface options for people with different abilities.</li>
                 <li>
-                  <strong>Counter heights:</strong> Provide service counters
-                  with sections at appropriate heights for both standing and
-                  seated users
+                  Privacy screens for people entering personal information.
                 </li>
-                <li>
-                  <strong>Clear approach:</strong> Ensure sufficient clear space
-                  for wheelchair users to approach and use service counters
-                </li>
-                <li>
-                  <strong>Visual contrast:</strong> Design service areas with
-                  adequate visual contrast to help those with visual impairments
-                </li>
-                <li>
-                  <strong>Induction loops:</strong> Install hearing enhancement
-                  systems (such as induction loops) at service counters to
-                  assist people with hearing impairments
-                </li>
-                <li>
-                  <strong>Lighting:</strong> Provide appropriate lighting to
-                  facilitate lip-reading and sign language interpretation
-                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section aria-labelledby="information">
+            <h2
+              className="text-2xl font-semibold mb-4 scroll-mt-6"
+              id="information"
+              tabIndex={-1}
+            >
+              Information and Signage.
+            </h2>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold mb-2">Wayfinding.</h3>
+              <p>To help people navigate:</p>
+              <ul>
+                <li>Clear, consistent signs throughout the building.</li>
+                <li>Logical layout that is easy to understand.</li>
+                <li>Tactile maps at key locations.</li>
+                <li>Color-coding to help with navigation.</li>
+                <li>Landmarks that help people orient themselves.</li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                6. Accessible Facilities
+                Signage Standards.
               </h3>
-              <p>For accessible facilities within service areas:</p>
-              <ul className="list-disc pl-6 space-y-2">
+              <p>Signs should have:</p>
+              <ul>
+                <li>Large, easy-to-read text.</li>
+                <li>Good contrast between text and background.</li>
+                <li>Braille and raised letters for important signs.</li>
+                <li>Consistent placement at predictable heights.</li>
+                <li>Non-glare surfaces and good lighting.</li>
+                <li>Universal symbols that are widely recognized.</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold mt-6 mb-2">
+                Digital Information.
+              </h3>
+              <p>For digital displays and information:</p>
+              <ul>
+                <li>Screens positioned where everyone can see them.</li>
+                <li>Text large enough to read from a distance.</li>
+                <li>Audio announcements to supplement visual information.</li>
                 <li>
-                  <strong>Toilets:</strong> Provide accessible toilet facilities
-                  with appropriate dimensions, fixtures at suitable heights, and
-                  emergency call systems
+                  Information available through mobile devices when possible.
                 </li>
                 <li>
-                  <strong>Waiting areas:</strong> Design waiting spaces with
-                  accessible seating options and space for wheelchair users
-                </li>
-                <li>
-                  <strong>Self-service equipment:</strong> Ensure that any
-                  self-service machines or kiosks are accessible to people with
-                  various disabilities
-                </li>
-                <li>
-                  <strong>Signage:</strong> Install clear, consistent, and
-                  accessible signage throughout the facility
-                </li>
-                <li>
-                  <strong>Acoustic environment:</strong> Design spaces with
-                  appropriate acoustic properties to minimize background noise
-                  and echo
+                  Interactive displays that work for people with disabilities.
                 </li>
               </ul>
             </div>
           </section>
 
-          <section aria-labelledby="information-communication">
+          <section aria-labelledby="emergencies">
             <h2
               className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="information-communication"
+              id="emergencies"
               tabIndex={-1}
             >
-              Information and Communication
+              Safety and Emergencies.
             </h2>
             <div className="space-y-4">
-              <p>
-                The built environment must include accessible information and
-                communication elements:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Signage:</strong> Provide clear, legible signage with
-                  adequate contrast, appropriate sizing, and consistent
-                  placement
-                </li>
-                <li>
-                  <strong>Wayfinding:</strong> Implement integrated wayfinding
-                  systems using visual, tactile, and where appropriate, audible
-                  information
-                </li>
-                <li>
-                  <strong>Tactile information:</strong> Include tactile signage
-                  and tactile maps at key decision points for people with visual
-                  impairments
-                </li>
-                <li>
-                  <strong>Alarms:</strong> Install emergency alarm systems that
-                  provide both visual and audible signals
-                </li>
-                <li>
-                  <strong>Acoustic information:</strong> Design public address
-                  systems to be clear and understandable, with minimal echo or
-                  distortion
-                </li>
-                <li>
-                  <strong>Digital interfaces:</strong> Ensure that any digital
-                  interfaces in the built environment (such as information
-                  kiosks) meet accessibility requirements
-                </li>
+              <h3 className="text-xl font-semibold mb-2">Alarm Systems.</h3>
+              <p>For emergency notifications:</p>
+              <ul>
+                <li>Both visual and audible alarm signals.</li>
+                <li>Flashing lights visible throughout the building.</li>
+                <li>Alarm sounds that can be heard everywhere.</li>
+                <li>Vibrating alert options where appropriate.</li>
+                <li>Clear instructions about what to do in emergencies.</li>
               </ul>
-            </div>
-          </section>
 
-          <section aria-labelledby="emergency-provisions">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="emergency-provisions"
-              tabIndex={-1}
-            >
-              Emergency Provisions
-            </h2>
-            <div className="space-y-4">
-              <p>Accessible emergency provisions must include:</p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Evacuation routes:</strong> Design accessible
-                  emergency evacuation routes with appropriate signage
-                </li>
-                <li>
-                  <strong>Areas of refuge:</strong> Provide designated areas of
-                  refuge where persons with disabilities can wait safely for
-                  assistance
-                </li>
-                <li>
-                  <strong>Two-way communication:</strong> Install accessible
-                  two-way communication systems in areas of refuge
-                </li>
-                <li>
-                  <strong>Visual and audible alarms:</strong> Ensure fire alarms
-                  and emergency notifications include both visual (flashing
-                  lights) and audible elements
-                </li>
-                <li>
-                  <strong>Clear evacuation instructions:</strong> Provide
-                  evacuation instructions in accessible formats, including large
-                  print and simple language
-                </li>
-                <li>
-                  <strong>Emergency lighting:</strong> Install adequate
-                  emergency lighting along evacuation routes
-                </li>
+              <h3 className="text-xl font-semibold mt-6 mb-2">
+                Evacuation Planning.
+              </h3>
+              <p>Emergency plans should include:</p>
+              <ul>
+                <li>Multiple evacuation routes that are accessible.</li>
+                <li>Clear emergency exit signs with tactile information.</li>
+                <li>Evacuation chairs on upper floors.</li>
+                <li>Areas of refuge where people can wait safely for help.</li>
+                <li>Training for staff on helping people with disabilities.</li>
+                <li>Regular drills that include everyone.</li>
               </ul>
-            </div>
-          </section>
-
-          <section aria-labelledby="technical-standards">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="technical-standards"
-              tabIndex={-1}
-            >
-              Technical Standards and Specifications
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Annex III requirements can be met by referring to various
-                technical standards and specifications:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>European standards:</strong> EN 17210 "Accessibility
-                  and usability of the built environment - Functional
-                  requirements"
-                </li>
-                <li>
-                  <strong>ISO standards:</strong> ISO 21542 "Building
-                  construction - Accessibility and usability of the built
-                  environment"
-                </li>
-                <li>
-                  <strong>National building codes:</strong> Member States'
-                  technical regulations on accessibility in the built
-                  environment
-                </li>
-                <li>
-                  <strong>CEN/CENELEC standards:</strong> European
-                  standardization organizations' technical specifications for
-                  accessible built environments
-                </li>
-                <li>
-                  <strong>Harmonized standards:</strong> Standards developed
-                  specifically to support EAA implementation (when available)
-                </li>
-              </ul>
-              <p>
-                While following these standards doesn't automatically guarantee
-                compliance with Annex III, they provide valuable guidance and
-                established best practices that can help organizations implement
-                the accessibility requirements effectively.
-              </p>
-            </div>
-          </section>
-
-          <section aria-labelledby="implementation-approaches">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="implementation-approaches"
-              tabIndex={-1}
-            >
-              Implementation Approaches
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Service providers can adopt various approaches to implement
-                Annex III requirements:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Access audits:</strong> Conduct comprehensive
-                  accessibility audits of existing facilities to identify
-                  barriers
-                </li>
-                <li>
-                  <strong>Phased implementation:</strong> Develop a prioritized,
-                  phased approach to addressing accessibility improvements
-                </li>
-                <li>
-                  <strong>Universal design principles:</strong> Apply universal
-                  design principles in new construction and renovations
-                </li>
-                <li>
-                  <strong>Staff training:</strong> Train facility management and
-                  staff on accessibility features and how to assist persons with
-                  disabilities
-                </li>
-                <li>
-                  <strong>Feedback mechanisms:</strong> Establish systems for
-                  users to report accessibility issues and suggest improvements
-                </li>
-                <li>
-                  <strong>Consultation:</strong> Involve disability
-                  organizations and experts in planning and implementing
-                  accessibility improvements
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <section aria-labelledby="member-state-variations">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="member-state-variations"
-              tabIndex={-1}
-            >
-              Member State Variations
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Implementation of Annex III requirements may vary across Member
-                States:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Optional implementation:</strong> Member States decide
-                  whether to require compliance with the built environment
-                  requirements
-                </li>
-                <li>
-                  <strong>Varying standards:</strong> Member States may have
-                  different national accessibility standards for the built
-                  environment
-                </li>
-                <li>
-                  <strong>Implementation timelines:</strong> Transition periods
-                  for complying with built environment requirements may vary
-                </li>
-                <li>
-                  <strong>Scope differences:</strong> Some Member States may
-                  apply the requirements to a broader or narrower range of
-                  services
-                </li>
-                <li>
-                  <strong>Enforcement mechanisms:</strong> The approach to
-                  monitoring and enforcing compliance may differ between
-                  countries
-                </li>
-              </ul>
-              <p>
-                Service providers operating across multiple Member States should
-                be aware of these variations and ensure compliance with the
-                specific requirements in each country where they operate.
-              </p>
-            </div>
-          </section>
-
-          <section aria-labelledby="relationship-other-annexes">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="relationship-other-annexes"
-              tabIndex={-1}
-            >
-              Relationship with Other Annexes
-            </h2>
-            <div className="space-y-4">
-              <p>Annex III works in conjunction with other parts of the EAA:</p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>Annex I (Accessibility Requirements):</strong> While
-                  Annex I focuses on product and service accessibility, Annex
-                  III addresses the physical environment where those services
-                  are provided
-                </li>
-                <li>
-                  <strong>Annex II (Examples of Implementation):</strong> Some
-                  examples in Annex II may relate to physical interfaces or
-                  elements relevant to the built environment
-                </li>
-                <li>
-                  <strong>Annex IV and VI (Disproportionate Burden):</strong>{' '}
-                  The assessment of disproportionate burden may also apply to
-                  built environment requirements
-                </li>
-                <li>
-                  <strong>Annex V (Conformity Assessment):</strong> The
-                  conformity assessment process may need to consider built
-                  environment aspects for service providers
-                </li>
-              </ul>
-              <p>
-                Understanding the interrelation between these annexes helps
-                service providers develop comprehensive accessibility strategies
-                that address both digital and physical aspects of service
-                delivery.
-              </p>
             </div>
           </section>
 
@@ -636,33 +383,22 @@ export default function BuiltEnvironmentPage() {
               id="references"
               tabIndex={-1}
             >
-              References
+              References.
             </h2>
             <div className="space-y-4">
               <p>
-                The requirements for the built environment discussed on this
-                page are based on Annex III of the European Accessibility Act,
-                which Member States may choose to implement.
+                The built environment requirements come from Annex III of the
+                European Accessibility Act.
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Directive (EU) 2019/882 - Annex III:</strong>{' '}
-                  Accessibility Requirements for the Purpose of Article 4(4)
-                  Concerning the Built Environment Where the Services Under the
-                  Scope of This Directive Are Provided. This annex details the
-                  aspects of the built environment to be considered for
-                  accessibility.
-                </li>
-                <li>
-                  <strong>Directive (EU) 2019/882 - Article 4(4):</strong> This
-                  article enables Member States to decide whether to require
-                  compliance with the built environment requirements outlined in
-                  Annex III.
+                  <strong>Directive (EU) 2019/882 - Annex III.</strong> The
+                  accessibility of the built environment. This annex describes
+                  how to make physical spaces accessible.
                 </li>
               </ul>
               <p>
-                For the full legal text and context, please refer to the
-                official{' '}
+                For the full legal text, please refer to the official{' '}
                 <a
                   href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
                   target="_blank"
@@ -671,7 +407,7 @@ export default function BuiltEnvironmentPage() {
                   aria-labelledby="official-directive-link-4-3"
                 >
                   <span id="official-directive-link-4-3" className="sr-only">
-                    Directive (EU) 2019/882 (opens in new window)
+                    Directive (EU) 2019/882 (opens in new window).
                   </span>
                   Directive (EU) 2019/882
                   <ExternalLink
@@ -686,12 +422,28 @@ export default function BuiltEnvironmentPage() {
 
           <footer>
             <nav
-              className="flex justify-end items-center mt-10 pt-4 border-t"
+              className="flex justify-between items-center mt-10 pt-4 border-t"
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
+              <Button asChild variant="outline" id="prev-chapter-button">
+                <Link
+                  href={ANNEXES_LINKS.IMPLEMENTATION_EXAMPLES.fullPath}
+                  className="no-underline"
+                  aria-labelledby="prev-chapter-label"
+                >
+                  <ArrowRight
+                    size={16}
+                    className="rotate-180 mr-1"
+                    aria-hidden="true"
+                  />
+                  <span id="prev-chapter-label">
+                    Annex II: Implementation Examples.
+                  </span>
+                </Link>
+              </Button>
               <Button asChild id="next-chapter-button">
                 <Link
                   href={ANNEXES_LINKS.DISPROPORTIONATE_BURDEN.fullPath}
@@ -699,7 +451,7 @@ export default function BuiltEnvironmentPage() {
                   aria-labelledby="next-chapter-label"
                 >
                   <span id="next-chapter-label">
-                    Annex IV: Disproportionate Burden Assessment
+                    Annex IV: Disproportionate Burden Assessment.
                   </span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>

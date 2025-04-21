@@ -3,98 +3,80 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { ArrowRight, List } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { INTRODUCTION_LINKS, OBLIGATIONS_LINKS } from '../../constants/links'
+import { OBLIGATIONS_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
-  title: 'Importer Obligations | European Accessibility Act',
+  title: 'Obligations for Importers | European Accessibility Act',
   description:
-    'Legal responsibilities of importers under the European Accessibility Act, including product verification, documentation requirements, and compliance procedures.',
+    'Specific obligations for importers under the European Accessibility Act (EAA).',
 }
 
-export default function ImportersObligationsPage() {
+export default function ImporterObligationsPage() {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Obligations of Importers
+            Obligations for Importers.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a
                   className="underline"
-                  href="#role-importers"
-                  id="role-importers-link"
+                  href="#definition"
+                  id="definition-link"
                 >
-                  Role of Importers
+                  Definition.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#compliance-verification"
-                  id="compliance-verification-link"
+                  href="#key-responsibilities"
+                  id="key-responsibilities-link"
                 >
-                  Verification
+                  Key Responsibilities.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#non-compliance-action"
-                  id="non-compliance-link"
+                  href="#before-placing-products"
+                  id="before-placing-products-link"
                 >
-                  Non-Compliance
+                  Before Placing Products.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#identification-requirements"
-                  id="identification-link"
+                  href="#product-information"
+                  id="product-information-link"
                 >
-                  Identification
+                  Product Information.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#instructions-documentation"
-                  id="documentation-link"
+                  href="#storage-and-transport"
+                  id="storage-and-transport-link"
                 >
-                  Documentation
+                  Storage and Transport.
                 </a>
               </li>
               <li>
                 <a
                   className="underline"
-                  href="#storage-transport"
-                  id="storage-link"
+                  href="#non-conformity"
+                  id="non-conformity-link"
                 >
-                  Storage & Transport
-                </a>
-              </li>
-              <li>
-                <a
-                  className="underline"
-                  href="#monitoring-investigations"
-                  id="monitoring-link"
-                >
-                  Market Monitoring
-                </a>
-              </li>
-              <li>
-                <a
-                  className="underline"
-                  href="#corrective-measures"
-                  id="corrective-link"
-                >
-                  Corrective Measures
+                  Non-conformity.
                 </a>
               </li>
               <li>
@@ -103,7 +85,7 @@ export default function ImportersObligationsPage() {
                   href="#record-keeping"
                   id="record-keeping-link"
                 >
-                  Record Keeping
+                  Record Keeping.
                 </a>
               </li>
               <li>
@@ -112,7 +94,16 @@ export default function ImportersObligationsPage() {
                   href="#cooperation"
                   id="cooperation-link"
                 >
-                  Cooperation
+                  Cooperation.
+                </a>
+              </li>
+              <li>
+                <a
+                  className="underline"
+                  href="#exemptions"
+                  id="exemptions-link"
+                >
+                  Exemptions.
                 </a>
               </li>
             </ul>
@@ -120,318 +111,424 @@ export default function ImportersObligationsPage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
+      <div
+        className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2"
+        id="eaa-content"
+      >
         <div className="space-y-8">
-          <section aria-labelledby="role-importers">
+          <section
+            aria-labelledby="definition-heading"
+            id="definition"
+            className="scroll-mt-6"
+          >
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6 mt-0"
-              id="role-importers"
+              id="definition-heading"
+              className="text-2xl font-semibold mb-4 mt-0"
               tabIndex={-1}
             >
-              Role of Importers
+              Definition of an Importer under the EAA.
             </h2>
             <div className="space-y-4">
               <p>
-                Article 9 of the European Accessibility Act defines the
-                obligations of importers. Importers play a crucial role in the
-                supply chain as they are the economic operators who place
-                products from third countries onto the EU market.
+                According to the European Accessibility Act, an importer is any
+                person or company established in the European Union who:
               </p>
-              <p>
-                As gatekeepers between manufacturers outside the EU and the
-                European market, importers have the responsibility to verify
-                that products they import comply with the accessibility
-                requirements before making them available on the market.
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>
+                  Places products from a country outside the EU onto the EU
+                  market.
+                </li>
+              </ul>
+              <p className="mt-4">
+                Importers are a crucial link in the supply chain. They bring
+                products from outside the EU into the EU market, and they have
+                important responsibilities for ensuring these products meet
+                accessibility requirements.
               </p>
             </div>
           </section>
 
-          <section aria-labelledby="compliance-verification">
+          <section
+            aria-labelledby="key-responsibilities-heading"
+            id="key-responsibilities"
+            className="scroll-mt-6"
+          >
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="compliance-verification"
+              id="key-responsibilities-heading"
+              className="text-2xl font-semibold mb-4"
               tabIndex={-1}
             >
-              Verification Before Placement
+              Key Responsibilities.
             </h2>
             <div className="space-y-4">
               <p>
-                Importers shall place only compliant products on the market.
-                Before placing a product on the market, importers shall ensure
-                that:
+                Importers have several important responsibilities when bringing
+                products into the EU market. Here are their main duties:
               </p>
-              <ul className="list-disc pl-6 space-y-2">
+              <ul className="list-disc pl-6 space-y-2 mt-4">
                 <li>
-                  The manufacturer has carried out the appropriate conformity
-                  assessment procedure
+                  Making sure manufacturers have carried out the proper
+                  conformity assessment.
                 </li>
                 <li>
-                  The manufacturer has drawn up the required technical
-                  documentation
+                  Verifying that products meet accessibility requirements.
                 </li>
-                <li>The product bears the CE marking</li>
-                <li>The product is accompanied by the required documents</li>
                 <li>
-                  The manufacturer has complied with the requirements related to
-                  identification (name, trademark, contact details, etc.)
+                  Checking that products have proper marking and documentation.
                 </li>
+                <li>Adding their contact information to the product.</li>
+                <li>
+                  Taking action if products don't meet accessibility
+                  requirements.
+                </li>
+                <li>
+                  Keeping records about product conformity and complaints.
+                </li>
+                <li>Working with authorities to ensure product compliance.</li>
               </ul>
             </div>
           </section>
 
-          <section aria-labelledby="non-compliance-action">
+          <section
+            aria-labelledby="before-placing-products-heading"
+            id="before-placing-products"
+            className="scroll-mt-6"
+          >
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="non-compliance-action"
+              id="before-placing-products-heading"
+              className="text-2xl font-semibold mb-4"
               tabIndex={-1}
             >
-              Action on Non-Compliance
+              Before Placing Products on the Market.
             </h2>
             <div className="space-y-4">
               <p>
-                Where an importer considers or has reason to believe that a
-                product is not in conformity with the applicable accessibility
-                requirements, the importer shall not place the product on the
-                market until it has been brought into conformity.
+                Before bringing a product into the EU market, importers must
+                complete these checks:
               </p>
-              <p>
-                Furthermore, where the product presents a risk related to
-                accessibility, the importer shall inform the manufacturer and
-                the market surveillance authorities to that effect.
-              </p>
-            </div>
-          </section>
-
-          <section aria-labelledby="identification-requirements">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="identification-requirements"
-              tabIndex={-1}
-            >
-              Identification and Contact Information
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Importers shall indicate their name, registered trade name or
-                registered trademark and the address at which they can be
-                contacted on the product. Where that is not possible due to the
-                size or nature of the product, importers shall provide this
-                information:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>On the packaging</li>
-                <li>In a document accompanying the product</li>
-              </ul>
-              <p>
-                The contact details must be in a language which can be easily
-                understood by end-users and market surveillance authorities, as
-                determined by the Member State concerned.
-              </p>
-            </div>
-          </section>
-
-          <section aria-labelledby="instructions-documentation">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="instructions-documentation"
-              tabIndex={-1}
-            >
-              Instructions and Documentation
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Importers shall ensure that the product is accompanied by
-                instructions and safety information in a language which can be
-                easily understood by consumers and other end-users, as
-                determined by the Member State concerned.
-              </p>
-              <p>
-                They must verify that these materials are accessible, clear,
-                understandable, and that they provide all necessary information
-                about the product's accessibility features and how to use them.
-              </p>
-            </div>
-          </section>
-
-          <section aria-labelledby="storage-transport">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="storage-transport"
-              tabIndex={-1}
-            >
-              Storage and Transport Conditions
-            </h2>
-            <div className="space-y-4">
-              <p>
-                As long as a product is under their responsibility, importers
-                shall ensure that storage or transport conditions do not
-                jeopardize its compliance with the applicable accessibility
-                requirements.
-              </p>
-              <p>This includes:</p>
-              <ul className="list-disc pl-6 space-y-2">
+              <ul className="list-disc pl-6 space-y-2 mt-4">
                 <li>
-                  Maintaining appropriate environmental conditions (temperature,
-                  humidity, etc.)
+                  Verify that the manufacturer has carried out the proper
+                  conformity assessment procedure.
                 </li>
-                <li>Proper handling and packaging to prevent damage</li>
-                <li>Secure storage to maintain product integrity</li>
+                <li>Check that the product has the required CE marking.</li>
                 <li>
-                  Ensuring accessibility features remain functional during
-                  transport and storage
+                  Confirm that the manufacturer has prepared the technical
+                  documentation.
+                </li>
+                <li>
+                  Make sure the EU Declaration of Conformity has been properly
+                  created.
+                </li>
+                <li>
+                  Verify that the product has the required identification
+                  information.
+                </li>
+                <li>
+                  Check that the product comes with instructions in the
+                  appropriate languages.
                 </li>
               </ul>
+              <p className="mt-4">
+                If an importer believes a product does not meet accessibility
+                requirements, they must not place it on the market until it
+                complies. If the product presents a risk, the importer must
+                inform the manufacturer and market surveillance authorities.
+              </p>
             </div>
           </section>
 
-          <section aria-labelledby="monitoring-investigations">
+          <section
+            aria-labelledby="product-information-heading"
+            id="product-information"
+            className="scroll-mt-6"
+          >
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="monitoring-investigations"
+              id="product-information-heading"
+              className="text-2xl font-semibold mb-4"
               tabIndex={-1}
             >
-              Market Monitoring and Investigations
+              Product Information Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                When deemed appropriate with regard to the risks presented by a
-                product, importers shall:
+                Importers must add certain information to products they import:
               </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Carry out sample testing of marketed products</li>
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>Their name, registered trade name or trademark.</li>
+                <li>Their postal address for contact.</li>
+              </ul>
+              <p className="mt-4">This information must be:</p>
+              <ul className="list-disc pl-6 space-y-2 mt-2">
+                <li>Visible and easy to understand.</li>
+                <li>Placed on the product itself when possible.</li>
                 <li>
-                  Investigate complaints related to non-conforming products
+                  If that's not possible, placed on the packaging or in
+                  documents that come with the product.
                 </li>
-                <li>Keep a register of such complaints</li>
-                <li>Maintain records of non-conforming products</li>
-                <li>Document product recalls</li>
-                <li>Keep distributors informed of any such monitoring</li>
-              </ul>
-            </div>
-          </section>
-
-          <section aria-labelledby="corrective-measures">
-            <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="corrective-measures"
-              tabIndex={-1}
-            >
-              Corrective Measures
-            </h2>
-            <div className="space-y-4">
-              <p>
-                Importers who consider or have reason to believe that a product
-                which they have placed on the market is not in conformity with
-                this Directive shall:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Immediately take the corrective measures necessary to bring
-                  that product into conformity
+                  Written in a language that consumers and authorities can
+                  easily understand.
                 </li>
-                <li>Withdraw the product from the market, if appropriate</li>
-                <li>Recall the product, if appropriate</li>
               </ul>
-              <p>
-                Furthermore, where the product presents a risk related to
-                accessibility, importers shall immediately inform the competent
-                national authorities of the Member States in which they made the
-                product available, giving details about:
+              <p className="mt-4">
+                Importers must also make sure that products come with
+                instructions and safety information in languages that are easily
+                understood by consumers in the countries where the product will
+                be sold.
               </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>The nature of the non-compliance</li>
-                <li>The specific accessibility requirements not met</li>
-                <li>Any corrective measures taken</li>
-              </ul>
             </div>
           </section>
 
-          <section aria-labelledby="record-keeping">
+          <section
+            aria-labelledby="storage-and-transport-heading"
+            id="storage-and-transport"
+            className="scroll-mt-6"
+          >
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="record-keeping"
+              id="storage-and-transport-heading"
+              className="text-2xl font-semibold mb-4"
               tabIndex={-1}
             >
-              Record Keeping
+              Storage and Transport Conditions.
             </h2>
             <div className="space-y-4">
               <p>
-                Importers shall keep a copy of the EU declaration of conformity
-                at the disposal of the market surveillance authorities for 5
-                years after the product has been placed on the market.
+                Importers must make sure that storage and transport conditions
+                don't harm a product's compliance with accessibility
+                requirements. Their responsibilities include:
               </p>
-              <p>
-                They shall also ensure that the technical documentation can be
-                made available to those authorities upon request during that
-                period.
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>Storing products in appropriate conditions.</li>
+                <li>
+                  Ensuring that transportation methods don't damage products or
+                  affect their accessibility features.
+                </li>
+                <li>
+                  Conducting periodic checks on stored products when necessary.
+                </li>
+                <li>
+                  Taking corrective measures if storage or transport issues
+                  affect product compliance.
+                </li>
+              </ul>
+              <p className="mt-4">
+                These measures help ensure that products remain compliant with
+                accessibility requirements until they reach the end user.
               </p>
             </div>
           </section>
 
-          <section aria-labelledby="cooperation">
+          <section
+            aria-labelledby="non-conformity-heading"
+            id="non-conformity"
+            className="scroll-mt-6"
+          >
             <h2
-              className="text-2xl font-semibold mb-4 scroll-mt-6"
-              id="cooperation"
+              id="non-conformity-heading"
+              className="text-2xl font-semibold mb-4"
               tabIndex={-1}
             >
-              Cooperation with Authorities
+              Handling Non-conformity.
             </h2>
             <div className="space-y-4">
               <p>
-                Importers shall, further to a reasoned request from a competent
-                national authority, provide it with all the information and
-                documentation necessary to demonstrate the conformity of a
-                product in a language which can be easily understood by that
-                authority.
+                If an importer discovers that a product doesn't meet
+                accessibility requirements, they must:
               </p>
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>
+                  Take immediate corrective measures to make the product comply.
+                </li>
+                <li>Withdraw the product from the market if necessary.</li>
+                <li>Inform the manufacturer about the non-compliance issue.</li>
+                <li>
+                  Notify market surveillance authorities in EU countries where
+                  the product was made available.
+                </li>
+                <li>
+                  Provide details about the non-compliance and any corrective
+                  actions taken.
+                </li>
+              </ul>
+              <div className="bg-muted p-4 rounded-md mt-6">
+                <h3 className="font-medium mb-2">Important Note.</h3>
+                <p className="text-sm">
+                  Importers are responsible for products they've already placed
+                  on the market. Even if they discover issues later, they must
+                  take action to address the problems.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="record-keeping-heading"
+            id="record-keeping"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="record-keeping-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
+            >
+              Record Keeping.
+            </h2>
+            <div className="space-y-4">
               <p>
-                They shall cooperate with that authority, at its request, on any
-                action taken to eliminate the non-compliance with the applicable
-                accessibility requirements of products which they have placed on
-                the market.
+                Importers must maintain certain records related to the products
+                they import:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>
+                  Keep a copy of the EU Declaration of Conformity for 5 years
+                  after the product is placed on the market.
+                </li>
+                <li>
+                  Ensure the technical documentation can be made available to
+                  authorities upon request.
+                </li>
+                <li>
+                  Maintain records of complaints about products not meeting
+                  accessibility requirements.
+                </li>
+                <li>
+                  Keep track of non-compliant products and product recalls.
+                </li>
+                <li>
+                  Maintain information about the supply chain (which retailers
+                  they've supplied products to).
+                </li>
+              </ul>
+              <p className="mt-4">
+                These records help importers demonstrate compliance with their
+                obligations under the European Accessibility Act.
               </p>
             </div>
           </section>
 
-          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
+          <section
+            aria-labelledby="cooperation-heading"
+            id="cooperation"
+            className="scroll-mt-6"
+          >
             <h2
-              id="references"
-              className="text-xl font-semibold mb-4 scroll-mt-6"
+              id="cooperation-heading"
+              className="text-2xl font-semibold mb-4"
               tabIndex={-1}
             >
-              Source References
+              Cooperation with Authorities.
             </h2>
-            <p className="text-sm text-muted-foreground">
-              This page primarily references the following sections of Directive
-              (EU) 2019/882:
+            <div className="space-y-4">
+              <p>
+                Importers must cooperate with national market surveillance
+                authorities when requested. This includes:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>
+                  Providing all information and documentation necessary to
+                  demonstrate product conformity.
+                </li>
+                <li>
+                  Giving information about suppliers from whom they purchased
+                  products.
+                </li>
+                <li>
+                  Providing information about other economic operators to whom
+                  they supplied products.
+                </li>
+                <li>
+                  Taking corrective actions requested by authorities to bring
+                  products into compliance.
+                </li>
+                <li>
+                  Cooperating with any investigations into product
+                  non-compliance.
+                </li>
+              </ul>
+              <p className="mt-4">
+                This information must be provided in a language that the
+                authorities can easily understand.
+              </p>
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="exemptions-heading"
+            id="exemptions"
+            className="scroll-mt-6"
+          >
+            <h2
+              id="exemptions-heading"
+              className="text-2xl font-semibold mb-4"
+              tabIndex={-1}
+            >
+              Exemptions.
+            </h2>
+            <div className="space-y-4">
+              <p>
+                Importers may rely on exemptions claimed by manufacturers.
+                However, they must verify that:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>
+                  The manufacturer has properly assessed whether meeting
+                  accessibility requirements would:
+                  <ul className="list-disc pl-6 mt-2">
+                    <li>
+                      Require a "fundamental change" to the product that would
+                      completely alter its basic nature.
+                    </li>
+                    <li>
+                      Create a "disproportionate burden" on the manufacturer.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  The manufacturer has documented this assessment properly.
+                </li>
+                <li>
+                  The exemption documentation is available if authorities
+                  request it.
+                </li>
+              </ul>
+              <p className="mt-4">
+                Importers cannot claim new exemptions on behalf of
+                manufacturers. They can only verify that manufacturers'
+                exemption claims are properly documented.
+              </p>
+            </div>
+          </section>
+
+          <section className="border-t pt-6 mt-8">
+            <h2 className="text-xl font-semibold mb-4">
+              Detailed Importer Obligations.
+            </h2>
+            <p>
+              These obligations are based on Article 8 of the European
+              Accessibility Act (Directive (EU) 2019/882).
             </p>
-            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
-              <li>Article 3, Point 19 (Definition: Importer)</li>
-              <li>Article 9 (Obligations of importers)</li>
-              <li>Recitals 59, 60, 61 (Context on importer's role)</li>
-            </ul>
+            <div className="mt-6">
+              <Link
+                href={OBLIGATIONS_LINKS.MANUFACTURERS.fullPath}
+                className="text-blue-600 hover:underline inline-flex items-center mr-6"
+              >
+                <ArrowRight
+                  className="mr-2 rotate-180"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Previous: Manufacturer Obligations
+              </Link>
+              <Link
+                href={OBLIGATIONS_LINKS.DISTRIBUTORS.fullPath}
+                className="text-blue-600 hover:underline inline-flex items-center"
+              >
+                Next: Distributor Obligations
+                <ArrowRight className="ml-2" size={16} aria-hidden="true" />
+              </Link>
+            </div>
           </section>
-
-          <footer>
-            <nav
-              className="flex justify-end items-center mt-10 pt-4 border-t"
-              aria-labelledby="footer-nav-heading"
-            >
-              <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
-              </h2>
-              <Button asChild>
-                <Link
-                  href={OBLIGATIONS_LINKS.DISTRIBUTORS.fullPath}
-                  className="no-underline"
-                  aria-labelledby="next-chapter-label"
-                >
-                  <span id="next-chapter-label">Distributors' Obligations</span>
-                  <ArrowRight size={16} aria-hidden="true" />
-                </Link>
-              </Button>
-            </nav>
-          </footer>
         </div>
       </div>
     </section>

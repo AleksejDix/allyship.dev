@@ -18,17 +18,17 @@ export default function CriteriaDisproportionateBurdenPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Annex VI: Criteria for Disproportionate Burden
+            Annex VI: Criteria for Disproportionate Burden.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview
+                  Overview.
                 </a>
               </li>
               <li>
@@ -37,7 +37,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#evaluation-criteria"
                   id="evaluation-criteria-link"
                 >
-                  Evaluation Criteria
+                  Evaluation Criteria.
                 </a>
               </li>
               <li>
@@ -46,7 +46,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#net-costs-assessment"
                   id="net-costs-assessment-link"
                 >
-                  Assessing Net Costs
+                  Assessing Net Costs.
                 </a>
               </li>
               <li>
@@ -55,7 +55,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#frequency-and-duration"
                   id="frequency-and-duration-link"
                 >
-                  Frequency and Duration
+                  Frequency and Duration.
                 </a>
               </li>
               <li>
@@ -64,7 +64,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#ratios-and-thresholds"
                   id="ratios-and-thresholds-link"
                 >
-                  Financial Ratios
+                  Financial Ratios.
                 </a>
               </li>
               <li>
@@ -73,7 +73,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#documentation-requirements"
                   id="documentation-requirements-link"
                 >
-                  Documentation Requirements
+                  Documentation Requirements.
                 </a>
               </li>
               <li>
@@ -82,7 +82,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#microenterprises"
                   id="microenterprises-link"
                 >
-                  Provisions for Microenterprises
+                  Provisions for Microenterprises.
                 </a>
               </li>
               <li>
@@ -91,7 +91,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#practical-examples"
                   id="practical-examples-link"
                 >
-                  Practical Examples
+                  Practical Examples.
                 </a>
               </li>
               <li>
@@ -100,7 +100,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#potential-challenges"
                   id="potential-challenges-link"
                 >
-                  Challenges
+                  Challenges.
                 </a>
               </li>
               <li>
@@ -109,7 +109,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#relationship-other-annexes"
                   id="relationship-other-annexes-link"
                 >
-                  Relationship with Other Annexes
+                  Relationship with Other Annexes.
                 </a>
               </li>
               <li>
@@ -118,7 +118,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   href="#conclusion"
                   id="conclusion-link"
                 >
-                  Conclusion
+                  Conclusion.
                 </a>
               </li>
             </ul>
@@ -134,23 +134,21 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview
+              Overview.
             </h2>
             <div className="space-y-4">
               <p>
-                Annex VI of the European Accessibility Act (EAA) establishes
-                specific criteria for assessing whether compliance with
-                accessibility requirements would impose a disproportionate
-                burden on economic operators. These criteria provide a
-                structured framework for evaluating claims of disproportionate
-                burden and ensuring consistent application across the EU.
+                Annex VI helps businesses decide if making products accessible
+                would cost too much money. This part of the European
+                Accessibility Act (EAA) gives clear rules for checking when
+                costs are too high. These rules help make sure everyone uses the
+                same fair method across the EU.
               </p>
               <p>
-                The criteria in this annex should be used in conjunction with
-                the disproportionate burden assessment process outlined in Annex
-                IV. While Annex IV provides the overall assessment methodology,
-                Annex VI details the specific factors that should be considered
-                during this assessment.
+                You should use these rules together with the assessment process
+                in Annex IV. Annex IV explains how to do the assessment, while
+                Annex VI tells you what specific things to look at during your
+                check.
               </p>
             </div>
           </section>
@@ -161,61 +159,58 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="evaluation-criteria"
               tabIndex={-1}
             >
-              Evaluation Criteria
+              Evaluation Criteria.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA specifies that the following criteria must be taken into
-                account when conducting an assessment of disproportionate
-                burden:
+                The EAA says you must look at these things when checking if
+                accessibility costs too much:
               </p>
 
               <ol className="pl-6 space-y-4">
                 <li>
                   <strong>
-                    The ratio of net costs of compliance to overall costs:
+                    The ratio of net costs compared to overall costs:
                   </strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Net costs of compliance with accessibility requirements
-                      versus overall costs (operating and capital expenditures)
-                      of the economic operator
+                      Compare what it costs to make things accessible versus
+                      your total business costs.
                     </li>
                     <li>
-                      This establishes a proportional assessment of financial
-                      impact relative to the organization's size and resources
+                      This shows if the cost is reasonable for your business
+                      size and resources.
                     </li>
                   </ul>
                 </li>
                 <li>
                   <strong>
-                    The estimated costs and benefits compared to the potential
-                    benefit to persons with disabilities:
+                    The costs and benefits compared to how much people with
+                    disabilities would benefit:
                   </strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Taking into account the frequency and duration of use of
-                      the specific product or service
+                      Consider how often and how long people use your product or
+                      service.
                     </li>
                     <li>
-                      This balances implementation costs against the scale of
-                      potential positive impact for users with disabilities
+                      This balances what you spend against how much it helps
+                      people with disabilities.
                     </li>
                   </ul>
                 </li>
                 <li>
                   <strong>
-                    The ratio of the net costs of compliance to the economic
-                    operator's net turnover:
+                    The ratio of costs compared to your business income:
                   </strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      This ratio provides a measure of economic impact relative
-                      to the organization's financial capacity
+                      This shows how much the costs would impact your business
+                      financially.
                     </li>
                     <li>
-                      It helps determine whether the costs would significantly
-                      impact the operator's financial viability
+                      It helps determine if the costs would harm your business
+                      operations.
                     </li>
                   </ul>
                 </li>
@@ -229,88 +224,81 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="net-costs-assessment"
               tabIndex={-1}
             >
-              Assessing Net Costs of Compliance
+              Assessing Net Costs of Compliance.
             </h2>
             <div className="space-y-4">
               <p>
-                Net costs of compliance should be calculated considering both
-                direct costs and potential benefits:
+                When figuring out the net costs, look at both what you'll spend
+                and what you might gain:
               </p>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">Direct Costs</h3>
-              <p>Direct costs related to achieving compliance include:</p>
+              <h3 className="text-xl font-semibold mt-6 mb-2">Direct Costs.</h3>
+              <p>Direct costs for making things accessible include:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Design and Development:</strong> Costs for redesigning
-                  products or services to incorporate accessibility features
+                  <strong>Design and Development:</strong> Costs to redesign
+                  products or services to add accessibility features.
                 </li>
                 <li>
-                  <strong>Implementation:</strong> Physical production or
-                  programming costs related to accessibility features
+                  <strong>Implementation:</strong> Production or programming
+                  costs for accessibility features.
                 </li>
                 <li>
-                  <strong>Testing:</strong> Costs for testing and validating
-                  accessibility features
+                  <strong>Testing:</strong> Costs for checking accessibility
+                  with users who have disabilities.
                 </li>
                 <li>
-                  <strong>Documentation:</strong> Costs for creating
-                  accessibility documentation
+                  <strong>Training:</strong> Costs to train staff on new
+                  accessibility features.
                 </li>
                 <li>
-                  <strong>Training:</strong> Costs for training staff on
-                  accessibility requirements
+                  <strong>Documentation:</strong> Costs to update user guides
+                  and technical materials.
                 </li>
                 <li>
-                  <strong>Maintenance:</strong> Ongoing costs for maintaining
-                  accessibility features
+                  <strong>Maintenance:</strong> Ongoing costs to keep
+                  accessibility features working properly.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Offsetting Benefits
+                Potential Benefits.
               </h3>
-              <p>
-                Potential benefits that should be deducted from costs include:
-              </p>
+              <p>Benefits that might offset these costs include:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Market Expansion:</strong> Revenue from increased
-                  market size due to inclusivity
+                  <strong>Market Expansion:</strong> More customers who can now
+                  use your product or service.
                 </li>
                 <li>
-                  <strong>Public Funding:</strong> Subsidies or financial
-                  support for accessibility implementation
+                  <strong>Enhanced Reputation:</strong> Better brand image from
+                  being inclusive.
                 </li>
                 <li>
-                  <strong>Tax Benefits:</strong> Tax incentives for
-                  accessibility investments
+                  <strong>Reduced Legal Risk:</strong> Less chance of complaints
+                  or lawsuits.
                 </li>
                 <li>
-                  <strong>Operational Efficiencies:</strong> Cost savings from
-                  streamlined processes resulting from accessibility
-                  improvements
+                  <strong>Innovation Benefits:</strong> New ideas that might
+                  come from designing for accessibility.
                 </li>
                 <li>
-                  <strong>Brand Value:</strong> Enhanced reputation and brand
-                  value from demonstrating social responsibility
-                </li>
-                <li>
-                  <strong>Avoided Costs:</strong> Potential litigation or
-                  compliance penalties avoided
+                  <strong>Public Procurement Opportunities:</strong> Better
+                  chances to win government contracts.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Net Cost Calculation
+                Calculating Net Costs.
               </h3>
-              <p>The calculation of net costs should follow this formula:</p>
-              <pre className="bg-gray-100 p-4 rounded">
-                Net Costs = Direct Costs - Offsetting Benefits
-              </pre>
-              <p>
-                This net cost figure is then used in the ratio calculations
-                specified in the evaluation criteria.
-              </p>
+              <p>To find the net costs:</p>
+              <ol className="list-decimal pl-6 space-y-2">
+                <li>
+                  Add up all the direct costs of making things accessible.
+                </li>
+                <li>Subtract the value of benefits you expect to receive.</li>
+                <li>Compare this net cost to your business size and income.</li>
+              </ol>
             </div>
           </section>
 
@@ -320,68 +308,40 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="frequency-and-duration"
               tabIndex={-1}
             >
-              Frequency and Duration of Use
+              Frequency and Duration of Use.
             </h2>
             <div className="space-y-4">
               <p>
-                A critical component of the assessment is the evaluation of
-                frequency and duration of use by persons with disabilities:
+                How often and how long people use your product matters. Products
+                used every day by many people with disabilities deserve more
+                investment in accessibility.
               </p>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Quantitative Assessment
-              </h3>
-              <p>
-                When evaluating frequency and duration of use, economic
-                operators should:
-              </p>
+              <p>Here are important factors to consider:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Estimate Potential Users:</strong> Determine the
-                  estimated number of persons with disabilities who could
-                  benefit from improved accessibility
+                  <strong>Daily vs. Occasional Use:</strong> Products used daily
+                  (like phones or websites) have a higher impact than products
+                  used rarely.
                 </li>
                 <li>
-                  <strong>Assess Usage Patterns:</strong> Consider how often
-                  these individuals would use the product or service and for how
-                  long
+                  <strong>Duration of Use Sessions:</strong> Products used for
+                  long periods need better accessibility than those used
+                  briefly.
                 </li>
                 <li>
-                  <strong>Evaluate Criticality:</strong> Assess whether the
-                  product or service fulfills essential needs or provides access
-                  to essential services
+                  <strong>Number of Users:</strong> Products used by many people
+                  with disabilities have a bigger impact.
                 </li>
                 <li>
-                  <strong>Consider Alternatives:</strong> Analyze whether
-                  accessible alternatives are currently available in the market
+                  <strong>Essential Nature:</strong> Products needed for daily
+                  living or accessing basic services are more important.
                 </li>
               </ul>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Categories of Impact
-              </h3>
-              <p>Impact assessment should consider different categories:</p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  <strong>High Impact:</strong> Products or services used daily
-                  or continuously by significant numbers of persons with
-                  disabilities, with few accessible alternatives
-                </li>
-                <li>
-                  <strong>Medium Impact:</strong> Products or services used
-                  regularly by moderate numbers of persons with disabilities, or
-                  with some accessible alternatives
-                </li>
-                <li>
-                  <strong>Low Impact:</strong> Products or services used
-                  infrequently or by small numbers of persons with disabilities,
-                  with many accessible alternatives
-                </li>
-              </ul>
               <p>
-                A higher impact category indicates a greater potential benefit
-                to persons with disabilities, which should be weighed against
-                the costs of implementation.
+                The more people who benefit, and the more often they benefit,
+                the harder it is to claim the cost is too high.
               </p>
             </div>
           </section>
@@ -392,94 +352,84 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="ratios-and-thresholds"
               tabIndex={-1}
             >
-              Financial Ratios and Thresholds
+              Financial Ratios and Impact Assessment.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA does not prescribe specific numerical thresholds that
-                automatically constitute a disproportionate burden. Instead, the
-                assessment should consider these ratios in the context of:
+                To decide if costs are too high, you need to look at how they
+                compare to your business size and income.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Contextual Evaluation
+                Key Financial Ratios.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Company Size:</strong> Different expectations for
-                  large corporations versus small and medium enterprises (SMEs)
+                  <strong>Net Cost to Annual Turnover Ratio:</strong> This shows
+                  what percentage of your yearly income would go to
+                  accessibility costs.
                 </li>
                 <li>
-                  <strong>Industry Standards:</strong> Typical cost ratios and
-                  investments in the specific industry
+                  <strong>Net Cost to Operating Profit Ratio:</strong> This
+                  shows how much the costs would impact your profits.
                 </li>
                 <li>
-                  <strong>Time Horizon:</strong> Short-term costs versus
-                  long-term benefits and return on investment
-                </li>
-                <li>
-                  <strong>Impact Significance:</strong> Higher ratios may be
-                  acceptable for products or services with high impact on
-                  accessibility
-                </li>
-                <li>
-                  <strong>Resource Availability:</strong> Financial and
-                  technical resources available to the economic operator
+                  <strong>Implementation Cost to Available Resources:</strong>{' '}
+                  This shows if you have enough money to make the changes.
                 </li>
               </ul>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Suggested Framework
-              </h3>
               <p>
-                While not specifically mandated by the EAA, the following
-                framework may help in evaluation:
+                While not required by the EAA, this framework may help your
+                evaluation:
               </p>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse border border-gray-300">
                   <thead>
                     <tr className="bg-gray-100">
                       <th className="border border-gray-300 px-4 py-2">
-                        Impact Category
+                        Impact Category.
                       </th>
                       <th className="border border-gray-300 px-4 py-2">
-                        Cost/Turnover Ratio Considerations
+                        Cost/Turnover Ratio Considerations.
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2">
-                        High Impact
+                        High Impact.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Higher ratios may be expected before claiming
-                        disproportionate burden
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-2">
-                        Medium Impact
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        Moderate ratios may warrant case-by-case evaluation
+                        Higher ratios may be expected before claiming costs are
+                        too high.
                       </td>
                     </tr>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2">
-                        Low Impact
+                        Medium Impact.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Lower ratios might support disproportionate burden
-                        claims
+                        Moderate ratios may need case-by-case evaluation.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-4 py-2">
+                        Low Impact.
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        Lower ratios might support claims that costs are too
+                        high.
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <p className="mt-4">
-                National authorities may provide more specific guidance on
-                appropriate thresholds within their jurisdictions.
+
+              <p>
+                The EAA does not set specific percentage thresholds. Each case
+                needs individual assessment based on the business size, type of
+                product, and user impact.
               </p>
             </div>
           </section>
@@ -490,96 +440,45 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="documentation-requirements"
               tabIndex={-1}
             >
-              Documentation Requirements
+              Documentation Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                Economic operators claiming disproportionate burden must
-                maintain comprehensive documentation of their assessment
-                process, which should include:
+                You must keep good records if you claim making products
+                accessible costs too much. Your records should include:
               </p>
 
-              <ol className="pl-6 space-y-4">
+              <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Detailed Cost Analysis:</strong>
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>
-                      Itemized breakdown of costs related to implementing each
-                      accessibility requirement
-                    </li>
-                    <li>
-                      Documentation of how costs were estimated, including any
-                      quotes, expert assessments, or previous implementation
-                      experiences
-                    </li>
-                    <li>
-                      Identification of offsetting benefits and how they were
-                      calculated
-                    </li>
-                  </ul>
+                  <strong>Clear Cost Breakdown:</strong> Detailed list of all
+                  costs for each accessibility requirement.
                 </li>
                 <li>
-                  <strong>Financial Context:</strong>
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>
-                      Overall costs of producing or providing the product or
-                      service
-                    </li>
-                    <li>Net turnover figures for the relevant period</li>
-                    <li>
-                      Calculated ratios as specified in the evaluation criteria
-                    </li>
-                  </ul>
+                  <strong>User Impact Analysis:</strong> Assessment of how
+                  different disabilities would be affected by your decision.
                 </li>
                 <li>
-                  <strong>Impact Assessment:</strong>
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>
-                      Analysis of frequency and duration of use by persons with
-                      disabilities
-                    </li>
-                    <li>
-                      Supporting data or research on user demographics and needs
-                    </li>
-                    <li>
-                      Evaluation of the criticality of the product or service
-                    </li>
-                  </ul>
+                  <strong>Financial Analysis:</strong> Comparison of costs to
+                  your business size and resources.
                 </li>
                 <li>
-                  <strong>Alternative Measures:</strong>
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>
-                      Documentation of alternative measures considered and
-                      implemented
-                    </li>
-                    <li>
-                      Explanation of how these measures maximize accessibility
-                      within the constraints identified
-                    </li>
-                    <li>
-                      Plan for reevaluation when financial or technical
-                      constraints change
-                    </li>
-                  </ul>
+                  <strong>Alternative Options:</strong> What other solutions you
+                  considered and why they didn't work.
                 </li>
                 <li>
-                  <strong>Methodology:</strong>
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>Description of the assessment methodology used</li>
-                    <li>
-                      Qualifications of those who conducted the assessment
-                    </li>
-                    <li>
-                      Any consultation with accessibility experts or user groups
-                    </li>
-                  </ul>
+                  <strong>Statement of Maximum Efforts:</strong> What
+                  accessibility features you will still provide despite the
+                  burden.
                 </li>
-              </ol>
+                <li>
+                  <strong>Periodic Review Plan:</strong> When and how you will
+                  check if the situation has changed.
+                </li>
+              </ul>
+
               <p>
-                This documentation must be retained for a period of five years
-                from the last time the product was made available on the market
-                or after the service was last provided.
+                Authorities may ask to see these records to check if your claim
+                is valid. Keep these documents for at least 5 years.
               </p>
             </div>
           </section>
@@ -590,58 +489,39 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="microenterprises"
               tabIndex={-1}
             >
-              Special Provisions for Microenterprises
+              Provisions for Microenterprises.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA contains special provisions for microenterprises
-                providing services:
+                The EAA has special rules for very small businesses
+                (microenterprises):
               </p>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Exemption from Assessment Requirements
-              </h3>
-              <p>
-                Microenterprises providing services are exempted from the
-                requirement to perform the assessment of disproportionate
-                burden. However, they must still comply with the applicable
-                accessibility requirements.
-              </p>
-
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Definition of Microenterprise
-              </h3>
-              <p>
-                A microenterprise is defined as an enterprise that employs fewer
-                than 10 persons and has an annual turnover not exceeding €2
-                million or an annual balance sheet total not exceeding €2
-                million.
-              </p>
-
-              <h3 className="text-xl font-semibold mt-6 mb-2">Implications</h3>
-              <p>
-                While microenterprises providing services are exempt from the
-                formal assessment requirements, they should note that:
-              </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  They still must comply with the accessibility requirements of
-                  the EAA
+                  <strong>Definition:</strong> A microenterprise has fewer than
+                  10 employees and makes less than €2 million per year.
                 </li>
                 <li>
-                  If they claim disproportionate burden, they should be prepared
-                  to justify this claim if requested by market surveillance
-                  authorities
+                  <strong>Services Exemption:</strong> Microenterprises that
+                  provide services don't need to meet accessibility
+                  requirements.
                 </li>
                 <li>
-                  The exemption applies only to the formal assessment process,
-                  not to the accessibility requirements themselves
+                  <strong>Products Not Exempt:</strong> Microenterprises that
+                  make, import, or sell products still need to follow the rules.
                 </li>
                 <li>
-                  Microenterprises that manufacture products are not exempt from
-                  the assessment requirement
+                  <strong>Documentation:</strong> If asked, you must prove you
+                  qualify as a microenterprise.
                 </li>
               </ul>
+
+              <p>
+                Even with this exemption, it's good business practice for
+                microenterprises to make their services as accessible as
+                possible.
+              </p>
             </div>
           </section>
 
@@ -651,44 +531,43 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="practical-examples"
               tabIndex={-1}
             >
-              Practical Examples of Assessment Applications
+              Practical Examples.
             </h2>
             <div className="space-y-4">
               <p>
-                The following examples illustrate how the criteria might be
-                applied in practice:
+                These examples show how to apply the assessment criteria in real
+                situations:
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Example 1: E-commerce Website
+                Example 1: E-Commerce Website.
               </h3>
               <div className="bg-gray-100 p-4 rounded mb-4">
                 <p className="font-medium">Scenario:</p>
                 <p>
-                  An online retailer with annual turnover of €5 million needs to
-                  make their website accessible. The estimated cost for
-                  redesign, development, and testing is €75,000, with annual
-                  maintenance costs of €15,000.
+                  A medium-sized retailer with €5 million yearly sales needs to
+                  make its website accessible. The costs include €75,000 for
+                  redesign and €15,000 yearly for maintenance.
                 </p>
                 <p className="font-medium mt-2">Assessment:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>
                     <strong>Net costs:</strong> €75,000 initial + €15,000 annual
-                    = €90,000 for first year
+                    = €90,000 for first year.
                   </li>
                   <li>
                     <strong>Potential offsetting benefits:</strong> Estimated
-                    increased sales of €30,000 annually from new customers
+                    increased sales of €30,000 annually from new customers.
                   </li>
                   <li>
-                    <strong>Net first-year cost:</strong> €60,000
+                    <strong>Net first-year cost:</strong> €60,000.
                   </li>
                   <li>
-                    <strong>Ratio to turnover:</strong> 1.2% of annual turnover
+                    <strong>Ratio to turnover:</strong> 1.2% of annual turnover.
                   </li>
                   <li>
                     <strong>Impact category:</strong> High (e-commerce is used
-                    daily by many persons with disabilities)
+                    daily by many persons with disabilities).
                   </li>
                   <li>
                     <strong>Conclusion:</strong> Given the high impact and
@@ -699,7 +578,7 @@ export default function CriteriaDisproportionateBurdenPage() {
               </div>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Example 2: Specialized Medical Device
+                Example 2: Specialized Medical Device.
               </h3>
               <div className="bg-gray-100 p-4 rounded mb-4">
                 <p className="font-medium">Scenario:</p>
@@ -712,21 +591,22 @@ export default function CriteriaDisproportionateBurdenPage() {
                 <p className="font-medium mt-2">Assessment:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>
-                    <strong>Net costs:</strong> €300,000 initial investment
+                    <strong>Net costs:</strong> €300,000 initial investment.
                   </li>
                   <li>
                     <strong>Potential offsetting benefits:</strong> Estimated
-                    increased sales of €20,000 annually
+                    increased sales of €20,000 annually.
                   </li>
                   <li>
-                    <strong>Net first-year cost:</strong> €280,000
+                    <strong>Net first-year cost:</strong> €280,000.
                   </li>
                   <li>
-                    <strong>Ratio to turnover:</strong> 18.7% of annual turnover
+                    <strong>Ratio to turnover:</strong> 18.7% of annual
+                    turnover.
                   </li>
                   <li>
                     <strong>Impact category:</strong> Medium (specialized device
-                    used by a moderate number of persons with disabilities)
+                    used by a moderate number of persons with disabilities).
                   </li>
                   <li>
                     <strong>Conclusion:</strong> With a significant ratio to
@@ -739,7 +619,7 @@ export default function CriteriaDisproportionateBurdenPage() {
               </div>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Example 3: Mobile Banking Application
+                Example 3: Mobile Banking Application.
               </h3>
               <div className="bg-gray-100 p-4 rounded">
                 <p className="font-medium">Scenario:</p>
@@ -753,23 +633,24 @@ export default function CriteriaDisproportionateBurdenPage() {
                 <ul className="list-disc pl-6 space-y-2">
                   <li>
                     <strong>Net costs:</strong> €200,000 initial + €30,000
-                    annual = €230,000 for first year
+                    annual = €230,000 for first year.
                   </li>
                   <li>
                     <strong>Potential offsetting benefits:</strong> Estimated
                     increased customer retention and acquisition worth €100,000
-                    annually
+                    annually.
                   </li>
                   <li>
-                    <strong>Net first-year cost:</strong> €130,000
+                    <strong>Net first-year cost:</strong> €130,000.
                   </li>
                   <li>
-                    <strong>Ratio to turnover:</strong> 0.26% of annual turnover
+                    <strong>Ratio to turnover:</strong> 0.26% of annual
+                    turnover.
                   </li>
                   <li>
                     <strong>Impact category:</strong> High (banking services are
                     essential and used regularly by many persons with
-                    disabilities)
+                    disabilities).
                   </li>
                   <li>
                     <strong>Conclusion:</strong> Given the low ratio to turnover
@@ -787,72 +668,59 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="potential-challenges"
               tabIndex={-1}
             >
-              Challenges in Criteria Application
+              Potential Challenges in Assessment.
             </h2>
             <div className="space-y-4">
               <p>
-                Economic operators may face several challenges when applying
-                these criteria:
+                When doing these assessments, you might face these challenges:
               </p>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Common Assessment Difficulties
-              </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Quantifying Benefits:</strong> Determining the exact
-                  financial benefit of increased accessibility can be
-                  challenging
+                  <strong>Quantifying User Benefits:</strong> It can be hard to
+                  put a number on how much people with disabilities will
+                  benefit.
                 </li>
                 <li>
-                  <strong>Estimating User Impact:</strong> Limited data on users
-                  with disabilities may make it difficult to accurately assess
-                  frequency and duration of use
+                  <strong>Estimating Market Impact:</strong> It's difficult to
+                  predict exactly how many new customers you might gain.
                 </li>
                 <li>
-                  <strong>Varying Technical Complexity:</strong> Accessibility
-                  implementation costs can vary widely based on existing systems
-                  and architectures
+                  <strong>Rapid Technological Change:</strong> Technology costs
+                  and solutions change quickly, making long-term assessment
+                  harder.
                 </li>
                 <li>
-                  <strong>Evolving Standards:</strong> Changing technical
-                  specifications and harmonized standards may impact cost
-                  assessments
+                  <strong>Varying Implementation Options:</strong> There might
+                  be multiple ways to meet requirements, each with different
+                  costs.
                 </li>
                 <li>
-                  <strong>Organizational Structure:</strong> For complex
-                  organizations, determining the appropriate level (product,
-                  division, company) for assessment can be difficult
+                  <strong>Organizational Knowledge Gaps:</strong> Your staff
+                  might not have enough expertise in accessibility to make
+                  accurate cost estimates.
                 </li>
               </ul>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">
-                Potential Mitigation Strategies
-              </h3>
-              <p>To address these challenges, economic operators can:</p>
+              <p>To address these challenges:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Consult Experts:</strong> Engage accessibility
-                  specialists to provide accurate cost and impact assessments
+                  Consult with accessibility experts for better cost estimates.
                 </li>
                 <li>
-                  <strong>Conduct User Research:</strong> Gather data on users
-                  with disabilities through surveys, interviews, or market
-                  research
+                  Talk to people with disabilities to understand the real impact
+                  of your products.
                 </li>
                 <li>
-                  <strong>Phase Implementation:</strong> Consider a phased
-                  approach to spread costs over time while progressively
-                  improving accessibility
+                  Look at industry data and case studies to improve your
+                  estimates.
                 </li>
                 <li>
-                  <strong>Industry Collaboration:</strong> Share anonymized cost
-                  data and best practices through industry associations
+                  Document your assumptions clearly so they can be reviewed.
                 </li>
                 <li>
-                  <strong>Consult Authorities:</strong> Seek guidance from
-                  market surveillance authorities on appropriate assessment
-                  methodologies
+                  Consider phased implementation if full compliance is too
+                  costly at once.
                 </li>
               </ul>
             </div>
@@ -864,34 +732,33 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="relationship-other-annexes"
               tabIndex={-1}
             >
-              Relationship with Other Annexes
+              Relationship with Other Annexes.
             </h2>
             <div className="space-y-4">
-              <p>Annex VI works in conjunction with other parts of the EAA:</p>
+              <p>Annex VI works together with other parts of the EAA:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Annex I (Accessibility Requirements):</strong> Defines
-                  the accessibility requirements that form the basis for the
-                  disproportionate burden assessment
+                  the accessibility requirements that you need to check if you
+                  can afford to implement.
                 </li>
                 <li>
                   <strong>
                     Annex IV (Disproportionate Burden Assessment):
                   </strong>{' '}
-                  Provides the methodology for conducting the assessment, while
-                  Annex VI provides the specific criteria to be applied
+                  Provides the method for doing the assessment, while Annex VI
+                  gives you specific criteria to apply.
                 </li>
                 <li>
                   <strong>Annex V (Conformity Assessment for Products):</strong>{' '}
-                  Relates to the process that products must undergo to
-                  demonstrate compliance with accessibility requirements, which
-                  may be affected by disproportionate burden claims
+                  Relates to how products prove compliance with accessibility
+                  requirements, which may change based on disproportionate
+                  burden claims.
                 </li>
               </ul>
               <p>
-                Understanding these relationships is crucial for economic
-                operators to correctly assess and document disproportionate
-                burden claims in the context of the EAA as a whole.
+                Understanding these connections is important for businesses to
+                correctly assess and document when accessibility costs too much.
               </p>
             </div>
           </section>
@@ -902,30 +769,26 @@ export default function CriteriaDisproportionateBurdenPage() {
               id="conclusion"
               tabIndex={-1}
             >
-              Conclusion
+              Conclusion.
             </h2>
             <div className="space-y-4">
               <p>
-                The criteria in Annex VI provide a structured framework for
-                assessing whether compliance with accessibility requirements
-                would impose a disproportionate burden. By considering the ratio
-                of costs to overall costs and turnover, as well as the potential
-                benefit to persons with disabilities based on frequency and
-                duration of use, economic operators can make an informed
-                assessment.
+                Annex VI helps you check if making your products accessible
+                would cost too much. It asks you to look at the costs compared
+                to your business size, and to consider how much people with
+                disabilities would benefit.
               </p>
               <p>
-                It is important to note that claiming disproportionate burden is
-                an exception rather than the rule. Economic operators should
-                always aim to maximize accessibility within their constraints
-                and should only claim disproportionate burden after a thorough
-                and well-documented assessment process.
+                Remember that claiming costs are too high should be the
+                exception, not the rule. Always try to make your products as
+                accessible as possible within your budget. Only claim exemption
+                after careful assessment with good documentation.
               </p>
               <p>
-                The assessment should be periodically reviewed as technologies
-                evolve, costs change, and new solutions become available,
-                ensuring that accessibility continues to improve over time even
-                when a disproportionate burden has been legitimately claimed.
+                Review your assessment regularly as technology changes, costs
+                decrease, and new solutions become available. This helps ensure
+                accessibility improves over time even when you've claimed some
+                costs are too high.
               </p>
             </div>
           </section>
@@ -936,7 +799,7 @@ export default function CriteriaDisproportionateBurdenPage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -944,7 +807,7 @@ export default function CriteriaDisproportionateBurdenPage() {
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">Back to Annexes Overview</span>
+                  <span id="next-chapter-label">Back to Annexes Overview.</span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>

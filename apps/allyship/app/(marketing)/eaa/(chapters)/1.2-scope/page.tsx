@@ -1,14 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowLeft, ArrowRight, ExternalLink, List } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { INTRODUCTION_LINKS, EXTERNAL_LINKS } from '../../constants/links'
+import { INTRODUCTION_LINKS } from '../../constants/links'
 
 export const metadata: Metadata = {
   title: 'Scope and Application - European Accessibility Act',
   description:
-    'Understanding the scope of the European Accessibility Act including covered products, services, and exemptions for microenterprises.',
+    'Understanding what products and services must follow the European Accessibility Act and who is exempt from these rules.',
 }
 
 export default function ScopePage() {
@@ -49,7 +49,7 @@ export default function ScopePage() {
                   href="#microenterprises"
                   id="microenterprises-link"
                 >
-                  Microenterprises Exemption
+                  Small Business Exemption
                 </a>
               </li>
               <li>
@@ -58,7 +58,7 @@ export default function ScopePage() {
                   href="#built-environment"
                   id="built-environment-link"
                 >
-                  Built Environment
+                  Buildings and Spaces
                 </a>
               </li>
               <li>
@@ -76,7 +76,7 @@ export default function ScopePage() {
                   href="#specifications"
                   id="specifications-link"
                 >
-                  Further Specifications
+                  Extra Rules
                 </a>
               </li>
             </ul>
@@ -84,7 +84,10 @@ export default function ScopePage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pt-2 pb-4">
+      <div
+        className="lg:col-span-5 prose prose-lg dark:prose-invert pt-2 pb-4"
+        id="eaa-content"
+      >
         <div className="space-y-8">
           <section aria-labelledby="products-covered">
             <h2
@@ -92,46 +95,34 @@ export default function ScopePage() {
               id="products-covered"
               tabIndex={-1}
             >
-              Products Covered
+              Products Covered.
             </h2>
             <div className="space-y-4">
               <p>
-                This Directive applies to a wide range of products placed on the
-                market after 28 June 2025, including:
+                This law applies to products sold after June 28, 2025. These
+                products include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  Consumer general purpose computer hardware systems and
-                  operating systems
-                </li>
-                <li>
-                  Payment terminals, including both their hardware and software
-                </li>
-                <li>
-                  Self-service terminals related to covered services:
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>ATMs</li>
-                    <li>
-                      Ticketing machines issuing physical tickets granting
-                      access to services
-                    </li>
-                    <li>Bank office queuing ticket machines</li>
-                    <li>Check-in machines</li>
-                    <li>Interactive information terminals</li>
-                  </ul>
-                </li>
-                <li>
-                  Consumer terminal equipment with interactive computing
-                  capability used for electronic communications
-                </li>
-                <li>E-readers</li>
+                <li>Computer systems and operating systems for home use.</li>
+                <li>Payment terminals (both hardware and software).</li>
+                <li>Self-service machines for services.</li>
+              </ul>
+              <p>Self-service machines include:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>ATMs for banking.</li>
+                <li>Machines that print tickets.</li>
+                <li>Machines that give you a number in line at banks.</li>
+                <li>Check-in machines at airports and hotels.</li>
+                <li>Information kiosks in public places.</li>
+              </ul>
+              <p>The law also covers:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Electronic devices you can interact with.</li>
+                <li>E-readers for digital books.</li>
               </ul>
               <p>
-                However, certain interactive self-service terminals providing
-                information installed as integrated parts of vehicles,
-                aircrafts, ships or rolling stock are excluded from the scope of
-                this Directive, since these form part of those vehicles which
-                are not covered by this Directive.
+                The law does not cover screens built into vehicles, airplanes,
+                ships, or trains. These have different rules.
               </p>
             </div>
           </section>
@@ -142,29 +133,30 @@ export default function ScopePage() {
               id="services-covered"
               tabIndex={-1}
             >
-              Services Covered
+              Services Covered.
             </h2>
             <div className="space-y-4">
               <p>
-                This Directive also applies to several key service categories
-                provided after 28 June 2025:
+                This law also applies to services offered after June 28, 2025.
+                These services include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Electronic communications services</li>
-                <li>Services providing access to audiovisual media services</li>
-                <li>
-                  Certain elements of air, bus, rail, and waterborne passenger
-                  transport services, including:
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>Websites</li>
-                    <li>Mobile device-based services</li>
-                    <li>Electronic ticketing</li>
-                    <li>Delivery of transport service information</li>
-                  </ul>
-                </li>
-                <li>Banking services for consumers</li>
-                <li>E-books and related software</li>
-                <li>E-commerce services</li>
+                <li>Phone, internet, and messaging services.</li>
+                <li>Services that let you watch TV, films, and other media.</li>
+                <li>Parts of travel services.</li>
+              </ul>
+              <p>Travel services include:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Websites for booking travel.</li>
+                <li>Mobile apps for travel services.</li>
+                <li>Online ticket systems.</li>
+                <li>Services that provide travel information.</li>
+              </ul>
+              <p>Other covered services include:</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Banking services for consumers.</li>
+                <li>E-books and the software to read them.</li>
+                <li>Online shopping websites and apps.</li>
               </ul>
             </div>
           </section>
@@ -175,20 +167,18 @@ export default function ScopePage() {
               id="microenterprises"
               tabIndex={-1}
             >
-              Microenterprises Exemption
+              Small Business Exemption.
             </h2>
             <div className="space-y-4">
               <p>
-                Microenterprises providing services shall be exempt from
-                complying with the accessibility requirements referred to in
-                this Directive and any obligations relating to the compliance
-                with those requirements.
+                Very small businesses that provide services do not have to
+                follow these accessibility rules. These are businesses with
+                fewer than 10 employees.
               </p>
               <p>
-                Member States shall provide guidelines and tools to
-                microenterprises to facilitate the application of the national
-                measures transposing this Directive. Member States shall develop
-                those tools in consultation with relevant stakeholders.
+                EU countries must create guides to help these small businesses
+                understand the laws. These guides must be created with help from
+                experts and relevant groups.
               </p>
             </div>
           </section>
@@ -199,15 +189,13 @@ export default function ScopePage() {
               id="built-environment"
               tabIndex={-1}
             >
-              Built Environment
+              Buildings and Spaces.
             </h2>
             <div className="space-y-4">
               <p>
-                Member States may decide, in the light of national conditions,
-                that the built environment used by clients of services covered
-                by this Directive shall comply with the accessibility
-                requirements set out in Annex III, in order to maximize their
-                use by persons with disabilities.
+                Each EU country can decide if buildings where these services are
+                provided must also be accessible. These rules help people with
+                disabilities use services more easily.
               </p>
             </div>
           </section>
@@ -218,16 +206,14 @@ export default function ScopePage() {
               id="emergency-services"
               tabIndex={-1}
             >
-              Emergency Services
+              Emergency Services.
             </h2>
             <div className="space-y-4">
               <p>
-                Member States shall ensure that the answering of emergency
-                communications to the single European emergency number '112' by
-                the most appropriate PSAP, shall comply with the specific
-                accessibility requirements set out in Section V of Annex I in
-                the manner best suited to the national organisation of emergency
-                systems.
+                EU countries must make sure emergency call centers that answer
+                '112' calls follow specific accessibility rules. Each country
+                can set up their emergency systems in the way that works best
+                for them.
               </p>
             </div>
           </section>
@@ -238,16 +224,13 @@ export default function ScopePage() {
               id="specifications"
               tabIndex={-1}
             >
-              Further Specifications
+              Extra Rules.
             </h2>
             <div className="space-y-4">
               <p>
-                The Commission is empowered to adopt delegated acts to
-                supplement Annex I by further specifying the accessibility
-                requirements that, by their very nature, cannot produce their
-                intended effect unless they are further specified in binding
-                legal acts of the Union, such as requirements related to
-                interoperability.
+                The European Commission can create more detailed rules when
+                needed. These extra rules help make sure products and services
+                work together properly and are truly accessible.
               </p>
             </div>
           </section>
@@ -261,20 +244,12 @@ export default function ScopePage() {
               Source References
             </h2>
             <p className="text-sm text-muted-foreground">
-              This page primarily references the following sections of Directive
-              (EU) 2019/882:
+              This page is based on these parts of Directive (EU) 2019/882:
             </p>
             <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
               <li>Article 2 (Scope)</li>
-              <li>
-                Article 4, Paragraphs 4, 5, 6, 8, 9 (Built Environment,
-                Microenterprise Exemption, Emergency Communications,
-                Specifications)
-              </li>
-              <li>
-                Recitals 18, 19, 25-28, 30-35, 39, 41, 42, 44-46, 49, 70
-                (Context for Scope and Exemptions)
-              </li>
+              <li>Article 4, Paragraphs 4, 5, 6, 8, 9</li>
+              <li>Recitals 18, 19, 25-28, 30-35, 39, 41, 42, 44-46, 49, 70</li>
             </ul>
           </section>
 

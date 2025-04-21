@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from '@workspace/ui/components/sheet'
 import { TableOfContent } from '../components/TableOfContent'
+import { TextToSpeechButton } from '@/components/accessibility/TextToSpeechButton'
 
 export default function EAALayout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,7 +20,7 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
           <div className="lg:col-span-3">
             <div className="lg:sticky lg:top-2 text-left lg:text-right">
-              <div className="py-2">
+              <div className="py-2 flex items-center gap-2">
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button>
@@ -42,6 +43,8 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
                     </div>
                   </SheetContent>
                 </Sheet>
+
+                <TextToSpeechButton contentSelector="#eaa-content" />
               </div>
             </div>
           </div>

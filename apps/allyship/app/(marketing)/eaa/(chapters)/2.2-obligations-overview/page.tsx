@@ -17,17 +17,17 @@ export default function ObligationsPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Obligations of Economic Operators
+            Obligations of Economic Operators.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview of Obligations
+                  Overview of Obligations.
                 </a>
               </li>
               <li>
@@ -36,7 +36,7 @@ export default function ObligationsPage() {
                   href="#manufacturers-summary"
                   id="manufacturers-summary-link"
                 >
-                  Manufacturers: Key Obligations
+                  Manufacturers: Key Obligations.
                 </a>
               </li>
               <li>
@@ -45,7 +45,7 @@ export default function ObligationsPage() {
                   href="#importers-summary"
                   id="importers-summary-link"
                 >
-                  Importers: Key Obligations
+                  Importers: Key Obligations.
                 </a>
               </li>
               <li>
@@ -54,7 +54,7 @@ export default function ObligationsPage() {
                   href="#distributors-summary"
                   id="distributors-summary-link"
                 >
-                  Distributors: Key Obligations
+                  Distributors: Key Obligations.
                 </a>
               </li>
               <li>
@@ -63,7 +63,7 @@ export default function ObligationsPage() {
                   href="#service-providers-summary"
                   id="service-providers-summary-link"
                 >
-                  Service Providers: Key Obligations
+                  Service Providers: Key Obligations.
                 </a>
               </li>
               <li>
@@ -72,7 +72,7 @@ export default function ObligationsPage() {
                   href="#multiple-roles"
                   id="multiple-roles-link"
                 >
-                  Multiple Roles
+                  Multiple Roles.
                 </a>
               </li>
             </ul>
@@ -80,7 +80,10 @@ export default function ObligationsPage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
+      <div
+        className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2"
+        id="eaa-content"
+      >
         <div className="space-y-8">
           <section aria-labelledby="overview">
             <h2
@@ -88,41 +91,37 @@ export default function ObligationsPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview of Obligations
+              Overview of Obligations.
             </h2>
             <div className="space-y-4">
               <p>
-                The European Accessibility Act establishes specific
-                responsibilities for different actors in the supply chain to
-                ensure that products and services meet the accessibility
-                requirements. These obligations are tailored to the role of each
-                economic operator in the market.
+                The European Accessibility Act sets rules for different
+                businesses to make products and services accessible to everyone.
+                Each type of business has specific duties based on their role in
+                the market.
               </p>
               <p>
-                The Directive defines four types of economic operators with
-                distinct responsibilities:
+                The law defines four types of businesses with different
+                responsibilities:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Manufacturers:</strong> Any natural or legal person
-                  who manufactures a product or has a product designed or
-                  manufactured, and markets that product under their name or
-                  trademark
+                  <strong>Manufacturers:</strong> Anyone who makes a product or
+                  has someone else make it for them, and sells it under their
+                  own name or brand.
                 </li>
                 <li>
-                  <strong>Importers:</strong> Any natural or legal person
-                  established within the Union who places a product from a third
-                  country on the Union market
+                  <strong>Importers:</strong> Anyone in the EU who brings
+                  products from outside the EU into the EU market.
                 </li>
                 <li>
-                  <strong>Distributors:</strong> Any natural or legal person in
-                  the supply chain, other than the manufacturer or the importer,
-                  who makes a product available on the market
+                  <strong>Distributors:</strong> Anyone who sells products to
+                  customers after manufacturers or importers have placed them on
+                  the market.
                 </li>
                 <li>
-                  <strong>Service Providers:</strong> Any natural or legal
-                  person who provides a service on the Union market or makes
-                  offers to provide such a service to consumers in the Union
+                  <strong>Service Providers:</strong> Anyone who offers services
+                  to consumers in the EU.
                 </li>
               </ul>
             </div>
@@ -134,33 +133,34 @@ export default function ObligationsPage() {
               id="manufacturers-summary"
               tabIndex={-1}
             >
-              Manufacturers: Key Obligations
+              Manufacturers: Key Obligations.
             </h2>
             <div className="space-y-4">
               <p>
-                Manufacturers bear the primary responsibility for ensuring that
-                products comply with the accessibility requirements. Their key
-                obligations include:
+                Manufacturers have the main responsibility for making sure
+                products meet accessibility requirements. Here are their key
+                duties:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Ensuring that products are designed and manufactured in
-                  accordance with accessibility requirements
+                  Making sure products are designed and made according to
+                  accessibility requirements.
                 </li>
-                <li>Carrying out the conformity assessment procedure</li>
-                <li>Drawing up technical documentation</li>
-                <li>Drawing up the EU declaration of conformity</li>
-                <li>Affixing the CE marking</li>
+                <li>Checking that products conform to the rules.</li>
+                <li>Creating technical documents about the product.</li>
+                <li>Creating the EU declaration of conformity.</li>
+                <li>Adding the CE marking to products.</li>
                 <li>
-                  Ensuring that procedures are in place for series production to
-                  remain in conformity
-                </li>
-                <li>
-                  Maintaining records of complaints and non-conforming products
+                  Making sure all products continue to meet the requirements
+                  during production.
                 </li>
                 <li>
-                  Providing information and documentation to demonstrate product
-                  conformity
+                  Keeping records of complaints and products that don't meet the
+                  requirements.
+                </li>
+                <li>
+                  Providing information to prove their products follow the
+                  rules.
                 </li>
               </ul>
               <p className="mt-4">
@@ -180,33 +180,28 @@ export default function ObligationsPage() {
               id="importers-summary"
               tabIndex={-1}
             >
-              Importers: Key Obligations
+              Importers: Key Obligations.
             </h2>
             <div className="space-y-4">
               <p>
-                Importers act as gatekeepers, ensuring that products from third
-                countries comply with the European accessibility requirements
-                before placing them on the EU market. Their main obligations
-                include:
+                Importers check that products from outside the EU meet
+                accessibility requirements before selling them in the EU. Here
+                are their main duties:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Verifying that the manufacturer has carried out the
-                  appropriate conformity assessment
+                  Checking that manufacturers have properly tested their
+                  products.
                 </li>
-                <li>Ensuring that the product bears the CE marking</li>
+                <li>Making sure the product has the CE marking.</li>
                 <li>
-                  Checking that required documentation is complete and accurate
+                  Checking that all required documents are complete and correct.
                 </li>
-                <li>
-                  Verifying that the manufacturer is identified on the product
-                </li>
-                <li>
-                  Refraining from placing non-compliant products on the market
-                </li>
-                <li>Including their contact information on the product</li>
-                <li>Ensuring proper storage and transport conditions</li>
-                <li>Cooperating with market surveillance authorities</li>
+                <li>Making sure the manufacturer's name is on the product.</li>
+                <li>Not selling products that don't meet the requirements.</li>
+                <li>Adding their contact information to the product.</li>
+                <li>Ensuring products are stored and transported properly.</li>
+                <li>Working with authorities who check product safety.</li>
               </ul>
               <p className="mt-4">
                 <Link
@@ -225,35 +220,35 @@ export default function ObligationsPage() {
               id="distributors-summary"
               tabIndex={-1}
             >
-              Distributors: Key Obligations
+              Distributors: Key Obligations.
             </h2>
             <div className="space-y-4">
               <p>
-                Distributors make products available on the market after they
-                have been placed on the market by the manufacturer or importer.
-                Their key obligations include:
+                Distributors sell products after manufacturers or importers have
+                put them on the market. Here are their key duties:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Verifying that products bear the CE marking</li>
+                <li>Checking that products have the CE marking.</li>
                 <li>
-                  Ensuring that products are accompanied by required
-                  documentation in appropriate languages
+                  Making sure products come with necessary documents in the
+                  right languages.
                 </li>
                 <li>
-                  Checking that manufacturers and importers have complied with
-                  their requirements
+                  Verifying that manufacturers and importers have followed their
+                  requirements.
                 </li>
                 <li>
-                  Ensuring that storage and transport conditions do not
-                  jeopardize compliance
+                  Ensuring storage and transport don't affect product
+                  compliance.
                 </li>
                 <li>
-                  Taking corrective measures when aware of non-compliant
-                  products
+                  Taking action if they find products that don't meet the
+                  requirements.
                 </li>
+                <li>Helping authorities investigate non-compliant products.</li>
                 <li>
-                  Providing all necessary information and documentation to
-                  authorities
+                  Providing information about product suppliers and customers
+                  when needed.
                 </li>
               </ul>
               <p className="mt-4">
@@ -273,45 +268,42 @@ export default function ObligationsPage() {
               id="service-providers-summary"
               tabIndex={-1}
             >
-              Service Providers: Key Obligations
+              Service Providers: Key Obligations.
             </h2>
             <div className="space-y-4">
               <p>
-                Service providers must ensure that their services comply with
-                the accessibility requirements of the Directive. Their main
-                obligations include:
+                Service providers offer services covered by the European
+                Accessibility Act. Here are their key duties:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Designing and providing services in accordance with
-                  accessibility requirements
+                  Making sure their services meet the accessibility
+                  requirements.
                 </li>
                 <li>
-                  Preparing the necessary information explaining how services
-                  meet accessibility requirements
+                  Creating and keeping documents that explain how their services
+                  meet the requirements.
                 </li>
                 <li>
-                  Making information available to the public on how the service
-                  meets requirements
+                  Informing the public about how their services meet
+                  accessibility needs.
                 </li>
                 <li>
-                  Ensuring ongoing compliance with accessibility requirements
+                  Explaining why a service might not fully meet the requirements
+                  if they claim an exemption.
                 </li>
                 <li>
-                  Implementing appropriate procedures for service provision
+                  Fixing services that don't meet the requirements when told to
+                  do so by authorities.
                 </li>
-                <li>
-                  Providing information to market surveillance authorities upon
-                  request
-                </li>
-                <li>Taking corrective measures when services fail to comply</li>
+                <li>Working with authorities to improve accessibility.</li>
               </ul>
               <p className="mt-4">
                 <Link
                   href={OBLIGATIONS_LINKS.SERVICE_PROVIDERS.fullPath}
                   className="text-blue-600 hover:underline"
                 >
-                  Learn more about service providers' obligations →
+                  Learn more about service provider obligations →
                 </Link>
               </p>
             </div>
@@ -323,89 +315,95 @@ export default function ObligationsPage() {
               id="multiple-roles"
               tabIndex={-1}
             >
-              Economic Operators with Multiple Roles
+              Multiple Roles.
             </h2>
             <div className="space-y-4">
               <p>
-                In cases where an economic operator performs multiple roles
-                (e.g., a manufacturer also acting as a distributor), they must
-                fulfill the obligations associated with each role they undertake
-                in the supply chain.
-              </p>
-              <p>
-                Additionally, importers or distributors are considered
-                manufacturers for the purposes of the Directive when they:
+                Sometimes a company may have more than one role under the
+                European Accessibility Act. Here's how this works:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Place a product on the market under their own name or
-                  trademark
+                  A company can be both a manufacturer and a service provider.
+                  For example, a company that makes smartphones (manufacturer)
+                  might also offer a mobile app service (service provider).
                 </li>
                 <li>
-                  Modify a product already placed on the market in a way that
-                  affects compliance
+                  A company might be an importer for some products and a
+                  distributor for others, depending on where the products come
+                  from.
+                </li>
+                <li>
+                  When a company has multiple roles, they must follow all the
+                  rules for each role.
                 </li>
               </ul>
-              <p>
-                In such cases, they assume all the obligations of manufacturers.
+              <p className="mt-4">
+                The law applies based on the specific activities a company
+                performs, not just on how the company describes itself.
               </p>
             </div>
           </section>
 
-          {/* Add References Section Here */}
-          <section aria-labelledby="references" className="mt-12 pt-6 border-t">
-            <h2
-              id="references"
-              className="text-xl font-semibold mb-4 scroll-mt-6"
-              tabIndex={-1}
-            >
-              Source References
+          <div className="mt-8 pt-6 border-t">
+            <h2 className="text-xl font-semibold mb-4">
+              Detailed Obligations.
             </h2>
-            <p className="text-sm text-muted-foreground">
-              This page provides an overview and primarily references the
-              following sections of Directive (EU) 2019/882:
+            <p>
+              Learn more about the specific requirements for each type of
+              business:
             </p>
-            <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
-              <li>
-                Article 3 (Definitions: Manufacturer, Importer, Distributor,
-                Service Provider, Economic Operator)
-              </li>
-              <li>Article 7 (Summary of Manufacturer Obligations)</li>
-              <li>Article 9 (Summary of Importer Obligations)</li>
-              <li>Article 10 (Summary of Distributor Obligations)</li>
-              <li>
-                Article 11 (Cases where obligations apply to
-                Importers/Distributors)
-              </li>
-              <li>Article 13 (Summary of Service Provider Obligations)</li>
-              <li>
-                Recitals 55-59, 62, 63 (Context on roles and responsibilities)
-              </li>
-            </ul>
-          </section>
-
-          <footer>
-            <nav
-              className="flex justify-end items-center mt-10 pt-4 border-t"
-              aria-labelledby="footer-nav-heading"
-            >
-              <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
-              </h2>
-              <Button asChild>
-                <Link
-                  href={OBLIGATIONS_LINKS.MANUFACTURERS.fullPath}
-                  className="no-underline"
-                  aria-labelledby="next-chapter-label"
-                >
-                  <span id="next-chapter-label">
-                    Manufacturers' Obligations
-                  </span>
-                  <ArrowRight size={16} aria-hidden="true" />
-                </Link>
-              </Button>
-            </nav>
-          </footer>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <Link
+                href={OBLIGATIONS_LINKS.MANUFACTURERS.fullPath}
+                className="block p-4 border rounded-md hover:bg-muted-foreground/5"
+              >
+                <h3 className="text-lg font-medium flex items-center">
+                  <List className="mr-2" size={20} aria-hidden="true" />
+                  Manufacturer Obligations.
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Full list of duties for product manufacturers.
+                </p>
+              </Link>
+              <Link
+                href={OBLIGATIONS_LINKS.IMPORTERS.fullPath}
+                className="block p-4 border rounded-md hover:bg-muted-foreground/5"
+              >
+                <h3 className="text-lg font-medium flex items-center">
+                  <List className="mr-2" size={20} aria-hidden="true" />
+                  Importer Obligations.
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Full list of duties for product importers.
+                </p>
+              </Link>
+              <Link
+                href={OBLIGATIONS_LINKS.DISTRIBUTORS.fullPath}
+                className="block p-4 border rounded-md hover:bg-muted-foreground/5"
+              >
+                <h3 className="text-lg font-medium flex items-center">
+                  <List className="mr-2" size={20} aria-hidden="true" />
+                  Distributor Obligations.
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Full list of duties for product distributors.
+                </p>
+              </Link>
+              <Link
+                href={OBLIGATIONS_LINKS.SERVICE_PROVIDERS.fullPath}
+                className="block p-4 border rounded-md hover:bg-muted-foreground/5"
+              >
+                <h3 className="text-lg font-medium flex items-center">
+                  <List className="mr-2" size={20} aria-hidden="true" />
+                  Service Provider Obligations.
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Full list of duties for service providers.
+                </p>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -22,17 +22,30 @@ export function KeyDatesTimeline() {
 
 export default function EaaIndexPage() {
   return (
-    <div>
+    <main>
       {/* Book-style chapter structure */}
       <div>
         <section className="mb-12">
+          <h1 className="text-[102px] mb-0 font-bold font-display">
+            <span className="text-blue-500">E</span>uropean{' '}
+            <span className="text-blue-500">A</span>ccessibility{' '}
+            <span className="text-blue-500">A</span>ct &mdash; in <br /> Plain
+            English
+          </h1>
+          <p className="text-2xl ">
+            The European Accessibility Act is an important law. It helps make
+            products and services easier to use for people with disabilities.
+            But legal language can be hard to understand. This book explains the
+            EAA in simple words, so everyone can learn what it means and what to
+            do. Easy to follow and clear for all.
+          </p>
+
           <h2 className="text-3xl font-semibold mb-6">Foreword</h2>
           <p className="mb-4">
-            The European Accessibility Act (EAA), formally Directive (EU)
-            2019/882, establishes harmonized accessibility requirements for
-            products and services across the European Union, eliminating
-            barriers for persons with disabilities and improving the functioning
-            of the internal market.
+            The European Accessibility Act (EAA) is also called Directive (EU)
+            2019/882. It sets common rules for how products and services should
+            be made accessible in the European Union. This helps people with
+            disabilities and makes things easier for businesses across Europe.
           </p>
         </section>
 
@@ -100,6 +113,6 @@ export default function EaaIndexPage() {
           })}
         </p>
       </div>
-    </div>
+    </main>
   )
 }

@@ -65,29 +65,25 @@ export default function ExistingLawPage() {
               id="compliance-rules"
               tabIndex={-1}
             >
-              Compliance with Existing Law
+              Compliance with Existing Law.
             </h2>
             <div className="space-y-4">
               <p>
-                Services complying with the requirements on the provision of
-                accessible information and of information on accessibility laid
-                down in the following Regulations shall be deemed to comply with
-                the corresponding requirements of this Directive:
+                Some services already follow other EU laws about providing
+                accessible information. If they follow these laws, they also
+                meet the requirements of this Directive:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Regulation (EC) No 261/2004</li>
-                <li>Regulation (EC) No 1107/2006</li>
-                <li>Regulation (EC) No 1371/2007</li>
-                <li>Regulation (EU) No 1177/2010</li>
-                <li>Regulation (EU) No 181/2011</li>
-                <li>
-                  Relevant acts adopted on the basis of Directive 2008/57/EC
-                </li>
+                <li>Regulation (EC) No 261/2004.</li>
+                <li>Regulation (EC) No 1107/2006.</li>
+                <li>Regulation (EC) No 1371/2007.</li>
+                <li>Regulation (EU) No 1177/2010.</li>
+                <li>Regulation (EU) No 181/2011.</li>
+                <li>Acts based on Directive 2008/57/EC.</li>
               </ul>
               <p>
-                Where this Directive provides for requirements additional to
-                those provided in those Regulations and those acts, the
-                additional requirements shall apply in full.
+                If this Directive has extra requirements not in those laws, the
+                extra requirements still apply.
               </p>
             </div>
           </section>
@@ -98,55 +94,72 @@ export default function ExistingLawPage() {
               id="existing-regs"
               tabIndex={-1}
             >
-              Existing Accessibility Regulations
+              Existing Accessibility Regulations.
             </h2>
             <div className="space-y-4">
-              <h3 className="text-xl font-medium mb-2">Air Passenger Rights</h3>
-              <p>
-                Regulation (EC) No 261/2004 establishes common rules on
-                compensation and assistance to passengers in the event of denied
-                boarding and of cancellation or long delay of flights. It
-                includes provisions for assisting persons with reduced mobility.
-              </p>
-
-              <p>
-                Regulation (EC) No 1107/2006 concerns the rights of disabled
-                persons and persons with reduced mobility when travelling by
-                air. It prohibits air carriers from refusing reservation or
-                boarding to such persons and requires airports and air carriers
-                to provide assistance.
-              </p>
-
-              <h3 className="text-xl font-medium mb-2 mt-4">
-                Rail Passenger Rights
+              <h3 className="text-xl font-medium mb-2">
+                Air Passenger Rights.
               </h3>
               <p>
-                Regulation (EC) No 1371/2007 sets out rights and obligations for
-                rail passengers, including specific provisions for persons with
-                disabilities or reduced mobility. It covers accessibility,
-                assistance, and information provision.
+                Regulation (EC) No 261/2004 sets rules for helping passengers
+                when:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>They are not allowed to board.</li>
+                <li>Their flight is canceled.</li>
+                <li>Their flight is delayed.</li>
+              </ul>
+              <p>It includes help for people with reduced mobility.</p>
+
+              <p>
+                Regulation (EC) No 1107/2006 covers the rights of people with
+                disabilities when traveling by air. It says:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Airlines cannot refuse to book or board these people.</li>
+                <li>Airports and airlines must provide assistance.</li>
+              </ul>
 
               <h3 className="text-xl font-medium mb-2 mt-4">
-                Waterborne Transport
+                Rail Passenger Rights.
               </h3>
               <p>
-                Regulation (EU) No 1177/2010 concerns the rights of passengers
-                when travelling by sea and inland waterway. It includes
-                provisions on non-discrimination, accessibility, information,
-                and assistance for persons with disabilities and reduced
-                mobility.
+                Regulation (EC) No 1371/2007 sets rules for train passengers. It
+                has special rules for people with disabilities, including:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Accessibility requirements.</li>
+                <li>Assistance on trains.</li>
+                <li>Information for passengers.</li>
+              </ul>
 
               <h3 className="text-xl font-medium mb-2 mt-4">
-                Bus and Coach Transport
+                Waterborne Transport.
               </h3>
               <p>
-                Regulation (EU) No 181/2011 sets out passenger rights in bus and
-                coach transport, including specific provisions for disabled
-                persons and persons with reduced mobility. It covers
-                accessibility of terminals, staff training, and assistance.
+                Regulation (EU) No 1177/2010 covers the rights of passengers on
+                boats. It includes rules about:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Non-discrimination.</li>
+                <li>Accessibility.</li>
+                <li>Information.</li>
+                <li>Assistance for people with disabilities.</li>
+              </ul>
+
+              <h3 className="text-xl font-medium mb-2 mt-4">
+                Bus and Coach Transport.
+              </h3>
+              <p>
+                Regulation (EU) No 181/2011 sets rules for bus and coach
+                passengers. It has special rules for people with disabilities,
+                including:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Accessibility of bus terminals.</li>
+                <li>Training for staff.</li>
+                <li>Assistance for passengers.</li>
+              </ul>
             </div>
           </section>
 
@@ -156,31 +169,24 @@ export default function ExistingLawPage() {
               id="additional-requirements"
               tabIndex={-1}
             >
-              Additional Requirements
+              Additional Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                While the European Accessibility Act recognizes the existing
-                regulations related to passenger transport, it provides
-                additional requirements to ensure greater accessibility, such
-                as:
+                The European Accessibility Act recognizes existing transport
+                regulations. It adds new requirements to make transportation
+                more accessible, such as:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  More detailed technical requirements for websites, mobile
-                  applications, and self-service terminals
-                </li>
-                <li>Specific provisions for e-ticketing systems</li>
-                <li>Requirements for real-time travel information</li>
-                <li>
-                  Accessibility of digital documentation related to transport
-                  services
-                </li>
+                <li>Websites and mobile apps.</li>
+                <li>Self-service terminals.</li>
+                <li>E-ticketing systems.</li>
+                <li>Real-time travel information.</li>
+                <li>Digital transport documents.</li>
               </ul>
               <p>
-                These additional requirements complement the existing
-                regulations to create a more comprehensive framework for
-                accessibility in passenger transport services.
+                These extra requirements work with existing rules to create
+                better accessibility in passenger transport services.
               </p>
             </div>
           </section>

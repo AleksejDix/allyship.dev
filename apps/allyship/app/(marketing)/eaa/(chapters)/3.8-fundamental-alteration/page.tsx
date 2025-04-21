@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: 'Fundamental Alteration | European Accessibility Act',
   description:
-    'Understanding when accessibility requirements would require a fundamental alteration of a product or service under the European Accessibility Act.',
+    'When accessibility requirements would change what a product or service is under the European Accessibility Act, explained in plain language.',
 }
 
 export default function FundamentalAlterationPage() {
@@ -22,17 +22,17 @@ export default function FundamentalAlterationPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Fundamental Alteration
+            Fundamental Alteration.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview
+                  Overview.
                 </a>
               </li>
               <li>
@@ -41,7 +41,7 @@ export default function FundamentalAlterationPage() {
                   href="#definition"
                   id="definition-link"
                 >
-                  Definition and Scope
+                  Definition and Scope.
                 </a>
               </li>
               <li>
@@ -50,12 +50,12 @@ export default function FundamentalAlterationPage() {
                   href="#assessment-criteria"
                   id="assessment-criteria-link"
                 >
-                  Assessment Criteria
+                  Assessment Criteria.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#examples" id="examples-link">
-                  Examples and Illustrations
+                  Examples and Illustrations.
                 </a>
               </li>
               <li>
@@ -64,7 +64,7 @@ export default function FundamentalAlterationPage() {
                   href="#practical-considerations"
                   id="practical-considerations-link"
                 >
-                  Practical Considerations
+                  Practical Considerations.
                 </a>
               </li>
               <li>
@@ -73,7 +73,7 @@ export default function FundamentalAlterationPage() {
                   href="#decision-framework"
                   id="decision-framework-link"
                 >
-                  Decision Framework
+                  Decision Framework.
                 </a>
               </li>
               <li>
@@ -82,7 +82,7 @@ export default function FundamentalAlterationPage() {
                   href="#differences-disproportionate"
                   id="differences-disproportionate-link"
                 >
-                  Differences from Disproportionate Burden
+                  Differences from Disproportionate Burden.
                 </a>
               </li>
               <li>
@@ -91,7 +91,7 @@ export default function FundamentalAlterationPage() {
                   href="#best-practices"
                   id="best-practices-link"
                 >
-                  Best Practices
+                  Best Practices.
                 </a>
               </li>
               <li>
@@ -100,7 +100,7 @@ export default function FundamentalAlterationPage() {
                   href="#relationship-annexes"
                   id="relationship-annexes-link"
                 >
-                  Relationship with EAA Annexes
+                  Relationship with EAA Annexes.
                 </a>
               </li>
               <li>
@@ -109,7 +109,7 @@ export default function FundamentalAlterationPage() {
                   href="#market-surveillance"
                   id="market-surveillance-link"
                 >
-                  Market Surveillance Considerations
+                  Market Surveillance Considerations.
                 </a>
               </li>
             </ul>
@@ -125,27 +125,24 @@ export default function FundamentalAlterationPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview
+              Overview.
             </h2>
             <div className="space-y-4">
               <p>
-                The European Accessibility Act (EAA) includes provisions for
-                cases where implementing certain accessibility requirements
-                would necessitate a "fundamental alteration" of a product or
-                service. This concept serves as an important boundary condition
-                for the scope of accessibility obligations.
+                The European Accessibility Act (EAA) includes rules for cases
+                where making a product or service accessible would change what
+                it fundamentally is. This is called "fundamental alteration."
               </p>
               <p>
                 Article 14(1)(c) of the EAA states that accessibility
-                requirements apply only to the extent that they "do not require
-                a significant change in a product or service that results in the
-                fundamental alteration of its basic nature."
+                requirements apply only if they "do not require a significant
+                change in a product or service that results in the fundamental
+                alteration of its basic nature."
               </p>
               <p>
-                This provision acknowledges that certain accessibility
-                modifications might fundamentally change what a product or
-                service is or does, and in such cases, economic operators may be
-                exempted from specific requirements.
+                This rule recognizes that some accessibility changes might
+                completely change what a product or service is or does. In these
+                cases, companies may not have to follow certain requirements.
               </p>
             </div>
           </section>
@@ -156,38 +153,37 @@ export default function FundamentalAlterationPage() {
               id="definition"
               tabIndex={-1}
             >
-              Definition and Scope
+              Definition and Scope.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA does not provide a precise definition of what
-                constitutes a "fundamental alteration." However, from the
-                directive and related EU legal principles, we can understand
-                that:
+                The EAA does not give an exact definition of "fundamental
+                alteration." But from the directive and related EU legal
+                principles, we can understand that:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  It involves a change that would essentially transform the
-                  nature or purpose of the product or service
+                  It involves a change that would transform the nature or
+                  purpose of the product or service.
                 </li>
                 <li>
-                  It goes beyond reasonable modifications, affecting core
-                  characteristics or functionalities
+                  It goes beyond reasonable changes, affecting core features or
+                  functions.
                 </li>
                 <li>
                   It changes the primary identity or essential purpose of what
-                  is being offered
+                  is being offered.
                 </li>
                 <li>
-                  It is not merely a substantial change but a transformative one
-                  that affects the basic nature
+                  It is not just a big change but a transformative one that
+                  affects the basic nature.
                 </li>
               </ul>
               <p>
-                Unlike the disproportionate burden exemption, the fundamental
-                alteration provision is not primarily concerned with costs or
-                resources but with the preservation of a product's or service's
-                essential nature and purpose.
+                Unlike the "disproportionate burden" exception, fundamental
+                alteration is not mainly about costs or resources. Instead, it
+                focuses on preserving what the product or service essentially is
+                and does.
               </p>
             </div>
           </section>
@@ -198,66 +194,66 @@ export default function FundamentalAlterationPage() {
               id="assessment-criteria"
               tabIndex={-1}
             >
-              Assessment Criteria
+              Assessment Criteria.
             </h2>
             <div className="space-y-4">
               <p>
-                When evaluating whether an accessibility requirement would cause
-                a fundamental alteration, economic operators should consider the
-                following criteria:
+                When checking if an accessibility requirement would cause a
+                fundamental alteration, companies should consider these
+                criteria:
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Core Purpose and Functionality
+                Core Purpose and Functionality.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Would implementing the accessibility requirement change the
-                  primary function of the product or service?
+                  Would the accessibility requirement change the main function
+                  of the product or service?
                 </li>
                 <li>
-                  Would it alter how the core features operate in a way that
+                  Would it change how the core features work in a way that
                   changes what the product essentially is?
                 </li>
                 <li>
-                  Would it transform the fundamental user experience beyond
+                  Would it transform the basic user experience beyond
                   recognition?
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Target Audience and Use Cases
+                Target Audience and Use Cases.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Would the changes significantly shift the product's target
-                  audience or intended use cases?
+                  Would the changes significantly shift who the product is for
+                  or how it's meant to be used?
                 </li>
                 <li>
-                  Would implementing accessibility features fundamentally change
-                  how the product is used by the majority of users?
+                  Would accessibility features fundamentally change how most
+                  users use the product?
                 </li>
                 <li>
-                  Would the changes eliminate specialized functionality that
-                  defines the product for a specific audience?
+                  Would the changes remove specialized functions that define the
+                  product for a specific audience?
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Product or Service Identity
+                Product or Service Identity.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Does the required change alter defining characteristics that
-                  make the product or service unique in the market?
+                  Does the required change alter defining qualities that make
+                  the product or service unique in the market?
                 </li>
                 <li>
-                  Would the accessibility modifications fundamentally change how
-                  users identify or understand the product or service?
+                  Would the accessibility changes fundamentally change how users
+                  identify or understand the product or service?
                 </li>
                 <li>
                   Would implementing the requirements transform the product into
-                  something essentially different?
+                  something basically different?
                 </li>
               </ul>
             </div>
@@ -269,80 +265,78 @@ export default function FundamentalAlterationPage() {
               id="examples"
               tabIndex={-1}
             >
-              Examples and Illustrations
+              Examples and Illustrations.
             </h2>
             <div className="space-y-4">
               <p>
-                The concept of fundamental alteration can be better understood
-                through examples:
+                These examples help explain the concept of fundamental
+                alteration:
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Potential Fundamental Alterations
+                Potential Fundamental Alterations.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Specialized Historical Archive:</strong> A digital
-                  archive of historical manuscripts might claim fundamental
-                  alteration if required to provide full text alternatives for
-                  all ancient handwritten documents, as this would change the
-                  nature of the archive from primary sources to transcribed
-                  versions
+                  <strong>Historical Archive.</strong> A digital archive of
+                  historical manuscripts might claim fundamental alteration if
+                  required to provide text versions of all ancient handwritten
+                  documents. This would change the nature of the archive from
+                  original sources to transcribed versions.
                 </li>
                 <li>
-                  <strong>Visual Art Experience:</strong> A virtual reality art
+                  <strong>Visual Art Experience.</strong> A virtual reality art
                   experience designed specifically to explore visual perception
                   might claim fundamental alteration if required to provide
-                  non-visual alternatives that would essentially create a
-                  different artistic experience
+                  non-visual alternatives that would create a completely
+                  different artistic experience.
                 </li>
                 <li>
-                  <strong>Language Learning Service:</strong> An audio-based
+                  <strong>Language Learning Service.</strong> An audio-based
                   language immersion service might claim fundamental alteration
-                  if required to provide text alternatives for all spoken
-                  content, as it would transform the immersive audio-only
-                  methodology that defines the service
+                  if required to provide text for all spoken content. This would
+                  transform the immersive audio-only method that defines the
+                  service.
                 </li>
                 <li>
-                  <strong>Professional Technical Equipment:</strong> Highly
-                  specialized technical equipment designed exclusively for
-                  professional users with specific training might claim
-                  fundamental alteration if certain accessibility requirements
-                  would impact precision or specialized functions
+                  <strong>Professional Technical Equipment.</strong> Highly
+                  specialized technical equipment designed only for professional
+                  users with specific training might claim fundamental
+                  alteration if certain accessibility requirements would impact
+                  precision or specialized functions.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Not Fundamental Alterations
+                Not Fundamental Alterations.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>E-Commerce Platform:</strong> Adding screen reader
+                  <strong>E-Commerce Platform.</strong> Adding screen reader
                   support, keyboard navigation, and alternative text for images
-                  would not fundamentally alter an online store's nature
+                  would not fundamentally alter an online store's nature.
                 </li>
                 <li>
-                  <strong>Banking Application:</strong> Implementing accessible
-                  authentication methods and ensuring form field labels are
-                  accessible would not change the fundamental nature of a
-                  banking service
+                  <strong>Banking Application.</strong> Implementing accessible
+                  login methods and ensuring form fields have proper labels
+                  would not change the fundamental nature of a banking service.
                 </li>
                 <li>
-                  <strong>E-Book Reader:</strong> Adding text-to-speech
+                  <strong>E-Book Reader.</strong> Adding text-to-speech
                   functionality, adjustable text sizes, and contrast controls
                   would not fundamentally alter the nature of an e-book reading
-                  service
+                  service.
                 </li>
                 <li>
-                  <strong>Streaming Service:</strong> Adding closed captions,
+                  <strong>Streaming Service.</strong> Adding closed captions,
                   audio descriptions, and accessible navigation would not
-                  fundamentally alter the nature of a video streaming service
+                  fundamentally alter the nature of a video streaming service.
                 </li>
               </ul>
               <p>
-                These examples illustrate that routine accessibility features
-                that preserve core functionality while making it accessible
-                would rarely constitute fundamental alterations.
+                These examples show that normal accessibility features that
+                preserve core functionality while making it accessible would
+                rarely constitute fundamental alterations.
               </p>
             </div>
           </section>
@@ -353,88 +347,85 @@ export default function FundamentalAlterationPage() {
               id="practical-considerations"
               tabIndex={-1}
             >
-              Practical Application and Considerations
+              Practical Application and Considerations.
             </h2>
             <div className="space-y-4">
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Burden of Proof
+                Burden of Proof.
               </h3>
               <p>
-                The economic operator claiming a fundamental alteration bears
-                the burden of proof. This requires:
+                The company claiming a fundamental alteration must provide
+                proof. This requires:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Detailed documentation</strong> explaining why
                   specific accessibility requirements would fundamentally alter
-                  the product or service
+                  the product or service.
                 </li>
                 <li>
-                  <strong>Evidence-based assessment</strong> demonstrating how
-                  the required changes would transform the basic nature
+                  <strong>Evidence-based assessment</strong> showing how the
+                  required changes would transform the basic nature.
                 </li>
                 <li>
                   <strong>Consultation with experts</strong> in both
-                  accessibility and the specific domain of the product or
-                  service
+                  accessibility and the specific field of the product or
+                  service.
                 </li>
                 <li>
                   <strong>Market research or user feedback</strong> supporting
-                  the claim that changes would alter the fundamental nature
+                  the claim that changes would alter the fundamental nature.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Partial Application
+                Partial Application.
               </h3>
-              <p>Even when a fundamental alteration exemption applies:</p>
+              <p>Even when a fundamental alteration exception applies:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   It applies only to the specific accessibility requirements
-                  that would cause the fundamental alteration
+                  that would cause the fundamental alteration.
                 </li>
                 <li>
                   All other accessibility requirements that don't cause
-                  fundamental alteration must still be implemented
+                  fundamental alteration must still be implemented.
                 </li>
                 <li>
                   Alternative approaches to accessibility should be explored
-                  where possible
+                  where possible.
                 </li>
                 <li>
-                  The exemption should be reviewed periodically as technology
-                  and methods evolve
+                  The exception should be reviewed periodically as technology
+                  and methods evolve.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Relationship with Innovation
+                Relationship with Innovation.
               </h3>
-              <p>
-                The fundamental alteration provision aims to strike a balance
-                between:
-              </p>
+              <p>The fundamental alteration provision aims to balance:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Protecting innovation</strong> and preserving unique
-                  product/service characteristics
+                  product/service characteristics.
                 </li>
                 <li>
                   <strong>Encouraging inclusive design</strong> that considers
-                  accessibility from the outset
+                  accessibility from the start.
                 </li>
                 <li>
                   <strong>Allowing specialized products</strong> that may serve
-                  specific needs or purposes
+                  specific needs or purposes.
                 </li>
                 <li>
                   <strong>Promoting general accessibility</strong> across the
-                  market
+                  market.
                 </li>
               </ul>
               <p>
-                The provision is not intended to be a broad exemption but rather
-                a targeted recognition that in specific cases, certain
+                This provision is not meant to be a broad exemption but rather a
+                targeted recognition that in specific cases, certain
                 requirements might fundamentally change what a product or
                 service is.
               </p>
@@ -447,79 +438,80 @@ export default function FundamentalAlterationPage() {
               id="decision-framework"
               tabIndex={-1}
             >
-              Decision Framework
+              Decision Framework.
             </h2>
             <div className="space-y-4">
               <p>
-                Organizations can use the following framework to assess
-                potential fundamental alteration claims:
+                Organizations can use this framework to assess potential
+                fundamental alteration claims:
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Step 1: Define Core Essence
+                Step 1: Define Core Essence.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Clearly articulate the essential nature and purpose of the
-                  product or service
+                  Clearly describe the essential nature and purpose of the
+                  product or service.
                 </li>
                 <li>
-                  Identify the defining characteristics that constitute its
-                  basic nature
+                  Identify the defining characteristics that make up its basic
+                  nature.
                 </li>
                 <li>
                   Document the primary functions and key features that define
-                  what it is
+                  what it is.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Step 2: Analyze Impact of Requirements
+                Step 2: Analyze Impact of Requirements.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   Assess each accessibility requirement individually against the
-                  core essence
+                  core essence.
                 </li>
                 <li>
                   Identify which specific requirements might alter fundamental
-                  characteristics
+                  characteristics.
                 </li>
                 <li>
                   Evaluate the extent of change to core functionality, not just
-                  the effort required
+                  the effort required.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Step 3: Explore Alternatives
+                Step 3: Explore Alternatives.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Investigate alternative approaches to meet accessibility needs
+                  Investigate alternative approaches to meet accessibility
+                  needs.
                 </li>
                 <li>
                   Consider modifications to implementation that preserve core
-                  nature
+                  nature.
                 </li>
                 <li>
-                  Consult with accessibility experts on creative solutions
+                  Consult with accessibility experts on creative solutions.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Step 4: Document Decision
+                Step 4: Document Decision.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   Record the detailed reasoning for any fundamental alteration
-                  claim
+                  claim.
                 </li>
                 <li>
-                  Document which specific requirements are affected and why
+                  Document which specific requirements are affected and why.
                 </li>
-                <li>Maintain evidence supporting the assessment</li>
-                <li>Include any alternative measures being implemented</li>
+                <li>Keep evidence supporting the assessment.</li>
+                <li>Include any alternative measures being implemented.</li>
               </ul>
             </div>
           </section>
@@ -530,91 +522,91 @@ export default function FundamentalAlterationPage() {
               id="differences-disproportionate"
               tabIndex={-1}
             >
-              Differences from Disproportionate Burden
+              Differences from Disproportionate Burden.
             </h2>
             <div className="space-y-4">
               <p>
-                It's important to distinguish between fundamental alteration and
-                disproportionate burden:
+                It's important to understand the difference between fundamental
+                alteration and disproportionate burden:
               </p>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse border border-gray-300 mt-4">
                   <thead>
                     <tr className="bg-gray-100">
                       <th className="border border-gray-300 px-4 py-2 text-left">
-                        Aspect
+                        Aspect.
                       </th>
                       <th className="border border-gray-300 px-4 py-2 text-left">
-                        Fundamental Alteration
+                        Fundamental Alteration.
                       </th>
                       <th className="border border-gray-300 px-4 py-2 text-left">
-                        Disproportionate Burden
+                        Disproportionate Burden.
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2 font-medium">
-                        Primary Focus
+                        Primary Focus.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Nature and identity of the product/service
+                        Nature and identity of the product/service.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Cost and effort relative to benefits
+                        Cost and effort relative to benefits.
                       </td>
                     </tr>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2 font-medium">
-                        Main Consideration
+                        Main Consideration.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Whether the basic nature would change
+                        Whether the basic nature would change.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Whether resources required are reasonable
+                        Whether resources required are reasonable.
                       </td>
                     </tr>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2 font-medium">
-                        Assessment Basis
+                        Assessment Basis.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Qualitative change to core functionality
+                        Qualitative change to core functionality.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Quantitative analysis of costs and benefits
+                        Quantitative analysis of costs and benefits.
                       </td>
                     </tr>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2 font-medium">
-                        Temporal Nature
+                        Temporal Nature.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Generally more permanent
+                        Generally more permanent.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        May change as costs decrease or organization grows
+                        May change as costs decrease or organization grows.
                       </td>
                     </tr>
                     <tr>
                       <td className="border border-gray-300 px-4 py-2 font-medium">
-                        Company Size Factor
+                        Company Size Factor.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Generally independent of company size
+                        Generally independent of company size.
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        Explicitly considers company resources and size
+                        Explicitly considers company resources and size.
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <p className="mt-4">
-                An organization might invoke both provisions in different
-                contexts, but they should be assessed separately and with
-                appropriate evidence for each.
+                An organization might use both provisions in different contexts,
+                but they should be assessed separately and with appropriate
+                evidence for each.
               </p>
               <p>
                 For more information about disproportionate burden assessment,
@@ -636,47 +628,47 @@ export default function FundamentalAlterationPage() {
               id="best-practices"
               tabIndex={-1}
             >
-              Best Practices
+              Best Practices.
             </h2>
             <div className="space-y-4">
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Consider accessibility early:</strong> Integrate
-                  accessibility considerations in the design phase to avoid
-                  fundamental alteration issues later
+                  <strong>Consider accessibility early.</strong> Include
+                  accessibility in the design phase to avoid fundamental
+                  alteration issues later.
                 </li>
                 <li>
-                  <strong>Assess narrowly:</strong> Apply the fundamental
+                  <strong>Assess narrowly.</strong> Apply the fundamental
                   alteration concept narrowly to specific requirements, not
-                  broadly to avoid accessibility obligations
+                  broadly to avoid accessibility obligations.
                 </li>
                 <li>
-                  <strong>Document thoroughly:</strong> Maintain detailed
+                  <strong>Document thoroughly.</strong> Keep detailed
                   documentation of any fundamental alteration assessment and
-                  conclusions
+                  conclusions.
                 </li>
                 <li>
-                  <strong>Seek expert input:</strong> Consult with both
+                  <strong>Seek expert input.</strong> Consult with both
                   accessibility experts and domain specialists before claiming
-                  fundamental alteration
+                  fundamental alteration.
                 </li>
                 <li>
-                  <strong>Explore creative solutions:</strong> Investigate
+                  <strong>Explore creative solutions.</strong> Investigate
                   innovative approaches that might provide accessibility without
-                  fundamental alteration
+                  fundamental alteration.
                 </li>
                 <li>
-                  <strong>Implement alternatives:</strong> When a specific
+                  <strong>Implement alternatives.</strong> When a specific
                   requirement would cause fundamental alteration, explore
-                  alternative accessibility approaches
+                  alternative accessibility approaches.
                 </li>
                 <li>
-                  <strong>Reassess periodically:</strong> Review fundamental
-                  alteration determinations as technology and methods evolve
+                  <strong>Reassess periodically.</strong> Review fundamental
+                  alteration determinations as technology and methods evolve.
                 </li>
                 <li>
-                  <strong>Communicate clearly:</strong> Explain to users which
-                  accessibility features are available and any limitations
+                  <strong>Communicate clearly.</strong> Explain to users which
+                  accessibility features are available and any limitations.
                 </li>
               </ul>
             </div>
@@ -688,39 +680,40 @@ export default function FundamentalAlterationPage() {
               id="relationship-annexes"
               tabIndex={-1}
             >
-              Relationship with EAA Annexes
+              Relationship with EAA Annexes.
             </h2>
             <div className="space-y-4">
               <p>
-                The fundamental alteration provision interacts with the EAA
+                The fundamental alteration provision connects with the EAA
                 annexes in several ways:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Annex I (Accessibility Requirements):</strong>{' '}
+                  <strong>Annex I (Accessibility Requirements).</strong>{' '}
                   Fundamental alteration may provide exemption from specific
                   requirements in Annex I, but only those that would transform
-                  the basic nature
+                  the basic nature.
                 </li>
                 <li>
-                  <strong>Annex II (Examples):</strong> Examples in Annex II
+                  <strong>Annex II (Examples).</strong> Examples in Annex II
                   might help clarify when a particular approach wouldn't
-                  constitute fundamental alteration
+                  constitute fundamental alteration.
                 </li>
                 <li>
-                  <strong>Annex III (Built Environment):</strong> Physical
+                  <strong>Annex III (Built Environment).</strong> Physical
                   accessibility requirements might interact with fundamental
-                  alteration considerations in specific contexts
+                  alteration considerations in specific contexts.
                 </li>
                 <li>
-                  <strong>Annex IV (Disproportionate Burden):</strong>{' '}
+                  <strong>Annex IV (Disproportionate Burden).</strong>{' '}
                   Organizations need to distinguish between fundamental
-                  alteration and disproportionate burden when seeking exemptions
+                  alteration and disproportionate burden when seeking
+                  exemptions.
                 </li>
                 <li>
-                  <strong>Annex V (Conformity Assessment):</strong> Any claimed
+                  <strong>Annex V (Conformity Assessment).</strong> Any claimed
                   fundamental alteration exemptions should be documented as part
-                  of the conformity assessment process
+                  of the conformity assessment process.
                 </li>
               </ul>
               <p>
@@ -742,33 +735,33 @@ export default function FundamentalAlterationPage() {
               id="market-surveillance"
               tabIndex={-1}
             >
-              Market Surveillance Considerations
+              Market Surveillance Considerations.
             </h2>
             <div className="space-y-4">
               <p>
-                Market surveillance authorities will evaluate fundamental
-                alteration claims carefully. Organizations should:
+                Market surveillance authorities will carefully evaluate
+                fundamental alteration claims. Organizations should:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Maintain robust evidence:</strong> Be prepared to
+                  <strong>Maintain robust evidence.</strong> Be prepared to
                   justify any fundamental alteration claim with thorough
-                  documentation
+                  documentation.
                 </li>
                 <li>
-                  <strong>Demonstrate good faith:</strong> Show that a genuine
+                  <strong>Demonstrate good faith.</strong> Show that a genuine
                   assessment was conducted, not a superficial attempt to avoid
-                  accessibility requirements
+                  accessibility requirements.
                 </li>
                 <li>
-                  <strong>Implement partial compliance:</strong> Demonstrate
+                  <strong>Implement partial compliance.</strong> Demonstrate
                   that all requirements not causing fundamental alteration have
-                  been implemented
+                  been implemented.
                 </li>
                 <li>
-                  <strong>Show alternative approaches:</strong> Document any
+                  <strong>Show alternative approaches.</strong> Document any
                   alternative accessibility measures implemented where direct
-                  compliance would cause fundamental alteration
+                  compliance would cause fundamental alteration.
                 </li>
               </ul>
               <p>
@@ -796,19 +789,19 @@ export default function FundamentalAlterationPage() {
               id="references"
               tabIndex={-1}
             >
-              References
+              References.
             </h2>
             <div className="space-y-4">
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>EAA Article 14(2):</strong> This article establishes
+                  <strong>EAA Article 14(2).</strong> This article establishes
                   the fundamental alteration provision, stating that
                   accessibility requirements do not apply if they would require
                   a fundamental alteration of the basic nature of the product or
                   service.
                 </li>
                 <li>
-                  <strong>EAA Recital 53:</strong> This recital provides context
+                  <strong>EAA Recital 53.</strong> This recital provides context
                   for the fundamental alteration concept, clarifying its purpose
                   and distinguishing it from disproportionate burden.
                 </li>
@@ -826,7 +819,7 @@ export default function FundamentalAlterationPage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -834,7 +827,7 @@ export default function FundamentalAlterationPage() {
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">Annexes</span>
+                  <span id="next-chapter-label">Annexes.</span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>
