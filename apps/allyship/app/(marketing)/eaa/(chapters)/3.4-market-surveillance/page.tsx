@@ -21,17 +21,17 @@ export default function MarketSurveillancePage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Market Surveillance of Products
+            Market Surveillance of Products.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview and Purpose
+                  Overview and Purpose.
                 </a>
               </li>
               <li>
@@ -40,7 +40,7 @@ export default function MarketSurveillancePage() {
                   href="#authorities"
                   id="authorities-link"
                 >
-                  Market Surveillance Authorities
+                  Market Surveillance Authorities.
                 </a>
               </li>
               <li>
@@ -49,7 +49,7 @@ export default function MarketSurveillancePage() {
                   href="#disproportionate-burden"
                   id="disproportionate-burden-link"
                 >
-                  Checking Disproportionate Burden Claims
+                  Checking Burden Claims.
                 </a>
               </li>
               <li>
@@ -58,7 +58,7 @@ export default function MarketSurveillancePage() {
                   href="#procedures"
                   id="procedures-link"
                 >
-                  Surveillance Procedures
+                  Surveillance Procedures.
                 </a>
               </li>
               <li>
@@ -67,7 +67,7 @@ export default function MarketSurveillancePage() {
                   href="#safeguard-procedure"
                   id="safeguard-procedure-link"
                 >
-                  Union Safeguard Procedure
+                  EU Safeguard Procedure.
                 </a>
               </li>
               <li>
@@ -76,7 +76,7 @@ export default function MarketSurveillancePage() {
                   href="#cooperation"
                   id="cooperation-link"
                 >
-                  Cooperation and Information Sharing
+                  Cooperation and Information Sharing.
                 </a>
               </li>
             </ul>
@@ -84,7 +84,10 @@ export default function MarketSurveillancePage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
+      <div
+        className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2"
+        id="eaa-content"
+      >
         <div className="space-y-8">
           <section aria-labelledby="overview">
             <h2
@@ -92,26 +95,26 @@ export default function MarketSurveillancePage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview and Purpose
+              Overview and Purpose.
             </h2>
             <div className="space-y-4">
               <p>
-                Market surveillance is a critical component of the European
-                Accessibility Act's enforcement framework. It involves
-                monitoring products placed on the market to ensure they comply
-                with the accessibility requirements set forth in the directive.
+                Market surveillance is an important part of enforcing the
+                European Accessibility Act. It involves checking products in the
+                market to make sure they follow the accessibility requirements
+                in the law.
               </p>
               <p>
-                Article 19 of the EAA establishes that market surveillance of
-                products shall follow the provisions set out in Regulation (EC)
-                No 765/2008, which lays down the requirements for accreditation
-                and market surveillance relating to the marketing of products.
+                Article 19 of the EAA states that market surveillance of
+                products must follow the rules in Regulation (EC) No 765/2008.
+                This regulation sets requirements for checking products in the
+                market.
               </p>
               <p>
-                The primary goal is to prevent non-compliant products from
-                reaching the market, protect consumers with disabilities, and
-                ensure fair competition among economic operators by ensuring all
-                follow the same accessibility standards.
+                The main goals are to keep non-compliant products off the
+                market, protect consumers with disabilities, and ensure fair
+                competition by making sure all businesses follow the same
+                accessibility standards.
               </p>
             </div>
           </section>
@@ -122,39 +125,37 @@ export default function MarketSurveillancePage() {
               id="authorities"
               tabIndex={-1}
             >
-              Market Surveillance Authorities
+              Market Surveillance Authorities.
             </h2>
             <div className="space-y-4">
               <p>
-                Each Member State is responsible for establishing and
-                maintaining effective market surveillance authorities. These
-                authorities:
+                Each EU Member State must create and maintain effective market
+                surveillance authorities. These authorities:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   Have the power to take appropriate measures to ensure products
-                  comply with accessibility requirements
+                  meet accessibility requirements.
+                </li>
+                <li>Can request all necessary information from businesses.</li>
+                <li>
+                  Are authorized to carry out checks and inspections of
+                  products.
+                </li>
+                <li>May take samples of products for testing and analysis.</li>
+                <li>
+                  Can require businesses to take corrective measures when
+                  non-compliance is found.
                 </li>
                 <li>
-                  Can request all necessary information from economic operators
-                </li>
-                <li>
-                  Are authorized to carry out checks and inspections of products
-                </li>
-                <li>May take samples of products for testing and analysis</li>
-                <li>
-                  Can require economic operators to take corrective measures
-                  where non-compliance is found
-                </li>
-                <li>
-                  Have the authority to withdraw or recall products where
-                  necessary
+                  Have the authority to withdraw or recall products when
+                  necessary.
                 </li>
               </ul>
               <p>
-                The EAA emphasizes that Member States should allocate sufficient
-                powers and resources to their market surveillance authorities to
-                ensure effective monitoring.
+                The EAA emphasizes that Member States should give enough powers
+                and resources to their market surveillance authorities to ensure
+                effective monitoring.
               </p>
             </div>
           </section>
@@ -165,37 +166,36 @@ export default function MarketSurveillancePage() {
               id="disproportionate-burden"
               tabIndex={-1}
             >
-              Checking Disproportionate Burden Claims
+              Checking Burden Claims.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA includes a specific provision for market surveillance of
-                products where economic operators have claimed exceptions based
-                on disproportionate burden or fundamental alteration (under
-                Article 14). When checking these claims, authorities shall:
+                The EAA includes specific rules for checking products where
+                businesses have claimed exceptions based on disproportionate
+                burden or fundamental alteration (under Article 14). When
+                checking these claims, authorities must:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Verify that the assessment has been conducted by the economic
-                  operator
+                  Verify that the assessment has been conducted by the business.
                 </li>
                 <li>
                   Review the assessment and its results, checking the correct
-                  use of the criteria set out in Annex VI
+                  use of the criteria in Annex VI.
                 </li>
                 <li>
                   Check compliance with the applicable accessibility
-                  requirements
+                  requirements.
                 </li>
                 <li>
                   Take appropriate measures in case of non-compliance or
-                  improper use of the exception
+                  improper use of the exception.
                 </li>
               </ul>
               <p>
                 This ensures that exceptions to accessibility requirements are
                 only granted in legitimate cases where implementing them would
-                genuinely result in disproportionate burden.
+                truly create a disproportionate burden.
               </p>
               <p>
                 For more information about disproportionate burden assessments,
@@ -217,7 +217,7 @@ export default function MarketSurveillancePage() {
               id="procedures"
               tabIndex={-1}
             >
-              Surveillance Procedures
+              Surveillance Procedures.
             </h2>
             <div className="space-y-4">
               <p>
@@ -226,30 +226,28 @@ export default function MarketSurveillancePage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Initial assessment</strong> - Authorities evaluate
-                  products against accessibility requirements through
-                  documentation checks, physical inspections, or laboratory
-                  tests
+                  <strong>Initial assessment.</strong> Authorities evaluate
+                  products against accessibility requirements through document
+                  checks, physical inspections, or laboratory tests.
                 </li>
                 <li>
-                  <strong>Communication with economic operators</strong> -
-                  Authorities inform the relevant economic operator about
-                  identified non-compliance
+                  <strong>Communication with businesses.</strong> Authorities
+                  inform the relevant business about identified non-compliance.
                 </li>
                 <li>
-                  <strong>Opportunity for correction</strong> - Economic
-                  operators are given the opportunity to address issues and
-                  implement corrective measures
+                  <strong>Opportunity for correction.</strong> Businesses are
+                  given the opportunity to address issues and implement
+                  corrective measures.
                 </li>
                 <li>
-                  <strong>Enforcement actions</strong> - Where necessary,
+                  <strong>Enforcement actions.</strong> Where necessary,
                   authorities can require products to be withdrawn from the
-                  market or impose other restrictions
+                  market or impose other restrictions.
                 </li>
                 <li>
-                  <strong>Coordination</strong> - Authorities coordinate
+                  <strong>Coordination.</strong> Authorities coordinate
                   activities across Member States to ensure consistent
-                  application of requirements
+                  application of requirements.
                 </li>
               </ul>
             </div>
@@ -261,46 +259,45 @@ export default function MarketSurveillancePage() {
               id="safeguard-procedure"
               tabIndex={-1}
             >
-              Union Safeguard Procedure
+              EU Safeguard Procedure.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA establishes a safeguard procedure that applies in cases
-                of disagreement between Member States over measures taken
-                regarding non-compliant products:
+                The EAA establishes a safeguard procedure that applies when
+                Member States disagree over measures taken regarding
+                non-compliant products:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   If authorities in one Member State take measures against a
                   product, they must inform the European Commission and other
-                  Member States
+                  Member States.
                 </li>
                 <li>
                   The communication must include details about the
-                  non-compliance, the measures taken, and the economic
-                  operator's arguments
+                  non-compliance, the measures taken, and the business's
+                  arguments.
                 </li>
                 <li>
                   Other Member States have the opportunity to raise objections
-                  to the measures
+                  to the measures.
                 </li>
                 <li>
-                  The Commission evaluates the justification for the measures
-                  and determines whether they are appropriate
+                  The Commission evaluates whether the measures are appropriate.
                 </li>
                 <li>
                   If the measures are deemed justified, all Member States must
                   ensure the non-compliant product is withdrawn from their
-                  markets
+                  markets.
                 </li>
                 <li>
                   If the measures are deemed unjustified, the Member State must
-                  withdraw them
+                  withdraw them.
                 </li>
               </ul>
               <p>
-                This procedure allows for the resolution of disputes while
-                ensuring consistent enforcement across the EU single market.
+                This procedure allows for resolving disputes while ensuring
+                consistent enforcement across the EU single market.
               </p>
             </div>
           </section>
@@ -311,34 +308,34 @@ export default function MarketSurveillancePage() {
               id="cooperation"
               tabIndex={-1}
             >
-              Cooperation and Information Sharing
+              Cooperation and Information Sharing.
             </h2>
             <div className="space-y-4">
               <p>
                 Effective market surveillance relies on cooperation between
-                various stakeholders:
+                various groups:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   Market surveillance authorities from different Member States
-                  share information and coordinate activities
+                  share information and coordinate activities.
                 </li>
                 <li>
-                  The Commission facilitates exchange of information and best
-                  practices among authorities
+                  The Commission helps exchange information and best practices
+                  among authorities.
                 </li>
                 <li>
-                  Authorities cooperate with organizations representing persons
-                  with disabilities when carrying out their duties
+                  Authorities cooperate with organizations representing people
+                  with disabilities when carrying out their duties.
                 </li>
                 <li>
-                  Economic operators are required to cooperate with authorities
-                  and provide necessary information
+                  Businesses are required to cooperate with authorities and
+                  provide necessary information.
                 </li>
                 <li>
                   The Commission may establish a working group to facilitate
-                  exchange of information and ensure coherent application of the
-                  directive
+                  exchange of information and ensure consistent application of
+                  the directive.
                 </li>
               </ul>
               <p>
@@ -356,32 +353,32 @@ export default function MarketSurveillancePage() {
               className="text-xl font-semibold mb-4 scroll-mt-6"
               tabIndex={-1}
             >
-              Source References
+              Source References.
             </h2>
             <p className="text-sm text-muted-foreground">
-              This page primarily references the following sections of Directive
-              (EU) 2019/882 and Regulation (EC) No 765/2008:
+              This page references these sections of Directive (EU) 2019/882 and
+              Regulation (EC) No 765/2008:
             </p>
             <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
               <li>
-                Article 19 (Market surveillance of products, referencing
-                Regulation (EC) No 765/2008 and check of Article 14 claims)
+                Article 19. Market surveillance of products, referencing
+                Regulation (EC) No 765/2008 and check of Article 14 claims.
               </li>
               <li>
-                Article 20 (Procedure at national level for dealing with
-                non-complying products)
+                Article 20. Procedure at national level for dealing with
+                non-complying products.
               </li>
-              <li>Article 21 (Union safeguard procedure)</li>
+              <li>Article 21. Union safeguard procedure.</li>
               <li>
-                Annex VI (Criteria for disproportionate burden, referenced in
-                Article 19(2))
-              </li>
-              <li>
-                Regulation (EC) No 765/2008 (General framework for market
-                surveillance)
+                Annex VI. Criteria for disproportionate burden, referenced in
+                Article 19(2).
               </li>
               <li>
-                Recitals 80, 84, 86, 87, 88, 89 (Context on market surveillance)
+                Regulation (EC) No 765/2008. General framework for market
+                surveillance.
+              </li>
+              <li>
+                Recitals 80, 84, 86, 87, 88, 89. Context on market surveillance.
               </li>
             </ul>
           </section>
@@ -392,7 +389,7 @@ export default function MarketSurveillancePage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -400,7 +397,7 @@ export default function MarketSurveillancePage() {
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">Compliance of Services</span>
+                  <span id="next-chapter-label">Compliance of Services.</span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>

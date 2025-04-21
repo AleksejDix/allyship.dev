@@ -21,17 +21,17 @@ export default function ServiceCompliancePage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Compliance of Services
+            Compliance of Services.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview and Purpose
+                  Overview and Purpose.
                 </a>
               </li>
               <li>
@@ -40,7 +40,7 @@ export default function ServiceCompliancePage() {
                   href="#demonstrating-compliance"
                   id="demonstrating-compliance-link"
                 >
-                  Demonstrating Compliance
+                  Showing Compliance.
                 </a>
               </li>
               <li>
@@ -49,7 +49,7 @@ export default function ServiceCompliancePage() {
                   href="#assessment-methods"
                   id="assessment-methods-link"
                 >
-                  Assessment Methods
+                  Assessment Methods.
                 </a>
               </li>
               <li>
@@ -58,7 +58,7 @@ export default function ServiceCompliancePage() {
                   href="#authority-checks"
                   id="authority-checks-link"
                 >
-                  Authority Checks of Services
+                  Authority Checks of Services.
                 </a>
               </li>
               <li>
@@ -67,7 +67,7 @@ export default function ServiceCompliancePage() {
                   href="#corrective-actions"
                   id="corrective-actions-link"
                 >
-                  Corrective Actions
+                  Corrective Actions.
                 </a>
               </li>
               <li>
@@ -76,7 +76,7 @@ export default function ServiceCompliancePage() {
                   href="#exceptions"
                   id="exceptions-link"
                 >
-                  Exceptions and Microenterprises
+                  Exceptions and Small Businesses.
                 </a>
               </li>
             </ul>
@@ -92,28 +92,25 @@ export default function ServiceCompliancePage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview and Purpose
+              Overview and Purpose.
             </h2>
             <div className="space-y-4">
               <p>
                 Under the European Accessibility Act, service providers must
-                ensure their services comply with the applicable accessibility
-                requirements. The approach to compliance for services differs
-                from that for products, as services do not undergo CE marking
-                but still require conformity assessment.
+                make sure their services meet the accessibility requirements.
+                Services are handled differently from products. They don't need
+                CE marking, but they still need conformity assessment.
               </p>
               <p>
-                The compliance framework for services aims to ensure that
-                persons with disabilities can access and use services on an
-                equal basis with others, while providing a flexible and
-                proportionate approach for service providers to demonstrate
-                conformity.
+                The compliance framework for services aims to ensure that people
+                with disabilities can access and use services equally with
+                others. It also provides a flexible and reasonable approach for
+                service providers to show they are following the rules.
               </p>
               <p>
                 Service compliance is essential to achieving the EAA's goal of
-                improving the functioning of the internal market for accessible
-                services while ensuring consistent accessibility standards
-                across all Member States.
+                improving the EU market for accessible services while ensuring
+                consistent accessibility standards across all Member States.
               </p>
             </div>
           </section>
@@ -124,40 +121,37 @@ export default function ServiceCompliancePage() {
               id="demonstrating-compliance"
               tabIndex={-1}
             >
-              Demonstrating Compliance
+              Showing Compliance.
             </h2>
             <div className="space-y-4">
-              <p>
-                According to the EAA, service providers demonstrate compliance
-                through:
-              </p>
+              <p>According to the EAA, service providers show compliance by:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Providing information in general terms and conditions, or
-                  equivalent documents, explaining how the service meets the
-                  applicable accessibility requirements
+                  Providing information in terms and conditions, or similar
+                  documents, explaining how the service meets the accessibility
+                  requirements.
                 </li>
                 <li>
-                  Describing the applicable accessibility requirements and how
-                  they are met in the service's documentation
+                  Describing the accessibility requirements and how they are met
+                  in the service's documentation.
                 </li>
                 <li>
                   Preparing and maintaining detailed technical documentation
-                  regarding the service's accessibility features
+                  about the service's accessibility features.
                 </li>
                 <li>
                   Making this information available to the public in written and
-                  oral format, including in a manner accessible to persons with
-                  disabilities
+                  spoken format, including in ways accessible to people with
+                  disabilities.
                 </li>
                 <li>
-                  Retaining this documentation for a period of five years after
-                  the service was last provided
+                  Keeping this documentation for five years after the service
+                  was last provided.
                 </li>
               </ul>
               <p>
                 This documentation-based approach allows service providers to
-                self-assess and demonstrate their compliance without requiring
+                check themselves and show their compliance without needing
                 third-party certification in most cases.
               </p>
             </div>
@@ -169,7 +163,7 @@ export default function ServiceCompliancePage() {
               id="assessment-methods"
               tabIndex={-1}
             >
-              Assessment Methods
+              Assessment Methods.
             </h2>
             <div className="space-y-4">
               <p>
@@ -178,27 +172,27 @@ export default function ServiceCompliancePage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Self-assessment</strong> - Evaluating the service
-                  against the applicable accessibility requirements and
-                  documenting the results
+                  <strong>Self-assessment.</strong> Evaluating the service
+                  against the accessibility requirements and documenting the
+                  results.
                 </li>
                 <li>
-                  <strong>User testing</strong> - Involving persons with
+                  <strong>User testing.</strong> Involving people with
                   disabilities in testing and providing feedback on
-                  accessibility features
+                  accessibility features.
                 </li>
                 <li>
-                  <strong>Expert evaluation</strong> - Engaging accessibility
-                  experts to review and assess the service against requirements
+                  <strong>Expert evaluation.</strong> Hiring accessibility
+                  experts to review and assess the service against requirements.
                 </li>
                 <li>
-                  <strong>Conformity with standards</strong> - Demonstrating
-                  compliance with harmonized standards or technical
-                  specifications to create a presumption of conformity
+                  <strong>Conformity with standards.</strong> Showing compliance
+                  with harmonized standards or technical specifications to
+                  create a presumption of conformity.
                 </li>
                 <li>
-                  <strong>Continuous monitoring</strong> - Implementing ongoing
-                  processes to maintain accessibility as the service evolves
+                  <strong>Ongoing monitoring.</strong> Implementing continuous
+                  processes to maintain accessibility as the service changes.
                 </li>
               </ul>
               <p>
@@ -214,7 +208,7 @@ export default function ServiceCompliancePage() {
               id="authority-checks"
               tabIndex={-1}
             >
-              Authority Checks of Services
+              Authority Checks of Services.
             </h2>
             <div className="space-y-4">
               <p>
@@ -223,34 +217,34 @@ export default function ServiceCompliancePage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Member States must designate authorities responsible for
-                  checking compliance of services
+                  Member States must appoint authorities responsible for
+                  checking compliance of services.
                 </li>
                 <li>
                   These authorities verify that service providers have conducted
-                  appropriate assessments of their services
+                  appropriate assessments of their services.
                 </li>
                 <li>
-                  They check that documentation demonstrating compliance is
-                  accurate and complete
+                  They check that documentation showing compliance is accurate
+                  and complete.
                 </li>
                 <li>
                   Authorities follow up on complaints or reports related to
-                  non-compliance
+                  non-compliance.
                 </li>
                 <li>
                   They verify that any claimed exceptions based on
-                  disproportionate burden are properly documented and justified
+                  disproportionate burden are properly documented and justified.
                 </li>
                 <li>
                   Where non-compliance is found, authorities ensure that
-                  corrective action is taken
+                  corrective action is taken.
                 </li>
               </ul>
               <p>
                 The EAA recommends that Member States establish clear procedures
                 for checking compliance of services and ensure that authorities
-                have sufficient resources to carry out their tasks effectively.
+                have enough resources to carry out their tasks effectively.
               </p>
             </div>
           </section>
@@ -261,7 +255,7 @@ export default function ServiceCompliancePage() {
               id="corrective-actions"
               tabIndex={-1}
             >
-              Corrective Actions
+              Corrective Actions.
             </h2>
             <div className="space-y-4">
               <p>
@@ -271,32 +265,32 @@ export default function ServiceCompliancePage() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   Take immediate corrective measures to bring the service into
-                  conformity with applicable accessibility requirements
+                  conformity with applicable accessibility requirements.
                 </li>
                 <li>
-                  Cease provision of the service if it presents a risk related
-                  to accessibility (where appropriate)
+                  Stop providing the service if it presents a risk related to
+                  accessibility (where appropriate).
                 </li>
                 <li>
                   Inform the competent national authorities about the
-                  non-compliance and corrective measures taken
+                  non-compliance and corrective measures taken.
                 </li>
                 <li>
                   Cooperate with authorities on any measures to ensure
-                  compliance
+                  compliance.
                 </li>
                 <li>
-                  Document the corrective measures taken and their outcomes
+                  Document the corrective measures taken and their outcomes.
                 </li>
                 <li>
                   Implement preventive measures to avoid similar non-compliance
-                  issues in the future
+                  issues in the future.
                 </li>
               </ul>
               <p>
                 Authorities may require additional corrective measures if those
-                taken by the service provider are deemed insufficient to address
-                the non-compliance.
+                taken by the service provider are not enough to address the
+                non-compliance.
               </p>
             </div>
           </section>
@@ -307,7 +301,7 @@ export default function ServiceCompliancePage() {
               id="exceptions"
               tabIndex={-1}
             >
-              Exceptions and Microenterprises
+              Exceptions and Small Businesses.
             </h2>
             <div className="space-y-4">
               <p>
@@ -316,26 +310,26 @@ export default function ServiceCompliancePage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Disproportionate burden</strong> - Service providers
+                  <strong>Disproportionate burden.</strong> Service providers
                   may be exempt from meeting certain requirements if they can
-                  demonstrate this would impose a disproportionate burden
+                  show this would create too much burden.
                 </li>
                 <li>
-                  <strong>Fundamental alteration</strong> - Requirements need
-                  not be met if they would require a fundamental alteration in
-                  the nature of the service
+                  <strong>Fundamental alteration.</strong> Requirements need not
+                  be met if they would require a fundamental change in the
+                  nature of the service.
                 </li>
                 <li>
-                  <strong>Microenterprises</strong> - Service providers that are
-                  microenterprises (fewer than 10 persons and annual turnover or
-                  balance sheet not exceeding €2 million) are exempt from
-                  compliance requirements
+                  <strong>Microenterprises.</strong> Service providers that are
+                  very small businesses (fewer than 10 persons and annual
+                  turnover or balance sheet not exceeding €2 million) are exempt
+                  from compliance requirements.
                 </li>
               </ul>
               <p>
                 Even when claiming an exception, service providers must document
                 their assessment of disproportionate burden or fundamental
-                alteration, and microenterprises must notify authorities if
+                alteration, and small businesses must notify authorities if
                 requested.
               </p>
               <p>
@@ -359,33 +353,32 @@ export default function ServiceCompliancePage() {
               className="text-xl font-semibold mb-4 scroll-mt-6"
               tabIndex={-1}
             >
-              Source References
+              Source References.
             </h2>
             <p className="text-sm text-muted-foreground">
-              This page primarily references the following sections of Directive
-              (EU) 2019/882:
+              This page references these sections of Directive (EU) 2019/882:
             </p>
             <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
               <li>
-                Article 4, Paragraph 5 (Microenterprise exemption for services)
+                Article 4, Paragraph 5. Microenterprise exemption for services.
               </li>
               <li>
-                Article 13 (Obligations of service providers, including
-                demonstrating compliance and corrective actions)
+                Article 13. Obligations of service providers, including
+                demonstrating compliance and corrective actions.
               </li>
               <li>
-                Article 14 (Exemptions: Fundamental alteration /
-                Disproportionate burden)
+                Article 14. Exemptions: Fundamental alteration /
+                Disproportionate burden.
               </li>
-              <li>Article 15 (Presumption of conformity via standards)</li>
-              <li>Article 23 (Compliance of services - Authority checks)</li>
+              <li>Article 15. Presumption of conformity via standards.</li>
+              <li>Article 23. Compliance of services - Authority checks.</li>
               <li>
-                Annex V (Information on services meeting accessibility
-                requirements)
+                Annex V. Information on services meeting accessibility
+                requirements.
               </li>
               <li>
-                Recitals 81, 85 (Context on service information and Member State
-                checks)
+                Recitals 81, 85. Context on service information and Member State
+                checks.
               </li>
             </ul>
           </section>
@@ -396,7 +389,7 @@ export default function ServiceCompliancePage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -404,7 +397,9 @@ export default function ServiceCompliancePage() {
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">Non-Compliance Procedures</span>
+                  <span id="next-chapter-label">
+                    Non-Compliance Procedures.
+                  </span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>

@@ -4,11 +4,12 @@ import { Metadata } from 'next'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { REQUIREMENTS_LINKS } from '../../constants/links'
+import { TextToSpeechButton } from '@/components/accessibility/TextToSpeechButton'
 
 export const metadata: Metadata = {
   title: 'Free Movement | European Accessibility Act',
   description:
-    'How the European Accessibility Act ensures free movement of accessible products and services across the EU single market while eliminating barriers to trade.',
+    'How the European Accessibility Act helps products and services move freely between EU countries by removing barriers to trade.',
 }
 
 export default function FreeMovementPage() {
@@ -29,7 +30,7 @@ export default function FreeMovementPage() {
                   href="#free-movement-principle"
                   id="free-movement-principle-link"
                 >
-                  The Principle of Free Movement
+                  What Free Movement Means
                 </a>
               </li>
               <li>
@@ -38,7 +39,7 @@ export default function FreeMovementPage() {
                   href="#harmonization"
                   id="harmonization-link"
                 >
-                  Harmonization and Single Market
+                  Same Rules Across EU
                 </a>
               </li>
               <li>
@@ -47,7 +48,7 @@ export default function FreeMovementPage() {
                   href="#market-barriers"
                   id="market-barriers-link"
                 >
-                  Eliminating Market Barriers
+                  Removing Trade Barriers
                 </a>
               </li>
               <li>
@@ -56,7 +57,7 @@ export default function FreeMovementPage() {
                   href="#ce-marking"
                   id="ce-marking-link"
                 >
-                  CE Marking and Free Movement
+                  The CE Mark
                 </a>
               </li>
             </ul>
@@ -65,32 +66,31 @@ export default function FreeMovementPage() {
       </header>
 
       <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
-        <div className="space-y-8">
+        <TextToSpeechButton contentSelector="#eaa-content" />
+
+        <div id="eaa-content" className="space-y-8">
           <section aria-labelledby="free-movement-principle">
             <h2
               className="text-2xl font-semibold mb-4 mt-0 scroll-mt-6"
               id="free-movement-principle"
               tabIndex={-1}
             >
-              The Principle of Free Movement
+              What Free Movement Means.
             </h2>
             <div className="space-y-4">
               <p>
-                Article 6 of the European Accessibility Act establishes a key
-                principle regarding the free movement of accessible products and
-                services within the European Union:
+                Article 6 of the European Accessibility Act states a simple
+                rule:
               </p>
               <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">
-                "Member States shall not impede, for reasons related to
-                accessibility requirements, the making available on the market
-                in their territory of products or the provision of services in
-                their territory that comply with this Directive."
+                "EU countries cannot block products or services that meet this
+                law's accessibility requirements from being sold in their
+                country."
               </blockquote>
               <p>
-                This provision ensures that once products and services meet the
-                accessibility requirements set out in the Directive, they can
-                freely circulate throughout the EU market without facing
-                additional barriers related to accessibility.
+                When products and services follow the accessibility rules in
+                this law, they can be sold in any EU country without extra
+                barriers.
               </p>
             </div>
           </section>
@@ -101,24 +101,19 @@ export default function FreeMovementPage() {
               id="harmonization"
               tabIndex={-1}
             >
-              Harmonization and Single Market
+              Same Rules Across EU.
             </h2>
             <div className="space-y-4">
               <p>
-                The free movement principle is a cornerstone of the EU's single
-                market. By harmonizing accessibility requirements across all
-                Member States, the European Accessibility Act facilitates:
+                Free movement is key to the EU's single market. Having the same
+                accessibility rules for all EU countries helps with:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Cross-border trade in accessible products and services</li>
-                <li>Greater legal certainty for economic operators</li>
-                <li>
-                  Economies of scale in the production of accessible products
-                </li>
-                <li>Increased competitiveness of EU businesses</li>
-                <li>
-                  Wider choice and better prices for consumers with disabilities
-                </li>
+                <li>Selling products across all EU borders.</li>
+                <li>Making rules clearer for businesses.</li>
+                <li>Lowering costs to create products.</li>
+                <li>Creating better business competition.</li>
+                <li>Giving people more choices at better prices.</li>
               </ul>
             </div>
           </section>
@@ -129,46 +124,28 @@ export default function FreeMovementPage() {
               id="market-barriers"
               tabIndex={-1}
             >
-              Eliminating Market Barriers
+              Removing Trade Barriers.
             </h2>
             <div className="space-y-4">
               <p>
-                Prior to the European Accessibility Act, divergent national
-                accessibility requirements created significant barriers for
-                economic operators. Manufacturers and service providers had to:
+                Before this law, each country had its own accessibility rules.
+                This created these problems for businesses:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  Understand and comply with different sets of requirements in
-                  each Member State
-                </li>
-                <li>Adapt products and services for each national market</li>
-                <li>
-                  Bear additional costs for compliance with multiple regulatory
-                  regimes
-                </li>
-                <li>
-                  Navigate complex legal frameworks when operating across
-                  borders
-                </li>
+                <li>They had to follow different rules in each country.</li>
+                <li>They needed to change products for each market.</li>
+                <li>They paid more for multiple checks.</li>
+                <li>They dealt with many complex laws.</li>
               </ul>
               <p>
-                By establishing a common set of accessibility requirements, the
-                European Accessibility Act removes these barriers, allowing
-                economic operators to:
+                With one set of rules, the European Accessibility Act fixes
+                these problems. Now businesses can:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  Design and manufacture products for the entire EU market
-                </li>
-                <li>
-                  Provide services across Member States with legal certainty
-                </li>
-                <li>Reduce compliance costs and administrative burdens</li>
-                <li>
-                  Focus resources on innovation rather than regulatory
-                  compliance
-                </li>
+                <li>Design one product for all EU countries.</li>
+                <li>Offer their services in all EU countries.</li>
+                <li>Save money on development costs.</li>
+                <li>Focus on creating new ideas instead of studying rules.</li>
               </ul>
             </div>
           </section>
@@ -179,32 +156,22 @@ export default function FreeMovementPage() {
               id="ce-marking"
               tabIndex={-1}
             >
-              CE Marking and Free Movement
+              The CE Mark.
             </h2>
             <div className="space-y-4">
               <p>
-                For products covered by the European Accessibility Act, the CE
-                marking plays a crucial role in facilitating free movement. When
-                a manufacturer affixes the CE marking to a product, they declare
-                that:
+                The CE mark helps products move freely in the EU. When a company
+                puts the CE mark on a product, it means:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>
-                  The product complies with all applicable accessibility
-                  requirements
-                </li>
-                <li>
-                  An appropriate conformity assessment has been carried out
-                </li>
-                <li>
-                  The product can be legally placed on the market throughout the
-                  EU
-                </li>
+                <li>The product meets all accessibility rules.</li>
+                <li>The company has done all required tests.</li>
+                <li>The product can be sold in any EU country.</li>
               </ul>
               <p>
-                This system of CE marking provides a visible indication of
-                compliance, simplifying market surveillance and enabling free
-                movement of accessible products across the EU.
+                The CE mark shows that a product follows the rules. It makes
+                checking products easier and allows them to be sold across the
+                EU.
               </p>
             </div>
           </section>
@@ -218,19 +185,12 @@ export default function FreeMovementPage() {
               Source References
             </h2>
             <p className="text-sm text-muted-foreground">
-              This page primarily references the following sections of Directive
-              (EU) 2019/882:
+              This page refers to these parts of Directive (EU) 2019/882:
             </p>
             <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
               <li>Article 6 (Free movement)</li>
-              <li>
-                Articles 17, 18 (General principles and rules for CE marking, as
-                related to free movement)
-              </li>
-              <li>
-                Recitals 1, 5, 6, 8 (Context on internal market, barriers, and
-                harmonization benefits)
-              </li>
+              <li>Articles 17, 18 (Rules for CE marking)</li>
+              <li>Recitals 1, 5, 6, 8 (Background on market benefits)</li>
             </ul>
           </section>
 

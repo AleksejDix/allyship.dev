@@ -27,7 +27,7 @@ export default function PurposeAndDefinitionsPage() {
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#purpose" id="purpose-link">
-                  Purpose
+                  Purpose.
                 </a>
               </li>
               <li>
@@ -80,30 +80,27 @@ export default function PurposeAndDefinitionsPage() {
         </div>
       </header>
       <div className="lg:col-span-5 prose prose-lg dark:prose-invert pt-2 pb-4">
-        <div className="space-y-8">
+        <div id="eaa-content" className="space-y-8">
           <section aria-labelledby="purpose">
             <h2
               className="text-2xl font-semibold mb-4 mt-0 scroll-mt-6"
               id="purpose"
               tabIndex={-1}
             >
-              Purpose
+              <span className="sr-only">Section:</span>
+              Purpose.
             </h2>
             <div className="space-y-4">
               <p>
-                The purpose of this Directive is to contribute to the proper
-                functioning of the internal market by approximating laws,
-                regulations and administrative provisions of the Member States
-                as regards accessibility requirements for certain products and
-                services by, in particular, eliminating and preventing barriers
-                to the free movement of certain accessible products and services
-                arising from divergent accessibility requirements in the Member
-                States.
+                This law makes the EU market work better. It creates the same
+                rules for accessible products and services in all EU countries.
+                These rules help remove barriers that stop accessible products
+                and services from moving between countries.
               </p>
               <p>
-                This would increase the availability of accessible products and
-                services in the internal market and improve the accessibility of
-                relevant information.
+                With these rules, more accessible products and services will be
+                available for everyone. People will also have better access to
+                important information.
               </p>
             </div>
           </section>
@@ -114,28 +111,26 @@ export default function PurposeAndDefinitionsPage() {
               id="disability-definition"
               tabIndex={-1}
             >
-              Persons with Disabilities
+              <span className="sr-only">Section:</span>
+              Persons with Disabilities.
             </h2>
             <div className="space-y-4">
               <p>
-                This Directive defines persons with disabilities in line with
-                the United Nations Convention on the Rights of Persons with
-                Disabilities, adopted on 13 December 2006 (UN CRPD), to which
-                the Union has been a Party since 21 January 2011 and which all
-                Member States have ratified.
+                This law follows the United Nations agreement on rights for
+                people with disabilities. The EU joined this agreement in 2011.
+                All EU countries have agreed to follow it.
               </p>
               <p>
-                The UN CRPD states that persons with disabilities include those
-                who have long-term physical, mental, intellectual or sensory
-                impairments which in interaction with various barriers may
-                hinder their full and effective participation in society on an
-                equal basis with others.
+                The UN agreement states that people with disabilities include
+                those with long-term physical, mental, intellectual, or sensory
+                challenges. These challenges, along with various barriers, can
+                make it hard for them to fully take part in society.
               </p>
               <p>
-                This Directive promotes full and effective equal participation
-                by improving access to mainstream products and services that,
-                through their initial design or subsequent adaptation, address
-                the particular needs of persons with disabilities.
+                This law helps everyone participate equally. It makes regular
+                products and services more accessible. These products and
+                services are designed to meet the needs of people with
+                disabilities.
               </p>
             </div>
           </section>
@@ -146,23 +141,36 @@ export default function PurposeAndDefinitionsPage() {
               id="functional-limitations"
               tabIndex={-1}
             >
-              Persons with Functional Limitations
+              <span className="sr-only">Section:</span>
+              Persons with Functional Limitations.
             </h2>
             <div className="space-y-4">
               <p>
-                Other persons who experience functional limitations, such as
-                elderly persons, pregnant women or persons travelling with
-                luggage, would also benefit from this Directive.
+                Other people will also benefit from this law. This includes:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Older people.</li>
+                <li>Pregnant women.</li>
+                <li>People traveling with luggage.</li>
+              </ul>
               <p>
-                The concept of 'persons with functional limitations', as
-                referred to in this Directive, includes persons who have any
-                physical, mental, intellectual or sensory impairments, age
-                related impairments, or other human body performance related
-                causes, permanent or temporary, which, in interaction with
-                various barriers, result in their reduced access to products and
-                services, leading to a situation that requires those products
-                and services to be adapted to their particular needs.
+                "People with functional limitations" means anyone who has
+                trouble using or accessing things. These limitations can be due
+                to:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Physical issues.</li>
+                <li>Mental issues.</li>
+                <li>Intellectual issues.</li>
+                <li>Sensory issues.</li>
+                <li>Age-related problems.</li>
+                <li>Other physical conditions.</li>
+              </ul>
+              <p>
+                These limitations can be permanent or temporary. When these
+                people face barriers, they have a harder time using products and
+                services. Products and services need to be designed for their
+                needs.
               </p>
             </div>
           </section>
@@ -173,33 +181,30 @@ export default function PurposeAndDefinitionsPage() {
               id="internal-market-issues"
               tabIndex={-1}
             >
-              Internal Market Issues
+              <span className="sr-only">Section:</span>
+              Internal Market Issues.
             </h2>
             <div className="space-y-4">
               <p>
-                The disparities between the laws, regulations and administrative
-                provisions of Member States concerning the accessibility of
-                products and services for persons with disabilities, create
-                barriers to the free movement of products and services and
-                distort effective competition in the internal market.
+                Different EU countries have different laws about accessible
+                products and services. These differences create problems:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>They block selling products between countries.</li>
+                <li>They make fair competition harder.</li>
+              </ul>
+              <p>
+                After the UN agreement took effect, these differences became
+                more obvious. These barriers are especially hard for small and
+                medium-sized businesses. They cannot easily follow all the
+                different rules across countries.
               </p>
               <p>
-                For some products and services, those disparities are likely to
-                increase in the Union after the entry into force of the UN CRPD.
-                Economic operators, in particular small and medium-sized
-                enterprises (SMEs), are particularly affected by those barriers.
-              </p>
-              <p>
-                Due to the differences in national accessibility requirements,
-                individual professionals, SMEs and microenterprises in
-                particular are discouraged from entering into business ventures
-                outside their own domestic markets. The national, or even
-                regional or local, accessibility requirements that Member States
-                have put in place currently differ as regards both coverage and
-                level of detail. Those differences negatively affect
-                competitiveness and growth, due to the additional costs incurred
-                in the development and marketing of accessible products and
-                services for each national market.
+                Because each country has different rules, small businesses avoid
+                selling in other countries. Each country has its own
+                requirements. The rules differ in what they cover and how
+                detailed they are. Companies have to spend extra money to create
+                accessible products for each country.
               </p>
             </div>
           </section>
@@ -210,17 +215,22 @@ export default function PurposeAndDefinitionsPage() {
               id="consumer-issues"
               tabIndex={-1}
             >
-              Consumer Issues
+              <span className="sr-only">Section:</span>
+              Consumer Issues.
             </h2>
             <div className="space-y-4">
               <p>
-                Consumers of accessible products and services and of assistive
-                technologies, are faced with high prices due to limited
-                competition among suppliers. Fragmentation among national
-                regulations reduces potential benefits derived from sharing with
-                national and international peers experiences concerning
-                responding to societal and technological developments.
+                People who need accessible products, services, and assistive
+                technology face high prices. This happens because:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Not enough companies make these products.</li>
+                <li>There is not enough competition to lower prices.</li>
+                <li>
+                  Different rules in each country mean good ideas about new
+                  technology are not shared well.
+                </li>
+              </ul>
             </div>
           </section>
 
@@ -230,25 +240,27 @@ export default function PurposeAndDefinitionsPage() {
               id="harmonization"
               tabIndex={-1}
             >
-              Harmonization Benefits
+              <span className="sr-only">Section:</span>
+              Harmonization Benefits.
             </h2>
             <div className="space-y-4">
               <p>
-                The approximation of national measures at Union level is
-                therefore necessary for the proper functioning of the internal
-                market in order to put an end to fragmentation in the market of
-                accessible products and services, to create economies of scale,
-                to facilitate cross-border trade and mobility, as well as to
-                help economic operators to concentrate resources on innovation
-                instead of using those resources to cover expenses arising from
-                fragmented legislation across the Union.
+                Creating the same rules across the EU will help the market work
+                better. These rules will:
               </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Unite the market for accessible products and services.</li>
+                <li>Lower costs through larger production.</li>
+                <li>Make it easier to sell across borders.</li>
+                <li>
+                  Help businesses focus on creating new ideas instead of
+                  managing different rules.
+                </li>
+              </ul>
               <p>
-                The benefits of harmonising accessibility requirements for the
-                internal market have been demonstrated by the application of
-                Directive 2014/33/EU of the European Parliament and of the
-                Council regarding lifts and Regulation (EC) No 661/2009 of the
-                European Parliament and of the Council in the area of transport.
+                We have already seen benefits from making accessibility rules
+                the same across the EU. This has worked well for elevator
+                regulations and transportation rules.
               </p>
             </div>
           </section>
@@ -259,7 +271,8 @@ export default function PurposeAndDefinitionsPage() {
               className="text-xl font-semibold mb-4 scroll-mt-6"
               tabIndex={-1}
             >
-              Source References
+              <span className="sr-only">Section:</span>
+              Source References.
             </h2>
             <p className="text-sm text-muted-foreground">
               This page primarily references the following sections of Directive
@@ -285,7 +298,8 @@ export default function PurposeAndDefinitionsPage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                <span className="sr-only">Section:</span>
+                Chapter navigation.
               </h2>
 
               <Button asChild id="next-chapter-button">

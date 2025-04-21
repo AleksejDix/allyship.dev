@@ -1,9 +1,9 @@
 import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, List, ExternalLink } from 'lucide-react'
+import { ArrowRight, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { INTRODUCTION_LINKS, ANNEXES_LINKS } from '../../constants/links'
+import { ANNEXES_LINKS } from '../../constants/links'
 import { EAARelationshipDiagram } from '../../components/EAARelationshipDiagram'
 
 export const metadata: Metadata = {
@@ -19,17 +19,17 @@ export default function DisproportionateBurdenAssessment() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Annex IV: Assessment of Disproportionate Burden
+            Annex IV: Assessment of Disproportionate Burden.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview
+                  Overview.
                 </a>
               </li>
               <li>
@@ -38,7 +38,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#assessment-criteria"
                   id="assessment-criteria-link"
                 >
-                  Assessment Criteria
+                  Assessment Criteria.
                 </a>
               </li>
               <li>
@@ -47,7 +47,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#documentation-requirements"
                   id="documentation-requirements-link"
                 >
-                  Documentation Requirements
+                  Documentation Requirements.
                 </a>
               </li>
               <li>
@@ -56,7 +56,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#periodic-reassessment"
                   id="periodic-reassessment-link"
                 >
-                  Periodic Reassessment
+                  Periodic Reassessment.
                 </a>
               </li>
               <li>
@@ -65,7 +65,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#microenterprises"
                   id="microenterprises-link"
                 >
-                  Special Provisions for Microenterprises
+                  Special Provisions for Microenterprises.
                 </a>
               </li>
               <li>
@@ -74,7 +74,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#guiding-principles"
                   id="guiding-principles-link"
                 >
-                  Guiding Principles
+                  Guiding Principles.
                 </a>
               </li>
               <li>
@@ -83,7 +83,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#practical-assessment-steps"
                   id="practical-assessment-steps-link"
                 >
-                  Practical Assessment Steps
+                  Practical Assessment Steps.
                 </a>
               </li>
               <li>
@@ -92,7 +92,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#limitations"
                   id="limitations-link"
                 >
-                  Limitations
+                  Limitations.
                 </a>
               </li>
               <li>
@@ -101,7 +101,7 @@ export default function DisproportionateBurdenAssessment() {
                   href="#relationship-other-annexes"
                   id="relationship-other-annexes-link"
                 >
-                  Relationship with Other Annexes
+                  Relationship with Other Annexes.
                 </a>
               </li>
             </ul>
@@ -109,7 +109,10 @@ export default function DisproportionateBurdenAssessment() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
+      <div
+        className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2"
+        id="eaa-content"
+      >
         <div className="space-y-8">
           <section aria-labelledby="overview">
             <h2
@@ -117,24 +120,20 @@ export default function DisproportionateBurdenAssessment() {
               id="overview"
               tabIndex={-1}
             >
-              Overview
+              Overview.
             </h2>
             <div className="space-y-4">
               <p>
-                Annex IV of the European Accessibility Act (EAA) establishes the
-                criteria for economic operators to assess whether compliance
-                with accessibility requirements would impose a disproportionate
-                burden. This provides a structured framework for organizations
-                to determine when they may be exempt from certain accessibility
-                requirements based on legitimate economic considerations.
+                Annex IV helps businesses decide if making their products
+                accessible would cost too much money. This part of the European
+                Accessibility Act (EAA) explains when a business can be excused
+                from some accessibility rules.
               </p>
               <p>
-                This exemption recognizes that while accessibility is critically
-                important, there may be situations where implementing certain
-                accessibility requirements would create a fundamentally
-                disproportionate financial and organizational burden relative to
-                the benefits provided. Annex IV ensures this determination is
-                made through a consistent, evidence-based approach.
+                Sometimes making products accessible is very expensive for a
+                business. The law recognizes this. Annex IV creates a fair way
+                to decide when costs are too high compared to the benefits. It
+                makes sure decisions are based on facts, not just opinions.
               </p>
             </div>
           </section>
@@ -145,80 +144,69 @@ export default function DisproportionateBurdenAssessment() {
               id="assessment-criteria"
               tabIndex={-1}
             >
-              Assessment Criteria
+              Assessment Criteria.
             </h2>
             <div className="space-y-4">
               <p>
-                Annex IV requires economic operators to use the following
-                criteria when conducting their assessment of disproportionate
-                burden:
+                Businesses must use these criteria when checking if
+                accessibility costs too much:
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                1. Ratio of Net Costs to Overall Costs
+                1. Ratio of Net Costs to Overall Costs.
               </h3>
               <p>
-                The assessment must consider the ratio between the net costs of
-                compliance with accessibility requirements and the overall costs
-                (operating and capital expenditures) of manufacturing,
-                distributing, or importing the product, or providing the
-                service. This includes:
+                Businesses must compare the cost of making things accessible to
+                their total business costs. These costs include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  One-time costs for redesigning products or services to meet
-                  accessibility requirements
+                  One-time costs to redesign products or services to be
+                  accessible.
                 </li>
-                <li>
-                  Ongoing operational costs related to maintaining accessibility
-                  features
-                </li>
-                <li>Costs for staff training related to accessibility</li>
-                <li>Costs for testing with users with disabilities</li>
+                <li>Ongoing costs to maintain accessibility features.</li>
+                <li>Costs for training staff about accessibility.</li>
+                <li>Costs for testing with people who have disabilities.</li>
               </ul>
               <p>
-                These costs should be weighed against the organization's total
-                costs for the product or service.
+                These costs should be compared to the total cost of making and
+                selling the product.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                2. Estimated Costs and Benefits for the Economic Operator
+                2. Estimated Costs and Benefits for the Business.
               </h3>
               <p>
-                The assessment must include an estimate of the costs and
-                benefits for the economic operator in relation to the estimated
-                benefit for persons with disabilities, taking into account:
+                The assessment must include what the business will spend and
+                gain. It should consider benefits for people with disabilities,
+                including:
               </p>
               <ul className="list-disc pl-6 space-y-2">
+                <li>How often people use the product or service.</li>
+                <li>How many people with disabilities would benefit.</li>
                 <li>
-                  The frequency and duration of use of the specific product or
-                  service
+                  How much more money the business might make from being
+                  accessible.
                 </li>
-                <li>
-                  The estimated number of persons with disabilities who would
-                  benefit from improved accessibility
-                </li>
-                <li>The estimated market gains from increased accessibility</li>
-                <li>The lifecycle of the product or service</li>
+                <li>How long the product or service will last.</li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                3. Comparison of Net Costs with Organization Criteria
+                3. Comparing Net Costs with Organization Size.
               </h3>
               <p>
-                The assessment must compare the net costs of compliance with the
-                accessibility requirements with:
+                The assessment must compare the costs of meeting accessibility
+                requirements with:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>For Microenterprises:</strong> The organization's
-                  overall resources, ensuring the burden does not threaten the
-                  viability of the business
+                  <strong>For Very Small Businesses:</strong> The total
+                  resources of the business, making sure costs won't put them
+                  out of business.
                 </li>
                 <li>
-                  <strong>For Other Enterprises:</strong> The proportion of
-                  accessibility-related expenditure compared to the
-                  organization's turnover
+                  <strong>For Larger Businesses:</strong> The percentage of
+                  money spent on accessibility compared to their total sales.
                 </li>
               </ul>
             </div>
@@ -230,47 +218,40 @@ export default function DisproportionateBurdenAssessment() {
               id="documentation-requirements"
               tabIndex={-1}
             >
-              Documentation Requirements
+              Documentation Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                When claiming disproportionate burden, economic operators must
-                document their assessment thoroughly. The documentation should
-                include:
+                When claiming costs are too high, businesses must keep detailed
+                records. These records should include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Detailed Cost Analysis:</strong> Itemized breakdown of
-                  estimated costs for implementing each accessibility
-                  requirement identified as potentially imposing a
-                  disproportionate burden
+                  <strong>Detailed Cost Breakdown:</strong> A list of all
+                  expected costs for making each accessibility feature that
+                  might be too expensive.
                 </li>
                 <li>
-                  <strong>Benefit Analysis:</strong> Assessment of the potential
-                  benefits for persons with disabilities, including quantitative
-                  and qualitative factors where possible
+                  <strong>Benefit Analysis:</strong> An assessment of how people
+                  with disabilities would benefit, with numbers when possible.
                 </li>
                 <li>
-                  <strong>Alternatives Considered:</strong> Documentation of
-                  partial accessibility solutions or alternatives considered and
-                  why they were insufficient or still imposed a disproportionate
-                  burden
+                  <strong>Alternatives Considered:</strong> Notes about partial
+                  solutions that were considered and why they were still too
+                  expensive.
                 </li>
                 <li>
-                  <strong>Financial Context:</strong> Relevant financial
-                  information that demonstrates the disproportionate nature of
-                  the burden in relation to the organization's size and
-                  resources
+                  <strong>Financial Information:</strong> Money details that
+                  show why the costs are too high for the size of the business.
                 </li>
                 <li>
-                  <strong>Expert Input:</strong> Any relevant expert opinions or
-                  stakeholder consultations conducted as part of the assessment
+                  <strong>Expert Input:</strong> Any opinions from experts or
+                  feedback from stakeholders.
                 </li>
               </ul>
               <p>
-                This documentation must be retained for at least five years from
-                the last time the product is made available on the market, or
-                the last time the service is provided, as appropriate.
+                Businesses must keep these records for at least five years after
+                they stop selling the product or providing the service.
               </p>
             </div>
           </section>
@@ -281,41 +262,30 @@ export default function DisproportionateBurdenAssessment() {
               id="periodic-reassessment"
               tabIndex={-1}
             >
-              Periodic Reassessment
+              Periodic Reassessment.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA requires economic operators to conduct a reassessment of
-                disproportionate burden in the following situations:
+                Businesses must check their cost assessment again in these
+                situations:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>When a service provided is modified</li>
-                <li>When a product is changed or redesigned</li>
-                <li>When requested by a market surveillance authority</li>
-                <li>At a minimum, every five years</li>
+                <li>When they change a service.</li>
+                <li>When they change or redesign a product.</li>
+                <li>When requested by an authority.</li>
+                <li>At least every five years.</li>
               </ul>
               <p>
-                The purpose of periodic reassessment is to determine whether
-                circumstances have changed that might affect the previous
-                determination of disproportionate burden. Such changes might
-                include:
+                They need to check if anything has changed that might affect
+                their previous decision. Changes might include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
+                <li>Lower costs due to new technology.</li>
+                <li>New tools that make accessibility easier.</li>
+                <li>Changes in the business's financial situation.</li>
+                <li>Changes to the product that might affect accessibility.</li>
                 <li>
-                  Decreased implementation costs due to technological advances
-                </li>
-                <li>
-                  Availability of new tools that make accessibility
-                  implementation easier
-                </li>
-                <li>Changes in the organization's financial situation</li>
-                <li>
-                  Changes in the product or service that might affect
-                  accessibility implementation
-                </li>
-                <li>
-                  Evolution of user needs and expectations regarding
-                  accessibility
+                  Changes in what users need and expect regarding accessibility.
                 </li>
               </ul>
             </div>
@@ -327,38 +297,36 @@ export default function DisproportionateBurdenAssessment() {
               id="microenterprises"
               tabIndex={-1}
             >
-              Special Provisions for Microenterprises
+              Special Provisions for Microenterprises.
             </h2>
             <div className="space-y-4">
               <p>
-                The EAA includes special provisions for microenterprises
-                providing services. According to the Act, microenterprises are
-                exempt from complying with the accessibility requirements and
-                from carrying out the disproportionate burden assessment.
-                However:
+                The EAA has special rules for very small businesses providing
+                services. These businesses are exempt from:
               </p>
               <ul className="list-disc pl-6 space-y-2">
+                <li>Meeting the accessibility requirements.</li>
+                <li>Doing the cost assessment.</li>
+              </ul>
+              <p>However, these important points apply:</p>
+              <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  This exemption only applies to microenterprises providing
-                  services, not those manufacturing, importing, or distributing
-                  products
+                  This exemption only applies to very small businesses providing
+                  services, not those making or selling products.
                 </li>
                 <li>
-                  A microenterprise is defined as an enterprise which employs
-                  fewer than 10 persons and whose annual turnover and/or annual
-                  balance sheet total does not exceed €2 million
+                  A very small business has fewer than 10 employees and makes
+                  less than €2 million per year.
                 </li>
                 <li>
-                  Market surveillance authorities can still request relevant
-                  documentation to verify that an enterprise qualifies as a
-                  microenterprise
+                  Authorities can still ask for proof that a business qualifies
+                  as very small.
                 </li>
               </ul>
               <p>
-                Despite the exemption, microenterprises are encouraged to
-                consider implementing accessibility features where feasible, as
-                this can open up market opportunities and prepare them for
-                growth beyond microenterprise status.
+                Even with this exemption, very small businesses should consider
+                adding accessibility features when possible. This can help them
+                reach more customers and prepare for future growth.
               </p>
             </div>
           </section>
@@ -369,49 +337,42 @@ export default function DisproportionateBurdenAssessment() {
               id="guiding-principles"
               tabIndex={-1}
             >
-              Guiding Principles for Assessment
+              Guiding Principles for Assessment.
             </h2>
             <div className="space-y-4">
               <p>
-                When conducting a disproportionate burden assessment, economic
-                operators should follow these guiding principles:
+                When checking if accessibility costs too much, businesses should
+                follow these principles:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Requirement-Specific Analysis:</strong> Assess each
-                  accessibility requirement individually, rather than making a
-                  blanket determination for all requirements
+                  <strong>Check Each Requirement Separately:</strong> Look at
+                  each accessibility requirement individually, not all at once.
                 </li>
                 <li>
-                  <strong>Evidence-Based Approach:</strong> Base the assessment
-                  on objective evidence rather than assumptions about costs or
-                  benefits
+                  <strong>Use Real Evidence:</strong> Base decisions on facts,
+                  not guesses about costs or benefits.
                 </li>
                 <li>
-                  <strong>Narrowest Possible Exemption:</strong> Seek the most
-                  limited exemption possible, implementing as many accessibility
-                  requirements as can be reasonably accommodated
+                  <strong>Seek Limited Exemptions:</strong> Try to make as many
+                  accessibility features as possible, asking for exemptions only
+                  when truly needed.
                 </li>
                 <li>
-                  <strong>Alternative Solutions:</strong> Consider whether
-                  partial implementation or alternative approaches might
-                  mitigate the burden while still improving accessibility
+                  <strong>Consider Alternatives:</strong> Think about partial
+                  solutions or different approaches that might cost less.
                 </li>
                 <li>
-                  <strong>Consultation:</strong> Consult with accessibility
-                  experts and organizations representing persons with
-                  disabilities when possible to ensure a thorough understanding
-                  of the implications
+                  <strong>Get Expert Input:</strong> Talk to accessibility
+                  experts and disability organizations when possible.
                 </li>
                 <li>
-                  <strong>Forward-Looking:</strong> Consider future
-                  technological developments and potentially decreasing
-                  implementation costs over time
+                  <strong>Think About the Future:</strong> Consider new
+                  technology that might make accessibility cheaper over time.
                 </li>
                 <li>
-                  <strong>Transparency:</strong> Be prepared to share the
-                  rationale for a disproportionate burden determination with
-                  stakeholders and authorities
+                  <strong>Be Open:</strong> Be ready to explain your decisions
+                  to stakeholders and authorities.
                 </li>
               </ul>
             </div>
@@ -423,74 +384,67 @@ export default function DisproportionateBurdenAssessment() {
               id="practical-assessment-steps"
               tabIndex={-1}
             >
-              Practical Assessment Steps
+              Practical Assessment Steps.
             </h2>
             <div className="space-y-4">
               <p>
-                Economic operators can use the following step-by-step approach
-                to conduct a disproportionate burden assessment in line with
-                Annex IV requirements:
+                Businesses can follow these steps to check if accessibility
+                requirements cost too much:
               </p>
               <ol className="pl-6 space-y-4">
                 <li>
-                  <strong>Identify Applicable Requirements:</strong> Determine
-                  which accessibility requirements from Annex I apply to your
-                  specific product or service
+                  <strong>Find Required Accessibility Features:</strong>{' '}
+                  Determine which accessibility requirements from Annex I apply
+                  to your product or service.
                 </li>
                 <li>
-                  <strong>Evaluate Implementation Options:</strong> For each
-                  requirement, identify the technical and organizational
-                  measures needed for implementation
+                  <strong>List Implementation Options:</strong> For each
+                  requirement, identify ways to make your product or service
+                  meet the requirement.
                 </li>
                 <li>
-                  <strong>Estimate Costs:</strong> Calculate the one-time and
-                  ongoing costs associated with implementing each accessibility
-                  requirement, including:
+                  <strong>Calculate Costs:</strong> Figure out one-time and
+                  ongoing costs for each accessibility requirement, including:
                   <ul className="list-disc pl-6 mt-2">
-                    <li>Design and development costs</li>
-                    <li>Testing costs</li>
-                    <li>Staff training</li>
-                    <li>Documentation updates</li>
-                    <li>Ongoing maintenance</li>
+                    <li>Design and development costs.</li>
+                    <li>Testing costs.</li>
+                    <li>Staff training.</li>
+                    <li>Documentation updates.</li>
+                    <li>Ongoing maintenance.</li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Estimate Benefits:</strong> Assess the potential
-                  benefits of implementing each requirement, including:
+                  <strong>Calculate Benefits:</strong> Figure out the benefits
+                  of each requirement, including:
                   <ul className="list-disc pl-6 mt-2">
-                    <li>Potential market expansion</li>
-                    <li>Improved user experience for all users</li>
-                    <li>Competitive advantages</li>
-                    <li>Reduced legal risk</li>
-                    <li>Enhanced brand reputation</li>
+                    <li>Potential new customers.</li>
+                    <li>Better experience for all users.</li>
+                    <li>Competitive advantages.</li>
+                    <li>Lower legal risk.</li>
+                    <li>Better company reputation.</li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Determine Net Burden:</strong> Calculate the net
-                  burden by comparing costs against benefits and organizational
-                  resources
+                  <strong>Find Net Burden:</strong> Compare costs against
+                  benefits and your company's resources.
                 </li>
                 <li>
-                  <strong>Explore Alternatives:</strong> For requirements where
-                  the initial assessment indicates a disproportionate burden,
-                  explore alternative approaches that might be less burdensome
+                  <strong>Look for Alternatives:</strong> For requirements that
+                  cost too much, try to find cheaper approaches.
                 </li>
                 <li>
-                  <strong>Document Assessment:</strong> Create comprehensive
-                  documentation of the assessment process, findings, and
-                  justifications
+                  <strong>Document Everything:</strong> Keep detailed records of
+                  your process, findings, and reasons.
                 </li>
                 <li>
-                  <strong>Set Reassessment Schedule:</strong> Establish a
-                  timeline for periodic reassessment, including triggers for
-                  earlier reassessment
+                  <strong>Plan Future Checks:</strong> Set a schedule to review
+                  your assessment regularly.
                 </li>
               </ol>
               <p>
-                This structured approach helps ensure a thorough and defensible
-                assessment that meets the requirements of Annex IV while
-                identifying opportunities to maximize accessibility within
-                reasonable resource constraints.
+                This step-by-step approach helps ensure a thorough assessment
+                that meets legal requirements while maximizing accessibility
+                within your budget.
               </p>
             </div>
           </section>
@@ -501,50 +455,46 @@ export default function DisproportionateBurdenAssessment() {
               id="limitations"
               tabIndex={-1}
             >
-              Limitations of the Disproportionate Burden Exemption
+              Limitations of the Disproportionate Burden Exemption.
             </h2>
             <div className="space-y-4">
               <p>
-                While the disproportionate burden provision provides important
-                flexibility, it is subject to several limitations:
+                While businesses can claim that accessibility costs too much,
+                there are important limits:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Not Automatic:</strong> The exemption is not
-                  automatically granted and must be justified through a
-                  documented assessment
+                  <strong>Not Automatic:</strong> The exemption is not given
+                  automatically. Businesses must prove their case with
+                  documentation.
                 </li>
                 <li>
-                  <strong>Subject to Verification:</strong> Market surveillance
-                  authorities can request and evaluate the assessment
-                  documentation
+                  <strong>Will Be Checked:</strong> Authorities can ask for and
+                  review the assessment documentation.
                 </li>
                 <li>
-                  <strong>Temporary Nature:</strong> A disproportionate burden
-                  determination is not permanent and must be periodically
-                  reassessed
+                  <strong>Not Permanent:</strong> The decision is temporary and
+                  must be checked again periodically.
                 </li>
                 <li>
-                  <strong>Not Applicable to EU Funds:</strong> Products or
-                  services funded by EU programs must comply with accessibility
-                  requirements regardless of burden
+                  <strong>Not for EU-Funded Projects:</strong> Products or
+                  services funded by EU programs must be accessible regardless
+                  of cost.
                 </li>
                 <li>
-                  <strong>Cannot Override Fundamental Requirements:</strong> The
-                  disproportionate burden provision cannot be used to avoid
-                  implementing accessibility features that are considered
-                  fundamental to the product or service's basic functionality
+                  <strong>Can't Skip Essential Features:</strong> Businesses
+                  cannot use cost as a reason to avoid accessibility features
+                  that are basic to the product's function.
                 </li>
                 <li>
-                  <strong>Public Accountability:</strong> Organizations using
-                  this exemption should be prepared for potential public
-                  scrutiny and market pressure
+                  <strong>Public Scrutiny:</strong> Businesses using this
+                  exemption should be prepared for questions from the public and
+                  market pressure.
                 </li>
               </ul>
               <p>
-                These limitations ensure that the disproportionate burden
-                provision is used appropriately and does not undermine the
-                fundamental objectives of the EAA.
+                These limits ensure that the cost exemption is used properly and
+                doesn't undermine the main goals of the EAA.
               </p>
             </div>
           </section>
@@ -555,41 +505,35 @@ export default function DisproportionateBurdenAssessment() {
               id="relationship-other-annexes"
               tabIndex={-1}
             >
-              Relationship with Other Annexes
+              Relationship with Other Annexes.
             </h2>
             <div className="space-y-4">
-              <p>
-                Annex IV works in conjunction with other annexes of the EAA:
-              </p>
+              <p>Annex IV works together with other parts of the EAA:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Annex I (Accessibility Requirements):</strong> The
-                  disproportionate burden assessment evaluates the feasibility
-                  of implementing the specific accessibility requirements
-                  detailed in Annex I
+                  cost assessment evaluates if implementing these specific
+                  accessibility requirements is affordable.
                 </li>
                 <li>
                   <strong>Annex II (Examples of Implementation):</strong> The
-                  examples provided in Annex II can help economic operators
-                  understand potential implementation approaches and associated
-                  costs when conducting their assessment
+                  examples in Annex II help businesses understand potential
+                  approaches and costs when doing their assessment.
                 </li>
                 <li>
                   <strong>Annex V (Conformity Assessment for Products):</strong>{' '}
-                  Products claiming a disproportionate burden exemption must
-                  still undergo conformity assessment for any accessibility
-                  requirements that are being implemented
+                  Products with a cost exemption still need assessment for any
+                  accessibility requirements they are implementing.
                 </li>
                 <li>
                   <strong>Annex VI (Assessment Criteria):</strong> Works
                   directly with Annex IV, providing more detailed criteria for
-                  assessing disproportionate burden
+                  assessing costs.
                 </li>
               </ul>
               <p>
-                Understanding these relationships helps economic operators
-                conduct comprehensive assessments that consider all relevant
-                aspects of the EAA.
+                Understanding these connections helps businesses do thorough
+                assessments that consider all relevant parts of the EAA.
               </p>
 
               <EAARelationshipDiagram />
@@ -602,34 +546,32 @@ export default function DisproportionateBurdenAssessment() {
               id="references"
               tabIndex={-1}
             >
-              References
+              References.
             </h2>
             <div className="space-y-4">
               <p>
-                The criteria for assessing disproportionate burden discussed on
-                this page are outlined in Annex VI of the European Accessibility
-                Act, referenced by Article 14.
+                The criteria for assessing disproportionate burden on this page
+                come from Annex VI of the European Accessibility Act, referenced
+                by Article 14.
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Directive (EU) 2019/882 - Annex VI:</strong> Criteria
-                  for Assessment of Disproportionate Burden. This annex
-                  specifies the factors to consider when evaluating whether
-                  compliance with accessibility requirements imposes a
-                  disproportionate burden.
+                  for Assessment of Disproportionate Burden. This section lists
+                  factors to consider when deciding if accessibility
+                  requirements cost too much.
                 </li>
                 <li>
                   <strong>Directive (EU) 2019/882 - Article 14:</strong>{' '}
                   Fundamental Alteration and Disproportionate Burden. This
-                  article allows economic operators to claim exemption from
-                  accessibility requirements if compliance results in a
-                  fundamental alteration or imposes a disproportionate burden,
-                  requiring an assessment based on Annex VI criteria.
+                  article allows businesses to claim exemption if making
+                  products accessible would cost too much or fundamentally
+                  change the product.
                 </li>
               </ul>
               <p>
-                For the full legal text and specific criteria, please refer to
-                the official{' '}
+                For the full legal text and specific criteria, please see the
+                official{' '}
                 <a
                   href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
                   target="_blank"
@@ -657,7 +599,7 @@ export default function DisproportionateBurdenAssessment() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -666,7 +608,7 @@ export default function DisproportionateBurdenAssessment() {
                   aria-labelledby="next-chapter-label"
                 >
                   <span id="next-chapter-label">
-                    Annex V: Conformity Assessment for Products
+                    Annex V: Conformity Assessment for Products.
                   </span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>

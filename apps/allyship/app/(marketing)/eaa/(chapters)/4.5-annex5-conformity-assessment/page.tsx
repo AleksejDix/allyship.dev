@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title:
     'Annex V: Conformity Assessment for Products | European Accessibility Act',
   description:
-    'Detailed procedures for assessing product conformity with accessibility requirements under the European Accessibility Act, including internal production control and EU-type examination.',
+    'Clear explanation of how to check if products meet accessibility requirements under the European Accessibility Act, including step-by-step procedures.',
 }
 
 export default function ConformityAssessmentProductsPage() {
@@ -18,17 +18,17 @@ export default function ConformityAssessmentProductsPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Annex V: Conformity Assessment for Products
+            Annex V: Conformity Assessment for Products.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview
+                  Overview.
                 </a>
               </li>
               <li>
@@ -37,7 +37,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#internal-production-control"
                   id="internal-production-control-link"
                 >
-                  Internal Production Control
+                  Internal Production Control.
                 </a>
               </li>
               <li>
@@ -46,7 +46,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#eu-type-examination"
                   id="eu-type-examination-link"
                 >
-                  EU-Type Examination
+                  EU-Type Examination.
                 </a>
               </li>
               <li>
@@ -55,7 +55,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#conformity-to-type"
                   id="conformity-to-type-link"
                 >
-                  Conformity to Type
+                  Conformity to Type.
                 </a>
               </li>
               <li>
@@ -64,7 +64,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#choosing-procedure"
                   id="choosing-procedure-link"
                 >
-                  Choosing the Procedure
+                  Choosing the Procedure.
                 </a>
               </li>
               <li>
@@ -73,7 +73,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#technical-documentation"
                   id="technical-documentation-link"
                 >
-                  Technical Documentation
+                  Technical Documentation.
                 </a>
               </li>
               <li>
@@ -82,7 +82,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#notified-bodies"
                   id="notified-bodies-link"
                 >
-                  Role of Notified Bodies
+                  Role of Notified Bodies.
                 </a>
               </li>
               <li>
@@ -91,7 +91,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#declaration-and-marking"
                   id="declaration-and-marking-link"
                 >
-                  Declaration and CE Marking
+                  Declaration and CE Marking.
                 </a>
               </li>
               <li>
@@ -100,7 +100,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#information-retention"
                   id="information-retention-link"
                 >
-                  Record Keeping
+                  Record Keeping.
                 </a>
               </li>
               <li>
@@ -109,7 +109,7 @@ export default function ConformityAssessmentProductsPage() {
                   href="#relationship-other-annexes"
                   id="relationship-other-annexes-link"
                 >
-                  Relationship with Other Annexes
+                  Relationship with Other Annexes.
                 </a>
               </li>
             </ul>
@@ -125,23 +125,22 @@ export default function ConformityAssessmentProductsPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview
+              Overview.
             </h2>
             <div className="space-y-4">
               <p>
-                Annex V of the European Accessibility Act (EAA) establishes the
-                procedures for assessing whether products comply with the
-                applicable accessibility requirements. This annex outlines two
-                conformity assessment modules that manufacturers can use:
-                internal production control (Module A) and EU-type examination
-                followed by conformity to type (Modules B and C).
+                Annex V explains how to check if products meet the accessibility
+                requirements in the European Accessibility Act (EAA). Companies
+                can use two methods to check their products: internal production
+                control (Module A) or EU-type examination followed by conformity
+                to type (Modules B and C).
               </p>
               <p>
-                The conformity assessment process is a critical step that
-                manufacturers must complete before placing products on the EU
-                market. It ensures that products meet the accessibility
-                requirements specified in Annex I of the EAA and serves as the
-                basis for the EU Declaration of Conformity and CE marking.
+                This checking process is an important step that manufacturers
+                must complete before selling products in the EU. It confirms
+                that products meet the accessibility requirements in Annex I of
+                the EAA. This process is the basis for the EU Declaration of
+                Conformity and CE marking.
               </p>
             </div>
           </section>
@@ -152,112 +151,101 @@ export default function ConformityAssessmentProductsPage() {
               id="internal-production-control"
               tabIndex={-1}
             >
-              Module A: Internal Production Control
+              Module A: Internal Production Control.
             </h2>
             <div className="space-y-4">
               <p>
-                Internal production control (Module A) is the simplest
-                conformity assessment procedure, where the manufacturer takes
-                full responsibility for ensuring and declaring that the products
-                concerned satisfy the applicable requirements.
+                Internal production control (Module A) is the simplest way to
+                check conformity. With this method, the manufacturer takes full
+                responsibility for making sure their products meet the
+                requirements.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Key Elements of Internal Production Control
+                Key Elements of Internal Production Control.
               </h3>
               <p>
-                This module consists of the following elements that
-                manufacturers must implement:
+                Manufacturers must complete these steps when using Module A.
               </p>
               <ol className="pl-6 space-y-4">
                 <li>
-                  <strong>Technical Documentation:</strong> The manufacturer
-                  must establish technical documentation that enables assessment
-                  of the product's conformity with the relevant accessibility
-                  requirements. The documentation must specify:
+                  <strong>Technical Documentation.</strong> The manufacturer
+                  must create technical documents that show how the product
+                  meets the accessibility requirements. These documents must
+                  include:
                   <ul className="list-disc pl-6 mt-2">
-                    <li>A general description of the product</li>
+                    <li>A general description of the product.</li>
                     <li>
-                      A list of the harmonized standards and technical
-                      specifications applied
+                      A list of the standards and technical specifications used.
                     </li>
                     <li>
-                      Descriptions and explanations necessary for understanding
-                      the product's operation and its accessibility features
+                      Explanations that help understand how the product works
+                      and its accessibility features.
                     </li>
                     <li>
-                      Design and manufacturing drawings and schemes of
-                      components, sub-assemblies, and circuits
+                      Design and manufacturing drawings of components,
+                      sub-assemblies, and circuits.
                     </li>
-                    <li>
-                      Results of design calculations and examinations carried
-                      out
-                    </li>
-                    <li>Test reports related to accessibility features</li>
+                    <li>Results of design calculations and tests.</li>
+                    <li>Test reports related to accessibility features.</li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Manufacturing Process Controls:</strong> The
-                  manufacturer must take all measures necessary to ensure that
-                  the manufacturing process and its monitoring ensure compliance
-                  of the manufactured products with:
+                  <strong>Manufacturing Process Controls.</strong> The
+                  manufacturer must take all needed steps to ensure that the
+                  manufacturing process produces products that comply with:
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      The technical documentation prepared in the previous step
+                      The technical documentation created in the previous step.
                     </li>
-                    <li>
-                      The applicable accessibility requirements in Annex I
-                    </li>
+                    <li>The accessibility requirements in Annex I.</li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Conformity Marking and Declaration:</strong> The
+                  <strong>Conformity Marking and Declaration.</strong> The
                   manufacturer must:
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Affix the CE marking to each individual product that
-                      satisfies the applicable requirements
+                      Put the CE marking on each product that meets the
+                      requirements.
                     </li>
                     <li>
-                      Draw up a written EU Declaration of Conformity for each
-                      product model
+                      Write an EU Declaration of Conformity for each product
+                      model.
                     </li>
                     <li>
                       Keep the technical documentation and EU Declaration of
-                      Conformity for five years after the product has been
-                      placed on the market
+                      Conformity for five years after putting the product on the
+                      market.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Authorized Representative:</strong> The manufacturer's
-                  obligations may be fulfilled by an authorized representative,
-                  on behalf and under the responsibility of the manufacturer,
-                  provided they are specified in the mandate.
+                  <strong>Authorized Representative.</strong> The manufacturer
+                  can assign an authorized representative to fulfill these
+                  tasks, but this must be specified in writing.
                 </li>
               </ol>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                When to Use Internal Production Control
+                When to Use Internal Production Control.
               </h3>
-              <p>Internal production control is most appropriate when:</p>
+              <p>Internal production control works best when:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  The product design is relatively straightforward with respect
-                  to accessibility features
+                  The product design is simple regarding accessibility features.
                 </li>
                 <li>
-                  The manufacturer has strong in-house expertise in
-                  accessibility and conformity assessment
+                  The manufacturer has good knowledge about accessibility and
+                  conformity assessment.
                 </li>
                 <li>
-                  The accessibility requirements applicable to the product are
-                  well understood and can be reliably verified through internal
-                  testing
+                  The accessibility requirements for the product are clear and
+                  can be checked through internal testing.
                 </li>
                 <li>
-                  Harmonized standards exist that cover all the applicable
-                  accessibility requirements for the product
+                  There are established standards that cover all the
+                  accessibility requirements for the product.
                 </li>
               </ul>
             </div>
@@ -269,103 +257,98 @@ export default function ConformityAssessmentProductsPage() {
               id="eu-type-examination"
               tabIndex={-1}
             >
-              Module B: EU-Type Examination
+              Module B: EU-Type Examination.
             </h2>
             <div className="space-y-4">
               <p>
-                EU-type examination (Module B) is the part of a conformity
-                assessment procedure in which a notified body examines the
-                technical design of a product and verifies and attests that it
-                meets the applicable accessibility requirements.
+                EU-type examination (Module B) is a method where an official
+                testing body (called a notified body) checks the design of a
+                product and confirms that it meets the accessibility
+                requirements.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Process for EU-Type Examination
+                Process for EU-Type Examination.
               </h3>
-              <p>This module involves the following steps:</p>
+              <p>This process includes these steps:</p>
               <ol className="pl-6 space-y-4">
                 <li>
-                  <strong>Application to Notified Body:</strong> The
-                  manufacturer must lodge an application for EU-type examination
-                  with a single notified body of their choice. The application
-                  must include:
+                  <strong>Application to Notified Body.</strong> The
+                  manufacturer must submit an application to one notified body
+                  of their choice. The application must include:
                   <ul className="list-disc pl-6 mt-2">
-                    <li>Name and address of the manufacturer</li>
+                    <li>The name and address of the manufacturer.</li>
                     <li>
-                      A written declaration that the same application has not
-                      been lodged with any other notified body
+                      A written statement that they have not applied to any
+                      other notified body.
                     </li>
                     <li>
-                      The technical documentation as described in Module A
+                      The technical documentation as described in Module A.
                     </li>
-                    <li>Representative samples of the production envisaged</li>
                     <li>
-                      Supporting evidence for the adequacy of the technical
-                      design solution, including any standards applied
+                      Sample products that represent what will be produced.
+                    </li>
+                    <li>
+                      Evidence that shows the technical design solution is
+                      adequate.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Assessment by Notified Body:</strong> The notified
+                  <strong>Assessment by Notified Body.</strong> The notified
                   body will:
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Examine the technical documentation to assess the adequacy
-                      of the technical design of the product in relation to the
-                      applicable accessibility requirements
+                      Review the technical documentation to check if the product
+                      design meets the accessibility requirements.
                     </li>
                     <li>
-                      Verify that the samples have been manufactured in
-                      conformity with the technical documentation
+                      Verify that the samples were made according to the
+                      technical documentation.
                     </li>
                     <li>
-                      Carry out appropriate examinations and tests, or have them
-                      carried out, to check whether the product complies with
-                      the applicable accessibility requirements
+                      Perform tests to check if the product meets the
+                      accessibility requirements.
                     </li>
                     <li>
-                      Agree with the manufacturer on the location where the
-                      examinations and tests will be carried out
+                      Agree with the manufacturer on where the tests will take
+                      place.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Evaluation Report and Certificate:</strong> The
+                  <strong>Evaluation Report and Certificate.</strong> The
                   notified body will:
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Draw up an evaluation report recording the activities
-                      undertaken and their outcomes
+                      Create a report that records all activities and results.
                     </li>
                     <li>
                       Issue an EU-type examination certificate if the product
-                      type complies with the applicable accessibility
-                      requirements
+                      meets the accessibility requirements.
                     </li>
                     <li>
                       Refuse to issue a certificate if the product does not meet
-                      the accessibility requirements, informing the applicant
-                      and providing detailed reasons
+                      the requirements, and explain why.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Ongoing Obligations:</strong> After certificate
-                  issuance:
+                  <strong>Ongoing Obligations.</strong> After the certificate is
+                  issued:
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      The notified body must stay informed of changes in the
-                      generally acknowledged state of the art that might affect
-                      compliance
+                      The notified body must stay informed about changes in
+                      technology that might affect compliance.
                     </li>
                     <li>
-                      The manufacturer must inform the notified body of any
-                      modifications to the approved type that may affect
-                      conformity
+                      The manufacturer must tell the notified body about any
+                      changes to the approved product that might affect
+                      conformity.
                     </li>
                     <li>
-                      The notified body must review changes and determine if
-                      further examination is required
+                      The notified body must review changes and decide if
+                      further testing is needed.
                     </li>
                   </ul>
                 </li>
@@ -379,52 +362,50 @@ export default function ConformityAssessmentProductsPage() {
               id="conformity-to-type"
               tabIndex={-1}
             >
-              Module C: Conformity to Type Based on Internal Production Control
+              Module C: Conformity to Type Based on Internal Production Control.
             </h2>
             <div className="space-y-4">
               <p>
-                This module follows Module B and focuses on ensuring that
-                manufactured products conform to the approved EU-type
-                examination certificate. It is the manufacturer's responsibility
-                to ensure this conformity through internal production controls.
+                This module follows Module B and focuses on making sure
+                manufactured products match the approved EU-type examination
+                certificate. The manufacturer is responsible for ensuring this
+                conformity through internal production controls.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Key Requirements for Conformity to Type
+                Key Requirements for Conformity to Type.
               </h3>
               <p>Under Module C, the manufacturer must:</p>
               <ol className="pl-6 space-y-4">
                 <li>
-                  <strong>Manufacturing Controls:</strong> Take all measures
-                  necessary to ensure that the manufacturing process and its
-                  monitoring ensure that the manufactured products conform to
-                  the approved type described in the EU-type examination
-                  certificate and comply with the applicable accessibility
+                  <strong>Manufacturing Controls.</strong> Take all necessary
+                  steps to ensure that the manufacturing process produces
+                  products that match the approved type described in the EU-type
+                  examination certificate and comply with the accessibility
                   requirements.
                 </li>
                 <li>
-                  <strong>CE Marking and Declaration:</strong>
+                  <strong>CE Marking and Declaration.</strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Affix the CE marking to each individual product that
-                      conforms to the approved type and satisfies the applicable
-                      requirements
+                      Put the CE marking on each product that matches the
+                      approved type and meets the requirements.
                     </li>
                     <li>
-                      Draw up a written EU Declaration of Conformity for each
-                      product model
+                      Write an EU Declaration of Conformity for each product
+                      model.
                     </li>
                     <li>
-                      Maintain a copy of the EU Declaration of Conformity
-                      available for national authorities for five years after
-                      the product has been placed on the market
+                      Keep a copy of the EU Declaration of Conformity available
+                      for national authorities for five years after the product
+                      has been sold.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Authorized Representative:</strong> The manufacturer's
-                  obligations may be fulfilled by an authorized representative,
-                  provided they are specified in the mandate.
+                  <strong>Authorized Representative.</strong> The manufacturer
+                  can assign an authorized representative to fulfill these
+                  obligations, but this must be specified in writing.
                 </li>
               </ol>
             </div>
@@ -436,42 +417,41 @@ export default function ConformityAssessmentProductsPage() {
               id="choosing-procedure"
               tabIndex={-1}
             >
-              Choosing the Appropriate Conformity Assessment Procedure
+              Choosing the Right Assessment Procedure.
             </h2>
             <div className="space-y-4">
               <p>
-                Manufacturers have flexibility in choosing which conformity
-                assessment procedure to follow based on specific circumstances:
+                Manufacturers can choose which assessment procedure to use based
+                on their specific situation.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Factors to Consider
+                Factors to Consider.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Product Complexity:</strong> More complex products
-                  with numerous accessibility features may benefit from the
-                  greater scrutiny provided by EU-type examination.
+                  <strong>Product Complexity.</strong> More complex products
+                  with many accessibility features may benefit from the detailed
+                  review provided by EU-type examination.
                 </li>
                 <li>
-                  <strong>Market Risk:</strong> Products where accessibility
-                  failures could significantly impact users or lead to higher
-                  liability might warrant external verification through Modules
-                  B and C.
+                  <strong>Market Risk.</strong> Products where accessibility
+                  failures could significantly impact users might need external
+                  verification through Modules B and C.
                 </li>
                 <li>
-                  <strong>Manufacturer Experience:</strong> Companies with
-                  limited experience in accessibility implementation might gain
-                  confidence and reduce risk by using external notified bodies.
+                  <strong>Manufacturer Experience.</strong> Companies with
+                  limited accessibility experience might gain confidence by
+                  using external notified bodies.
                 </li>
                 <li>
-                  <strong>Available Standards:</strong> Where harmonized
+                  <strong>Available Standards.</strong> Where established
                   standards fully cover the product, internal production control
-                  may be sufficient; where gaps exist, external verification
-                  provides additional assurance.
+                  may be enough; where gaps exist, external verification
+                  provides added assurance.
                 </li>
                 <li>
-                  <strong>Business Considerations:</strong> While Module A
+                  <strong>Business Considerations.</strong> While Module A
                   (internal production control) is typically faster and less
                   costly, Modules B and C may provide market advantages through
                   third-party verification.
@@ -479,27 +459,23 @@ export default function ConformityAssessmentProductsPage() {
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Decision Guide
+                Decision Guide.
               </h3>
               <p>In general, manufacturers should consider using:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Module A (Internal Production Control) when:</strong>
                   <ul className="list-disc pl-6 mt-2">
+                    <li>The product has simple accessibility features.</li>
                     <li>
-                      The product has straightforward accessibility features
+                      The company has strong internal accessibility expertise.
                     </li>
                     <li>
-                      The organization has strong internal accessibility
-                      expertise
-                    </li>
-                    <li>
-                      Harmonized standards completely cover all applicable
-                      requirements
+                      Standards completely cover all applicable requirements.
                     </li>
                     <li>
                       The product represents low risk in terms of accessibility
-                      impact
+                      impact.
                     </li>
                   </ul>
                 </li>
@@ -509,17 +485,15 @@ export default function ConformityAssessmentProductsPage() {
                     when:
                   </strong>
                   <ul className="list-disc pl-6 mt-2">
-                    <li>The product has complex accessibility features</li>
+                    <li>The product has complex accessibility features.</li>
+                    <li>The company has limited accessibility expertise.</li>
+                    <li>Few standards exist for the product type.</li>
                     <li>
-                      The organization has limited accessibility expertise
-                    </li>
-                    <li>Few harmonized standards exist for the product type</li>
-                    <li>
-                      Third-party verification would strengthen market position
+                      Third-party verification would strengthen market position.
                     </li>
                     <li>
                       The product would significantly impact users if
-                      accessibility features fail
+                      accessibility features fail.
                     </li>
                   </ul>
                 </li>
@@ -533,107 +507,104 @@ export default function ConformityAssessmentProductsPage() {
               id="technical-documentation"
               tabIndex={-1}
             >
-              Technical Documentation Requirements
+              Technical Documentation Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                Regardless of which module is chosen, robust technical
-                documentation is essential for conformity assessment. The
-                technical documentation must include:
+                No matter which module you choose, you need good technical
+                documentation for conformity assessment. The technical
+                documentation must include:
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Comprehensive Documentation Components
+                Required Documentation Components.
               </h3>
               <ol className="pl-6 space-y-4">
                 <li>
-                  <strong>General Product Description:</strong>
+                  <strong>General Product Description.</strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Overview of the product's purpose, functionality, and
-                      target users
+                      Overview of what the product does and who will use it.
                     </li>
+                    <li>List of components, parts, and subassemblies.</li>
                     <li>
-                      Identification of components, parts, and subassemblies
-                    </li>
-                    <li>
-                      Description of user interfaces and interaction methods
+                      Description of user interfaces and how people interact
+                      with the product.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Accessibility Features Documentation:</strong>
+                  <strong>Accessibility Features Documentation.</strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Detailed description of how each applicable accessibility
-                      requirement is met
+                      Detailed description of how the product meets each
+                      accessibility requirement.
                     </li>
                     <li>
                       Screenshots, diagrams, and examples of accessibility
-                      implementations
+                      features.
                     </li>
                     <li>
                       Explanations of design choices made to support
-                      accessibility
+                      accessibility.
                     </li>
                     <li>
-                      User documentation related to accessibility features
+                      User documentation related to accessibility features.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Standards and Specifications:</strong>
+                  <strong>Standards and Specifications.</strong>
                   <ul className="list-disc pl-6 mt-2">
+                    <li>List of standards applied fully or partly.</li>
                     <li>
-                      List of harmonized standards applied in full or in part
+                      Descriptions of solutions used to meet requirements where
+                      standards haven't been applied.
                     </li>
-                    <li>
-                      Descriptions of solutions adopted to meet requirements
-                      where harmonized standards haven't been applied
-                    </li>
-                    <li>References to technical specifications used</li>
+                    <li>References to technical specifications used.</li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Design and Manufacturing Information:</strong>
+                  <strong>Design and Manufacturing Information.</strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
                       Drawings, diagrams, and specifications of components
-                      related to accessibility
+                      related to accessibility.
                     </li>
                     <li>
                       Manufacturing processes that ensure consistent
-                      implementation of accessibility features
+                      implementation of accessibility features.
                     </li>
                     <li>
-                      Quality control procedures for accessibility features
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <strong>Test Results and Assessments:</strong>
-                  <ul className="list-disc pl-6 mt-2">
-                    <li>Results of accessibility tests performed</li>
-                    <li>Test methodologies and validation procedures</li>
-                    <li>
-                      User testing with persons with disabilities (if conducted)
-                    </li>
-                    <li>
-                      Analysis of test results and corrective actions taken
+                      Quality control procedures for accessibility features.
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <strong>Risk Assessment:</strong>
+                  <strong>Test Results and Assessments.</strong>
+                  <ul className="list-disc pl-6 mt-2">
+                    <li>Results of accessibility tests performed.</li>
+                    <li>Test methods and validation procedures.</li>
+                    <li>
+                      User testing with persons with disabilities (if
+                      conducted).
+                    </li>
+                    <li>
+                      Analysis of test results and corrective actions taken.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>Risk Assessment.</strong>
                   <ul className="list-disc pl-6 mt-2">
                     <li>
-                      Identification of accessibility-related risks and
-                      potential failure points
+                      List of accessibility-related risks and potential failure
+                      points.
                     </li>
-                    <li>Mitigations implemented to address identified risks</li>
+                    <li>Steps taken to address identified risks.</li>
                     <li>
-                      Analysis of residual risks and justifications for
-                      accepting them
+                      Analysis of remaining risks and reasons for accepting
+                      them.
                     </li>
                   </ul>
                 </li>
@@ -647,50 +618,48 @@ export default function ConformityAssessmentProductsPage() {
               id="notified-bodies"
               tabIndex={-1}
             >
-              Role of Notified Bodies
+              Role of Notified Bodies.
             </h2>
             <div className="space-y-4">
               <p>
-                Notified bodies play a crucial role in the conformity assessment
-                procedures, particularly for Module B (EU-type examination).
+                Notified bodies play an important role in the conformity
+                assessment procedures, especially for Module B (EU-type
+                examination).
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Key Responsibilities of Notified Bodies
+                Key Responsibilities of Notified Bodies.
               </h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Technical Assessment:</strong> Evaluating whether a
-                  product's technical design meets the accessibility
-                  requirements specified in the EAA
+                  <strong>Technical Assessment.</strong> Evaluating whether a
+                  product's design meets the accessibility requirements in the
+                  EAA.
                 </li>
                 <li>
-                  <strong>Testing and Verification:</strong> Conducting or
-                  supervising tests to verify compliance with accessibility
-                  requirements
+                  <strong>Testing and Verification.</strong> Conducting tests to
+                  verify compliance with accessibility requirements.
                 </li>
                 <li>
-                  <strong>Certificate Issuance:</strong> Issuing EU-type
-                  examination certificates for compliant products
+                  <strong>Certificate Issuance.</strong> Issuing EU-type
+                  examination certificates for compliant products.
                 </li>
                 <li>
-                  <strong>Ongoing Monitoring:</strong> Staying informed about
-                  changes in standards and state of the art that might affect
-                  compliance
+                  <strong>Ongoing Monitoring.</strong> Staying informed about
+                  changes in standards that might affect compliance.
                 </li>
                 <li>
-                  <strong>Change Assessment:</strong> Evaluating
-                  manufacturer-notified changes to determine if they affect
-                  compliance
+                  <strong>Change Assessment.</strong> Evaluating product changes
+                  to determine if they affect compliance.
                 </li>
                 <li>
-                  <strong>Documentation:</strong> Maintaining records of
-                  assessments and decisions
+                  <strong>Documentation.</strong> Keeping records of assessments
+                  and decisions.
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                Selecting a Notified Body
+                Selecting a Notified Body.
               </h3>
               <p>
                 When choosing a notified body for conformity assessment,
@@ -698,35 +667,34 @@ export default function ConformityAssessmentProductsPage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Scope of Designation:</strong> Ensure the body is
-                  authorized to assess the specific product category
+                  <strong>Scope of Authorization.</strong> Make sure the body is
+                  authorized to assess your specific product category.
                 </li>
                 <li>
-                  <strong>Accessibility Expertise:</strong> Evaluate the body's
-                  specific expertise in accessibility assessment
+                  <strong>Accessibility Expertise.</strong> Check the body's
+                  specific expertise in accessibility assessment.
                 </li>
                 <li>
-                  <strong>Assessment Approach:</strong> Understand their
-                  methodology and requirements
+                  <strong>Assessment Approach.</strong> Understand their methods
+                  and requirements.
                 </li>
                 <li>
-                  <strong>Reputation and Experience:</strong> Consider their
-                  track record with similar products
+                  <strong>Reputation and Experience.</strong> Consider their
+                  track record with similar products.
                 </li>
                 <li>
-                  <strong>Timing and Cost:</strong> Compare their process
-                  timeframes and fee structures
+                  <strong>Timing and Cost.</strong> Compare their process
+                  timeframes and fees.
                 </li>
                 <li>
-                  <strong>Support Services:</strong> Determine what guidance
-                  they provide during the assessment process
+                  <strong>Support Services.</strong> Determine what guidance
+                  they provide during the assessment process.
                 </li>
               </ul>
               <p>
-                Each EU Member State publishes a list of notified bodies
-                designated for conformity assessment under the EAA, along with
-                their identification numbers and the specific tasks for which
-                they have been designated.
+                Each EU country publishes a list of notified bodies designated
+                for conformity assessment under the EAA, along with their
+                identification numbers and specific tasks.
               </p>
             </div>
           </section>
@@ -737,74 +705,73 @@ export default function ConformityAssessmentProductsPage() {
               id="declaration-and-marking"
               tabIndex={-1}
             >
-              EU Declaration of Conformity and CE Marking
+              EU Declaration of Conformity and CE Marking.
             </h2>
             <div className="space-y-4">
               <p>
-                The conclusion of the conformity assessment procedure leads to
-                two important elements: the EU Declaration of Conformity and CE
-                marking.
+                After completing the conformity assessment procedure,
+                manufacturers must create two important items: the EU
+                Declaration of Conformity and CE marking.
               </p>
 
               <h3 className="text-xl font-semibold mt-6 mb-2">
-                EU Declaration of Conformity
+                EU Declaration of Conformity.
               </h3>
               <p>
-                The EU Declaration of Conformity is a document in which the
-                manufacturer states that the product meets all applicable
-                accessibility requirements. It must contain:
+                The EU Declaration of Conformity is a document where the
+                manufacturer states that the product meets all accessibility
+                requirements. It must contain:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Product identification (model, type, batch, or serial number)
+                  Product identification (model, type, batch, or serial number).
                 </li>
                 <li>
                   Name and address of the manufacturer or authorized
-                  representative
+                  representative.
                 </li>
                 <li>
                   A statement that the declaration is issued under the sole
-                  responsibility of the manufacturer
+                  responsibility of the manufacturer.
                 </li>
-                <li>Identification of the product allowing traceability</li>
-                <li>Reference to the EAA and other relevant EU legislation</li>
+                <li>Information that allows the product to be traced.</li>
+                <li>Reference to the EAA and other relevant EU laws.</li>
                 <li>
-                  References to relevant harmonized standards or specifications
-                  used
+                  References to relevant standards or specifications used.
                 </li>
                 <li>
                   Where applicable, the name and number of the notified body and
-                  reference to the EU-type examination certificate
+                  reference to the EU-type examination certificate.
                 </li>
-                <li>Signature, date, and place of issue</li>
+                <li>Signature, date, and place of issue.</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mt-6 mb-2">CE Marking</h3>
+              <h3 className="text-xl font-semibold mt-6 mb-2">CE Marking.</h3>
               <p>The CE marking:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Must be affixed visibly, legibly, and indelibly to the product
+                  Must be visible, readable, and permanent on the product.
                 </li>
                 <li>
-                  Must appear on the product packaging if it cannot be placed on
-                  the product itself
+                  Must appear on the product packaging if it cannot be put on
+                  the product itself.
                 </li>
                 <li>
-                  Must be applied before the product is placed on the market
+                  Must be applied before the product is sold in the market.
                 </li>
                 <li>
                   May be followed by the identification number of the notified
-                  body if one was involved in the production control phase
+                  body if one was involved.
                 </li>
                 <li>
-                  Signifies that the product conforms with all applicable EU
-                  legislation, including the EAA
+                  Shows that the product complies with all applicable EU laws,
+                  including the EAA.
                 </li>
               </ul>
               <p>
                 By applying the CE marking, the manufacturer takes full
                 responsibility for the product's conformity with all applicable
-                requirements of relevant EU legislation.
+                EU law requirements.
               </p>
             </div>
           </section>
@@ -815,34 +782,33 @@ export default function ConformityAssessmentProductsPage() {
               id="information-retention"
               tabIndex={-1}
             >
-              Record Keeping Requirements
+              Record Keeping Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                Manufacturers must maintain certain documentation related to
-                conformity assessment for a specified period:
+                Manufacturers must keep certain documents related to conformity
+                assessment for a specific time period:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Technical Documentation:</strong> Must be kept for
-                  five years after the product has been placed on the market
+                  <strong>Technical Documentation.</strong> Must be kept for
+                  five years after the product has been placed on the market.
                 </li>
                 <li>
-                  <strong>EU Declaration of Conformity:</strong> Must be
-                  retained for five years after the last product has been made
-                  available
+                  <strong>EU Declaration of Conformity.</strong> Must be kept
+                  for five years after the last product has been made available.
                 </li>
                 <li>
-                  <strong>EU-Type Examination Certificate and Annexes:</strong>{' '}
-                  Must be kept as part of the technical documentation
+                  <strong>EU-Type Examination Certificate and Annexes.</strong>{' '}
+                  Must be kept as part of the technical documentation.
                 </li>
                 <li>
-                  <strong>Changes to Approved Type:</strong> Documentation of
-                  modifications and additional approvals must be maintained
+                  <strong>Changes to Approved Type.</strong> Documentation of
+                  modifications and additional approvals must be kept.
                 </li>
                 <li>
-                  <strong>Correspondence with Notified Bodies:</strong> Should
-                  be retained as part of the conformity documentation
+                  <strong>Correspondence with Notified Bodies.</strong> Should
+                  be kept as part of the conformity documentation.
                 </li>
               </ul>
               <p>
@@ -859,32 +825,32 @@ export default function ConformityAssessmentProductsPage() {
               id="relationship-other-annexes"
               tabIndex={-1}
             >
-              Relationship with Other Annexes
+              Relationship with Other Annexes.
             </h2>
             <div className="space-y-4">
-              <p>Annex V works in conjunction with other parts of the EAA:</p>
+              <p>Annex V works together with other parts of the EAA:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Annex I (Accessibility Requirements):</strong> Defines
-                  the accessibility requirements that must be assessed during
-                  conformity procedures
+                  <strong>Annex I (Accessibility Requirements).</strong> Defines
+                  the accessibility requirements that must be checked during
+                  conformity procedures.
                 </li>
                 <li>
-                  <strong>Annex II (Examples of Implementation):</strong>{' '}
-                  Provides non-binding examples that can guide implementation
-                  and assessment
+                  <strong>Annex II (Examples of Implementation).</strong>{' '}
+                  Provides examples that can guide implementation and
+                  assessment.
                 </li>
                 <li>
                   <strong>
-                    Annex IV (Disproportionate Burden Assessment):
+                    Annex IV (Disproportionate Burden Assessment).
                   </strong>{' '}
                   May be relevant if a manufacturer claims certain requirements
-                  would impose a disproportionate burden
+                  would be too burdensome.
                 </li>
                 <li>
-                  <strong>Annex VI (Assessment Criteria):</strong> Provides more
+                  <strong>Annex VI (Assessment Criteria).</strong> Provides more
                   detailed criteria for assessing disproportionate burden claims
-                  that might affect the scope of conformity assessment
+                  that might affect the scope of conformity assessment.
                 </li>
               </ul>
               <p>
@@ -901,7 +867,7 @@ export default function ConformityAssessmentProductsPage() {
               id="references"
               tabIndex={-1}
             >
-              References
+              References.
             </h2>
             <div className="space-y-4">
               <p>
@@ -911,19 +877,19 @@ export default function ConformityAssessmentProductsPage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Directive (EU) 2019/882 - Annex IV:</strong>{' '}
+                  <strong>Directive (EU) 2019/882 - Annex IV.</strong>{' '}
                   Conformity Assessment Procedure - Products. This annex
-                  outlines the Internal Production Control (Module A) procedure
+                  explains the Internal Production Control (Module A) procedure
                   manufacturers must follow.
                 </li>
                 <li>
-                  <strong>Directive (EU) 2019/882 - Article 7(2):</strong>{' '}
-                  Requires manufacturers to draw up technical documentation
+                  <strong>Directive (EU) 2019/882 - Article 7(2).</strong>{' '}
+                  Requires manufacturers to create technical documentation
                   according to Annex IV and carry out the conformity assessment
-                  procedure set out therein.
+                  procedure.
                 </li>
                 <li>
-                  <strong>Directive (EU) 2019/882 - Article 16:</strong>{' '}
+                  <strong>Directive (EU) 2019/882 - Article 16.</strong>{' '}
                   Specifies the requirements for the EU Declaration of
                   Conformity, which is prepared after successful conformity
                   assessment.
@@ -940,7 +906,7 @@ export default function ConformityAssessmentProductsPage() {
                   aria-labelledby="official-directive-link-4-5"
                 >
                   <span id="official-directive-link-4-5" className="sr-only">
-                    Directive (EU) 2019/882 (opens in new window)
+                    Directive (EU) 2019/882 (opens in new window).
                   </span>
                   Directive (EU) 2019/882
                   <ExternalLink
@@ -959,7 +925,7 @@ export default function ConformityAssessmentProductsPage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -968,7 +934,7 @@ export default function ConformityAssessmentProductsPage() {
                   aria-labelledby="next-chapter-label"
                 >
                   <span id="next-chapter-label">
-                    Annex VI: Assessment Criteria for Disproportionate Burden
+                    Annex VI: Assessment Criteria for Disproportionate Burden.
                   </span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>

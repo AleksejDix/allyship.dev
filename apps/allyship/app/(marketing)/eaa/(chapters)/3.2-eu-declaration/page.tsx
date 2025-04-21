@@ -1,10 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import { ArrowRight, List, ExternalLink } from 'lucide-react'
+import { ArrowRight, ExternalLink } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import {
-  INTRODUCTION_LINKS,
   COMPLIANCE_LINKS,
   ANNEXES_LINKS,
   EXTERNAL_LINKS,
@@ -22,17 +21,17 @@ export default function EuDeclarationPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            EU Declaration of Conformity
+            EU Declaration of Conformity.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview and Purpose
+                  Overview and Purpose.
                 </a>
               </li>
               <li>
@@ -41,7 +40,7 @@ export default function EuDeclarationPage() {
                   href="#structure-content"
                   id="structure-content-link"
                 >
-                  Structure and Content
+                  Structure and Content.
                 </a>
               </li>
               <li>
@@ -50,7 +49,7 @@ export default function EuDeclarationPage() {
                   href="#exceptions"
                   id="exceptions-link"
                 >
-                  Exceptions and Special Provisions
+                  Exceptions and Special Rules.
                 </a>
               </li>
               <li>
@@ -59,7 +58,7 @@ export default function EuDeclarationPage() {
                   href="#single-declaration"
                   id="single-declaration-link"
                 >
-                  Single EU Declaration
+                  Single EU Declaration.
                 </a>
               </li>
               <li>
@@ -68,7 +67,7 @@ export default function EuDeclarationPage() {
                   href="#retention-availability"
                   id="retention-availability-link"
                 >
-                  Retention and Availability
+                  Keeping and Sharing Documents.
                 </a>
               </li>
               <li>
@@ -77,7 +76,7 @@ export default function EuDeclarationPage() {
                   href="#relationship-ce-marking"
                   id="relationship-ce-marking-link"
                 >
-                  Relationship with CE Marking
+                  Connection to CE Marking.
                 </a>
               </li>
               <li>
@@ -86,7 +85,7 @@ export default function EuDeclarationPage() {
                   href="#related-resources"
                   id="related-resources-link"
                 >
-                  Related Resources
+                  Related Resources.
                 </a>
               </li>
             </ul>
@@ -94,7 +93,10 @@ export default function EuDeclarationPage() {
         </div>
       </header>
 
-      <div className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2">
+      <div
+        className="lg:col-span-5 prose prose-lg dark:prose-invert pb-4 pt-2"
+        id="eaa-content"
+      >
         <div className="space-y-8">
           <section aria-labelledby="overview">
             <h2
@@ -102,23 +104,23 @@ export default function EuDeclarationPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview and Purpose
+              Overview and Purpose.
             </h2>
             <div className="space-y-4">
               <p>
-                The EU Declaration of Conformity (DoC) is a formal document that
-                manufacturers must create to declare that their products meet
-                all the applicable accessibility requirements of the European
-                Accessibility Act. By drawing up this declaration, the
-                manufacturer assumes full responsibility for the compliance of
-                the product.
+                The EU Declaration of Conformity is an official document that
+                manufacturers must create. This document states that their
+                products meet all accessibility requirements in the European
+                Accessibility Act. When making this declaration, the
+                manufacturer takes full responsibility for the product's
+                compliance.
               </p>
               <p>
-                This document is a critical part of the conformity assessment
-                process, serving as the manufacturer's official statement that
-                their product complies with the legal requirements. It enables
-                authorities, distributors, and end-users to verify that the
-                product has undergone the necessary assessment procedures.
+                This document is an important part of the conformity assessment
+                process. It serves as the manufacturer's official statement that
+                their product follows the legal requirements. The document helps
+                authorities, distributors, and end-users check that the product
+                has gone through the needed assessment steps.
               </p>
             </div>
           </section>
@@ -129,46 +131,41 @@ export default function EuDeclarationPage() {
               id="structure-content"
               tabIndex={-1}
             >
-              Structure and Content
+              Structure and Content.
             </h2>
             <div className="space-y-4">
               <p>
                 According to Article 16 of the EAA, the EU Declaration of
-                Conformity:
+                Conformity must include:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  Must follow the model structure set out in Annex III to
-                  Decision No 768/2008/EC
+                  The structure format set out in Annex III to Decision No
+                  768/2008/EC.
                 </li>
+                <li>All the elements listed in Annex IV of the EAA.</li>
+                <li>Updates when any changes are made to the product.</li>
                 <li>
-                  Must contain all the elements specified in Annex IV of the EAA
-                </li>
-                <li>
-                  Must be continuously updated if any changes are made to the
-                  product
-                </li>
-                <li>
-                  Must be translated into the language(s) required by the Member
-                  State where the product is placed or made available
+                  Translations into the languages required by the country where
+                  the product is sold.
                 </li>
               </ul>
               <p>
-                The declaration must identify the product for which it has been
-                drawn up, typically including information such as:
+                The declaration must clearly identify the product it covers.
+                This typically includes:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Product name, type, batch or serial number</li>
+                <li>Product name, type, batch or serial number.</li>
                 <li>
-                  Name and address of the manufacturer and, where applicable,
-                  their authorized representative
+                  Name and address of the manufacturer and their representative,
+                  if they have one.
                 </li>
                 <li>
-                  References to the relevant harmonized standards or technical
-                  specifications applied
+                  References to the relevant standards or technical
+                  specifications used.
                 </li>
-                <li>Date of issue of the declaration</li>
-                <li>Signature of the person responsible</li>
+                <li>Date when the declaration was issued.</li>
+                <li>Signature of the responsible person.</li>
               </ul>
             </div>
           </section>
@@ -179,20 +176,18 @@ export default function EuDeclarationPage() {
               id="exceptions"
               tabIndex={-1}
             >
-              Exceptions and Special Provisions
+              Exceptions and Special Rules.
             </h2>
             <div className="space-y-4">
               <p>
                 When manufacturers use the exception for fundamental alteration
-                or disproportionate burden under Article 14 of the EAA, the
-                declaration must explicitly state which accessibility
-                requirements are subject to that exception.
+                or disproportionate burden under Article 14, they must clearly
+                state which accessibility requirements have exceptions.
               </p>
               <p>
-                The EAA specifies that the requirements for technical
-                documentation should avoid imposing any undue burden for
-                microenterprises and SMEs, while still ensuring sufficient
-                detail to demonstrate compliance.
+                The EAA states that technical documentation requirements should
+                not create too much work for very small businesses and SMEs.
+                However, the documentation must still show compliance clearly.
               </p>
               <p>
                 For detailed information on disproportionate burden assessments,
@@ -214,31 +209,30 @@ export default function EuDeclarationPage() {
               id="single-declaration"
               tabIndex={-1}
             >
-              Single EU Declaration of Conformity
+              Single EU Declaration.
             </h2>
             <div className="space-y-4">
               <p>
-                Where a product is subject to more than one Union act requiring
-                an EU Declaration of Conformity, manufacturers may create a
-                single declaration that covers all applicable Union acts. This
-                approach:
+                When a product must follow more than one EU law requiring a
+                Declaration of Conformity, manufacturers can create just one
+                declaration that covers all applicable laws. This approach:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Reduces administrative burden on economic operators</li>
+                <li>Reduces paperwork for businesses.</li>
                 <li>
-                  Ensures effective access to information for market
-                  surveillance purposes
+                  Makes information easier to find for market surveillance
+                  purposes.
                 </li>
                 <li>
-                  Must contain the identification of all the relevant acts,
-                  including their publication references
+                  Must list all the relevant laws, including their publication
+                  references.
                 </li>
               </ul>
               <p>
-                This provision allows manufacturers to include all relevant
-                individual declarations of conformity in a single document,
-                which is particularly useful for products that must comply with
-                multiple directives or regulations.
+                This option lets manufacturers include all relevant individual
+                declarations in one document. This is especially helpful for
+                products that must comply with multiple directives or
+                regulations.
               </p>
             </div>
           </section>
@@ -249,30 +243,29 @@ export default function EuDeclarationPage() {
               id="retention-availability"
               tabIndex={-1}
             >
-              Retention and Availability
+              Keeping and Sharing Documents.
             </h2>
             <div className="space-y-4">
               <p>
-                Manufacturers and importers have specific obligations regarding
-                the EU Declaration of Conformity:
+                Manufacturers and importers have specific responsibilities
+                regarding the EU Declaration of Conformity:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   Manufacturers must keep the declaration for five years after
-                  the product has been placed on the market
+                  the product is placed on the market.
                 </li>
                 <li>
                   Importers must keep a copy of the declaration for five years
-                  at the disposal of market surveillance authorities
+                  for market surveillance authorities.
                 </li>
                 <li>
-                  A copy of the declaration must be made available to relevant
-                  authorities upon request
+                  A copy of the declaration must be provided to relevant
+                  authorities when they ask for it.
                 </li>
                 <li>
-                  Distributors must verify that the product is accompanied by
-                  the required documentation, including the declaration when
-                  applicable
+                  Distributors must check that the product comes with all
+                  required documentation, including the declaration when needed.
                 </li>
               </ul>
               <p>
@@ -294,7 +287,7 @@ export default function EuDeclarationPage() {
               id="relationship-ce-marking"
               tabIndex={-1}
             >
-              Relationship with CE Marking
+              Connection to CE Marking.
             </h2>
             <div className="space-y-4">
               <p>
@@ -303,27 +296,26 @@ export default function EuDeclarationPage() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  The CE marking is the visible indication that a product
-                  complies with EU legislation
+                  The CE marking is the visible sign that a product complies
+                  with EU laws.
                 </li>
                 <li>
-                  The EU Declaration of Conformity is the document that
-                  substantiates this compliance
+                  The EU Declaration of Conformity is the document that proves
+                  this compliance.
                 </li>
                 <li>
-                  A manufacturer must draw up the EU Declaration of Conformity
-                  before affixing the CE marking to a product
+                  A manufacturer must create the EU Declaration of Conformity
+                  before adding the CE marking to a product.
                 </li>
                 <li>
-                  Together, they form a complete conformity assessment process
-                  that enables free movement of products in the European market
+                  Together, they complete the conformity assessment process that
+                  allows products to move freely in the European market.
                 </li>
               </ul>
               <p>
-                By affixing the CE marking, the manufacturer declares that the
-                product is in conformity with all applicable accessibility
-                requirements and that they take full responsibility for this
-                conformity.
+                By adding the CE marking, the manufacturer states that the
+                product meets all applicable accessibility requirements. They
+                take full responsibility for this conformity.
               </p>
               <p>
                 For detailed information on CE marking requirements, see the
@@ -344,15 +336,14 @@ export default function EuDeclarationPage() {
               id="related-resources"
               tabIndex={-1}
             >
-              Related Resources
+              Related Resources.
             </h2>
             <div className="bg-blue-50 border border-blue-400 px-6 text-blue-800 dark:text-blue-400 dark:bg-blue-950 py-4 rounded-md">
               <h3 className="font-semibold mb-2 mt-0">
                 Additional EAA Resources:
               </h3>
               <p>
-                For comprehensive information about conformity and related
-                topics:
+                For complete information about conformity and related topics:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-2">
                 <li>
@@ -362,7 +353,7 @@ export default function EuDeclarationPage() {
                   >
                     Conformity of Products
                   </Link>{' '}
-                  - Overview of conformity assessment process
+                  - Overview of conformity assessment process.
                 </li>
                 <li>
                   <Link
@@ -371,7 +362,7 @@ export default function EuDeclarationPage() {
                   >
                     Harmonized Standards
                   </Link>{' '}
-                  - Standards referenced in declarations of conformity
+                  - Standards referenced in declarations of conformity.
                 </li>
                 <li>
                   <Link
@@ -380,7 +371,7 @@ export default function EuDeclarationPage() {
                   >
                     Annex V: Conformity Assessment
                   </Link>{' '}
-                  - Detailed procedures for conformity assessment
+                  - Detailed procedures for conformity assessment.
                 </li>
                 <li>
                   <a
@@ -392,7 +383,7 @@ export default function EuDeclarationPage() {
                     <span>Official EAA Text (Article 16)</span>
                     <ExternalLink size={14} aria-hidden="true" />
                   </a>{' '}
-                  - Legal text about the EU Declaration of Conformity
+                  - Legal text about the EU Declaration of Conformity.
                 </li>
               </ul>
 
@@ -413,7 +404,7 @@ export default function EuDeclarationPage() {
                     </span>
                     <ExternalLink size={14} aria-hidden="true" />
                   </a>{' '}
-                  - Official EU guidance for businesses
+                  - Official EU guidance for businesses.
                 </li>
                 <li>
                   <a
@@ -425,7 +416,7 @@ export default function EuDeclarationPage() {
                     <span>EU Declaration of Conformity Template</span>
                     <ExternalLink size={14} aria-hidden="true" />
                   </a>{' '}
-                  - Official template document from the European Commission
+                  - Official template document from the European Commission.
                 </li>
                 <li>
                   <a
@@ -437,7 +428,7 @@ export default function EuDeclarationPage() {
                     <span>CE Marking Step by Step</span>
                     <ExternalLink size={14} aria-hidden="true" />
                   </a>{' '}
-                  - European Commission's guidance on the CE marking process
+                  - European Commission's guidance on the CE marking process.
                 </li>
                 <li>
                   <a
@@ -449,7 +440,7 @@ export default function EuDeclarationPage() {
                     <span>CE Marking</span>
                     <ExternalLink size={14} aria-hidden="true" />
                   </a>{' '}
-                  - European Commission's main resource page on CE marking
+                  - European Commission's main resource page on CE marking.
                 </li>
               </ul>
             </div>
@@ -462,27 +453,26 @@ export default function EuDeclarationPage() {
               className="text-xl font-semibold mb-4 scroll-mt-6"
               tabIndex={-1}
             >
-              Source References
+              Source References.
             </h2>
             <p className="text-sm text-muted-foreground">
-              This page primarily references the following sections of Directive
-              (EU) 2019/882:
+              This page references these sections of Directive (EU) 2019/882:
             </p>
             <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1 mt-2">
               <li>
-                Article 7, Paragraph 2 (Manufacturer obligation to draw up DoC)
+                Article 7, Paragraph 2. Manufacturer obligation to create DoC.
               </li>
-              <li>Article 7, Paragraph 3 (Manufacturer retention period)</li>
-              <li>Article 9, Paragraph 7 (Importer retention period)</li>
+              <li>Article 7, Paragraph 3. Manufacturer retention period.</li>
+              <li>Article 9, Paragraph 7. Importer retention period.</li>
               <li>
-                Article 16 (EU declaration of conformity - content, structure,
-                exceptions, single DoC)
+                Article 16. EU declaration of conformity - content, structure,
+                exceptions, single DoC.
               </li>
-              <li>Article 18, Paragraph 1 (Relation to CE marking)</li>
+              <li>Article 18, Paragraph 1. Relation to CE marking.</li>
               <li>
-                Annex IV (Elements of technical documentation related to DoC)
+                Annex IV. Elements of technical documentation related to DoC.
               </li>
-              <li>Recital 78 (Context for single DoC)</li>
+              <li>Recital 78. Context for single DoC.</li>
             </ul>
           </section>
 
@@ -492,7 +482,7 @@ export default function EuDeclarationPage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -500,7 +490,7 @@ export default function EuDeclarationPage() {
                   className="no-underline"
                   aria-labelledby="next-chapter-label"
                 >
-                  <span id="next-chapter-label">CE Marking</span>
+                  <span id="next-chapter-label">CE Marking.</span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </Button>

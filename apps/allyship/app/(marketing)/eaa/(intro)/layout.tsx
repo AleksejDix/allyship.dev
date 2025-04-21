@@ -2,7 +2,7 @@ import React from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { EXTERNAL_LINKS } from '../constants/links'
 import { RouterLink } from '../components/RouterLink'
-import { KeyDatesTimeline } from './page'
+// import { KeyDatesTimeline } from './page'
 import { Button } from '@workspace/ui/components/button'
 
 export default function EAALayout({ children }: { children: React.ReactNode }) {
@@ -10,7 +10,7 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
     <div className="eaa-book min-h-screen">
       <div className="container mx-auto py-6">
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
-          <div className="lg:col-span-3">
+          <aside className="lg:col-span-3">
             <div className="lg:sticky lg:top-2 text-left lg:text-right">
               <div className="py-2">
                 <Button variant="secondary" asChild>
@@ -21,15 +21,9 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </div>
 
-              <h1 className="text-4xl font-bold">European Accessibility Act</h1>
-              <p className="text-xl text-muted-foreground">
-                A comprehensive guide to understanding and implementing the EAA
-                requirements
-              </p>
-
-              <KeyDatesTimeline />
+              {/* <KeyDatesTimeline /> */}
             </div>
-          </div>
+          </aside>
 
           <div className="lg:col-span-5">
             <div className="prose prose-lg dark:prose-invert">{children}</div>

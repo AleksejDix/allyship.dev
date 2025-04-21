@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: 'Annexes Overview | European Accessibility Act',
   description:
-    'Detailed overview of the six annexes of the European Accessibility Act (EAA) including accessibility requirements, examples, and assessment methods.',
+    'Plain language overview of the six annexes of the European Accessibility Act (EAA) with simple explanations of requirements, examples, and assessment methods.',
 }
 
 export default function AnnexesPage() {
@@ -21,47 +21,47 @@ export default function AnnexesPage() {
       <header className="lg:col-span-3">
         <div className="lg:sticky lg:top-2 text-left lg:text-right">
           <h1 className="text-4xl font-bold mb-[23px]">
-            Annexes of the European Accessibility Act
+            Annexes of the European Accessibility Act.
           </h1>
 
           <nav aria-labelledby="page-sections-heading">
             <h2 id="page-sections-heading" className="sr-only">
-              Page sections
+              Page sections.
             </h2>
             <ul className="space-y-1 text-lg">
               <li>
                 <a className="underline" href="#overview" id="overview-link">
-                  Overview of the Annexes
+                  Overview of the Annexes.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#annex-i" id="annex-i-link">
-                  Annex I: Accessibility Requirements
+                  Annex I: Accessibility Requirements.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#annex-ii" id="annex-ii-link">
-                  Annex II: Examples of Implementation
+                  Annex II: Examples of Implementation.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#annex-iii" id="annex-iii-link">
-                  Annex III: Requirements for Built Environment
+                  Annex III: Requirements for Built Environment.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#annex-iv" id="annex-iv-link">
-                  Annex IV: Disproportionate Burden
+                  Annex IV: Disproportionate Burden.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#annex-v" id="annex-v-link">
-                  Annex V: Conformity Assessment
+                  Annex V: Conformity Assessment.
                 </a>
               </li>
               <li>
                 <a className="underline" href="#annex-vi" id="annex-vi-link">
-                  Annex VI: Criteria for Exceptions
+                  Annex VI: Criteria for Exceptions.
                 </a>
               </li>
               <li>
@@ -70,7 +70,7 @@ export default function AnnexesPage() {
                   href="#importance"
                   id="importance-link"
                 >
-                  Importance of the Annexes
+                  Importance of the Annexes.
                 </a>
               </li>
             </ul>
@@ -86,23 +86,17 @@ export default function AnnexesPage() {
               id="overview"
               tabIndex={-1}
             >
-              Overview of the Annexes
+              Overview of the Annexes.
             </h2>
             <div className="space-y-4">
               <p>
-                The European Accessibility Act includes six annexes that provide
-                detailed requirements, examples, assessment methods, and
-                criteria essential for implementing the directive. These annexes
-                form an integral part of the EAA and provide specific guidance
-                for economic operators, conformity assessment bodies, and
-                authorities.
+                The European Accessibility Act has six annexes. These annexes
+                give details about the rules, examples, and ways to check
+                products and services.
               </p>
               <p>
-                The annexes cover accessibility requirements for products and
-                services, examples of how to implement these requirements,
-                specifications for the built environment, methods for assessing
-                disproportionate burden, conformity assessment procedures, and
-                criteria for assessing exceptions.
+                The annexes are important parts of the EAA. They help companies,
+                testing groups, and officials understand what to do.
               </p>
             </div>
           </section>
@@ -113,24 +107,25 @@ export default function AnnexesPage() {
               id="annex-i"
               tabIndex={-1}
             >
-              Annex I: Accessibility Requirements
+              Annex I: Accessibility Requirements.
             </h2>
             <div className="space-y-4">
               <p>
-                Provides detailed accessibility requirements for products and
-                services covered by the EAA, divided into sections for different
-                types of products and services.
+                This annex explains what products and services must do to be
+                accessible. It lists different rules for different types of
+                products and services.
               </p>
+              <p>Here are the main parts of this annex.</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Requirements for all products</li>
-                <li>Requirements for product packaging and instructions</li>
+                <li>Rules for all products.</li>
+                <li>Rules for product packaging and instructions.</li>
                 <li>
-                  Requirements for the user interface and functionality design
+                  Rules for making user interfaces and features easy to use.
                 </li>
-                <li>Requirements for all services</li>
+                <li>Rules for all services.</li>
                 <li>
-                  Sector-specific requirements for e-commerce, banking, media,
-                  etc.
+                  Special rules for online shops, banks, media, and other
+                  services.
                 </li>
               </ul>
               <p className="mt-2">
@@ -138,7 +133,7 @@ export default function AnnexesPage() {
                   href={ANNEXES_LINKS.ACCESSIBILITY_REQUIREMENTS.fullPath}
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  View Annex I: Accessibility Requirements
+                  View Annex I: Accessibility Requirements.
                 </Link>
               </p>
             </div>
@@ -150,27 +145,30 @@ export default function AnnexesPage() {
               id="annex-ii"
               tabIndex={-1}
             >
-              Annex II: Examples of Implementation
+              Annex II: Examples of Implementation.
             </h2>
             <div className="space-y-4">
               <p>
-                Provides non-binding examples of possible solutions to meet the
-                accessibility requirements of Annex I, helping economic
-                operators understand practical implementation.
+                This annex gives examples of how to meet the accessibility rules
+                in Annex I. These examples help companies understand how to make
+                their products and services accessible.
               </p>
+              <p>Here are the types of examples included.</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Examples for product accessibility</li>
-                <li>Examples for service accessibility</li>
-                <li>Practical approaches to information provision</li>
-                <li>Examples of accessible user interfaces</li>
-                <li>Examples for specific sectors</li>
+                <li>Examples for making products accessible.</li>
+                <li>Examples for making services accessible.</li>
+                <li>
+                  Ways to provide information that everyone can understand.
+                </li>
+                <li>Examples of accessible user interfaces.</li>
+                <li>Examples for specific areas like banking or shopping.</li>
               </ul>
               <p className="mt-2">
                 <Link
                   href={ANNEXES_LINKS.IMPLEMENTATION_EXAMPLES.fullPath}
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  View Annex II: Implementation Examples
+                  View Annex II: Implementation Examples.
                 </Link>
               </p>
             </div>
@@ -182,27 +180,28 @@ export default function AnnexesPage() {
               id="annex-iii"
               tabIndex={-1}
             >
-              Annex III: Requirements for Built Environment
+              Annex III: Requirements for Built Environment.
             </h2>
             <div className="space-y-4">
               <p>
-                Details the accessibility requirements for the built environment
-                where services are provided, which Member States may choose to
-                implement to improve the functioning of the internal market.
+                This annex explains how to make physical spaces accessible where
+                services are provided. Countries can choose to follow these
+                rules to improve accessibility.
               </p>
+              <p>Here are the areas covered in this annex.</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Use of related spaces and facilities</li>
-                <li>Approaches to buildings and entrances</li>
-                <li>Paths and navigation within service areas</li>
-                <li>Signage and orientation information</li>
-                <li>Use of service-related facilities</li>
+                <li>How to use spaces and facilities.</li>
+                <li>How to make entrances to buildings accessible.</li>
+                <li>How to create clear paths inside service areas.</li>
+                <li>How to make signs and directions clear.</li>
+                <li>How to make service facilities usable for everyone.</li>
               </ul>
               <p className="mt-2">
                 <Link
                   href={ANNEXES_LINKS.BUILT_ENVIRONMENT.fullPath}
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  View Annex III: Built Environment
+                  View Annex III: Built Environment.
                 </Link>
               </p>
             </div>
@@ -214,35 +213,43 @@ export default function AnnexesPage() {
               id="annex-iv"
               tabIndex={-1}
             >
-              Annex IV: Disproportionate Burden
+              Annex IV: Disproportionate Burden.
             </h2>
             <div className="space-y-4">
               <p>
-                Outlines the criteria for assessing whether compliance with
-                accessibility requirements would impose a disproportionate
-                burden on economic operators.
+                This annex explains how to decide if making something accessible
+                would cost too much or be too difficult. Companies can use these
+                rules to ask for exceptions.
+              </p>
+              <p>
+                Here are the factors to consider when checking for too much
+                burden.
               </p>
               <ul className="list-disc pl-6 space-y-1">
                 <li>
-                  The ratio of costs of compliance to overall costs and revenues
+                  How much it costs compared to the company's total costs and
+                  income.
                 </li>
                 <li>
-                  Estimated costs and benefits compared to the benefit for
-                  persons with disabilities
+                  How the costs compare to the benefits for people with
+                  disabilities.
                 </li>
-                <li>The organization's size, resources, and nature</li>
                 <li>
-                  Impact on economic operators versus benefits for persons with
-                  disabilities
+                  The size of the company, its resources, and what kind of
+                  company it is.
                 </li>
-                <li>Frequency and duration of use of the product or service</li>
+                <li>
+                  How changes would affect the company versus how they would
+                  help people with disabilities.
+                </li>
+                <li>How often people use the product or service.</li>
               </ul>
               <p className="mt-2">
                 <Link
                   href={ANNEXES_LINKS.DISPROPORTIONATE_BURDEN.fullPath}
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  View Annex IV: Disproportionate Burden Assessment
+                  View Annex IV: Disproportionate Burden Assessment.
                 </Link>
               </p>
             </div>
@@ -254,27 +261,30 @@ export default function AnnexesPage() {
               id="annex-v"
               tabIndex={-1}
             >
-              Annex V: Conformity Assessment
+              Annex V: Conformity Assessment.
             </h2>
             <div className="space-y-4">
               <p>
-                Describes the procedure for product conformity assessment,
-                including internal production control procedures that
-                manufacturers must follow.
+                This annex explains how companies must check if their products
+                meet the accessibility rules. It describes the steps
+                manufacturers need to follow.
               </p>
+              <p>Here are the main parts of the assessment process.</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Technical documentation requirements</li>
-                <li>Manufacturing process and quality controls</li>
-                <li>Verification of accessibility requirements</li>
-                <li>Product monitoring and assessment</li>
-                <li>Declaration of conformity process</li>
+                <li>What technical documents you need to create.</li>
+                <li>How to control the manufacturing process.</li>
+                <li>
+                  How to check if your product meets the accessibility rules.
+                </li>
+                <li>How to keep track of your product.</li>
+                <li>How to declare that your product follows the rules.</li>
               </ul>
               <p className="mt-2">
                 <Link
                   href={ANNEXES_LINKS.CONFORMITY_ASSESSMENT.fullPath}
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  View Annex V: Conformity Assessment
+                  View Annex V: Conformity Assessment.
                 </Link>
               </p>
             </div>
@@ -286,31 +296,30 @@ export default function AnnexesPage() {
               id="annex-vi"
               tabIndex={-1}
             >
-              Annex VI: Criteria for Exceptions
+              Annex VI: Criteria for Exceptions.
             </h2>
             <div className="space-y-4">
               <p>
-                Provides additional criteria for assessing fundamental
-                alteration and disproportionate burden, with specific
-                considerations for evaluating exceptions claimed by economic
-                operators.
+                This annex gives more details about when companies can claim
+                exceptions. It explains how to assess if making changes would
+                fundamentally alter a product or be too much burden.
               </p>
+              <p>Here are the criteria covered in this annex.</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Criteria for determining fundamental alteration</li>
                 <li>
-                  Additional financial considerations for disproportionate
-                  burden
+                  How to decide if a change would fundamentally alter a product.
                 </li>
-                <li>Assessment of organizational impact</li>
-                <li>Evaluation of claimed exceptions</li>
-                <li>Documentation requirements for exception claims</li>
+                <li>More ways to check if costs are too high.</li>
+                <li>How to assess impact on the organization.</li>
+                <li>How to evaluate claims for exceptions.</li>
+                <li>What documents you need when claiming an exception.</li>
               </ul>
               <p className="mt-2">
                 <Link
                   href={ANNEXES_LINKS.ASSESSMENT_CRITERIA.fullPath}
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  View Annex VI: Criteria for Exceptions
+                  View Annex VI: Criteria for Exceptions.
                 </Link>
               </p>
             </div>
@@ -322,44 +331,40 @@ export default function AnnexesPage() {
               id="importance"
               tabIndex={-1}
             >
-              Importance of the Annexes
+              Importance of the Annexes.
             </h2>
             <div className="space-y-4">
               <p>
-                The annexes of the EAA provide the detailed technical
-                specifications that transform the general principles of the
-                directive into practical requirements. They are essential for:
+                The annexes explain how to put the general rules of the EAA into
+                practice. They help the following groups.
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>
-                  <strong>Economic operators</strong> – To understand specific
-                  accessibility requirements they must implement in their
-                  products and services
+                  <strong>Companies.</strong> They learn what accessibility
+                  features they must add to their products and services.
                 </li>
                 <li>
-                  <strong>Conformity assessment bodies</strong> – To evaluate
-                  products against established accessibility criteria
+                  <strong>Testing organizations.</strong> They learn how to
+                  check products against accessibility rules.
                 </li>
                 <li>
-                  <strong>Market surveillance authorities</strong> – To check
-                  for compliance with the accessibility requirements
+                  <strong>Market authorities.</strong> They learn how to check
+                  if products follow the accessibility rules.
                 </li>
                 <li>
-                  <strong>Service providers</strong> – To ensure their services
-                  meet accessibility standards
+                  <strong>Service providers.</strong> They learn how to make
+                  their services meet accessibility standards.
                 </li>
                 <li>
-                  <strong>Persons with disabilities</strong> – To understand
-                  their rights regarding the accessibility of products and
-                  services
+                  <strong>People with disabilities.</strong> They learn about
+                  their rights regarding accessible products and services.
                 </li>
               </ul>
               <p>
-                While the main text of the EAA establishes the legal framework,
-                obligations, and procedures, the annexes provide the technical
-                details necessary for practical implementation. Together, they
-                form a comprehensive system to ensure accessibility for persons
-                with disabilities throughout the European Union.
+                The main text of the EAA creates the legal framework. The
+                annexes provide the practical details needed for implementation.
+                Together, they ensure accessibility for people with disabilities
+                across the European Union.
               </p>
             </div>
           </section>
@@ -370,7 +375,7 @@ export default function AnnexesPage() {
               aria-labelledby="footer-nav-heading"
             >
               <h2 id="footer-nav-heading" className="sr-only">
-                Chapter navigation
+                Chapter navigation.
               </h2>
               <Button asChild id="next-chapter-button">
                 <Link
@@ -379,7 +384,7 @@ export default function AnnexesPage() {
                   aria-labelledby="next-chapter-label"
                 >
                   <span id="next-chapter-label">
-                    Annex I: Accessibility Requirements
+                    Annex I: Accessibility Requirements.
                   </span>
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
