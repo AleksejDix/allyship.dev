@@ -12,7 +12,7 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
           <aside className="lg:col-span-3">
             <div className="lg:sticky lg:top-2 text-left lg:text-right">
-              <div className="py-2">
+              <div className="py-2 flex items-center gap-2">
                 <Button variant="secondary" asChild>
                   <RouterLink href="/">
                     <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -21,11 +21,25 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </div>
 
+              <div
+                role="presentation"
+                className="aspect-[13/20] relative shadow-lg rounded-lg overflow-hidden bg-gradient-to-br from-blue-600 via-fuchsia-600 to-yellow-400"
+              >
+                <div className="text-[64px] leading-none text-left mb-0 font-bold font-display absolute inset-[1cm]">
+                  <span className="text-white">E</span>uropean <br />
+                  <span className="text-white">A</span>ccessibility <br />
+                  <span className="text-white">A</span>ct
+                  <div className="absolute bottom-0 right-0 text-right">
+                    &mdash; in <br /> Plain English
+                  </div>
+                </div>
+              </div>
+
               {/* <KeyDatesTimeline /> */}
             </div>
           </aside>
 
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 py-2">
             <div className="prose prose-lg dark:prose-invert">{children}</div>
           </div>
         </div>

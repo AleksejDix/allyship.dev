@@ -1,9 +1,6 @@
 import React from 'react'
-import Link from 'next/link'
 import { Metadata } from 'next'
-import { INTRODUCTION_LINKS } from '../../constants/links'
-import { ArrowRight } from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
+import { ChapterNavigation } from '../../components/ChapterNavigation'
 
 export const metadata: Metadata = {
   title: 'Purpose and Definitions - European Accessibility Act',
@@ -293,26 +290,7 @@ export default function PurposeAndDefinitionsPage() {
           </section>
 
           <footer>
-            <nav
-              className="flex justify-end items-center mt-10 pt-4 border-t"
-              aria-labelledby="footer-nav-heading"
-            >
-              <h2 id="footer-nav-heading" className="sr-only">
-                <span className="sr-only">Section:</span>
-                Chapter navigation.
-              </h2>
-
-              <Button asChild id="next-chapter-button">
-                <Link
-                  href={INTRODUCTION_LINKS.SCOPE.fullPath}
-                  className="no-underline"
-                  aria-labelledby="next-chapter-label"
-                >
-                  <span id="next-chapter-label">EAA Scope and Application</span>
-                  <ArrowRight size={16} aria-hidden="true" />
-                </Link>
-              </Button>
-            </nav>
+            <ChapterNavigation currentPageId="1.1-purpose-and-definitions" />
           </footer>
         </div>
       </div>

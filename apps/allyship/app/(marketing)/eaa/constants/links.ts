@@ -1,8 +1,5 @@
 // EAA links constants file
 
-// Base path for EAA section
-export const EAA_BASE_PATH = '/eaa'
-
 // External links
 export const EXTERNAL_LINKS = {
   OFFICIAL_EAA_TEXT:
@@ -12,274 +9,287 @@ export const EXTERNAL_LINKS = {
     'https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf',
 }
 
-// Introduction section
-export const INTRODUCTION_LINKS = {
-  OVERVIEW: {
-    path: '',
-    label: 'Overview',
-    fullPath: `${EAA_BASE_PATH}`,
+// Define the PageInfo interface
+export type PageInfo = {
+  path: string
+  label: string
+  fullPath: string
+  prev: string | null
+  next: string | null
+}
+
+// Define PAGES object for navigation functions based on the actual directory structure
+export const PAGES: Record<string, PageInfo> = {
+  // Foreword
+  '0.0-foreword': {
+    path: '/0.0-foreword',
+    label: 'Foreword',
+    fullPath: '/eaa/0.0-foreword',
+    prev: null,
+    next: '1.0-introduction',
   },
-  PURPOSE_AND_DEFINITIONS: {
+  // Introduction
+  '1.0-introduction': {
+    path: '/1.0-introduction',
+    label: 'Introduction',
+    fullPath: '/eaa/1.0-introduction',
+    prev: '0.0-foreword',
+    next: '1.1-purpose-and-definitions',
+  },
+  '1.1-purpose-and-definitions': {
     path: '/1.1-purpose-and-definitions',
     label: 'Purpose & Definitions',
-    fullPath: `${EAA_BASE_PATH}/1.1-purpose-and-definitions`,
+    fullPath: '/eaa/1.1-purpose-and-definitions',
+    prev: '1.0-introduction',
+    next: '1.2-existing-law-and-free-movement',
   },
-  SCOPE: {
-    path: '/1.2-scope',
-    label: 'Scope & Application',
-    fullPath: `${EAA_BASE_PATH}/1.2-scope`,
+  '1.2-existing-law-and-free-movement': {
+    path: '/1.2-existing-law-and-free-movement',
+    label: 'Existing Law & Free Movement',
+    fullPath: '/eaa/1.2-existing-law-and-free-movement',
+    prev: '1.1-purpose-and-definitions',
+    next: '1.3-implementation-timeline',
   },
-  EXISTING_LAW: {
-    path: '/1.3-existing-law',
-    label: 'Existing Union Law',
-    fullPath: `${EAA_BASE_PATH}/1.3-existing-law`,
+  '1.3-implementation-timeline': {
+    path: '/1.3-implementation-timeline',
+    label: 'Implementation Timeline',
+    fullPath: '/eaa/1.3-implementation-timeline',
+    prev: '1.2-existing-law-and-free-movement',
+    next: '2.0-scope-and-requirements',
   },
-  FREE_MOVEMENT: {
-    path: '/1.4-free-movement',
-    label: 'Free Movement',
-    fullPath: `${EAA_BASE_PATH}/1.4-free-movement`,
+  // Scope and Requirements
+  '2.0-scope-and-requirements': {
+    path: '/2.0-scope-and-requirements',
+    label: 'Scope and Requirements',
+    fullPath: '/eaa/2.0-scope-and-requirements',
+    prev: '1.3-implementation-timeline',
+    next: '2.1-scope',
   },
-}
-
-// Requirements section
-export const REQUIREMENTS_LINKS = {
-  ACCESSIBILITY_REQUIREMENTS: {
-    path: '/2.1-accessibility-requirements',
-    label: 'Accessibility Requirements',
-    fullPath: `${EAA_BASE_PATH}/2.1-accessibility-requirements`,
+  '2.1-scope': {
+    path: '/2.1-scope',
+    label: 'Scope',
+    fullPath: '/eaa/2.1-scope',
+    prev: '2.0-scope-and-requirements',
+    next: '2.2-product-requirements',
   },
-}
-
-// Obligations section
-export const OBLIGATIONS_LINKS = {
-  OVERVIEW: {
-    path: '/2.2-obligations-overview',
-    label: 'Overview',
-    fullPath: `${EAA_BASE_PATH}/2.2-obligations-overview`,
+  '2.2-product-requirements': {
+    path: '/2.2-product-requirements',
+    label: 'Product Requirements',
+    fullPath: '/eaa/2.2-product-requirements',
+    prev: '2.1-scope',
+    next: '2.3-service-requirements',
   },
-  MANUFACTURERS: {
-    path: '/2.3-obligations-manufacturers',
-    label: 'For Manufacturers',
-    fullPath: `${EAA_BASE_PATH}/2.3-obligations-manufacturers`,
+  '2.3-service-requirements': {
+    path: '/2.3-service-requirements',
+    label: 'Service Requirements',
+    fullPath: '/eaa/2.3-service-requirements',
+    prev: '2.2-product-requirements',
+    next: '2.4-sector-specific',
   },
-  IMPORTERS: {
-    path: '/2.4-obligations-importers',
-    label: 'For Importers',
-    fullPath: `${EAA_BASE_PATH}/2.4-obligations-importers`,
+  '2.4-sector-specific': {
+    path: '/2.4-sector-specific',
+    label: 'Sector-Specific Requirements',
+    fullPath: '/eaa/2.4-sector-specific',
+    prev: '2.3-service-requirements',
+    next: '2.5-functional-performance-criteria',
   },
-  DISTRIBUTORS: {
-    path: '/2.5-obligations-distributors',
-    label: 'For Distributors',
-    fullPath: `${EAA_BASE_PATH}/2.5-obligations-distributors`,
+  '2.5-functional-performance-criteria': {
+    path: '/2.5-functional-performance-criteria',
+    label: 'Functional Performance Criteria',
+    fullPath: '/eaa/2.5-functional-performance-criteria',
+    prev: '2.4-sector-specific',
+    next: '2.6-built-environment',
   },
-  SERVICE_PROVIDERS: {
-    path: '/2.6-obligations-service-providers',
-    label: 'For Service Providers',
-    fullPath: `${EAA_BASE_PATH}/2.6-obligations-service-providers`,
+  '2.6-built-environment': {
+    path: '/2.6-built-environment',
+    label: 'Built Environment',
+    fullPath: '/eaa/2.6-built-environment',
+    prev: '2.5-functional-performance-criteria',
+    next: '2.7-technical-criteria',
   },
-}
-
-// Compliance section
-export const COMPLIANCE_LINKS = {
-  CONFORMITY: {
-    path: '/3.1-conformity',
-    label: 'Conformity of Products',
-    fullPath: `${EAA_BASE_PATH}/3.1-conformity`,
+  '2.7-technical-criteria': {
+    path: '/2.7-technical-criteria',
+    label: 'Technical Criteria',
+    fullPath: '/eaa/2.7-technical-criteria',
+    prev: '2.6-built-environment',
+    next: '3.0-exceptions',
   },
-  EU_DECLARATION: {
-    path: '/3.2-eu-declaration',
-    label: 'EU Declaration',
-    fullPath: `${EAA_BASE_PATH}/3.2-eu-declaration`,
+  // Exceptions
+  '3.0-exceptions': {
+    path: '/3.0-exceptions',
+    label: 'Exceptions',
+    fullPath: '/eaa/3.0-exceptions',
+    prev: '2.7-technical-criteria',
+    next: '3.1-disproportionate-burden',
   },
-  CE_MARKING: {
-    path: '/3.3-ce-marking',
-    label: 'CE Marking',
-    fullPath: `${EAA_BASE_PATH}/3.3-ce-marking`,
+  '3.1-disproportionate-burden': {
+    path: '/3.1-disproportionate-burden',
+    label: 'Disproportionate Burden',
+    fullPath: '/eaa/3.1-disproportionate-burden',
+    prev: '3.0-exceptions',
+    next: '3.2-fundamental-alteration',
   },
-  MARKET_SURVEILLANCE: {
-    path: '/3.4-market-surveillance',
-    label: 'Market Surveillance',
-    fullPath: `${EAA_BASE_PATH}/3.4-market-surveillance`,
-  },
-  SERVICE_COMPLIANCE: {
-    path: '/3.5-service-compliance',
-    label: 'Service Compliance',
-    fullPath: `${EAA_BASE_PATH}/3.5-service-compliance`,
-  },
-  NON_COMPLIANCE: {
-    path: '/3.6-non-compliance-procedure',
-    label: 'Non-Compliance Procedures',
-    fullPath: `${EAA_BASE_PATH}/3.6-non-compliance-procedure`,
-  },
-  HARMONIZED_STANDARDS: {
-    path: '/3.7-harmonized-standards',
-    label: 'Harmonized Standards',
-    fullPath: `${EAA_BASE_PATH}/3.7-harmonized-standards`,
-  },
-}
-
-// Exceptions section
-export const EXCEPTIONS_LINKS = {
-  FUNDAMENTAL_ALTERATION: {
-    path: '/3.8-fundamental-alteration',
+  '3.2-fundamental-alteration': {
+    path: '/3.2-fundamental-alteration',
     label: 'Fundamental Alteration',
-    fullPath: `${EAA_BASE_PATH}/3.8-fundamental-alteration`,
+    fullPath: '/eaa/3.2-fundamental-alteration',
+    prev: '3.1-disproportionate-burden',
+    next: '3.3-microenterprises',
+  },
+  '3.3-microenterprises': {
+    path: '/3.3-microenterprises',
+    label: 'Microenterprises',
+    fullPath: '/eaa/3.3-microenterprises',
+    prev: '3.2-fundamental-alteration',
+    next: '4.0-obligations',
+  },
+  // Obligations
+  '4.0-obligations': {
+    path: '/4.0-obligations',
+    label: 'Obligations',
+    fullPath: '/eaa/4.0-obligations',
+    prev: '3.3-microenterprises',
+    next: '4.1-obligations-manufacturers',
+  },
+  '4.1-obligations-manufacturers': {
+    path: '/4.1-obligations-manufacturers',
+    label: 'Obligations of Manufacturers',
+    fullPath: '/eaa/4.1-obligations-manufacturers',
+    prev: '4.0-obligations',
+    next: '4.2-obligations-importers',
+  },
+  '4.2-obligations-importers': {
+    path: '/4.2-obligations-importers',
+    label: 'Obligations of Importers',
+    fullPath: '/eaa/4.2-obligations-importers',
+    prev: '4.1-obligations-manufacturers',
+    next: '4.3-obligations-distributors',
+  },
+  '4.3-obligations-distributors': {
+    path: '/4.3-obligations-distributors',
+    label: 'Obligations of Distributors',
+    fullPath: '/eaa/4.3-obligations-distributors',
+    prev: '4.2-obligations-importers',
+    next: '4.4-obligations-service-providers',
+  },
+  '4.4-obligations-service-providers': {
+    path: '/4.4-obligations-service-providers',
+    label: 'Obligations of Service Providers',
+    fullPath: '/eaa/4.4-obligations-service-providers',
+    prev: '4.3-obligations-distributors',
+    next: '5.0-conformity-and-compliance',
+  },
+  // Conformity and Compliance
+  '5.0-conformity-and-compliance': {
+    path: '/5.0-conformity-and-compliance',
+    label: 'Conformity and Compliance',
+    fullPath: '/eaa/5.0-conformity-and-compliance',
+    prev: '4.4-obligations-service-providers',
+    next: '5.1-product-conformity',
+  },
+  '5.1-product-conformity': {
+    path: '/5.1-product-conformity',
+    label: 'Product Conformity',
+    fullPath: '/eaa/5.1-product-conformity',
+    prev: '5.0-conformity-and-compliance',
+    next: '5.2-service-conformity',
+  },
+  '5.2-service-conformity': {
+    path: '/5.2-service-conformity',
+    label: 'Service Conformity',
+    fullPath: '/eaa/5.2-service-conformity',
+    prev: '5.1-product-conformity',
+    next: '5.3-eu-declaration-of-conformity',
+  },
+  '5.3-eu-declaration-of-conformity': {
+    path: '/5.3-eu-declaration-of-conformity',
+    label: 'EU Declaration of Conformity',
+    fullPath: '/eaa/5.3-eu-declaration-of-conformity',
+    prev: '5.2-service-conformity',
+    next: '5.4-ce-marking',
+  },
+  '5.4-ce-marking': {
+    path: '/5.4-ce-marking',
+    label: 'CE Marking',
+    fullPath: '/eaa/5.4-ce-marking',
+    prev: '5.3-eu-declaration-of-conformity',
+    next: '5.5-harmonized-standards',
+  },
+  '5.5-harmonized-standards': {
+    path: '/5.5-harmonized-standards',
+    label: 'Harmonized Standards',
+    fullPath: '/eaa/5.5-harmonized-standards',
+    prev: '5.4-ce-marking',
+    next: '5.6-non-conformity-procedures',
+  },
+  '5.6-non-conformity-procedures': {
+    path: '/5.6-non-conformity-procedures',
+    label: 'Non-Conformity Procedures',
+    fullPath: '/eaa/5.6-non-conformity-procedures',
+    prev: '5.5-harmonized-standards',
+    next: '5.7-conformity-assessment-procedure',
+  },
+  '5.7-conformity-assessment-procedure': {
+    path: '/5.7-conformity-assessment-procedure',
+    label: 'Conformity Assessment Procedure',
+    fullPath: '/eaa/5.7-conformity-assessment-procedure',
+    prev: '5.6-non-conformity-procedures',
+    next: '5.8-market-surveillance',
+  },
+  '5.8-market-surveillance': {
+    path: '/5.8-market-surveillance',
+    label: 'Market Surveillance',
+    fullPath: '/eaa/5.8-market-surveillance',
+    prev: '5.7-conformity-assessment-procedure',
+    next: '6.0-monitoring',
+  },
+  // Monitoring
+  '6.0-monitoring': {
+    path: '/6.0-monitoring',
+    label: 'Monitoring',
+    fullPath: '/eaa/6.0-monitoring',
+    prev: '5.8-market-surveillance',
+    next: '6.1-authorities',
+  },
+  '6.1-authorities': {
+    path: '/6.1-authorities',
+    label: 'Authorities',
+    fullPath: '/eaa/6.1-authorities',
+    prev: '6.0-monitoring',
+    next: '6.2-market-surveillance',
+  },
+  '6.2-market-surveillance': {
+    path: '/6.2-market-surveillance',
+    label: 'Market Surveillance',
+    fullPath: '/eaa/6.2-market-surveillance',
+    prev: '6.1-authorities',
+    next: '6.3-complaint-systems',
+  },
+  '6.3-complaint-systems': {
+    path: '/6.3-complaint-systems',
+    label: 'Complaint Systems',
+    fullPath: '/eaa/6.3-complaint-systems',
+    prev: '6.2-market-surveillance',
+    next: '6.4-periodic-reviews',
+  },
+  '6.4-periodic-reviews': {
+    path: '/6.4-periodic-reviews',
+    label: 'Periodic Reviews',
+    fullPath: '/eaa/6.4-periodic-reviews',
+    prev: '6.3-complaint-systems',
+    next: null,
   },
 }
 
-// Annexes section
-export const ANNEXES_LINKS = {
-  OVERVIEW: {
-    path: '/4.0-annexes',
-    label: 'All Annexes',
-    fullPath: `${EAA_BASE_PATH}/4.0-annexes`,
-  },
-  ACCESSIBILITY_REQUIREMENTS: {
-    path: '/4.1-annex1-accessibility-requirements',
-    label: 'I: Accessibility Requirements',
-    fullPath: `${EAA_BASE_PATH}/4.1-annex1-accessibility-requirements`,
-    related: [
-      'ANNEXES.OVERVIEW',
-      'ANNEXES.IMPLEMENTATION_EXAMPLES',
-      'REQUIREMENTS.ACCESSIBILITY_REQUIREMENTS',
-    ],
-  },
-  IMPLEMENTATION_EXAMPLES: {
-    path: '/4.2-annex2-implementation-examples',
-    label: 'II: Implementation Examples',
-    fullPath: `${EAA_BASE_PATH}/4.2-annex2-implementation-examples`,
-    related: ['ANNEXES.OVERVIEW', 'ANNEXES.ACCESSIBILITY_REQUIREMENTS'],
-  },
-  BUILT_ENVIRONMENT: {
-    path: '/4.3-annex3-built-environment',
-    label: 'III: Built Environment',
-    fullPath: `${EAA_BASE_PATH}/4.3-annex3-built-environment`,
-    related: ['ANNEXES.OVERVIEW', 'EXCEPTIONS.FUNDAMENTAL_ALTERATION'],
-  },
-  DISPROPORTIONATE_BURDEN: {
-    path: '/4.4-annex4-disproportionate-burden',
-    label: 'IV: Disproportionate Burden',
-    fullPath: `${EAA_BASE_PATH}/4.4-annex4-disproportionate-burden`,
-    related: ['ANNEXES.OVERVIEW', 'ANNEXES.ASSESSMENT_CRITERIA'],
-  },
-  CONFORMITY_ASSESSMENT: {
-    path: '/4.5-annex5-conformity-assessment',
-    label: 'V: Conformity Assessment',
-    fullPath: `${EAA_BASE_PATH}/4.5-annex5-conformity-assessment`,
-    related: [
-      'ANNEXES.OVERVIEW',
-      'COMPLIANCE.CONFORMITY',
-      'COMPLIANCE.EU_DECLARATION',
-    ],
-  },
-  ASSESSMENT_CRITERIA: {
-    path: '/4.6-annex6-assessment-criteria',
-    label: 'VI: Assessment Criteria',
-    fullPath: `${EAA_BASE_PATH}/4.6-annex6-assessment-criteria`,
-    related: ['ANNEXES.OVERVIEW', 'ANNEXES.DISPROPORTIONATE_BURDEN'],
-  },
+// Helper functions to get next/prev pages
+export function getNextPage(currentPageId: string): PageInfo | null {
+  const currentPage = PAGES[currentPageId]
+  if (!currentPage || !currentPage.next) return null
+  return PAGES[currentPage.next] || null
 }
 
-// Implementation section
-export const IMPLEMENTATION_LINKS = {
-  IMPLEMENTATION: {
-    path: '/5.1-implementation',
-    label: 'Implementation',
-    fullPath: `${EAA_BASE_PATH}/5.1-implementation`,
-  },
-  TECHNICAL_STANDARDS: {
-    path: '/5.2-technical-standards',
-    label: 'Technical Standards',
-    fullPath: `${EAA_BASE_PATH}/5.2-technical-standards`,
-  },
-}
-
-// Navigation sections for sidebar - updated to include new structure
-export const ALL_NAVIGATION_SECTIONS = [
-  {
-    title: 'Introduction',
-    icon: 'Info',
-    items: Object.values(INTRODUCTION_LINKS),
-  },
-  {
-    title: 'Requirements & Obligations',
-    icon: 'FileText',
-    items: [
-      ...Object.values(REQUIREMENTS_LINKS),
-      ...Object.values(OBLIGATIONS_LINKS),
-    ],
-  },
-  {
-    title: 'Compliance & Exceptions',
-    icon: 'ShieldCheck',
-    items: [
-      ...Object.values(COMPLIANCE_LINKS),
-      ...Object.values(EXCEPTIONS_LINKS),
-    ],
-  },
-  {
-    title: 'Annexes',
-    icon: 'Book',
-    items: Object.values(ANNEXES_LINKS),
-  },
-  {
-    title: 'Implementation',
-    icon: 'Settings',
-    items: Object.values(IMPLEMENTATION_LINKS),
-  },
-]
-
-// Type for link reference paths used in related links - updated for new structure
-export type LinkRefPath =
-  | 'INTRODUCTION.OVERVIEW'
-  | 'INTRODUCTION.PURPOSE_AND_DEFINITIONS'
-  | 'INTRODUCTION.SCOPE'
-  | 'INTRODUCTION.EXISTING_LAW'
-  | 'INTRODUCTION.FREE_MOVEMENT'
-  | 'REQUIREMENTS.ACCESSIBILITY_REQUIREMENTS'
-  | 'OBLIGATIONS.OVERVIEW'
-  | 'OBLIGATIONS.MANUFACTURERS'
-  | 'OBLIGATIONS.IMPORTERS'
-  | 'OBLIGATIONS.DISTRIBUTORS'
-  | 'OBLIGATIONS.SERVICE_PROVIDERS'
-  | 'COMPLIANCE.CONFORMITY'
-  | 'COMPLIANCE.EU_DECLARATION'
-  | 'COMPLIANCE.CE_MARKING'
-  | 'COMPLIANCE.MARKET_SURVEILLANCE'
-  | 'COMPLIANCE.SERVICE_COMPLIANCE'
-  | 'COMPLIANCE.NON_COMPLIANCE'
-  | 'COMPLIANCE.HARMONIZED_STANDARDS'
-  | 'EXCEPTIONS.FUNDAMENTAL_ALTERATION'
-  | 'ANNEXES.OVERVIEW'
-  | 'ANNEXES.ACCESSIBILITY_REQUIREMENTS'
-  | 'ANNEXES.IMPLEMENTATION_EXAMPLES'
-  | 'ANNEXES.BUILT_ENVIRONMENT'
-  | 'ANNEXES.DISPROPORTIONATE_BURDEN'
-  | 'ANNEXES.CONFORMITY_ASSESSMENT'
-  | 'ANNEXES.ASSESSMENT_CRITERIA'
-  | 'IMPLEMENTATION.IMPLEMENTATION'
-  | 'IMPLEMENTATION.TECHNICAL_STANDARDS'
-
-// Function to resolve a link reference path to the actual link object
-export function getLinkByRefPath(refPath: LinkRefPath) {
-  const [section, key] = refPath.split('.')
-
-  switch (section) {
-    case 'INTRODUCTION':
-      return INTRODUCTION_LINKS[key as keyof typeof INTRODUCTION_LINKS]
-    case 'REQUIREMENTS':
-      return REQUIREMENTS_LINKS[key as keyof typeof REQUIREMENTS_LINKS]
-    case 'OBLIGATIONS':
-      return OBLIGATIONS_LINKS[key as keyof typeof OBLIGATIONS_LINKS]
-    case 'COMPLIANCE':
-      return COMPLIANCE_LINKS[key as keyof typeof COMPLIANCE_LINKS]
-    case 'EXCEPTIONS':
-      return EXCEPTIONS_LINKS[key as keyof typeof EXCEPTIONS_LINKS]
-    case 'ANNEXES':
-      return ANNEXES_LINKS[key as keyof typeof ANNEXES_LINKS]
-    case 'IMPLEMENTATION':
-      return IMPLEMENTATION_LINKS[key as keyof typeof IMPLEMENTATION_LINKS]
-    default:
-      return null
-  }
+export function getPrevPage(currentPageId: string): PageInfo | null {
+  const currentPage = PAGES[currentPageId]
+  if (!currentPage || !currentPage.prev) return null
+  return PAGES[currentPage.prev] || null
 }

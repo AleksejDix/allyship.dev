@@ -243,3 +243,74 @@ Add proper metadata (title and description) to each chapter page:
 - [x] Link from Conformity of Products to Annex V
 - [x] Link from Requirements to related Annexes
 - [x] Create "See Also" component for related pages
+
+## New Chapter Structure Content Review
+
+The EAA section has been restructured with new chapters. This section tracks the content review of each chapter to ensure it properly covers its topic without duplicating content from other chapters.
+
+### 0. Foreword
+
+- [ ] Review 0-foreword content for completeness
+- [ ] Check for proper introduction to EAA content
+- [ ] Ensure it doesn't duplicate content from Chapter 1
+
+### 1. Introduction
+
+- [ ] Review 1-introduction overview content
+- [ ] Check 1.1-purpose-and-definitions for completeness
+- [ ] Review 1.2-existing-law-and-free-movement for proper content separation
+- [ ] Check 1.3-implementation-timeline for accurate dates and milestones
+
+### 2. Scope and Requirements
+
+- [ ] Review 2-scope-and-requirements overview content
+- [ ] Check 2.1-scope for clear boundaries of the EAA
+- [ ] Review 2.2-product-requirements for comprehensive coverage
+- [ ] Check 2.3-service-requirements for clear distinctions from product requirements
+- [ ] Review 2.4-sector-specific content for targeted guidance
+- [ ] Check 2.5-functional-performance-criteria for alignment with standards
+- [ ] Review 2.6-built-environment content for architectural considerations
+- [ ] Check 2.7-technical-criteria for detailed specifications
+
+### 3. Exceptions
+
+- [ ] Review 3-exceptions overview content
+- [ ] Check 3.1-disproportionate-burden for clear assessment criteria
+- [ ] Review 3.2-fundamental-alteration for proper definitions and examples
+- [ ] Check 3.3-microenterprises for accurate exemption descriptions
+
+### 4. Obligations
+
+- [ ] Review 4-obligations overview content
+- [ ] Check 4.1-obligations-manufacturers for comprehensive responsibilities
+- [ ] Review 4.2-obligations-importers for clear distinctions from manufacturers
+- [ ] Check 4.3-obligations-distributors for supply chain responsibilities
+- [ ] Review 4.4-obligations-service-providers for service-specific duties
+
+### 5. Conformity and Compliance
+
+- [ ] Review 5-conformity-and-compliance overview content
+- [ ] Check 5.1-product-conformity for clear assessment processes
+- [ ] Review 5.2-service-conformity for service-specific compliance
+- [ ] Check 5.3-eu-declaration-of-conformity for proper documentation requirements
+- [ ] Review 5.4-ce-marking for accurate marking requirements
+- [ ] Check 5.5-harmonized-standards for current reference to standards
+- [ ] Review 5.6-non-conformity-procedures for enforcement mechanisms
+- [ ] Check 5.7-conformity-assessment-procedure for detailed steps
+- [ ] Review 5.8-market-surveillance for monitoring frameworks
+
+### 6. Monitoring
+
+- [ ] Review 6-monitoring overview content
+- [ ] Check for proper explanation of ongoing compliance requirements
+- [ ] Review for clear guidance on documentation retention
+- [ ] Check for reporting mechanisms explanation
+
+## Content Duplication Check
+
+- [ ] Compare 1.1-purpose-and-definitions with any glossary sections for duplication
+- [ ] Check overlap between 2.2-product-requirements and 2.5-functional-performance-criteria
+- [ ] Review 2.6-built-environment against Annex content for duplication
+- [ ] Compare 3.1-disproportionate-burden with any Annex content on burden assessment
+- [ ] Check 5.1-product-conformity against 5.7-conformity-assessment-procedure for overlap
+- [ ] Review all obligations sections (4.x) for consistent terminology and clear boundaries

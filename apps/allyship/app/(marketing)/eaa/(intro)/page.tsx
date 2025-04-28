@@ -1,9 +1,8 @@
 import React from 'react'
-import { ExternalLink } from 'lucide-react'
 import { Metadata } from 'next'
 import EaaTimeline from '../components/EaaTimeline'
-import { EXTERNAL_LINKS } from '../constants/links'
 import { TableOfContent } from '../components/TableOfContent'
+import { Button } from '@workspace/ui/components/button'
 export const metadata: Metadata = {
   title: 'European Accessibility Act | Complete Guide',
   description:
@@ -23,80 +22,27 @@ export function KeyDatesTimeline() {
 export default function EaaIndexPage() {
   return (
     <main>
-      {/* Book-style chapter structure */}
       <div>
         <section className="mb-12">
-          <h1 className="text-[102px] mb-0 font-bold font-display">
-            <span className="text-blue-500">E</span>uropean{' '}
-            <span className="text-blue-500">A</span>ccessibility{' '}
-            <span className="text-blue-500">A</span>ct &mdash; in <br /> Plain
-            English
+          <h1 className="sr-only text-4xl font-extrabold max-w-xl tracking-tight text-pretty lg:text-7xl font-display">
+            European Accessibility Act &mdash; in Plain English
           </h1>
-          <p className="text-2xl ">
-            The European Accessibility Act is an important law. It helps make
-            products and services easier to use for people with disabilities.
-            But legal language can be hard to understand. This book explains the
-            EAA in simple words, so everyone can learn what it means and what to
-            do. Easy to follow and clear for all.
-          </p>
-
-          <h2 className="text-3xl font-semibold mb-6">Foreword</h2>
-          <p className="mb-4">
-            The European Accessibility Act (EAA) is also called Directive (EU)
-            2019/882. It sets common rules for how products and services should
-            be made accessible in the European Union. This helps people with
-            disabilities and makes things easier for businesses across Europe.
-          </p>
         </section>
+
+        <p className="text-2xl ">
+          The <strong>European Accessibility Act</strong> is an important law.
+          It helps make products and services easier to use for people with
+          disabilities. But legal language can be hard to understand. This book
+          explains the EAA in simple words, so everyone can learn what it means
+          and what to do. Easy to follow and clear for all.
+        </p>
+
+        <Button>Start Reading</Button>
 
         <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
 
         <TableOfContent />
       </div>
-
-      <div className="my-8 border-t border-gray-200" aria-hidden="true"></div>
-
-      <section className="mb-8">
-        <div className="border-l-4 border-blue-500 pl-4 py-2">
-          <h2 className="text-xl font-semibold mb-4">Need More Information?</h2>
-          <p className="mb-4">
-            For the official text of the European Accessibility Act and
-            additional resources:
-          </p>
-          <ul className="space-y-2 list-none">
-            <li>
-              <a
-                href={EXTERNAL_LINKS.OFFICIAL_EAA_TEXT}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline inline-flex items-center gap-1"
-                aria-labelledby="official-directive-link"
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                <span id="official-directive-link">
-                  Official Directive (EU) 2019/882 text
-                  <span className="sr-only">(opens in new window)</span>
-                </span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://ec.europa.eu/social/main.jsp?catId=1202"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline inline-flex items-center gap-1"
-                aria-labelledby="ec-resource-link"
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                <span id="ec-resource-link">
-                  European Commission EAA resource page
-                  <span className="sr-only">(opens in new window)</span>
-                </span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
       <div className="text-sm text-muted-foreground border-t pt-4">
         <p>
