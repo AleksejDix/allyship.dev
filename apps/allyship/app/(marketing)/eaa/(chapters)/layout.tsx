@@ -18,34 +18,32 @@ export default function EAALayout({ children }: { children: React.ReactNode }) {
     <div className="eaa-book min-h-screen">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 lg:gap-12">
-          <div className="lg:col-span-3">
-            <div className="lg:sticky lg:top-2 text-left lg:text-right">
-              <div className="py-2 flex items-center gap-2">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button>
-                      <List size={16} aria-hidden="true" />
-                      EAA Table of Contents
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="overflow-y-auto h-full">
-                    <SheetHeader className="pb-8">
-                      <SheetTitle className="text-2xl font-bold">
-                        <div>European Accessibility Act</div>
-                        <div>in Simple Language</div>
-                      </SheetTitle>
-                      <SheetDescription className=" text-muted-foreground">
-                        Stop guessing what the EAA is all about.
-                      </SheetDescription>
-                    </SheetHeader>
-                    <div>
-                      <TableOfContent />
-                    </div>
-                  </SheetContent>
-                </Sheet>
+          <div className="lg:col-span-8">
+            <div className="py-2 flex items-center gap-2">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline">
+                    <List size={16} className="mr-2" aria-hidden="true" />
+                    EAA Table of Contents
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="overflow-y-auto h-full">
+                  <SheetHeader className="pb-8">
+                    <SheetTitle className="text-2xl font-bold">
+                      <div>European Accessibility Act</div>
+                      <div>in Simple Language</div>
+                    </SheetTitle>
+                    <SheetDescription className="text-muted-foreground">
+                      Stop guessing what the EAA is all about.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div>
+                    <TableOfContent />
+                  </div>
+                </SheetContent>
+              </Sheet>
 
-                <TextToSpeechButton contentSelector="#eaa-content" />
-              </div>
+              <TextToSpeechButton contentSelector="#eaa-content" />
             </div>
           </div>
         </div>
