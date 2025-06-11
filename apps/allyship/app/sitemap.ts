@@ -1,15 +1,15 @@
-import fs from "fs"
-import path from "path"
-import { MetadataRoute } from "next"
+import fs from 'fs'
+import path from 'path'
+import { MetadataRoute } from 'next'
 
 type ChangeFrequency =
-  | "always"
-  | "hourly"
-  | "daily"
-  | "weekly"
-  | "monthly"
-  | "yearly"
-  | "never"
+  | 'always'
+  | 'hourly'
+  | 'daily'
+  | 'weekly'
+  | 'monthly'
+  | 'yearly'
+  | 'never'
 
 type SitemapEntry = {
   url: string
@@ -34,37 +34,37 @@ const PRIORITIES = {
 /**
  * Protected routes that should not appear in the sitemap
  */
-const PROTECTED_ROUTES = new Set(["scans", "spaces", "account"])
+const PROTECTED_ROUTES = new Set(['scans', 'spaces', 'account'])
 
 /**
  * Clean URL path by removing route groups and empty segments
  */
 const cleanUrlPath = (urlPath: string): string => {
   return urlPath
-    .split("/")
+    .split('/')
     .filter(
-      (segment) =>
-        !segment.startsWith("(") &&
-        !segment.endsWith(")") &&
-        segment !== "" &&
+      segment =>
+        !segment.startsWith('(') &&
+        !segment.endsWith(')') &&
+        segment !== '' &&
         !PROTECTED_ROUTES.has(segment)
     )
-    .join("/")
+    .join('/')
 }
 
 /**
  * Check if a directory name represents a dynamic route
  */
 const isDynamicRoute = (name: string): boolean => {
-  return name.startsWith("[") && name.endsWith("]")
+  return name.startsWith('[') && name.endsWith(']')
 }
 
 /**
  * Get priority for a given path
  */
 const getPriority = (path: string): number => {
-  if (path === "") return PRIORITIES.home
-  const firstSegment = path.split("/")[0]
+  if (path === '') return PRIORITIES.home
+  const firstSegment = path.split('/')[0]
   return (
     PRIORITIES[firstSegment as keyof typeof PRIORITIES] || PRIORITIES.default
   )
@@ -85,10 +85,10 @@ const getLastModified = (route: string): Date => {
   try {
     const filePath = path.join(
       process.cwd(),
-      "app",
-      "(marketing)",
+      'app',
+      '(marketing)',
       route,
-      "page.tsx"
+      'page.tsx'
     )
     if (fs.existsSync(filePath)) {
       return ensureValidDate(fs.statSync(filePath).mtime)
@@ -103,15 +103,15 @@ const getLastModified = (route: string): Date => {
 /**
  * Walk through directory and find all pages
  */
-const getPages = (dir: string, urlPrefix: string = ""): SitemapEntry[] => {
+const getPages = (dir: string, urlPrefix: string = ''): SitemapEntry[] => {
   try {
-    const baseDirectory = path.join(process.cwd(), "app", dir)
+    const baseDirectory = path.join(process.cwd(), 'app', dir)
     if (!fs.existsSync(baseDirectory)) return []
 
     const entries: SitemapEntry[] = []
     const items = fs.readdirSync(baseDirectory)
 
-    items.forEach((item) => {
+    items.forEach(item => {
       const itemPath = path.join(baseDirectory, item)
       const stats = fs.statSync(itemPath)
 
@@ -119,7 +119,7 @@ const getPages = (dir: string, urlPrefix: string = ""): SitemapEntry[] => {
         // Check if directory contains a page file
         const dirFiles = fs.readdirSync(itemPath)
         const hasPage = dirFiles.some(
-          (file) => file === "page.tsx" || file === "page.mdx"
+          file => file === 'page.tsx' || file === 'page.mdx'
         )
 
         if (hasPage) {
@@ -139,7 +139,7 @@ const getPages = (dir: string, urlPrefix: string = ""): SitemapEntry[] => {
             entries.push({
               url: `https://allyship.dev/${cleanPath}`,
               lastModified: ensureValidDate(stats.mtime),
-              changeFrequency: "weekly" as const,
+              changeFrequency: 'weekly' as const,
               priority: getPriority(cleanPath),
             })
           }
@@ -163,40 +163,46 @@ const getPages = (dir: string, urlPrefix: string = ""): SitemapEntry[] => {
  */
 const staticRoutes: SitemapEntry[] = [
   {
-    url: "https://allyship.dev",
-    lastModified: getLastModified(""),
-    changeFrequency: "monthly",
+    url: 'https://allyship.dev',
+    lastModified: getLastModified(''),
+    changeFrequency: 'monthly',
     priority: PRIORITIES.home,
   },
   {
-    url: "https://allyship.dev/blog",
-    lastModified: getLastModified("blog"),
-    changeFrequency: "daily",
+    url: 'https://allyship.dev/blog',
+    lastModified: getLastModified('blog'),
+    changeFrequency: 'daily',
     priority: PRIORITIES.blog,
   },
   {
-    url: "https://allyship.dev/products",
-    lastModified: getLastModified("products"),
-    changeFrequency: "weekly",
+    url: 'https://allyship.dev/products',
+    lastModified: getLastModified('products'),
+    changeFrequency: 'weekly',
     priority: PRIORITIES.products,
   },
   {
-    url: "https://allyship.dev/services",
-    lastModified: getLastModified("services"),
-    changeFrequency: "weekly",
+    url: 'https://allyship.dev/services',
+    lastModified: getLastModified('services'),
+    changeFrequency: 'weekly',
     priority: PRIORITIES.services,
   },
   {
-    url: "https://allyship.dev/education",
-    lastModified: getLastModified("education"),
-    changeFrequency: "weekly",
+    url: 'https://allyship.dev/education',
+    lastModified: getLastModified('education'),
+    changeFrequency: 'weekly',
     priority: PRIORITIES.education,
   },
   {
-    url: "https://allyship.dev/glossary",
-    lastModified: getLastModified("glossary"),
-    changeFrequency: "weekly",
+    url: 'https://allyship.dev/glossary',
+    lastModified: getLastModified('glossary'),
+    changeFrequency: 'weekly',
     priority: PRIORITIES.glossary,
+  },
+  {
+    url: 'https://allyship.dev/cartoons',
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: 0.8,
   },
 ]
 
@@ -206,25 +212,25 @@ const staticRoutes: SitemapEntry[] = [
 export default function sitemap(): MetadataRoute.Sitemap {
   // Log a reminder about dynamic routes
   console.info(
-    "ℹ️ Remember to handle these dynamic routes manually in your sitemap:"
+    'ℹ️ Remember to handle these dynamic routes manually in your sitemap:'
   )
-  console.info("- /education/courses/[...slug] (Course pages)")
-  console.info("- /scans/[...id] (Scan result pages)")
+  console.info('- /education/courses/[...slug] (Course pages)')
+  console.info('- /scans/[...id] (Scan result pages)')
 
   // Get all pages and remove duplicates
-  const marketingPages = getPages("(marketing)")
+  const marketingPages = getPages('(marketing)')
   const allUrls = new Set(
     [...staticRoutes, ...marketingPages]
-      .map((entry) => entry.url)
-      .filter((url) => {
-        const path = url.replace("https://allyship.dev/", "")
-        return !path.split("/").some((segment) => PROTECTED_ROUTES.has(segment))
+      .map(entry => entry.url)
+      .filter(url => {
+        const path = url.replace('https://allyship.dev/', '')
+        return !path.split('/').some(segment => PROTECTED_ROUTES.has(segment))
       })
   )
 
-  return [...allUrls].map((url) => {
-    const staticRoute = staticRoutes.find((route) => route.url === url)
-    const marketingPage = marketingPages.find((page) => page.url === url)
+  return [...allUrls].map(url => {
+    const staticRoute = staticRoutes.find(route => route.url === url)
+    const marketingPage = marketingPages.find(page => page.url === url)
 
     // Prefer static route configuration if available
     return (
@@ -232,8 +238,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       marketingPage || {
         url,
         lastModified: new Date(),
-        changeFrequency: "weekly" as const,
-        priority: getPriority(url.replace("https://allyship.dev/", "")),
+        changeFrequency: 'weekly' as const,
+        priority: getPriority(url.replace('https://allyship.dev/', '')),
       }
     )
   })
