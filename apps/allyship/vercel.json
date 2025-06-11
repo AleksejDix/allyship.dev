@@ -5,6 +5,14 @@
   "framework": "nextjs",
   "rewrites": [
     {
+      "source": "/cartoons",
+      "destination": "https://accessibility-is.vercel.app/cartoons/"
+    },
+    {
+      "source": "/cartoons/",
+      "destination": "https://accessibility-is.vercel.app/cartoons/"
+    },
+    {
       "source": "/cartoons/:path*",
       "destination": "https://accessibility-is.vercel.app/cartoons/:path*"
     }
