@@ -5,12 +5,16 @@
   "framework": "nextjs",
   "rewrites": [
     {
+      "source": "/cartoons/_nuxt/(.*)",
+      "destination": "https://accessibility-is.vercel.app/_nuxt/$1"
+    },
+    {
       "source": "/cartoons/(.*)",
-      "destination": "https://accessibility-is.vercel.app/cartoons/$1"
+      "destination": "https://accessibility-is.vercel.app/$1"
     },
     {
       "source": "/cartoons",
-      "destination": "https://accessibility-is.vercel.app/cartoons/"
+      "destination": "https://accessibility-is.vercel.app/"
     }
   ]
 }
