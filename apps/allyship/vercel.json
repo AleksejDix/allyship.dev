@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/cartoons/:path*",
-      "destination": "https://accessibility-is.vercel.app/:path*"
+      "destination": "https://accessibility-is.vercel.app/cartoons/:path*"
     }
   ]
 }
