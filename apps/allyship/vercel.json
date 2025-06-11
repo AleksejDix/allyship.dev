@@ -6,11 +6,11 @@
   "rewrites": [
     {
       "source": "/cartoons/(.*)",
-      "destination": "https://accessibility-is.vercel.app/$1"
+      "destination": "https://accessibility-is.vercel.app/cartoons/$1"
     },
     {
       "source": "/cartoons",
-      "destination": "https://accessibility-is.vercel.app/"
+      "destination": "https://accessibility-is.vercel.app/cartoons/"
     }
   ]
 }
