@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Tables } from '@/apps/AllyShip/database.types'
+import type { Tables } from '@/database.types'
 import { deletePage } from '@/features/pages/actions/delete'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trash2 } from 'lucide-react'
@@ -12,11 +12,8 @@ import { useServerAction } from 'zsa-react'
 
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -33,7 +30,7 @@ type Props = {
 
 const deleteFormSchema = z.object({
   confirmDelete: z.boolean().refine(val => val === true, {
-    message: 'Please confirm deletion',
+    message: 'You must confirm this action',
   }),
 })
 
@@ -42,7 +39,6 @@ type DeleteFormData = z.infer<typeof deleteFormSchema>
 export function PageDeleteDialog({ page, space_id, website_id }: Props) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
-  const { execute, isPending } = useServerAction(deletePage)
   const cancelRef = useRef<HTMLButtonElement>(null)
 
   const form = useForm<DeleteFormData>({
@@ -52,31 +48,46 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
     },
   })
 
+  const { execute, isPending } = useServerAction(deletePage)
+
   const onSubmit = async () => {
-    console.log('Starting delete submission')
-    const [result, actionError] = await execute({
-      id: page.id,
-    })
+    try {
+      console.log('Starting delete submission')
 
-    console.log('Delete action result:', result)
-    console.log('Delete action error:', actionError)
-
-    if (actionError) {
-      console.error('Delete action failed:', actionError)
-      form.setError('root', {
-        type: 'server',
-        message: actionError.message,
+      const [result, error] = await execute({
+        id: page.id,
       })
-      return
-    }
 
-    if (result?.success) {
+      console.log('Delete action result:', { result, error })
+
+      if (error) {
+        console.error('Delete action failed:', error)
+        form.setError('root', {
+          type: 'server',
+          message: error.message,
+        })
+        return
+      }
+
+      if (!result?.success) {
+        console.error('Delete action failed:', result?.error)
+        form.setError('root', {
+          type: 'server',
+          message: result?.error?.message ?? 'Failed to delete page',
+        })
+        return
+      }
+
       setIsOpen(false)
       router.refresh()
-    } else {
+    } catch (error) {
+      console.error('Unexpected error:', error)
       form.setError('root', {
         type: 'server',
-        message: result?.error?.message ?? 'Failed to delete page',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred',
       })
     }
   }
@@ -139,32 +150,20 @@ export function PageDeleteDialog({ page, space_id, website_id }: Props) {
             </div>
 
             <div className="flex justify-end gap-2">
-              <AlertDialogCancel asChild onClick={e => e.preventDefault()}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-              </AlertDialogCancel>
-              <AlertDialogAction
-                asChild
-                onClick={e => e.preventDefault()}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    form.handleSubmit(onSubmit)()
-                  }
-                }}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
               >
-                <Button
-                  type="submit"
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {isPending ? 'Deleting...' : 'Delete'}
-                </Button>
-              </AlertDialogAction>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={!form.watch('confirmDelete') || isPending}
+              >
+                {isPending ? 'Deleting...' : 'Delete'}
+              </Button>
             </div>
           </form>
         </Form>

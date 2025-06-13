@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation"
-import { CrawlButton } from "@/features/crawl/components/crawl-button"
-import { PageCreateDialog } from "@/features/pages/components/page-create-dialog"
-import { PagesIndex } from "@/features/pages/components/pages-index"
-import { PageHeader } from "@/features/websites/components/page-header"
+import { notFound } from 'next/navigation'
+import { CrawlButton } from '@/features/crawl/components/crawl-button'
+import { PageCreateDialog } from '@/features/pages/components/page-create-dialog'
+import { PagesIndex } from '@/features/pages/components/pages-index'
+import { PageHeader } from '@/features/websites/components/page-header'
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from '@/lib/supabase/server'
 
 type Props = {
   params: Promise<{ website_id: string; space_id: string }>
@@ -14,19 +14,38 @@ async function PagesContent(props: Props) {
   const { website_id, space_id } = await props.params
   const supabase = await createClient()
 
-  const { data: pages } = await supabase
-    .from("Page")
-    .select()
-    .eq("website_id", website_id)
-    .order("url")
+  // Get pages first
+  const { data: pages, error: pagesError } = await supabase
+    .from('Page')
+    .select('*')
+    .eq('website_id', website_id)
+    .order('url')
 
   if (!pages) {
     notFound()
   }
 
+  // Get all schedules for pages in this website
+  const pageIds = pages.map(page => page.id)
+  const { data: schedules, error: schedulesError } = await supabase
+    .from('ScanSchedule')
+    .select('*')
+    .in('page_id', pageIds)
+
+  // Manually join the data
+  const pagesWithSchedules = pages.map(page => ({
+    ...page,
+    ScanSchedule:
+      schedules?.filter(schedule => schedule.page_id === page.id) || [],
+  }))
+
   return (
     <div className="container space-y-6">
-      <PagesIndex space_id={space_id} website_id={website_id} pages={pages} />
+      <PagesIndex
+        space_id={space_id}
+        website_id={website_id}
+        pages={pagesWithSchedules || []}
+      />
     </div>
   )
 }
@@ -36,9 +55,9 @@ export default async function PagesPage(props: Props) {
   const supabase = await createClient()
 
   const { data: website } = await supabase
-    .from("Website")
+    .from('Website')
     .select()
-    .eq("id", params.website_id)
+    .eq('id', params.website_id)
     .single()
 
   if (!website) {

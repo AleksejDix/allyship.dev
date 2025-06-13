@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createScan } from '@/features/scans/actions'
 import { PageHeader } from '@/features/websites/components/page-header'
+import { ScansIndex } from '@/features/scans/components/scans-index'
 import { Scan as ScanIcon } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/server'
@@ -48,12 +49,13 @@ export default async function Page(props: Props) {
     throw error
   }
 
-  // Get scans for this page
+  // Get last 10 scans for this page
   const { data: scans } = await supabase
     .from('Scan')
     .select('*')
     .eq('page_id', page_id)
     .order('created_at', { ascending: false })
+    .limit(10)
 
   const fullUrl = page.url
   console.log(fullUrl)
@@ -128,44 +130,16 @@ export default async function Page(props: Props) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Scans</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!scans?.length ? (
-              <p className="text-sm text-muted-foreground">No scans found</p>
-            ) : (
-              <div className="space-y-4">
-                {scans.map(scan => (
-                  <div
-                    key={scan.id}
-                    className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
-                  >
-                    <div className="space-y-1">
-                      <div className="text-sm">
-                        {new Date(scan.created_at).toLocaleString()}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{scan.status}</Badge>
-                        {scan.metrics && (
-                          <span className="text-sm text-muted-foreground">
-                            {Object.keys(scan.metrics).length} metrics collected
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {(scan.screenshot_light || scan.screenshot_dark) && (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">Screenshots Available</Badge>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Recent Scans</h2>
+            <p className="text-sm text-muted-foreground">
+              Last 10 scans for this page
+            </p>
+          </div>
+
+          <ScansIndex scans={scans || []} />
+        </div>
       </div>
     </>
   )

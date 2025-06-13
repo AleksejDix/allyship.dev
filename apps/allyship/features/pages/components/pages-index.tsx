@@ -3,7 +3,7 @@
 import * as React from 'react'
 import type { Tables } from '@/database.types'
 import { formatDate } from '@/utils/date-formatting'
-import { FileText } from 'lucide-react'
+import { FileText, Clock } from 'lucide-react'
 
 import {
   Table,
@@ -14,13 +14,43 @@ import {
   TableRow,
 } from '@workspace/ui/components/table'
 import { Input } from '@workspace/ui/components/input'
+import { Badge } from '@workspace/ui/components/badge'
 import { RouterLink } from '@/components/RouterLink'
 import { PageDeleteDialog } from './page-delete-dialog'
 
+type ScanSchedule = {
+  id: string
+  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'disabled'
+  next_scan_at: string | null
+  last_scan_at: string | null
+  is_active: boolean
+}
+
+type PageWithSchedule = Tables<'Page'> & {
+  ScanSchedule: ScanSchedule[]
+}
+
 type Props = {
-  pages: Tables<'Page'>[]
+  pages: PageWithSchedule[]
   website_id: string
   space_id: string
+}
+
+const getFrequencyBadgeVariant = (frequency: string) => {
+  switch (frequency) {
+    case 'daily':
+      return 'destructive' // Red for critical/frequent
+    case 'weekly':
+      return 'default' // Blue for regular
+    case 'biweekly':
+      return 'secondary' // Gray for less frequent
+    case 'monthly':
+      return 'outline' // Outline for infrequent
+    case 'disabled':
+      return 'outline' // Outline for disabled
+    default:
+      return 'outline'
+  }
 }
 
 export function PagesIndex({ pages, space_id, website_id }: Props) {
@@ -49,38 +79,72 @@ export function PagesIndex({ pages, space_id, website_id }: Props) {
             <TableHeader>
               <TableRow>
                 <TableHead>Page URL</TableHead>
+                <TableHead>Scan Schedule</TableHead>
                 <TableHead>Added</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPages.map(page => (
-                <TableRow key={page.id}>
-                  <TableCell>
-                    <RouterLink
-                      href={`/spaces/${space_id}/${website_id}/pages/${page.id}`}
-                      className="flex items-center gap-2 hover:underline"
-                    >
-                      <FileText
-                        size="16"
-                        aria-hidden="true"
-                        className="shrink-0 text-muted-foreground"
+              {filteredPages.map(page => {
+                const schedule = page.ScanSchedule?.[0] // Get first (and only) schedule
+                return (
+                  <TableRow key={page.id}>
+                    <TableCell>
+                      <RouterLink
+                        href={`/spaces/${space_id}/${website_id}/pages/${page.id}`}
+                        className="flex items-center gap-2 hover:underline"
+                      >
+                        <FileText
+                          size="16"
+                          aria-hidden="true"
+                          className="shrink-0 text-muted-foreground"
+                        />
+                        <span>{page.url}</span>
+                      </RouterLink>
+                    </TableCell>
+                    <TableCell>
+                      {schedule ? (
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={getFrequencyBadgeVariant(
+                              schedule.frequency
+                            )}
+                          >
+                            {schedule.frequency === 'biweekly'
+                              ? 'Bi-weekly'
+                              : schedule.frequency.charAt(0).toUpperCase() +
+                                schedule.frequency.slice(1)}
+                          </Badge>
+                          {schedule.next_scan_at &&
+                            schedule.frequency !== 'disabled' && (
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Clock aria-hidden="true" size="12" />
+                                <span>
+                                  Next:{' '}
+                                  {new Date(
+                                    schedule.next_scan_at
+                                  ).toLocaleDateString()}
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      ) : (
+                        <Badge variant="outline">No schedule</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatDate(page.created_at)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <PageDeleteDialog
+                        page={page}
+                        space_id={space_id}
+                        website_id={website_id}
                       />
-                      <span>{page.url}</span>
-                    </RouterLink>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(page.created_at)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <PageDeleteDialog
-                      page={page}
-                      space_id={space_id}
-                      website_id={website_id}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

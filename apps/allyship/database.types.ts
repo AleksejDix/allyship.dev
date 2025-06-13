@@ -9,38 +9,150 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      Memberships: {
+      allyreport_issues: {
         Row: {
-          created_at: string
-          deleted_at: string | null
+          context_data: Json | null
+          created_at: string | null
+          current_code: string | null
+          description: string
+          element_html: string | null
+          element_selector: string | null
+          estimated_effort: string | null
+          fix_complexity: string | null
+          fixed_at: string | null
+          how_to_fix: string | null
           id: string
-          space_id: string
-          updated_at: string
-          user_id: string
+          resolution_notes: string | null
+          rule_id: string
+          scan_id: string
+          screenshot_url: string | null
+          severity: string
+          status: string | null
+          suggested_code: string | null
+          title: string
+          updated_at: string | null
+          wcag_criterion: string | null
+          wcag_guideline: string | null
+          wcag_level: string | null
+          wcag_principle: string | null
         }
         Insert: {
-          created_at?: string
-          deleted_at?: string | null
+          context_data?: Json | null
+          created_at?: string | null
+          current_code?: string | null
+          description: string
+          element_html?: string | null
+          element_selector?: string | null
+          estimated_effort?: string | null
+          fix_complexity?: string | null
+          fixed_at?: string | null
+          how_to_fix?: string | null
           id?: string
-          space_id: string
-          updated_at?: string
-          user_id: string
+          resolution_notes?: string | null
+          rule_id: string
+          scan_id: string
+          screenshot_url?: string | null
+          severity: string
+          status?: string | null
+          suggested_code?: string | null
+          title: string
+          updated_at?: string | null
+          wcag_criterion?: string | null
+          wcag_guideline?: string | null
+          wcag_level?: string | null
+          wcag_principle?: string | null
         }
         Update: {
-          created_at?: string
-          deleted_at?: string | null
+          context_data?: Json | null
+          created_at?: string | null
+          current_code?: string | null
+          description?: string
+          element_html?: string | null
+          element_selector?: string | null
+          estimated_effort?: string | null
+          fix_complexity?: string | null
+          fixed_at?: string | null
+          how_to_fix?: string | null
           id?: string
-          space_id?: string
-          updated_at?: string
-          user_id?: string
+          resolution_notes?: string | null
+          rule_id?: string
+          scan_id?: string
+          screenshot_url?: string | null
+          severity?: string
+          status?: string | null
+          suggested_code?: string | null
+          title?: string
+          updated_at?: string | null
+          wcag_criterion?: string | null
+          wcag_guideline?: string | null
+          wcag_level?: string | null
+          wcag_principle?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "memberships_space_id_fkey"
-            columns: ["space_id"]
+            foreignKeyName: 'allyreport_issues_scan_id_fkey'
+            columns: ['scan_id']
             isOneToOne: false
-            referencedRelation: "Space"
-            referencedColumns: ["id"]
+            referencedRelation: 'Scan'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      allyreport_scans: {
+        Row: {
+          added_at: string | null
+          allyreport_id: string
+          id: string
+          included_in_report: boolean | null
+          matched_pattern: string | null
+          page_notes: string | null
+          priority_level: number | null
+          scan_id: string
+          scan_weight: number | null
+        }
+        Insert: {
+          added_at?: string | null
+          allyreport_id: string
+          id?: string
+          included_in_report?: boolean | null
+          matched_pattern?: string | null
+          page_notes?: string | null
+          priority_level?: number | null
+          scan_id: string
+          scan_weight?: number | null
+        }
+        Update: {
+          added_at?: string | null
+          allyreport_id?: string
+          id?: string
+          included_in_report?: boolean | null
+          matched_pattern?: string | null
+          page_notes?: string | null
+          priority_level?: number | null
+          scan_id?: string
+          scan_weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'allyreport_scans_report_config_id_fkey'
+            columns: ['allyreport_id']
+            isOneToOne: false
+            referencedRelation: 'report_configs'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'allyreport_scans_report_config_id_fkey'
+            columns: ['allyreport_id']
+            isOneToOne: false
+            referencedRelation: 'reports'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'allyreport_scans_scan_id_fkey'
+            columns: ['scan_id']
+            isOneToOne: false
+            referencedRelation: 'Scan'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -77,11 +189,85 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "Page_website_id_fkey"
-            columns: ["website_id"]
+            foreignKeyName: 'Page_website_id_fkey'
+            columns: ['website_id']
             isOneToOne: false
-            referencedRelation: "Website"
-            referencedColumns: ["id"]
+            referencedRelation: 'Website'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      report_configs: {
+        Row: {
+          access_password: string | null
+          base_url: string
+          branding: Json | null
+          created_at: string | null
+          deleted_at: string | null
+          executive_summary: string | null
+          id: string
+          is_public: boolean | null
+          methodology: string | null
+          next_review_date: string | null
+          password_protected: boolean | null
+          recommendations: string | null
+          scope_config: Json | null
+          share_token: string | null
+          space_id: string | null
+          target_domain: string
+          title: string
+          updated_at: string | null
+          wcag_level: string | null
+        }
+        Insert: {
+          access_password?: string | null
+          base_url: string
+          branding?: Json | null
+          created_at?: string | null
+          deleted_at?: string | null
+          executive_summary?: string | null
+          id?: string
+          is_public?: boolean | null
+          methodology?: string | null
+          next_review_date?: string | null
+          password_protected?: boolean | null
+          recommendations?: string | null
+          scope_config?: Json | null
+          share_token?: string | null
+          space_id?: string | null
+          target_domain: string
+          title: string
+          updated_at?: string | null
+          wcag_level?: string | null
+        }
+        Update: {
+          access_password?: string | null
+          base_url?: string
+          branding?: Json | null
+          created_at?: string | null
+          deleted_at?: string | null
+          executive_summary?: string | null
+          id?: string
+          is_public?: boolean | null
+          methodology?: string | null
+          next_review_date?: string | null
+          password_protected?: boolean | null
+          recommendations?: string | null
+          scope_config?: Json | null
+          share_token?: string | null
+          space_id?: string | null
+          target_domain?: string
+          title?: string
+          updated_at?: string | null
+          wcag_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'report_configs_space_id_fkey'
+            columns: ['space_id']
+            isOneToOne: false
+            referencedRelation: 'Space'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -94,7 +280,7 @@ export type Database = {
           page_id: string
           screenshot_dark: string | null
           screenshot_light: string | null
-          status: Database["public"]["Enums"]["ScanStatus"]
+          status: Database['public']['Enums']['ScanStatus']
           url: string
         }
         Insert: {
@@ -105,7 +291,7 @@ export type Database = {
           page_id: string
           screenshot_dark?: string | null
           screenshot_light?: string | null
-          status?: Database["public"]["Enums"]["ScanStatus"]
+          status?: Database['public']['Enums']['ScanStatus']
           url?: string
         }
         Update: {
@@ -116,16 +302,57 @@ export type Database = {
           page_id?: string
           screenshot_dark?: string | null
           screenshot_light?: string | null
-          status?: Database["public"]["Enums"]["ScanStatus"]
+          status?: Database['public']['Enums']['ScanStatus']
           url?: string
         }
         Relationships: [
           {
-            foreignKeyName: "Scan_page_id_fkey"
-            columns: ["page_id"]
+            foreignKeyName: 'Scan_page_id_fkey'
+            columns: ['page_id']
             isOneToOne: false
-            referencedRelation: "Page"
-            referencedColumns: ["id"]
+            referencedRelation: 'Page'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      ScanSchedule: {
+        Row: {
+          created_at: string
+          frequency: string
+          id: string
+          is_active: boolean
+          last_scan_at: string | null
+          next_scan_at: string | null
+          page_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_scan_at?: string | null
+          next_scan_at?: string | null
+          page_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_scan_at?: string | null
+          next_scan_at?: string | null
+          page_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ScanSchedule_page_id_fkey'
+            columns: ['page_id']
+            isOneToOne: true
+            referencedRelation: 'Page'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -159,48 +386,159 @@ export type Database = {
         }
         Relationships: []
       }
-      User: {
+      wcag_guideline: {
         Row: {
-          avatar_url: string | null
-          created_at: string
-          data_retention_period: unknown | null
-          deleted_at: string | null
-          deletion_requested_at: string | null
-          email: string | null
-          first_name: string | null
-          full_name: string | null
+          conformance_level: string | null
+          created_at: string | null
+          description: string | null
+          guideline_number: string
           id: string
-          last_name: string | null
-          status: string
-          updated_at: string
+          principle_id: string | null
+          title: string
+          updated_at: string | null
         }
         Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          data_retention_period?: unknown | null
-          deleted_at?: string | null
-          deletion_requested_at?: string | null
-          email?: string | null
-          first_name?: string | null
-          full_name?: string | null
-          id: string
-          last_name?: string | null
-          status?: string
-          updated_at?: string
+          conformance_level?: string | null
+          created_at?: string | null
+          description?: string | null
+          guideline_number: string
+          id?: string
+          principle_id?: string | null
+          title: string
+          updated_at?: string | null
         }
         Update: {
-          avatar_url?: string | null
-          created_at?: string
-          data_retention_period?: unknown | null
-          deleted_at?: string | null
-          deletion_requested_at?: string | null
-          email?: string | null
-          first_name?: string | null
-          full_name?: string | null
+          conformance_level?: string | null
+          created_at?: string | null
+          description?: string | null
+          guideline_number?: string
           id?: string
-          last_name?: string | null
-          status?: string
-          updated_at?: string
+          principle_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'wcag_guideline_principle_id_fkey'
+            columns: ['principle_id']
+            isOneToOne: false
+            referencedRelation: 'wcag_principle'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      wcag_principle: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      wcag_success_criterion: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          guideline_id: string
+          id: string
+          level: string
+          principle_id: string | null
+          sc_number: string
+          title: string | null
+          updated_at: string | null
+          url: string | null
+          wcag_version_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          guideline_id: string
+          id?: string
+          level: string
+          principle_id?: string | null
+          sc_number: string
+          title?: string | null
+          updated_at?: string | null
+          url?: string | null
+          wcag_version_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          guideline_id?: string
+          id?: string
+          level?: string
+          principle_id?: string | null
+          sc_number?: string
+          title?: string | null
+          updated_at?: string | null
+          url?: string | null
+          wcag_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'wcag_success_criterion_guideline_id_fkey'
+            columns: ['guideline_id']
+            isOneToOne: false
+            referencedRelation: 'wcag_guideline'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'wcag_success_criterion_principle_id_fkey'
+            columns: ['principle_id']
+            isOneToOne: false
+            referencedRelation: 'wcag_principle'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'wcag_success_criterion_wcag_version_id_fkey'
+            columns: ['wcag_version_id']
+            isOneToOne: false
+            referencedRelation: 'wcag_version'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      wcag_version: {
+        Row: {
+          id: string
+          release_date: string | null
+          status: string | null
+          title: string | null
+          url: string | null
+          version: string
+        }
+        Insert: {
+          id?: string
+          release_date?: string | null
+          status?: string | null
+          title?: string | null
+          url?: string | null
+          version: string
+        }
+        Update: {
+          id?: string
+          release_date?: string | null
+          status?: string | null
+          title?: string | null
+          url?: string | null
+          version?: string
         }
         Relationships: []
       }
@@ -210,7 +548,7 @@ export type Database = {
           id: string
           normalized_url: string
           space_id: string
-          theme: Database["public"]["Enums"]["DomainTheme"]
+          theme: Database['public']['Enums']['DomainTheme']
           updated_at: string
           url: string
           user_id: string | null
@@ -220,7 +558,7 @@ export type Database = {
           id?: string
           normalized_url?: string
           space_id: string
-          theme?: Database["public"]["Enums"]["DomainTheme"]
+          theme?: Database['public']['Enums']['DomainTheme']
           updated_at?: string
           url: string
           user_id?: string | null
@@ -230,40 +568,80 @@ export type Database = {
           id?: string
           normalized_url?: string
           space_id?: string
-          theme?: Database["public"]["Enums"]["DomainTheme"]
+          theme?: Database['public']['Enums']['DomainTheme']
           updated_at?: string
           url?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "Domain_space_id_fkey"
-            columns: ["space_id"]
+            foreignKeyName: 'Domain_space_id_fkey'
+            columns: ['space_id']
             isOneToOne: false
-            referencedRelation: "Space"
-            referencedColumns: ["id"]
+            referencedRelation: 'Space'
+            referencedColumns: ['id']
           },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      reports: {
+        Row: {
+          access_password: string | null
+          base_url: string | null
+          branding: Json | null
+          completed_at: string | null
+          created_at: string | null
+          deleted_at: string | null
+          executive_summary: string | null
+          id: string | null
+          is_public: boolean | null
+          methodology: string | null
+          next_review_date: string | null
+          password_protected: boolean | null
+          published_at: string | null
+          recommendations: string | null
+          scope_config: Json | null
+          share_token: string | null
+          space_id: string | null
+          started_at: string | null
+          status: string | null
+          summary: Json | null
+          target_domain: string | null
+          title: string | null
+          updated_at: string | null
+          wcag_level: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'report_configs_space_id_fkey'
+            columns: ['space_id']
+            isOneToOne: false
+            referencedRelation: 'Space'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Functions: {
+      calculate_next_scan_time: {
+        Args: { frequency_val: string; base_time?: string }
+        Returns: string
+      }
       cleanup_disabled_accounts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
       cleanup_old_audit_logs: {
-        Args: {
-          retention_period?: unknown
-        }
+        Args: { retention_period?: unknown }
         Returns: number
       }
+      extract_path_from_url: {
+        Args: { url: string }
+        Returns: string
+      }
       is_admin: {
-        Args: {
-          jwt?: Json
-        }
+        Args: { jwt?: Json }
         Returns: boolean
       }
       log_user_action: {
@@ -276,34 +654,42 @@ export type Database = {
         Returns: undefined
       }
       mask_ip_address: {
-        Args: {
-          ip: string
-        }
+        Args: { ip: string }
+        Returns: string
+      }
+      merge_duplicate_pages: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      merge_duplicate_websites: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      normalize_page_url: {
+        Args: { url: string } | { url: string; website_normalized_url: string }
+        Returns: string
+      }
+      normalize_url: {
+        Args: { url: string }
+        Returns: string
+      }
+      normalize_website_url: {
+        Args: { url: string }
         Returns: string
       }
       parse_name: {
-        Args: {
-          full_name: string
-        }
+        Args: { full_name: string }
         Returns: {
           first_name: string
           last_name: string
         }[]
       }
       queue_user_notification: {
-        Args: {
-          user_id: string
-          notification_type: string
-          details?: Json
-        }
+        Args: { user_id: string; notification_type: string; details?: Json }
         Returns: string
       }
       reactivate_user: {
-        Args: {
-          user_id: string
-          admin_id: string
-          reason?: string
-        }
+        Args: { user_id: string; admin_id: string; reason?: string }
         Returns: undefined
       }
       request_gdpr_deletion: {
@@ -321,8 +707,8 @@ export type Database = {
       }
     }
     Enums: {
-      DomainTheme: "LIGHT" | "DARK" | "BOTH"
-      ScanStatus: "pending" | "completed" | "failed" | "queued"
+      DomainTheme: 'LIGHT' | 'DARK' | 'BOTH'
+      ScanStatus: 'pending' | 'completed' | 'failed' | 'queued'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -330,27 +716,29 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, 'public'>]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] &
+        DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -358,20 +746,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema['Tables']
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -379,20 +769,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema['Tables']
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -400,29 +792,40 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema['Enums']
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      DomainTheme: ['LIGHT', 'DARK', 'BOTH'],
+      ScanStatus: ['pending', 'completed', 'failed', 'queued'],
+    },
+  },
+} as const

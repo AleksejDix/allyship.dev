@@ -3,11 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-import { useServerAction } from 'zsa-react'
 
 import { Button } from '@workspace/ui/components/button'
-
-import { crawl } from '../actions'
 
 type Props = {
   website_id: string
@@ -19,6 +16,7 @@ type Props = {
       total: number
       new: number
       existing: number
+      skipped: number
     }
   }) => void
 }
@@ -29,62 +27,88 @@ export function CrawlButton({
   onCrawlComplete,
 }: Props) {
   const router = useRouter()
-  const { execute, isPending } = useServerAction(crawl)
+  const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string>()
 
   const handleCrawl = async () => {
     setError(undefined)
+    setIsPending(true)
 
-    const [result, error] = await execute({
-      website_id,
-      url: website_url,
-    })
+    try {
+      // Ensure URL has protocol
+      const fullUrl = website_url.startsWith('http')
+        ? website_url
+        : `https://${website_url}`
 
-    if (error) {
-      setError(error.message)
+      const response = await fetch('/api/crawl', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          website_id,
+          url: fullUrl,
+          maxPages: 100, // Limit to 100 pages
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success || !data.data || !data.data.stats) {
+        throw new Error(
+          data?.error?.message || data?.error || 'Failed to crawl website'
+        )
+      }
+
+      // Check if we hit the page limit
+      const stats = data.data.stats
+      const message =
+        stats.skipped > 0
+          ? `Successfully crawled ${stats.total} pages. ${stats.skipped} additional pages were skipped due to the 100 page limit.`
+          : `Successfully crawled ${stats.total} pages`
+
+      onCrawlComplete?.({
+        type: 'success',
+        message,
+        stats,
+      })
+
+      router.refresh()
+    } catch (error) {
+      console.error('[CRAWL]', error)
+      const message =
+        error instanceof Error ? error.message : 'Failed to crawl website'
+      setError(message)
       onCrawlComplete?.({
         type: 'error',
-        message: error.message,
+        message,
       })
-      return
+    } finally {
+      setIsPending(false)
     }
-
-    if (!result?.success) {
-      setError(result?.error?.message ?? 'Failed to crawl site')
-      onCrawlComplete?.({
-        type: 'error',
-        message: result?.error?.message ?? 'Failed to crawl site',
-      })
-      return
-    }
-
-    router.refresh()
-    onCrawlComplete?.({
-      type: 'success',
-      message: `Found ${result.stats?.total ?? 0} pages (${result.stats?.new ?? 0} new)`,
-      stats: result.stats ?? { total: 0, new: 0, existing: 0 },
-    })
   }
 
   return (
-    <div className="relative">
+    <div className="space-y-2">
       <Button
-        variant="outline"
-        size="sm"
         onClick={handleCrawl}
         disabled={isPending}
+        variant="outline"
+        size="sm"
       >
         {isPending ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Crawling...
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+            <span>Crawling...</span>
           </>
         ) : (
           'Crawl Site'
         )}
       </Button>
       {error && (
-        <div className="text-xs text-destructive absolute mt-2">{error}</div>
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
       )}
     </div>
   )

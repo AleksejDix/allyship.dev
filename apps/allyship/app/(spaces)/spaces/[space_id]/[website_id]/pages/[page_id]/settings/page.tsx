@@ -1,3 +1,4 @@
+import { ScanScheduleWrapper } from '@/features/scans/components/scan-schedule-wrapper'
 import {
   Card,
   CardContent,
@@ -6,10 +7,22 @@ import {
   CardTitle,
 } from '@workspace/ui/components/card'
 
-export default async function SettingsPage() {
+type Props = {
+  params: Promise<{
+    page_id: string
+    space_id: string
+    website_id: string
+  }>
+}
+
+export default async function SettingsPage({ params }: Props) {
+  const { page_id } = await params
+
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
+        <ScanScheduleWrapper pageId={page_id} />
+
         <Card className="border-destructive/50">
           <CardHeader>
             <CardTitle>Delete Page</CardTitle>

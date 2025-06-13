@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ScanJobCreate } from '@/features/scans/components/scan-create'
-import { ScanIndex } from '@/features/scans/components/scan-index'
+import { ScansIndex } from '@/features/scans/components/scans-index'
 import { ArrowRight } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/server'
@@ -98,7 +98,7 @@ export default async function ScansPage() {
         {user && scans && scans.length > 0 && (
           <div className="pt-16">
             <h2 className="text-2xl font-bold mb-8">Recent Scans</h2>
-            <ScanIndex scans={transformedScans} />
+            <ScansIndex scans={transformedScans} />
           </div>
         )}
       </div>
