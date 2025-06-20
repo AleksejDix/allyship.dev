@@ -48,29 +48,26 @@ export function CrawlButton({
         body: JSON.stringify({
           website_id,
           url: fullUrl,
-          maxPages: 100, // Limit to 100 pages
         }),
       })
 
       const data = await response.json()
 
-      if (!response.ok || !data.success || !data.data || !data.data.stats) {
+      if (!response.ok || !data.success) {
         throw new Error(
-          data?.error?.message || data?.error || 'Failed to crawl website'
+          data?.error?.message || data?.error || 'Failed to start crawl job'
         )
       }
 
-      // Check if we hit the page limit
-      const stats = data.data.stats
+      // The crawl job has been started, it will run in the background
       const message =
-        stats.skipped > 0
-          ? `Successfully crawled ${stats.total} pages. ${stats.skipped} additional pages were skipped due to the 100 page limit.`
-          : `Successfully crawled ${stats.total} pages`
+        data.data.message ||
+        'Crawl job started successfully. Pages will be discovered and processed in the background.'
 
       onCrawlComplete?.({
         type: 'success',
         message,
-        stats,
+        stats: data.data.stats,
       })
 
       router.refresh()

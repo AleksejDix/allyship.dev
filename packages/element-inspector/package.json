@@ -1,0 +1,62 @@
+{
+  "name": "@allystudio/element-inspector",
+  "version": "0.1.0",
+  "description": "Headless DOM element inspection and highlighting library",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "dom",
+    "inspector",
+    "element",
+    "highlight",
+    "headless"
+  ],
+  "author": "Allyship.dev",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/browser": "^2.1.9",
+    "@vitest/coverage-v8": "2.1.9",
+    "@workspace/eslint-config": "*",
+    "@workspace/typescript-config": "*",
+    "playwright": "^1.53.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allyship-dev/allyship.dev.git",
+    "directory": "packages/element-inspector"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@allystudio/accessibility-utils": "^0.1.0"
+  }
+}

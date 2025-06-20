@@ -38,6 +38,7 @@ export function Header() {
 
   // If no session, show login button instead
   if (!session) {
+    console.log("No session")
     return (
       <header className="border-b">
         <div className="container flex justify-between h-14 px-4 items-center">

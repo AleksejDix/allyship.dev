@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Vision Simulator Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .control-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    .vision-types {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .vision-type {
+      padding: 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .vision-type:hover {
+      border-color: #9ca3af;
+      background: #f9fafb;
+    }
+
+    .vision-type.active {
+      border-color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .vision-type h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: #374151;
+    }
+
+    .vision-type p {
+      font-size: 0.8rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .toggle-section {
+      text-align: center;
+      padding-top: 1rem;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 1rem;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 200px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button.active {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .status {
+      background: #ecfdf5;
+      border: 1px solid #d1fae5;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .status.active {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .status-text {
+      font-weight: 600;
+      color: #065f46;
+    }
+
+    .status.active .status-text {
+      color: #991b1b;
+    }
+
+    .description {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+    }
+
+    .demo-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .demo-content h2 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .color-swatch {
+      height: 80px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .test-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .test-image {
+      text-align: center;
+    }
+
+    .test-image img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .test-image p {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .info-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-section h3 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .info-section p {
+      color: #6b7280;
+      margin-bottom: 1rem;
+    }
+
+    .info-section ul {
+      color: #6b7280;
+      margin-left: 1.5rem;
+    }
+
+    .info-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .vision-types {
+        grid-template-columns: 1fr;
+      }
+
+      .color-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .test-images {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Color Vision Simulator</h1>
+      <p>Experience how different types of color vision deficiencies affect perception</p>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Select Color Vision Type:</label>
+        <div class="vision-types">
+          <div class="vision-type active" data-type="protanopia">
+            <h3>Protanopia</h3>
+            <p>Red-blind (1% of males)</p>
+          </div>
+          <div class="vision-type" data-type="deuteranopia">
+            <h3>Deuteranopia</h3>
+            <p>Green-blind (1% of males)</p>
+          </div>
+          <div class="vision-type" data-type="tritanopia">
+            <h3>Tritanopia</h3>
+            <p>Blue-blind (0.01% of population)</p>
+          </div>
+          <div class="vision-type" data-type="achromatopsia">
+            <h3>Achromatopsia</h3>
+            <p>Total color blindness (0.003% of population)</p>
+          </div>
+          <div class="vision-type" data-type="normal">
+            <h3>Normal Vision</h3>
+            <p>No color vision deficiency</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-section">
+        <button id="toggleBtn">Start Simulation</button>
+        <div class="status" id="status">
+          <div class="status-text">Simulation Inactive</div>
+          <div class="description" id="description">
+            Difficulty distinguishing between red and green colors, with red appearing darker
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-content">
+      <h2>Color Test Swatches</h2>
+      <p>These color swatches help demonstrate how different color vision deficiencies affect color perception:</p>
+
+      <div class="color-grid">
+        <div class="color-swatch" style="background: #ff0000;">Red</div>
+        <div class="color-swatch" style="background: #00ff00;">Green</div>
+        <div class="color-swatch" style="background: #0000ff;">Blue</div>
+        <div class="color-swatch" style="background: #ffff00;">Yellow</div>
+        <div class="color-swatch" style="background: #ff00ff;">Magenta</div>
+        <div class="color-swatch" style="background: #00ffff;">Cyan</div>
+        <div class="color-swatch" style="background: #ffa500;">Orange</div>
+        <div class="color-swatch" style="background: #800080;">Purple</div>
+        <div class="color-swatch" style="background: #ffc0cb;">Pink</div>
+        <div class="color-swatch" style="background: #a52a2a;">Brown</div>
+        <div class="color-swatch" style="background: #808080;">Gray</div>
+        <div class="color-swatch" style="background: #000000;">Black</div>
+      </div>
+
+      <div class="test-images">
+        <div class="test-image">
+          <div style="width: 100%; height: 150px; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            Red-Green Gradient
+          </div>
+          <p>Red to green transition</p>
+        </div>
+        <div class="test-image">
+          <div style="width: 100%; height: 150px; background: linear-gradient(45deg, #74b9ff, #fdcb6e); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            Blue-Yellow Gradient
+          </div>
+          <p>Blue to yellow transition</p>
+        </div>
+        <div class="test-image">
+          <div style="width: 100%; height: 150px; background: radial-gradient(circle, #e17055, #00b894); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            Color Circle
+          </div>
+          <p>Radial color pattern</p>
+        </div>
+        <div class="test-image">
+          <div style="width: 100%; height: 150px; background: repeating-linear-gradient(45deg, #fd79a8, #fd79a8 10px, #fdcb6e 10px, #fdcb6e 20px); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            Color Stripes
+          </div>
+          <p>Alternating color pattern</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>About Color Vision Deficiencies</h3>
+      <p>
+        Color vision deficiencies, often called "color blindness," affect approximately 8% of men and 0.5% of women worldwide.
+        These conditions are usually inherited and result from missing or altered cone cells in the retina.
+      </p>
+
+      <h3>Types of Color Vision Deficiencies:</h3>
+      <ul>
+        <li><strong>Protanopia:</strong> Missing long-wavelength (red) cones - red appears very dark or black</li>
+        <li><strong>Deuteranopia:</strong> Missing medium-wavelength (green) cones - most common form</li>
+        <li><strong>Tritanopia:</strong> Missing short-wavelength (blue) cones - very rare condition</li>
+        <li><strong>Achromatopsia:</strong> Complete absence of color vision - extremely rare</li>
+      </ul>
+
+      <h3>Accessibility Considerations:</h3>
+      <ul>
+        <li>Don't rely solely on color to convey information</li>
+        <li>Use sufficient contrast ratios between colors</li>
+        <li>Provide alternative indicators like icons, patterns, or text labels</li>
+        <li>Test your designs with color vision simulators like this one</li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import the simulator from the built package
+    import { createColorVisionSimulator, COLOR_VISION_PRESETS, formatColorVisionType, getColorVisionDescription } from '../dist/index.js'
+
+    // Create simulator instance
+    const simulator = createColorVisionSimulator()
+
+    // DOM elements
+    const toggleBtn = document.getElementById('toggleBtn')
+    const status = document.getElementById('status')
+    const description = document.getElementById('description')
+    const visionTypes = document.querySelectorAll('.vision-type')
+
+    // Current state
+    let currentType = COLOR_VISION_PRESETS.PROTANOPIA
+    let isActive = false
+
+    // Initialize
+    updateUI()
+
+    // Event listeners
+    toggleBtn.addEventListener('click', () => {
+      if (isActive) {
+        simulator.stop()
+      } else {
+        simulator.start()
+      }
+    })
+
+    visionTypes.forEach(element => {
+      element.addEventListener('click', () => {
+        const type = element.dataset.type
+        if (type !== currentType) {
+          currentType = type
+          simulator.setVisionType(type)
+          updateVisionTypeSelection()
+          updateDescription()
+        }
+      })
+    })
+
+    // Listen to simulator state changes
+    simulator.onStateChange((state) => {
+      isActive = state.isActive
+      currentType = state.visionType
+      updateUI()
+    })
+
+    function updateUI() {
+      updateToggleButton()
+      updateStatus()
+      updateVisionTypeSelection()
+      updateDescription()
+    }
+
+    function updateToggleButton() {
+      toggleBtn.textContent = isActive ? 'Stop Simulation' : 'Start Simulation'
+      toggleBtn.className = isActive ? 'active' : ''
+    }
+
+    function updateStatus() {
+      status.className = isActive ? 'status active' : 'status'
+      const statusText = status.querySelector('.status-text')
+      statusText.textContent = isActive
+        ? `Simulating ${formatColorVisionType(currentType)}`
+        : 'Simulation Inactive'
+    }
+
+    function updateVisionTypeSelection() {
+      visionTypes.forEach(element => {
+        element.className = element.dataset.type === currentType
+          ? 'vision-type active'
+          : 'vision-type'
+      })
+    }
+
+    function updateDescription() {
+      description.textContent = getColorVisionDescription(currentType)
+    }
+
+    // Add keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault()
+        toggleBtn.click()
+      }
+    })
+
+    // Add some helpful console logs
+    console.log('Color Vision Simulator Demo loaded!')
+    console.log('Available vision types:', Object.values(COLOR_VISION_PRESETS))
+    console.log('Press spacebar to toggle simulation')
+  </script>
+</body>
+</html>

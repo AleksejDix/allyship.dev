@@ -2,6 +2,10 @@ import { Badge } from "@/components/ui/badge"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
+import {
+  reportTestResults,
+  type TestResultData
+} from "@/lib/testing/utils/database-reporter"
 import { runTest as runTestHelper } from "@/lib/testing/utils/event-utils"
 import { Info } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -30,6 +34,95 @@ export function Werkzeug() {
   const debounceTimeoutRef = useRef<number | null>(null)
   const recentChangeTimeoutRef = useRef<number | null>(null)
   const currentAutoRerunTestRef = useRef<TestType | null>(null)
+
+  // Storage for persisting state
+  const storage = useMemo(() => new Storage({ area: "local" }), [])
+
+  /**
+   * Convert ACT rule results to database format
+   */
+  const convertResultsToDatabase = useCallback(
+    (testType: string, report: any, url: string): TestResultData => {
+      console.log(`🔍 [WERKZEUG] Converting results to database format:`, {
+        testType,
+        url,
+        reportStructure: {
+          hasDetails: !!report.details,
+          hasSummary: !!report.summary,
+          detailsLength: report.details?.length,
+          summaryKeys: report.summary ? Object.keys(report.summary) : []
+        }
+      })
+
+      return {
+        url,
+        test_type: testType,
+        results: (report.details || []).map((result: any) => ({
+          rule_id: result.rule?.id || result.id || "unknown",
+          outcome: result.outcome,
+          elements: result.element?.selector
+            ? [
+                {
+                  selector: result.element.selector,
+                  message: result.message || ""
+                }
+              ]
+            : undefined
+        })),
+        summary: {
+          total: report.summary?.rules?.total || report.details?.length || 0,
+          passed:
+            report.summary?.rules?.passed ||
+            report.details?.filter((r: any) => r.outcome === "passed").length ||
+            0,
+          failed:
+            report.summary?.rules?.failed ||
+            report.details?.filter((r: any) => r.outcome === "failed").length ||
+            0,
+          inapplicable:
+            report.summary?.rules?.inapplicable ||
+            report.details?.filter((r: any) => r.outcome === "inapplicable")
+              .length ||
+            0
+        },
+        timestamp: new Date().toISOString()
+      }
+    },
+    []
+  )
+
+  /**
+   * Report test results to database
+   */
+  const handleDatabaseReporting = useCallback(
+    async (testId: string, results: any, url: string) => {
+      try {
+        // Only report if we have ACT format results
+        if (results?.summary && results?.details) {
+          console.log(
+            `🔥 [WERKZEUG] Reporting ${testId} test results to database`
+          )
+
+          const testResultData = convertResultsToDatabase(testId, results, url)
+          await reportTestResults(testResultData)
+
+          console.log(
+            `✅ [WERKZEUG] ${testId} test results reported to database`
+          )
+        } else {
+          console.log(
+            `⚠️ [WERKZEUG] Skipping database reporting for ${testId} - no ACT format results`
+          )
+        }
+      } catch (error) {
+        console.error(
+          `❌ [WERKZEUG] Failed to report ${testId} test results to database:`,
+          error
+        )
+      }
+    },
+    [convertResultsToDatabase]
+  )
 
   // Check DOM monitor state on mount
   useEffect(() => {
@@ -102,52 +195,59 @@ export function Werkzeug() {
           return
         }
 
-        // Use a timeout to prevent UI flashing and ensure state updates properly
+        // Process results and update state
         setTimeout(() => {
-          // Check for ACT format (results object with details)
-          if (
-            event.data?.results?.details &&
-            event.data.results.details.length > 0
-          ) {
+          // Handle both legacy and ACT format results
+          if (event.data?.results?.details) {
+            // ACT format results
             console.log(
-              `[werkzeug] Adding ACT test results${isAutoRerun ? " (auto-rerun)" : ""}:`,
-              event.data.results.details
+              `[werkzeug] Processing ACT format results for ${testId}:`,
+              event.data.results.details.length,
+              "results"
             )
 
-            // Add new results only if they don't already exist
-            setTestResults((prevResults) => {
-              // Create a map of existing results by content hash to avoid duplicates
-              const existingMap = new Map()
+            // Report to database
+            handleDatabaseReporting(
+              testId,
+              event.data.results,
+              event.data.url || window.location.href
+            )
 
-              // First add all existing results to our map
-              prevResults.forEach((result) => {
-                // Create a deterministic hash/key for each result based on its content
-                // This helps identify genuinely unique issues
-                const contentHash = createContentHash(result)
-                existingMap.set(contentHash, result)
-              })
+            // Convert ACT results to display format
+            const displayResults = event.data.results.details
+              .filter((result: any) => result.outcome === "failed")
+              .map((result: any, index: number) => ({
+                id: result.rule?.id || `${testId}-result-${index}`,
+                testType: testId,
+                message: result.message || "Accessibility issue found",
+                severity: result.impact || "serious",
+                outcome: result.outcome,
+                selector: result.element?.selector,
+                discoveredAt: new Date().toISOString()
+              }))
 
-              // Then add new results that don't already exist
-              event.data.results.details.forEach((detail: any) => {
-                // Add testType to help with identification
-                const enrichedDetail = {
-                  ...detail,
-                  testType: testId,
-                  discoveredAt: new Date().toISOString(),
-                  autoRerun: isAutoRerun
-                }
+            if (displayResults.length > 0) {
+              setTestResults((prev) => [...prev, ...displayResults])
+            }
+          } else if (event.data?.issues) {
+            // Legacy format results
+            console.log(
+              `[werkzeug] Processing legacy format results for ${testId}:`,
+              event.data.issues.length,
+              "issues"
+            )
 
-                const contentHash = createContentHash(enrichedDetail)
+            const newResults = event.data.issues.map((issue: any) => ({
+              ...issue,
+              testType: testId,
+              discoveredAt: new Date().toISOString()
+            }))
 
-                // Only add if this exact issue doesn't already exist
-                if (!existingMap.has(contentHash)) {
-                  existingMap.set(contentHash, enrichedDetail)
-                }
-              })
-
-              return Array.from(existingMap.values())
-            })
+            if (newResults.length > 0) {
+              setTestResults((prev) => [...prev, ...newResults])
+            }
           }
+
           // If no results found and we don't have any existing results, show a message
           else if (testResults.length === 0 && !event.data?.isFallbackEvent) {
             console.log(`[werkzeug] No issues found in test results`)

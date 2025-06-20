@@ -2,6 +2,10 @@ import { notFound } from 'next/navigation'
 import { createScan } from '@/features/scans/actions'
 import { PageHeader } from '@/features/websites/components/page-header'
 import { ScansIndex } from '@/features/scans/components/scans-index'
+import { PageScanAnalyticsChart } from '@/features/scans/components/page-scan-analytics-chart'
+import { PageAccessibilityMetricsChart } from '@/features/scans/components/page-accessibility-metrics-chart'
+import { getPageScanAnalytics } from '@/features/scans/lib/get-page-scan-analytics'
+import { getPageAccessibilityAnalytics } from '@/features/scans/lib/get-page-accessibility-analytics'
 import { Scan as ScanIcon } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/server'
@@ -49,13 +53,19 @@ export default async function Page(props: Props) {
     throw error
   }
 
-  // Get last 10 scans for this page
-  const { data: scans } = await supabase
-    .from('Scan')
-    .select('*')
-    .eq('page_id', page_id)
-    .order('created_at', { ascending: false })
-    .limit(10)
+  // Get last 10 scans for this page and analytics data in parallel
+  const [scansResult, analyticsData, accessibilityData] = await Promise.all([
+    supabase
+      .from('Scan')
+      .select('*')
+      .eq('page_id', page_id)
+      .order('created_at', { ascending: false })
+      .limit(10),
+    getPageScanAnalytics(page_id),
+    getPageAccessibilityAnalytics(page_id),
+  ])
+
+  const scans = scansResult.data
 
   const fullUrl = page.url
   console.log(fullUrl)
@@ -129,6 +139,21 @@ export default async function Page(props: Props) {
             </div>
           </CardContent>
         </Card>
+
+        {/* Scan Analytics Chart */}
+        <PageScanAnalyticsChart
+          pageId={page_id}
+          dailyStats={analyticsData.dailyStats}
+          weeklyStats={analyticsData.weeklyStats}
+          monthlyStats={analyticsData.monthlyStats}
+          latestStats={analyticsData.latestStats}
+        />
+
+        {/* Accessibility Metrics Chart */}
+        <PageAccessibilityMetricsChart
+          data={accessibilityData}
+          pageId={page_id}
+        />
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">

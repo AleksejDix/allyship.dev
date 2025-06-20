@@ -12,8 +12,6 @@ import "./rules/language-of-page"
 
 // Import our new link rules and heading rules
 import { registerAllRules } from "./rules"
-// First, make sure we import publishTestComplete if it's not already imported
-import { publishTestComplete } from "./utils/event-utils"
 
 // Add more rule imports here as they are implemented
 
@@ -102,6 +100,12 @@ export async function runACTRulesForTestType(
   config: TestConfig
 ): Promise<void> {
   console.log(`[act-integration] Running ACT rules for test type: ${testType}`)
+
+  // Additional debug logging for link tests
+  if (testType === "links") {
+    console.log("🔗 [ACT-INTEGRATION] Starting link accessibility test")
+    console.log("🔗 [ACT-INTEGRATION] Current URL:", window.location.href)
+  }
 
   // Clear previous results
   actRuleRunner.clearResults()
@@ -207,6 +211,20 @@ export async function runACTRulesForTestType(
     `[act-integration] Got ${results.length} results from rule runner`
   )
 
+  // Additional debug logging for link tests
+  if (testType === "links") {
+    console.log("🔗 [ACT-INTEGRATION] Link test results:", {
+      total_results: results.length,
+      failed_results: results.filter((r) => r.outcome === "failed").length,
+      passed_results: results.filter((r) => r.outcome === "passed").length,
+      results_preview: results.slice(0, 3).map((r) => ({
+        rule_id: r.rule.id,
+        outcome: r.outcome,
+        has_element: !!r.element
+      }))
+    })
+  }
+
   // Generate highlight events for failed results
   results.forEach((result) => {
     console.log(
@@ -267,6 +285,21 @@ export async function runACTRulesForTestType(
     `[act-integration] Summary: Total: ${report.summary.rules.total}, Passed: ${report.summary.rules.passed}, Failed: ${report.summary.rules.failed}`
   )
 
+  // Additional debug logging for link tests before database call
+  if (testType === "links") {
+    console.log(
+      "🔗 [ACT-INTEGRATION] Link test completed, publishing results (NO database call from content script)"
+    )
+  }
+
+  // DON'T report to database from content script - let sidepanel handle it
+  // await reportTestResults(testResultData)
+
+  // Additional debug logging for link tests after database call
+  if (testType === "links") {
+    console.log("🔗 [ACT-INTEGRATION] Link test results published to sidepanel")
+  }
+
   // Publish test completion
   publishEvent(TEST_ANALYSIS_COMPLETE, {
     testId: testType,
@@ -316,6 +349,14 @@ export async function runACTRulesForWCAGCriteria(
   // Get the results
   const report = actRuleRunner.logResults()
 
+  // DON'T report to database from content script - let sidepanel handle it
+  // const testResultData = convertResultsToDatabase(
+  //   `wcag-${criteria}`,
+  //   report,
+  //   window.location.href
+  // )
+  // await reportTestResults(testResultData)
+
   // Publish the test completion event
   publishEvent(TEST_ANALYSIS_COMPLETE, {
     testType: `wcag-${criteria}`,
@@ -340,6 +381,14 @@ export async function runAllACTRules(config: TestConfig): Promise<void> {
 
   // Get the results
   const report = actRuleRunner.logResults()
+
+  // DON'T report to database from content script - let sidepanel handle it
+  // const testResultData = convertResultsToDatabase(
+  //   "all-act-rules",
+  //   report,
+  //   window.location.href
+  // )
+  // await reportTestResults(testResultData)
 
   // Publish the test completion event
   publishEvent(TEST_ANALYSIS_COMPLETE, {

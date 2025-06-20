@@ -96,116 +96,118 @@ export async function POST(request: Request) {
       )
     }
 
-    // Call edge function securely from server-side
-    const { error: functionError, data } = await supabase.functions.invoke(
-      'crawl',
-      {
-        body: { website_id, url },
-        headers: {
-          Authorization: `Bearer ${sessionData.session.access_token}`,
-        },
-      }
+    // Check if we can start a new crawl job (this also cleans up stuck jobs)
+    const { data: canStart, error: canStartError } = await supabase.rpc(
+      'can_start_crawl_job',
+      { p_website_id: website_id }
     )
 
-    if (functionError) {
-      console.error('[CRAWL] Edge function error:', functionError)
+    if (canStartError) {
+      console.error('[CRAWL] Error checking crawl job status:', canStartError)
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: 'Failed to crawl website',
-            code: 'EDGE_FUNCTION_ERROR',
-            details: functionError.message,
+            message: 'Failed to check crawl job status',
+            code: 'CRAWL_CHECK_ERROR',
+            details: canStartError.message,
           },
         },
         { status: 500 }
       )
     }
 
-    // Check if crawl was successful and has URLs
-    if (!data?.success || !data?.data?.urls || !Array.isArray(data.data.urls)) {
-      return NextResponse.json(data)
-    }
-
-    const crawledUrls = data.data.urls
-
-    // Get existing pages to avoid duplicates
-    const { data: existingPages } = await supabase
-      .from('Page')
-      .select('url, path')
-      .eq('website_id', website_id)
-
-    const existingUrls = new Set(existingPages?.map(p => p.url) || [])
-    const existingPaths = new Set(existingPages?.map(p => p.path) || [])
-    const newUrls = crawledUrls.filter(
-      (crawlUrl: string) => !existingUrls.has(crawlUrl)
-    )
-
-    // Create new pages with path deduplication
-    if (newUrls.length > 0) {
-      // Deduplicate by path to avoid constraint violations
-      const pathToUrl = new Map<string, string>()
-
-      for (const crawlUrl of newUrls) {
-        const urlObj = new URL(crawlUrl)
-        const path =
-          urlObj.pathname === '/' ? '/' : urlObj.pathname.replace(/\/$/, '')
-
-        // Skip if path already exists in database or in current batch
-        if (!existingPaths.has(path) && !pathToUrl.has(path)) {
-          pathToUrl.set(path, crawlUrl)
-        }
-      }
-
-      const pagesToInsert = Array.from(pathToUrl.entries()).map(
-        ([path, crawlUrl]) => ({
-          url: crawlUrl,
-          path,
-          normalized_url: crawlUrl.toLowerCase(),
-          website_id,
-        })
+    if (!canStart) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'A crawl job is already running for this website',
+            code: 'CRAWL_IN_PROGRESS',
+          },
+        },
+        { status: 409 }
       )
-
-      if (pagesToInsert.length > 0) {
-        const { data: createdPages, error: insertError } = await supabase
-          .from('Page')
-          .upsert(pagesToInsert, {
-            onConflict: 'website_id,path',
-            ignoreDuplicates: true,
-          })
-          .select()
-
-        if (insertError) {
-          console.error('[CRAWL] Failed to create pages:', insertError)
-          return NextResponse.json(
-            {
-              success: false,
-              error: {
-                message: 'Failed to create pages',
-                code: 'CREATE_PAGES_ERROR',
-                details: insertError.message,
-              },
-            },
-            { status: 500 }
-          )
-        }
-
-        console.log(`[CRAWL] Created ${createdPages?.length || 0} new pages`)
-      }
     }
 
-    // Update stats to reflect actual database operations
-    const updatedStats = {
-      ...data.data.stats,
-      new: newUrls.length,
-      existing: crawledUrls.length - newUrls.length,
+    // Create crawl job directly in the database
+    const { data: crawlJob, error: jobError } = await supabase
+      .from('CrawlJob')
+      .insert({
+        website_id,
+        status: 'running',
+        started_at: new Date().toISOString(),
+        progress: {
+          urls_queued: 1,
+          urls_processed: 0,
+          urls_completed: 0,
+          urls_failed: 0,
+          crawled_urls: [],
+        },
+      })
+      .select()
+      .single()
+
+    if (jobError) {
+      console.error('[CRAWL] Error creating crawl job:', jobError)
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Failed to create crawl job',
+            code: 'CRAWL_JOB_CREATE_ERROR',
+            details: jobError.message,
+          },
+        },
+        { status: 500 }
+      )
     }
 
+    // Queue the initial URL
+    const { error: queueError } = await supabase.rpc('queue_crawl_url', {
+      p_crawl_job_id: crawlJob.id,
+      p_url: url,
+      p_depth: 0,
+      p_priority: 100,
+    })
+
+    if (queueError) {
+      console.error('[CRAWL] Error queuing initial URL:', queueError)
+      // Try to clean up the job if queuing failed
+      await supabase
+        .from('CrawlJob')
+        .update({
+          status: 'failed',
+          error_message: 'Failed to queue initial URL',
+        })
+        .eq('id', crawlJob.id)
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Failed to queue initial URL',
+            code: 'QUEUE_ERROR',
+            details: queueError.message,
+          },
+        },
+        { status: 500 }
+      )
+    }
+
+    // Return success with crawl job info
     return NextResponse.json({
-      ...data,
+      success: true,
       data: {
-        ...data.data,
-        stats: updatedStats,
+        crawl_job_id: crawlJob.id,
+        message:
+          'Crawl job started successfully. Pages will be discovered and processed in the background.',
+        stats: {
+          status: 'running',
+          total: 0,
+          new: 0,
+          existing: 0,
+        },
       },
     })
   } catch (error) {

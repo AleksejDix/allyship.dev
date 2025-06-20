@@ -1,0 +1,55 @@
+{
+  "name": "@allystudio/color-vision-simulator",
+  "version": "0.1.0",
+  "description": "Color vision deficiency simulator for accessibility testing and design",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/browser": "^2.0.0",
+    "@vitest/coverage-v8": "2.1.9",
+    "playwright": "^1.40.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "color-blindness",
+    "color-vision",
+    "accessibility",
+    "a11y",
+    "protanopia",
+    "deuteranopia",
+    "tritanopia",
+    "achromatopsia",
+    "simulator",
+    "design-tools"
+  ],
+  "license": "MIT",
+  "author": "Allyship.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allyship-dev/allyship.dev.git",
+    "directory": "packages/color-vision-simulator"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

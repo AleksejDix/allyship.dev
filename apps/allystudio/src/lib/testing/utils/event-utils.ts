@@ -127,6 +127,8 @@ export async function runTest(testId: TestType) {
       return
     }
 
+    console.log(`[event-utils] Found active tab: ${tab.id}`)
+
     // Get layer name from test config
     const testConfig = TEST_CONFIGS[testId]
     const layerName = testConfig.layerName || testId
@@ -142,11 +144,14 @@ export async function runTest(testId: TestType) {
       tabId: tab.id
     })
 
+    console.log(`[event-utils] Published LAYER_TOGGLE_REQUEST for ${layerName}`)
+
     // Check if the tab is ready to receive messages
     let tabReady = false
     try {
       const currentTab = await chrome.tabs.get(tab.id)
       tabReady = currentTab && currentTab.status === "complete"
+      console.log(`[event-utils] Tab ready status: ${tabReady}`)
     } catch (error) {
       console.error(`[event-utils] Error checking tab status:`, error)
     }
@@ -159,6 +164,7 @@ export async function runTest(testId: TestType) {
     }
 
     // Use the generic approach for running tests
+    console.log(`[event-utils] About to request test analysis for ${testId}`)
     await requestTestAnalysis(testId)
 
     // Set a timeout to ensure that a completion event is published
@@ -167,7 +173,7 @@ export async function runTest(testId: TestType) {
       // Check if we need to send a fallback event
       if (!eventPublished) {
         console.log(
-          `[event-utils] Publishing fallback completion event for ${testId}`
+          `[event-utils] Publishing fallback completion event for ${testId} (no real event received)`
         )
         // Publish a fallback completion event just in case
         // Add a special flag to indicate this is a fallback event
@@ -212,7 +218,7 @@ export async function runTest(testId: TestType) {
           `[event-utils] Real event already published for ${testId}, skipping fallback`
         )
       }
-    }, 5000) // Increased timeout to 5 seconds to give more time for real events
+    }, 2000) // Reduced timeout to 2 seconds for faster debugging
 
     console.log(`[event-utils] Test started: ${testId}`)
   } catch (error) {
@@ -224,8 +230,6 @@ export async function runTest(testId: TestType) {
     }
   } finally {
     // Clean up the event listener
-    setTimeout(() => {
-      unsubscribe()
-    }, 10000) // Increased cleanup timeout to 10 seconds
+    unsubscribe()
   }
 }

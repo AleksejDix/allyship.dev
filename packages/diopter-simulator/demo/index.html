@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diopter Simulator Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .controls-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    .control-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e5e7eb;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .value-display {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #4f46e5;
+      margin: 0.75rem 0;
+      min-height: 1.5rem;
+    }
+
+    .device-hint {
+      text-align: center;
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .preset-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .preset-button {
+      padding: 0.5rem 0.75rem;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .preset-button:hover {
+      background: #e5e7eb;
+      border-color: #9ca3af;
+    }
+
+    .preset-button.active {
+      background: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+
+    .toggle-section {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding-top: 1rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button.active {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .status {
+      background: #ecfdf5;
+      border: 1px solid #d1fae5;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .status.active {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .status-text {
+      font-weight: 600;
+      color: #059669;
+    }
+
+    .status.active .status-text {
+      color: #dc2626;
+    }
+
+    .demo-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .demo-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .demo-card h3 {
+      color: #4f46e5;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .demo-card p {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .info-box h4 {
+      color: #1e40af;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      color: #1e40af;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    @media (max-width: 640px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>👁️ Diopter Simulator</h1>
+      <p>Realistic visual acuity simulation with viewing distance</p>
+    </div>
+
+    <div class="controls">
+      <div class="controls-grid">
+        <!-- Diopter Controls -->
+        <div class="control-section">
+          <div class="control-group">
+            <label for="diopterRange">Diopter Value</label>
+            <input
+              type="range"
+              id="diopterRange"
+              min="-8"
+              max="8"
+              step="0.5"
+              value="0"
+            >
+            <div class="value-display" id="diopterDisplay">0.0D (Normal vision)</div>
+          </div>
+
+          <div class="control-group">
+            <label>Diopter Presets</label>
+            <div class="preset-buttons" id="diopterPresets">
+              <button type="button" class="preset-button" data-diopter="0">Normal</button>
+              <button type="button" class="preset-button" data-diopter="-1.5">-1.5D</button>
+              <button type="button" class="preset-button" data-diopter="-3">-3D</button>
+              <button type="button" class="preset-button" data-diopter="-6">-6D</button>
+              <button type="button" class="preset-button" data-diopter="1.5">+1.5D</button>
+              <button type="button" class="preset-button" data-diopter="3">+3D</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distance Controls -->
+        <div class="control-section">
+          <div class="control-group">
+            <label for="distanceRange">Viewing Distance</label>
+            <input
+              type="range"
+              id="distanceRange"
+              min="0.2"
+              max="4.0"
+              step="0.1"
+              value="0.6"
+            >
+            <div class="value-display" id="distanceDisplay">60cm</div>
+            <div class="device-hint" id="deviceHint">Laptop</div>
+          </div>
+
+          <div class="control-group">
+            <label>Device Presets</label>
+            <div class="preset-buttons" id="distancePresets">
+              <button type="button" class="preset-button" data-distance="0.3">Phone</button>
+              <button type="button" class="preset-button" data-distance="0.5">Tablet</button>
+              <button type="button" class="preset-button" data-distance="0.6">Laptop</button>
+              <button type="button" class="preset-button" data-distance="0.7">Desktop</button>
+              <button type="button" class="preset-button" data-distance="2.0">TV</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toggle Section -->
+        <div class="toggle-section">
+          <button id="toggleBtn">Start Simulation</button>
+          <div class="status" id="status">
+            <div class="status-text">Simulation: Inactive</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-content">
+      <div class="info-box">
+        <h4>🔬 Realistic Simulation</h4>
+        <p>
+          This simulator combines diopter values with viewing distance for accurate visual acuity testing.
+          The same prescription affects near and far viewing very differently!
+        </p>
+      </div>
+
+      <div class="demo-text">
+        <h2>Understanding Diopter + Distance</h2>
+        <p>
+          <strong>Myopia (negative diopters):</strong> Blur increases with viewing distance.
+          A -3D prescription barely affects phone use but severely impacts TV viewing.
+        </p>
+        <p>
+          <strong>Hyperopia (positive diopters):</strong> More consistent blur across distances,
+          but still varies based on accommodation ability.
+        </p>
+        <p>
+          <strong>Distance matters:</strong> The same prescription creates different user experiences
+          on different devices and viewing distances.
+        </p>
+      </div>
+
+      <div class="demo-grid">
+        <div class="demo-card">
+          <h3>📱 Phone (30cm)</h3>
+          <p>Close viewing distance. Myopia has minimal impact, hyperopia is more noticeable.</p>
+        </div>
+        <div class="demo-card">
+          <h3>💻 Laptop (60cm)</h3>
+          <p>Medium distance. Balanced impact for both myopia and hyperopia conditions.</p>
+        </div>
+        <div class="demo-card">
+          <h3>📺 TV (2m+)</h3>
+          <p>Far viewing distance. Myopia creates significant blur, hyperopia less affected.</p>
+        </div>
+        <div class="demo-card">
+          <h3>🎯 Real Testing</h3>
+          <p>Test your designs across different device distances for comprehensive accessibility.</p>
+        </div>
+      </div>
+
+      <div class="demo-text">
+        <h2>Accessibility Testing Guide</h2>
+        <p>
+          Use realistic combinations of diopter values and viewing distances to understand
+          how your content performs across different user scenarios and devices.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import our enhanced simulator
+    import {
+      createDiopterSimulator,
+      DIOPTER_PRESETS,
+      VIEWING_DISTANCE_PRESETS,
+      formatDiopters,
+      formatViewingDistance,
+      getDeviceType
+    } from '../dist/index.js'
+
+    // Create simulator instance
+    const simulator = createDiopterSimulator()
+
+    // Get DOM elements
+    const diopterRange = document.getElementById('diopterRange')
+    const diopterDisplay = document.getElementById('diopterDisplay')
+    const diopterPresets = document.getElementById('diopterPresets')
+
+    const distanceRange = document.getElementById('distanceRange')
+    const distanceDisplay = document.getElementById('distanceDisplay')
+    const deviceHint = document.getElementById('deviceHint')
+    const distancePresets = document.getElementById('distancePresets')
+
+    const toggleBtn = document.getElementById('toggleBtn')
+    const status = document.getElementById('status')
+    const statusText = status.querySelector('.status-text')
+
+    // Update display based on current state
+    function updateDisplay() {
+      const diopters = simulator.getDiopters()
+      const distance = simulator.getViewingDistance()
+      const isActive = simulator.isActive()
+
+      // Update diopter controls
+      diopterRange.value = diopters.toString()
+      diopterDisplay.textContent = formatDiopters(diopters)
+
+      // Update distance controls
+      distanceRange.value = distance.toString()
+      distanceDisplay.textContent = formatViewingDistance(distance)
+      deviceHint.textContent = getDeviceType(distance)
+
+      // Update preset buttons
+      const diopterBtns = diopterPresets.querySelectorAll('.preset-button')
+      diopterBtns.forEach(btn => {
+        const btnDiopter = parseFloat(btn.dataset.diopter)
+        btn.classList.toggle('active', Math.abs(btnDiopter - diopters) < 0.1)
+      })
+
+      const distanceBtns = distancePresets.querySelectorAll('.preset-button')
+      distanceBtns.forEach(btn => {
+        const btnDistance = parseFloat(btn.dataset.distance)
+        btn.classList.toggle('active', Math.abs(btnDistance - distance) < 0.05)
+      })
+
+      // Update toggle button and status
+      toggleBtn.textContent = isActive ? 'Stop Simulation' : 'Start Simulation'
+      toggleBtn.className = isActive ? 'active' : ''
+
+      status.className = isActive ? 'status active' : 'status'
+      statusText.textContent = isActive
+        ? `Active: ${formatDiopters(diopters)} at ${formatViewingDistance(distance)}`
+        : 'Simulation: Inactive'
+    }
+
+    // Event listeners
+    diopterRange.addEventListener('input', (e) => {
+      const diopters = parseFloat(e.target.value)
+      simulator.setDiopters(diopters)
+      updateDisplay()
+    })
+
+    distanceRange.addEventListener('input', (e) => {
+      const distance = parseFloat(e.target.value)
+      simulator.setViewingDistance(distance)
+      updateDisplay()
+    })
+
+    diopterPresets.addEventListener('click', (e) => {
+      if (e.target.classList.contains('preset-button')) {
+        const diopters = parseFloat(e.target.dataset.diopter)
+        simulator.setDiopters(diopters)
+        updateDisplay()
+      }
+    })
+
+    distancePresets.addEventListener('click', (e) => {
+      if (e.target.classList.contains('preset-button')) {
+        const distance = parseFloat(e.target.dataset.distance)
+        simulator.setViewingDistance(distance)
+        updateDisplay()
+      }
+    })
+
+    toggleBtn.addEventListener('click', () => {
+      simulator.toggle()
+      updateDisplay()
+    })
+
+    // Listen for state changes
+    simulator.onStateChange((state) => {
+      console.log('Simulator state changed:', state)
+      updateDisplay()
+    })
+
+    // Initialize display
+    updateDisplay()
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' && e.ctrlKey) {
+        e.preventDefault()
+        simulator.toggle()
+        updateDisplay()
+      }
+    })
+
+    // Show helpful console info
+    console.log('🎯 Enhanced Diopter Simulator')
+    console.log('💡 Use Ctrl+Space to toggle simulation')
+    console.log('📏 Try different diopter + distance combinations')
+    console.log('📱 Notice how the same prescription affects different devices differently')
+  </script>
+</body>
+</html>

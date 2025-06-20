@@ -1,0 +1,65 @@
+{
+  "name": "@allystudio/accessibility-utils",
+  "version": "0.1.0",
+  "description": "Shared accessibility utilities for AllyStudio projects",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./accessibility": {
+      "types": "./dist/accessibility.d.ts",
+      "import": "./dist/accessibility.js"
+    },
+    "./selectors": {
+      "types": "./dist/selectors.d.ts",
+      "import": "./dist/selectors.js"
+    },
+    "./visibility": {
+      "types": "./dist/visibility.d.ts",
+      "import": "./dist/visibility.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "focusable-selectors": "^0.8.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/browser": "^2.0.0",
+    "playwright": "^1.40.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "dom",
+    "selectors",
+    "focus",
+    "aria"
+  ],
+  "license": "MIT",
+  "author": "Allyship.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allyship-dev/allyship.dev.git",
+    "directory": "packages/accessibility-utils"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

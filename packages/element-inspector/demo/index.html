@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Inspector Demo</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "@allystudio/accessibility-utils": "https://cdn.jsdelivr.net/npm/@allystudio/accessibility-utils@0.1.0/dist/index.js",
+        "focusable-selectors": "https://cdn.jsdelivr.net/npm/focusable-selectors@0.8.4/index.js"
+      }
+    }
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            padding: 2rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .content {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .demo-area {
+            min-height: 400px;
+        }
+
+        .demo-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .demo-section:hover {
+            border-color: #3b82f6;
+        }
+
+        .demo-section h3 {
+            margin: 0 0 1rem 0;
+            color: #1e293b;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card h4 {
+            margin: 0 0 0.5rem 0;
+        }
+
+        .card p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .info-panel {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .info-panel h3 {
+            margin: 0 0 1rem 0;
+            color: #1e293b;
+        }
+
+        .element-info {
+            background: white;
+            border-radius: 6px;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .element-info:empty {
+            display: none;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-value {
+            color: #6b7280;
+            word-break: break-all;
+        }
+
+        .nested-elements {
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .nested-elements .demo-section {
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+
+        .form-demo {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Inspection styles */
+        .inspecting {
+            cursor: crosshair !important;
+        }
+
+        .inspecting * {
+            cursor: crosshair !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔍 Element Inspector Demo</h1>
+            <p>Interactive demonstration of @allystudio/element-inspector</p>
+        </header>
+
+        <div class="controls">
+            <button id="startBtn" class="btn btn-primary">Start Inspection</button>
+            <button id="stopBtn" class="btn btn-secondary" disabled>Stop Inspection</button>
+            <button id="toggleBtn" class="btn btn-secondary">Toggle Deep Inspection</button>
+            <button id="clearBtn" class="btn btn-danger">Clear Highlights</button>
+            <div id="status" class="status inactive">Inactive</div>
+        </div>
+
+        <div class="content">
+            <div class="demo-area">
+                <div class="demo-section">
+                    <h3>📝 Form Elements</h3>
+                    <p>Try inspecting these form elements to see their properties.</p>
+                    <div class="form-demo">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" placeholder="Enter your name" aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="your@email.com" aria-describedby="email-help">
+                            <small id="email-help">We'll never share your email</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" aria-label="Select your role">
+                                <option value="">Select a role</option>
+                                <option value="developer">Developer</option>
+                                <option value="designer">Designer</option>
+                                <option value="qa">QA Tester</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h3>🎨 Interactive Cards</h3>
+                    <p>Hover and click on these cards to see element inspection in action.</p>
+                    <div class="card-grid">
+                        <div class="card" data-testid="card-1" role="button" tabindex="0" aria-label="Feature card about performance">
+                            <h4>⚡ Performance</h4>
+                            <p>Lightning fast element detection with optimized algorithms.</p>
+                        </div>
+                        <div class="card" data-testid="card-2" role="button" tabindex="0" aria-label="Feature card about accessibility">
+                            <h4>♿ Accessibility</h4>
+                            <p>Built with accessibility in mind, supporting screen readers.</p>
+                        </div>
+                        <div class="card" data-testid="card-3" role="button" tabindex="0" aria-label="Feature card about customization">
+                            <h4>🎛️ Customizable</h4>
+                            <p>Fully customizable highlighting and event handling.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h3>🔗 Nested Elements</h3>
+                    <p>Test deep inspection with nested elements.</p>
+                    <div class="nested-elements">
+                        <div class="demo-section">
+                            <h4>Level 1</h4>
+                            <p>This is a nested container with <strong>bold text</strong> and <em>italic text</em>.</p>
+                            <div class="nested-elements">
+                                <div class="demo-section">
+                                    <h5>Level 2</h5>
+                                    <p>Even deeper nesting with <a href="#" onclick="return false">a link</a> and <code>code text</code>.</p>
+                                    <button class="btn btn-primary">Nested Button</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>📊 Element Information</h3>
+                <p>Start inspection and hover over elements to see their details here.</p>
+                <div id="elementInfo" class="element-info"></div>
+                <div id="eventLog">
+                    <h4>Event Log</h4>
+                    <div id="events" style="font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; background: #f1f5f9; padding: 0.5rem; border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the actual element inspector library
+        import { createElementInspector } from '../dist/index.js'
+
+        // Demo application using the real library
+        const inspector = createElementInspector({
+            deepInspection: false,
+            debug: true
+        })
+
+        // UI Elements
+        const startBtn = document.getElementById('startBtn')
+        const stopBtn = document.getElementById('stopBtn')
+        const toggleBtn = document.getElementById('toggleBtn')
+        const clearBtn = document.getElementById('clearBtn')
+        const status = document.getElementById('status')
+        const elementInfo = document.getElementById('elementInfo')
+        const events = document.getElementById('events')
+
+        // Event handling
+        inspector.on((event) => {
+            // Log event
+            const eventDiv = document.createElement('div')
+            eventDiv.textContent = `${new Date().toLocaleTimeString()}: ${event.type}`
+            if (event.element) {
+                eventDiv.textContent += ` - ${event.element.selector}`
+            }
+            events.appendChild(eventDiv)
+            events.scrollTop = events.scrollHeight
+
+            // Update UI based on event type
+            switch (event.type) {
+                case 'start':
+                    status.textContent = 'Active'
+                    status.className = 'status active'
+                    startBtn.disabled = true
+                    stopBtn.disabled = false
+                    break
+
+                case 'stop':
+                    status.textContent = 'Inactive'
+                    status.className = 'status inactive'
+                    startBtn.disabled = false
+                    stopBtn.disabled = true
+                    elementInfo.innerHTML = ''
+                    break
+
+                case 'hover':
+                    updateElementInfo(event.element)
+                    break
+
+                case 'select':
+                    updateElementInfo(event.element)
+                    inspector.stop()
+                    break
+            }
+        })
+
+        function updateElementInfo(element) {
+            const info = `
+                <div class="info-row">
+                    <span class="info-label">Tag:</span>
+                    <span class="info-value">${element.tagName}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Selector:</span>
+                    <span class="info-value">${element.selector}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Text:</span>
+                    <span class="info-value">${element.textContent || '(empty)'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Size:</span>
+                    <span class="info-value">${Math.round(element.rect.width)}×${Math.round(element.rect.height)}</span>
+                </div>
+                ${Object.entries(element.attributes).map(([key, value]) => `
+                    <div class="info-row">
+                        <span class="info-label">${key}:</span>
+                        <span class="info-value">${value}</span>
+                    </div>
+                `).join('')}
+            `
+            elementInfo.innerHTML = info
+        }
+
+        // Button handlers
+        startBtn.addEventListener('click', () => inspector.start())
+        stopBtn.addEventListener('click', () => inspector.stop())
+
+        toggleBtn.addEventListener('click', () => {
+            const currentState = inspector.getState()
+            const newMode = !currentState.options.deepInspection
+            inspector.setOptions({ deepInspection: newMode })
+            toggleBtn.textContent = newMode ? 'Disable Deep Inspection' : 'Enable Deep Inspection'
+        })
+
+        clearBtn.addEventListener('click', () => {
+            inspector.clearHighlights()
+            events.innerHTML = ''
+        })
+
+        // Initialize
+        console.log('🔍 Element Inspector Demo loaded!')
+        console.log('Click "Start Inspection" to begin, then hover over elements to inspect them.')
+    </script>
+</body>
+</html>

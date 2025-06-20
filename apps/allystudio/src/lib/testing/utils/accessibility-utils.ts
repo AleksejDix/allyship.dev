@@ -2,6 +2,12 @@
  * Common accessibility utility functions for testing rules
  */
 
+// Import utilities from published npm packages
+import {
+  isElementVisible,
+  isFocusable as npmIsFocusable
+} from "@allystudio/accessibility-utils"
+
 /**
  * Check if an element is hidden from assistive technology
  * Elements are hidden from AT if they:
@@ -12,6 +18,11 @@
  * - Have a hidden attribute
  */
 export function isHiddenFromAT(element: Element): boolean {
+  // Use the npm package visibility check first
+  if (!isElementVisible(element as HTMLElement)) {
+    return true
+  }
+
   // Check if the element itself has aria-hidden="true"
   if (element.getAttribute("aria-hidden") === "true") {
     return true
@@ -22,47 +33,12 @@ export function isHiddenFromAT(element: Element): boolean {
     return true
   }
 
-  // Check inline style attribute for display:none
-  const styleAttr = element.getAttribute("style")
-  if (
-    styleAttr &&
-    (styleAttr.includes("display:none") || styleAttr.includes("display: none"))
-  ) {
-    return true
-  }
-
-  // Check computed styles for display:none or visibility:hidden
-  const computedStyle = window.getComputedStyle(element as HTMLElement)
-  if (
-    computedStyle.display === "none" ||
-    computedStyle.visibility === "hidden"
-  ) {
-    return true
-  }
-
-  // Check if any ancestor has aria-hidden="true" or display:none
+  // Check if any ancestor has aria-hidden="true"
   let parent = element.parentElement
   while (parent) {
     if (parent.getAttribute("aria-hidden") === "true") {
       return true
     }
-
-    // Check parent's inline style
-    const parentStyleAttr = parent.getAttribute("style")
-    if (
-      parentStyleAttr &&
-      (parentStyleAttr.includes("display:none") ||
-        parentStyleAttr.includes("display: none"))
-    ) {
-      return true
-    }
-
-    // Check parent's computed style
-    const parentStyle = window.getComputedStyle(parent)
-    if (parentStyle.display === "none" || parentStyle.visibility === "hidden") {
-      return true
-    }
-
     parent = parent.parentElement
   }
 
@@ -89,45 +65,8 @@ export function isDisabled(element: Element): boolean {
 
 /**
  * Check if an element is focusable
- * Simplified check for common focusable elements
+ * Use the npm package implementation
  */
 export function isFocusable(element: Element): boolean {
-  const tagName = element.tagName.toLowerCase()
-
-  // Elements that are naturally focusable if not disabled
-  const focusableTags = [
-    "a",
-    "button",
-    "input",
-    "select",
-    "textarea",
-    "details",
-    "summary",
-    "iframe",
-    "object",
-    "embed",
-    "audio",
-    "video"
-  ]
-
-  if (focusableTags.includes(tagName)) {
-    if (isDisabled(element)) {
-      return false
-    }
-
-    // Special case for links - they need href to be focusable
-    if (tagName === "a" && !element.hasAttribute("href")) {
-      return false
-    }
-
-    return true
-  }
-
-  // Elements with tabindex
-  if (element.hasAttribute("tabindex")) {
-    const tabindex = parseInt(element.getAttribute("tabindex") || "-1", 10)
-    return tabindex >= 0
-  }
-
-  return false
+  return npmIsFocusable(element as HTMLElement)
 }

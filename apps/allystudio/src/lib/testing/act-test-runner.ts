@@ -1,5 +1,7 @@
 import { eventBus } from "@/lib/events/event-bus"
 import { TEST_CONFIGS, type TestType } from "@/lib/testing/test-config"
+// Import accessible name utility from npm package
+import { getAccessibleName } from "@allystudio/accessibility-utils"
 
 import type { ACTSuite, TestResult } from "./act-test-suite"
 import { TestLogger } from "./test-logger"
@@ -349,42 +351,5 @@ export function getUniqueSelector(element: HTMLElement): string {
   return path.join(" > ")
 }
 
-// Helper function to get accessible name
-export function getAccessibleName(element: HTMLElement): string {
-  // Check aria-labelledby first
-  const labelledBy = element.getAttribute("aria-labelledby")
-  if (labelledBy) {
-    const labelElements = labelledBy
-      .split(" ")
-      .map((id) => document.getElementById(id))
-    const labelText = labelElements
-      .filter((el) => el && !el.hidden)
-      .map((el) => el?.textContent || "")
-      .join(" ")
-    if (labelText.trim()) return labelText
-  }
-
-  // Check aria-label
-  const ariaLabel = element.getAttribute("aria-label")
-  if (ariaLabel?.trim()) return ariaLabel
-
-  // Check if element itself is an img
-  if (element.tagName.toLowerCase() === "img") {
-    const altText = element.getAttribute("alt")
-    if (altText?.trim()) return altText
-  }
-
-  // Check for nested img alt text
-  const img = element.querySelector("img")
-  if (img && !img.matches('[role="presentation"], [role="none"]')) {
-    const altText = img.getAttribute("alt")
-    if (altText?.trim()) return altText
-  }
-
-  // Check title attribute as fallback (less reliable but part of accessible name calculation)
-  const title = element.getAttribute("title")
-  if (title?.trim()) return title
-
-  // Check visible text content
-  return element.textContent?.trim() || ""
-}
+// Re-export for backward compatibility
+export { getAccessibleName }
