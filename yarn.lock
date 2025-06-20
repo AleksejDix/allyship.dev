@@ -75,7 +75,7 @@
   dependencies:
     "@allystudio/accessibility-utils" "^0.1.0"
 
-"@allystudio/element-outliner@file:../../packages/element-outliner", "@allystudio/element-outliner@file:/Users/aleksej/Projects/allyship.dev/packages/element-outliner":
+"@allystudio/element-outliner@^0.1.0", "@allystudio/element-outliner@file:/Users/aleksej/Projects/allyship.dev/packages/element-outliner":
   version "0.1.0"
   resolved "file:packages/element-outliner"
 
@@ -4540,7 +4540,7 @@ ajv@^6.12.4:
     "@allystudio/color-vision-simulator" "^0.1.0"
     "@allystudio/diopter-simulator" "^0.1.0"
     "@allystudio/element-inspector" "^0.1.0"
-    "@allystudio/element-outliner" "file:../../packages/element-outliner"
+    "@allystudio/focus-order-visualizer" "^1.0.0"
     "@plasmohq/messaging" "^0.7.1"
     "@plasmohq/storage" "^1.9.0"
     "@radix-ui/react-accordion" "^1.2.3"
