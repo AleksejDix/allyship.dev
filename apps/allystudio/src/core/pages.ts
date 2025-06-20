@@ -2,7 +2,7 @@ import {
   extractDomain,
   extractPath,
   normalizeUrl as normalizeUrlUtil
-} from "@/utils/url"
+} from "@allystudio/url-utils"
 
 import { supabase } from "./supabase"
 

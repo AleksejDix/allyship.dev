@@ -9,6 +9,7 @@ import {
   type WebsiteInsert
 } from "."
 import type { ApiResponse } from "../connector-utils"
+import { extractDomain } from "@allystudio/url-utils"
 
 /**
  * Creates a page, ensuring its parent website exists first
@@ -48,7 +49,7 @@ export async function createPageWithWebsite(
   }
 
   // Normalize input
-  const normalizedWebsiteUrl = normalizeUrl(websiteUrl)
+  const normalizedWebsiteUrl = extractDomain(websiteUrl)
 
   // 1. Try to find website by normalized URL using list with filter
   try {
@@ -120,18 +121,4 @@ export async function createPageWithWebsite(
   }
 }
 
-/**
- * Simple URL normalization function - extracts hostname
- */
-function normalizeUrl(url: string): string {
-  try {
-    // If URL doesn't have a protocol, add one for parsing
-    const urlWithProtocol = url.startsWith("http") ? url : `https://${url}`
-    const hostname = new URL(urlWithProtocol).hostname
-    // Remove www. if present
-    return hostname.replace(/^www\./, "")
-  } catch (error) {
-    // Return original if parsing fails
-    return url
-  }
-}
+

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { Database, Tables } from '@/apps/AllyShip/database.types'
 import { deletePage } from '@/features/pages/actions'
-import { normalizeUrl } from '@/utils/url'
+import { normalizeUrlString } from '@allystudio/url-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -30,7 +30,7 @@ export function PageDelete({ page, space_id, website_id }: Props) {
     websiteId: website_id,
   })
 
-  const normalizedPageUrl = normalizeUrl(page.url)
+  const normalizedPageUrl = normalizeUrlString(page.url)
   console.log('Stored page URL normalized:', normalizedPageUrl)
 
   // Get a cleaner display URL without protocol

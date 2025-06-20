@@ -1,12 +1,11 @@
-"use server"
+'use server'
 
-import { revalidatePath } from "next/cache"
-import { z } from "zod"
-import { createServerAction } from "zsa"
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
+import { createServerAction } from 'zsa'
 
-import { createClient } from "@/lib/supabase/server"
-import { normalizeUrl, extractPath } from "@/utils/url"
-
+import { createClient } from '@/lib/supabase/server'
+import { normalizeUrlString, extractPath } from '@allystudio/url-utils'
 
 const deleteWebsiteSchema = z.object({
   websiteId: z.string(),
@@ -16,11 +15,11 @@ const deleteWebsiteSchema = z.object({
 const createWebsiteSchema = z.object({
   url: z.string().transform((val, ctx) => {
     try {
-      return normalizeUrl(val)
+      return normalizeUrlString(val)
     } catch (error) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Invalid URL format",
+        message: 'Invalid URL format',
       })
       return z.NEVER
     }
@@ -44,8 +43,8 @@ export const createWebsite = createServerAction()
       return {
         success: false,
         error: {
-          message: "Unauthorized",
-          code: "unauthorized",
+          message: 'Unauthorized',
+          code: 'unauthorized',
         },
       }
     }
@@ -56,7 +55,7 @@ export const createWebsite = createServerAction()
       // URL is already normalized from the schema transform
       const normalized_url = url
 
-      const { data, error } = await supabase.from("Website").insert({
+      const { data, error } = await supabase.from('Website').insert({
         url: normalized_url, // Use normalized URL for both fields
         normalized_url,
         space_id,
@@ -84,8 +83,8 @@ export const createWebsite = createServerAction()
       return {
         success: false,
         error: {
-          message: "Invalid URL provided",
-          code: "INVALID_URL",
+          message: 'Invalid URL provided',
+          code: 'INVALID_URL',
         },
       }
     }
@@ -104,8 +103,8 @@ export const websiteDelete = createServerAction()
       return {
         success: false,
         error: {
-          message: "Unauthorized",
-          code: "unauthorized",
+          message: 'Unauthorized',
+          code: 'unauthorized',
         },
       }
     }
@@ -113,11 +112,10 @@ export const websiteDelete = createServerAction()
     const { websiteId, spaceId } = input
 
     // Delete the domain - RLS policies will ensure user has access
-    const {  error: deleteError } = await supabase
-      .from("Website")
+    const { error: deleteError } = await supabase
+      .from('Website')
       .delete()
       .match({ id: websiteId, space_id: spaceId })
-
 
     if (deleteError) {
       return {
@@ -141,42 +139,45 @@ export const normalizeUrls = createServerAction()
   .input(normalizeUrlsSchema)
   .handler(async ({ input }) => {
     const supabase = await createClient()
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return {
         success: false,
         error: {
-          message: "Unauthorized",
-          code: "unauthorized",
+          message: 'Unauthorized',
+          code: 'unauthorized',
         },
       }
     }
 
     // First get all websites in the space
     const { data: websites, error: websitesError } = await supabase
-      .from("Website")
-      .select("id, url")
-      .eq("space_id", input.spaceId)
+      .from('Website')
+      .select('id, url')
+      .eq('space_id', input.spaceId)
 
     if (websitesError) {
       return {
         success: false,
         error: {
-          message: "Failed to fetch websites",
-          code: "FETCH_ERROR",
+          message: 'Failed to fetch websites',
+          code: 'FETCH_ERROR',
         },
       }
     }
 
     // Update each website with normalized URL
-    const websiteUpdates = websites.map(async (website) => {
+    const websiteUpdates = websites.map(async website => {
       try {
-        const normalized_url = normalizeUrl(website.url)
+        const normalized_url = normalizeUrlString(website.url)
         return supabase
-          .from("Website")
+          .from('Website')
           .update({ normalized_url })
-          .eq("id", website.id)
+          .eq('id', website.id)
       } catch (e) {
         console.error(`Failed to normalize website URL ${website.url}:`, e)
         return null
@@ -185,25 +186,28 @@ export const normalizeUrls = createServerAction()
 
     // Get all pages for each website
     const pageUpdates = await Promise.all(
-      websites.map(async (website) => {
+      websites.map(async website => {
         const { data: pages, error: pagesError } = await supabase
-          .from("Page")
-          .select("id, url")
-          .eq("website_id", website.id)
+          .from('Page')
+          .select('id, url')
+          .eq('website_id', website.id)
 
         if (pagesError) {
-          console.error(`Failed to fetch pages for website ${website.id}:`, pagesError)
+          console.error(
+            `Failed to fetch pages for website ${website.id}:`,
+            pagesError
+          )
           return []
         }
 
-        return pages.map(async (page) => {
+        return pages.map(async page => {
           try {
-            const normalized_url = normalizeUrl(page.url)
+            const normalized_url = normalizeUrlString(page.url)
             const path = extractPath(page.url)
             return supabase
-              .from("Page")
+              .from('Page')
               .update({ normalized_url, path })
-              .eq("id", page.id)
+              .eq('id', page.id)
           } catch (e) {
             console.error(`Failed to normalize page URL ${page.url}:`, e)
             return null
@@ -213,10 +217,7 @@ export const normalizeUrls = createServerAction()
     )
 
     // Wait for all updates to complete
-    await Promise.all([
-      ...websiteUpdates,
-      ...pageUpdates.flat(),
-    ])
+    await Promise.all([...websiteUpdates, ...pageUpdates.flat()])
 
     revalidatePath(`/spaces/${input.spaceId}`)
 

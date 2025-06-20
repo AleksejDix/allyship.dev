@@ -1,4 +1,4 @@
-import { normalizeUrl, type NormalizedUrl } from "@/utils/url"
+import { normalizeUrl, type NormalizedUrl } from "@allystudio/url-utils"
 import {
   createContext,
   useContext,

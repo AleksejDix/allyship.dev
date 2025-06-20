@@ -1,6 +1,7 @@
 /// <reference lib="deno.ns" />
-import puppeteer from 'https://deno.land/x/puppeteer@16.2.0/mod.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import puppeteer from 'npm:puppeteer@^21.0.0'
+import { normalizeUrlForCrawling } from 'npm:@allystudio/url-utils@^1.0.0'
 
 interface CrawlStats {
   total: number
@@ -13,29 +14,6 @@ interface CrawlStats {
 interface CrawlResult {
   urls: string[]
   stats: CrawlStats
-}
-
-// Normalize URL for consistent storage
-function normalizeUrl(
-  url: string,
-  baseUrl: string
-): { url: string; path: string } | null {
-  try {
-    const urlObj = new URL(url, baseUrl)
-    // Remove fragments and query parameters
-    urlObj.hash = ''
-    urlObj.search = ''
-    const normalizedUrl = urlObj.href
-    let path = urlObj.pathname
-    if (path === '/' || path === '') {
-      path = '/'
-    } else {
-      path = path.replace(/\/$/, '') // Remove trailing slash except for root
-    }
-    return { url: normalizedUrl, path }
-  } catch (error) {
-    return null
-  }
 }
 
 // Extract links from page using Puppeteer evaluation
@@ -199,7 +177,7 @@ async function crawlSPA(
         console.log(`[SPA-CRAWL] Page loaded: ${title}`)
 
         // Add current URL to discovered URLs
-        const normalized = normalizeUrl(currentUrl, startUrl)
+        const normalized = normalizeUrlForCrawling(currentUrl, startUrl)
         if (normalized) {
           if (!discoveredUrls.has(normalized.url)) {
             discoveredUrls.add(normalized.url)
@@ -218,7 +196,7 @@ async function crawlSPA(
         // Process each link
         for (const link of links) {
           if (shouldCrawlUrl(link, startUrl) && !crawledUrls.has(link)) {
-            const normalized = normalizeUrl(link, startUrl)
+            const normalized = normalizeUrlForCrawling(link, startUrl)
             if (normalized && !discoveredUrls.has(normalized.url)) {
               urlQueue.push({ url: normalized.url, depth: depth + 1 })
               console.log(`[SPA-CRAWL] Queued for crawling: ${normalized.url}`)
@@ -292,7 +270,7 @@ Deno.serve(async (req: Request) => {
 
       // Prepare page data
       const pageData = result.urls.map(pageUrl => {
-        const normalized = normalizeUrl(pageUrl, url)
+        const normalized = normalizeUrlForCrawling(pageUrl, url)
         return {
           website_id,
           url: normalized?.path || '/',

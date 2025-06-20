@@ -1,0 +1,72 @@
+{
+  "name": "@allystudio/url-utils",
+  "version": "1.0.0",
+  "description": "Comprehensive URL normalization, validation, and manipulation utilities for web applications",
+  "keywords": [
+    "url",
+    "normalization",
+    "validation",
+    "domain",
+    "path",
+    "hostname",
+    "utilities",
+    "web",
+    "crawler",
+    "seo",
+    "analytics",
+    "accessibility",
+    "tld",
+    "internationalization",
+    "punycode"
+  ],
+  "homepage": "https://github.com/aleksejleonov/allyship.dev/tree/main/packages/url-utils",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aleksejleonov/allyship.dev.git",
+    "directory": "packages/url-utils"
+  },
+  "bugs": {
+    "url": "https://github.com/aleksejleonov/allyship.dev/issues"
+  },
+  "author": "Aleksej Dix <privat@aleksejdix.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "oxlint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "tldts": "^6.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "oxlint": "^0.15.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.7"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

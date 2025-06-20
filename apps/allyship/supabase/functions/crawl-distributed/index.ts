@@ -1,5 +1,6 @@
 /// <reference lib="deno.ns" />
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { normalizeUrlForCrawling } from 'npm:@allystudio/url-utils@^1.0.0'
 
 interface PgmqMessage {
   msg_id: number
@@ -16,36 +17,6 @@ interface FoundLink {
   url: string
   depth: number
   priority: number
-}
-
-// Normalize URL for consistent storage
-function normalizeUrl(
-  url: string,
-  baseUrl: string
-): { url: string; path: string } | null {
-  try {
-    const urlObj = new URL(url, baseUrl)
-
-    // Remove fragments and query parameters for crawling
-    urlObj.hash = ''
-    urlObj.search = ''
-
-    const normalizedUrl = urlObj.href
-    let path = urlObj.pathname
-
-    // Normalize path
-    if (path === '/' || path === '') {
-      path = '/'
-    } else {
-      // Remove trailing slash unless it's root
-      path = path.replace(/\/$/, '')
-    }
-
-    return { url: normalizedUrl, path }
-  } catch (error) {
-    console.error(`[NORMALIZE] Error normalizing URL ${url}:`, error)
-    return null
-  }
 }
 
 // Extract links from HTML
@@ -92,7 +63,7 @@ function extractLinks(
         continue
       }
 
-      const normalized = normalizeUrl(href, baseUrl)
+      const normalized = normalizeUrlForCrawling(href, baseUrl)
       if (!normalized) continue
 
       // Only include links from the same domain
@@ -187,7 +158,7 @@ async function processMessage(
 
     // Get the normalized path for this URL
     console.log(`[CRAWL] Step 3: Normalizing URL ${url}`)
-    const normalized = normalizeUrl(url, url)
+    const normalized = normalizeUrlForCrawling(url, url)
     const path = normalized?.path || '/'
 
     // Update job progress with this processed URL

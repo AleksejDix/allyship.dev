@@ -4,7 +4,11 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
-import { normalizeUrl, extractDomain, extractPath } from '@/utils/url'
+import {
+  normalizeUrlString,
+  extractDomain,
+  extractPath,
+} from '@allystudio/url-utils'
 
 const urlSchema = z.object({
   url: z.string().transform((val, ctx) => {
@@ -15,7 +19,7 @@ const urlSchema = z.object({
         : `https://${val.trim()}`
 
       // Then normalize with query params
-      return normalizeUrl(urlWithProtocol, true)
+      return normalizeUrlString(urlWithProtocol, true)
     } catch (error) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

@@ -1,4 +1,4 @@
-import type { NormalizedUrl } from "@/utils/url"
+import type { NormalizedUrl } from "@allystudio/url-utils"
 import { useActorRef } from "@xstate/react"
 import { createContext, useContext, type ReactNode } from "react"
 

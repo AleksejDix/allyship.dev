@@ -1,6 +1,6 @@
 import { supabase } from "@/core/supabase"
 import type { Database } from "@/types/database.types"
-import { compareUrlPaths, normalizeUrl, type NormalizedUrl } from "@/utils/url"
+import { compareUrlPaths, normalizeUrl, type NormalizedUrl } from "@allystudio/url-utils"
 import type { PostgrestError } from "@supabase/supabase-js"
 import { assign, fromPromise, setup, type ActorRefFrom } from "xstate"
 

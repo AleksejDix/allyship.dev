@@ -1,7 +1,7 @@
 'use client'
 
 import { createWebsite } from '@/features/websites/actions'
-import { normalizeUrl } from '@/utils/url'
+import { normalizeUrlString } from '@allystudio/url-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -27,7 +27,7 @@ const formSchema = z.object({
       const urlWithProtocol = trimmed.startsWith('http')
         ? trimmed
         : `https://${trimmed}`
-      return normalizeUrl(urlWithProtocol) // Don't keep query params for websites
+      return normalizeUrlString(urlWithProtocol) // Don't keep query params for websites
     } catch (error) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

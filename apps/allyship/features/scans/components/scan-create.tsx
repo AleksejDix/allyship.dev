@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createScan } from '@/features/scans/actions'
-import { normalizeUrl } from '@/utils/url'
+import { normalizeUrlString } from '@allystudio/url-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckIcon, Loader2, TriangleAlert } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -48,7 +48,7 @@ const formSchema = z.object({
         ? trimmed
         : `https://${trimmed}`
       console.log('[SCAN] URL with protocol:', urlWithProtocol)
-      const normalized = normalizeUrl(urlWithProtocol, true)
+      const normalized = normalizeUrlString(urlWithProtocol, true)
       console.log('[SCAN] Normalized URL:', normalized)
       return normalized
     } catch (error) {
