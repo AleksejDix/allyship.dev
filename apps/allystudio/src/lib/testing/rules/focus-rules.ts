@@ -1,3 +1,4 @@
+import { getFocusableElements, sortByTabOrder } from "@allystudio/focus-order-visualizer"
 import { actRuleRunner } from "../act-rule-runner"
 import {
   ACTRuleCategory,
@@ -22,28 +23,21 @@ export const focusVisibilityRule = createACTRule(
       "https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html",
 
     isApplicable: () => {
-      // This rule applies if there are interactive elements on the page
-      const interactiveElements = document.querySelectorAll(
-        "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])"
-      )
+      // This rule applies if there are focusable elements on the page
+      const focusableElements = getFocusableElements(document, false)
       console.log(
-        `[focus-visibility] Found ${interactiveElements.length} interactive elements`
+        `[focus-visibility] Found ${focusableElements.length} focusable elements`
       )
-      return interactiveElements.length > 0
+      return focusableElements.length > 0
     },
 
     execute: async () => {
-      // Get all interactive elements
-      const interactiveElements = document.querySelectorAll(
-        "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])"
-      )
+      // Get all focusable elements using the published package
+      const focusableElements = getFocusableElements(document, false)
 
       // We'll test a sample of elements (up to 10) to avoid excessive test duration
-      const samplesToTest = Math.min(interactiveElements.length, 10)
-      const elementsToTest = Array.from(interactiveElements).slice(
-        0,
-        samplesToTest
-      )
+      const samplesToTest = Math.min(focusableElements.length, 10)
+      const elementsToTest = focusableElements.slice(0, samplesToTest)
 
       for (const element of elementsToTest) {
         const htmlElement = element as HTMLElement
@@ -133,62 +127,30 @@ export const focusOrderRule = createACTRule(
       "https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html",
 
     isApplicable: () => {
-      // This rule applies if there are multiple interactive elements
-      const interactiveElements = document.querySelectorAll(
-        "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])"
-      )
+      // This rule applies if there are multiple focusable elements
+      const focusableElements = getFocusableElements(document, false)
       console.log(
-        `[focus-order] Found ${interactiveElements.length} interactive elements`
+        `[focus-order] Found ${focusableElements.length} focusable elements`
       )
-      return interactiveElements.length > 1
+      return focusableElements.length > 1
     },
 
     execute: async () => {
-      // Get all interactive elements
-      const interactiveElements = Array.from(
-        document.querySelectorAll(
-          "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])"
-        )
-      ) as HTMLElement[]
+      // Use the published package for better focus element detection
+      const focusableElements = getFocusableElements(document, false)
+      const sortedElements = sortByTabOrder(focusableElements)
 
-      // Track the tab order
-      const tabOrder: HTMLElement[] = []
+      // If there are too many elements, just sample a few
+      const elementsToTest =
+        sortedElements.length > 15
+          ? sortedElements.slice(0, 15)
+          : sortedElements
 
       // Function to get tabindex
       const getTabIndex = (el: HTMLElement) => {
         const tabindex = el.getAttribute("tabindex")
         return tabindex !== null ? parseInt(tabindex, 10) : 0
       }
-
-      // Sort by tabindex (positive values first, then document order)
-      const elementsByTabIndex = [...interactiveElements].sort((a, b) => {
-        const aTabIndex = getTabIndex(a)
-        const bTabIndex = getTabIndex(b)
-
-        // Both have positive tabindex, compare numerically
-        if (aTabIndex > 0 && bTabIndex > 0) {
-          return aTabIndex - bTabIndex
-        }
-
-        // a has positive tabindex, it comes first
-        if (aTabIndex > 0) {
-          return -1
-        }
-
-        // b has positive tabindex, it comes first
-        if (bTabIndex > 0) {
-          return 1
-        }
-
-        // Both have tabindex 0 or none, use document order
-        return interactiveElements.indexOf(a) - interactiveElements.indexOf(b)
-      })
-
-      // If there are too many elements, just sample a few
-      const elementsToTest =
-        elementsByTabIndex.length > 15
-          ? elementsByTabIndex.slice(0, 15)
-          : elementsByTabIndex
 
       // Check for common tab order issues
       for (let i = 1; i < elementsToTest.length; i++) {

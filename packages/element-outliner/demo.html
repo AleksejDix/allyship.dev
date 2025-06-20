@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Outliner Demo</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; }
+        .controls { position: fixed; top: 20px; right: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        button { padding: 8px 16px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; }
+        button.active { background: #007acc; color: white; }
+        .demo-section { margin: 20px 0; padding: 20px; border: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>Element Outliner Demo</h3>
+        <button id="toggleBtn">Start Outlining</button>
+        <div id="status">Outliner: Inactive</div>
+    </div>
+
+    <div>
+        <header>
+            <h1>Demo Page</h1>
+            <nav><ul><li><a href="#test">Test Link</a></li></ul></nav>
+        </header>
+        <main>
+            <section class="demo-section">
+                <h2>Structure Elements</h2>
+                <p>This <strong>paragraph</strong> has <em>emphasis</em> and <code>code</code>.</p>
+            </section>
+            <section class="demo-section">
+                <h2>Form Elements</h2>
+                <form>
+                    <label>Name: <input type="text"></label>
+                    <button type="submit">Submit</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function createElementOutliner() {
+            let isOutlining = false;
+            let styleElement = null;
+            const colors = { body: "#2980b9", div: "#036cdb", p: "#ac050b", button: "#da8301" };
+
+            return {
+                start() {
+                    if (isOutlining) return;
+                    isOutlining = true;
+                    styleElement = document.createElement("style");
+                    let css = "";
+                    Object.entries(colors).forEach(([el, color]) => {
+                        css += `${el} { outline: 1px solid ${color} !important; }\n`;
+                    });
+                    styleElement.textContent = css;
+                    document.head.appendChild(styleElement);
+                },
+                stop() {
+                    if (!isOutlining) return;
+                    isOutlining = false;
+                    if (styleElement) { styleElement.remove(); styleElement = null; }
+                },
+                toggle() { return isOutlining ? (this.stop(), false) : (this.start(), true); },
+                isActive() { return isOutlining; }
+            };
+        }
+
+        const outliner = createElementOutliner();
+        const toggleBtn = document.getElementById('toggleBtn');
+        const status = document.getElementById('status');
+
+        toggleBtn.addEventListener('click', () => {
+            outliner.toggle();
+            status.textContent = `Outliner: ${outliner.isActive() ? 'Active' : 'Inactive'}`;
+            toggleBtn.textContent = outliner.isActive() ? 'Stop Outlining' : 'Start Outlining';
+            toggleBtn.classList.toggle('active', outliner.isActive());
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Order Visualizer Demo</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "focusable-selectors": "https://cdn.jsdelivr.net/npm/focusable-selectors@0.8.4/index.js"
+      }
+    }
+    </script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2563eb;
+        }
+
+        .controls h3 {
+            margin-top: 0;
+            color: #2563eb;
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+            border-color: #2563eb;
+        }
+
+        button.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .demo-section {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-section h3 {
+            margin-top: 0;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .form-demo {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .navigation-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .navigation-demo a {
+            padding: 10px 16px;
+            text-decoration: none;
+            background: #f3f4f6;
+            color: #374151;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .navigation-demo a:hover,
+        .navigation-demo a:focus {
+            background: #2563eb;
+            color: white;
+        }
+
+        .interactive-demo {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .dynamic-content {
+            border: 2px dashed #d1d5db;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 100px;
+            background: #fafafa;
+        }
+
+        .dynamic-content.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .status.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.inactive {
+            background: #6b7280;
+            color: white;
+        }
+
+        .tabindex-demo {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .tabindex-demo button {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stats {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .stats h4 {
+            margin: 0 0 10px 0;
+            color: #0ea5e9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0ea5e9;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scrollable-section {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .scrollable-header {
+            padding: 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .scrollable-content {
+            height: 300px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .scroll-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .scroll-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .scroll-item input,
+        .scroll-item select,
+        .scroll-item button {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .scroll-item button {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .scroll-item button:hover {
+            background: #2563eb;
+        }
+
+        .scroll-item label {
+            font-weight: 500;
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Focus Order Visualizer Demo</h1>
+        <p>Interactive demonstration of focus order visualization with dynamic DOM changes</p>
+    </div>
+
+    <div class="controls">
+        <h3>Visualizer Controls</h3>
+        <div class="control-group">
+            <button id="toggleBtn">Start Visualization</button>
+            <button id="refreshBtn">Refresh</button>
+            <select id="colorScheme">
+                <option value="blue">Blue Theme</option>
+                <option value="green">Green Theme</option>
+                <option value="purple">Purple Theme</option>
+                <option value="red">Red Theme</option>
+            </select>
+            <select id="overlaySize">
+                <option value="20">Small (20px)</option>
+                <option value="24" selected>Medium (24px)</option>
+                <option value="32">Large (32px)</option>
+                <option value="40">Extra Large (40px)</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>
+                <input type="checkbox" id="includeHidden"> Include Hidden Elements
+            </label>
+            <label>
+                <input type="checkbox" id="showConnectingLines" checked> Show Connecting Lines
+            </label>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>📝 Form Elements</h3>
+        <div class="form-demo">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" placeholder="Enter your first name">
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" placeholder="Enter your last name">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country">
+                    <option value="">Select a country</option>
+                    <option value="us">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="ca">Canada</option>
+                    <option value="au">Australia</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" rows="3" placeholder="Enter your message"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit">Submit Form</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>🧭 Navigation Links</h3>
+        <div class="navigation-demo">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#portfolio">Portfolio</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>🎛️ Tab Index Examples</h3>
+        <div class="tabindex-demo">
+            <button>Normal Button</button>
+            <button tabindex="3">Tab Index 3</button>
+            <button tabindex="1">Tab Index 1</button>
+            <button tabindex="2">Tab Index 2</button>
+            <button tabindex="-1">Not Focusable</button>
+            <button tabindex="0">Tab Index 0</button>
+        </div>
+    </div>
+
+    <div class="scrollable-section">
+        <div class="scrollable-header">
+            <h3>📜 Scrollable Content Area</h3>
+            <p>This section demonstrates how focus order visualization handles scrolling. The connecting lines and overlays will move with the content as you scroll.</p>
+        </div>
+        <div class="scrollable-content" id="scrollableContent">
+            <div class="scroll-item">
+                <label>Name:</label>
+                <input type="text" placeholder="Enter your name">
+                <button>Save</button>
+            </div>
+            <div class="scroll-item">
+                <label>Email:</label>
+                <input type="email" placeholder="your@email.com">
+                <button>Verify</button>
+            </div>
+            <div class="scroll-item">
+                <label>Age:</label>
+                <input type="number" placeholder="25" min="1" max="120">
+                <button>Update</button>
+            </div>
+            <div class="scroll-item">
+                <label>Country:</label>
+                <select>
+                    <option>United States</option>
+                    <option>United Kingdom</option>
+                    <option>Canada</option>
+                    <option>Australia</option>
+                </select>
+                <button>Select</button>
+            </div>
+            <div class="scroll-item">
+                <label>Language:</label>
+                <select>
+                    <option>English</option>
+                    <option>Spanish</option>
+                    <option>French</option>
+                    <option>German</option>
+                </select>
+                <button>Choose</button>
+            </div>
+            <div class="scroll-item">
+                <label>Bio:</label>
+                <textarea placeholder="Tell us about yourself..." rows="3" style="flex: 1;"></textarea>
+                <button>Save Bio</button>
+            </div>
+            <div class="scroll-item">
+                <label>Website:</label>
+                <input type="url" placeholder="https://yoursite.com">
+                <button>Validate</button>
+            </div>
+            <div class="scroll-item">
+                <label>Phone:</label>
+                <input type="tel" placeholder="+1 (555) 123-4567">
+                <button>Call</button>
+            </div>
+            <div class="scroll-item">
+                <label>LinkedIn:</label>
+                <input type="url" placeholder="https://linkedin.com/in/yourname">
+                <a href="#" target="_blank">Visit Profile</a>
+            </div>
+            <div class="scroll-item">
+                <label>GitHub:</label>
+                <input type="url" placeholder="https://github.com/yourusername">
+                <a href="#" target="_blank">View Repos</a>
+            </div>
+            <div class="scroll-item">
+                <label>Skills:</label>
+                <input type="text" placeholder="JavaScript, React, Node.js">
+                <button>Add Skills</button>
+            </div>
+            <div class="scroll-item">
+                <label>Experience:</label>
+                <select>
+                    <option>Junior (0-2 years)</option>
+                    <option>Mid-level (3-5 years)</option>
+                    <option>Senior (6-10 years)</option>
+                    <option>Lead (10+ years)</option>
+                </select>
+                <button>Update Level</button>
+            </div>
+            <div class="scroll-item">
+                <label>Availability:</label>
+                <select>
+                    <option>Available Now</option>
+                    <option>Available in 2 weeks</option>
+                    <option>Available in 1 month</option>
+                    <option>Not Available</option>
+                </select>
+                <button>Set Status</button>
+            </div>
+            <div class="scroll-item">
+                <label>Salary Range:</label>
+                <input type="text" placeholder="$80,000 - $120,000">
+                <button>Submit</button>
+            </div>
+            <div class="scroll-item">
+                <label>Notes:</label>
+                <textarea placeholder="Additional notes..." rows="2" style="flex: 1;"></textarea>
+                <button>Save Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>🔄 Dynamic Content</h3>
+        <div class="control-group">
+            <button id="addElementBtn">Add Form Field</button>
+            <button id="addButtonBtn">Add Button</button>
+            <button id="addLinkBtn">Add Link</button>
+            <button id="clearDynamicBtn">Clear All</button>
+            <select id="elementType">
+                <option value="input">Input Field</option>
+                <option value="select">Select Dropdown</option>
+                <option value="textarea">Text Area</option>
+                <option value="button">Button</option>
+                <option value="link">Link</option>
+            </select>
+        </div>
+        <div id="dynamicContent" class="dynamic-content empty">
+            Click "Add Element" to dynamically add focusable elements
+        </div>
+    </div>
+
+    <div class="stats" id="statsPanel">
+        <h4>📊 Focus Statistics</h4>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="totalElements">0</div>
+                <div class="stat-label">Total Elements</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="positiveTabIndex">0</div>
+                <div class="stat-label">Positive TabIndex</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="actuallyFocusable">0</div>
+                <div class="stat-label">Actually Focusable</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status inactive" id="status">Visualization Inactive</div>
+
+    <script type="module">
+        import { createFocusOrderVisualizer } from '../dist/index.js';
+
+        // Create visualizer instance
+        let visualizer = createFocusOrderVisualizer();
+        let elementCounter = 1;
+
+        // Color schemes
+        const colorSchemes = {
+            blue: {
+                overlay: '#2563eb',
+                overlayText: '#ffffff',
+                connectingLine: 'rgba(37, 99, 235, 0.3)',
+                focusOutline: '#2563eb',
+            },
+            green: {
+                overlay: '#10b981',
+                overlayText: '#ffffff',
+                connectingLine: 'rgba(16, 185, 129, 0.3)',
+                focusOutline: '#10b981',
+            },
+            purple: {
+                overlay: '#8b5cf6',
+                overlayText: '#ffffff',
+                connectingLine: 'rgba(139, 92, 246, 0.3)',
+                focusOutline: '#8b5cf6',
+            },
+            red: {
+                overlay: '#ef4444',
+                overlayText: '#ffffff',
+                connectingLine: 'rgba(239, 68, 68, 0.3)',
+                focusOutline: '#ef4444',
+            }
+        };
+
+        // DOM elements
+        const toggleBtn = document.getElementById('toggleBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const colorSchemeSelect = document.getElementById('colorScheme');
+        const overlaySizeSelect = document.getElementById('overlaySize');
+        const includeHiddenCheckbox = document.getElementById('includeHidden');
+        const showConnectingLinesCheckbox = document.getElementById('showConnectingLines');
+        const status = document.getElementById('status');
+        const dynamicContent = document.getElementById('dynamicContent');
+        const addElementBtn = document.getElementById('addElementBtn');
+        const addButtonBtn = document.getElementById('addButtonBtn');
+        const addLinkBtn = document.getElementById('addLinkBtn');
+        const clearDynamicBtn = document.getElementById('clearDynamicBtn');
+        const elementTypeSelect = document.getElementById('elementType');
+
+        // Stats elements
+        const totalElements = document.getElementById('totalElements');
+        const positiveTabIndex = document.getElementById('positiveTabIndex');
+        const actuallyFocusable = document.getElementById('actuallyFocusable');
+
+        // Update status display
+        function updateStatus() {
+            const isActive = visualizer.isActive();
+            status.textContent = isActive ? 'Visualization Active' : 'Visualization Inactive';
+            status.className = `status ${isActive ? 'active' : 'inactive'}`;
+            toggleBtn.textContent = isActive ? 'Stop Visualization' : 'Start Visualization';
+            toggleBtn.className = isActive ? 'active' : '';
+        }
+
+        // Update statistics
+        function updateStats() {
+            const stats = visualizer.getStats();
+            totalElements.textContent = stats.total;
+            positiveTabIndex.textContent = stats.positiveTabIndex;
+            actuallyFocusable.textContent = stats.actuallyFocusable;
+        }
+
+        // Refresh visualization
+        function refreshVisualization() {
+            if (visualizer.isActive()) {
+                visualizer.stop();
+                visualizer.start();
+            }
+            updateStats();
+        }
+
+        // Toggle visualization
+        toggleBtn.addEventListener('click', () => {
+            visualizer.toggle();
+            updateStatus();
+            updateStats();
+        });
+
+        // Refresh button
+        refreshBtn.addEventListener('click', refreshVisualization);
+
+        // Color scheme change
+        colorSchemeSelect.addEventListener('change', (e) => {
+            const scheme = colorSchemes[e.target.value];
+            visualizer.updateConfig({ colors: scheme });
+            refreshVisualization();
+        });
+
+        // Overlay size change
+        overlaySizeSelect.addEventListener('change', (e) => {
+            const size = parseInt(e.target.value);
+            visualizer.updateConfig({ overlaySize: size });
+            refreshVisualization();
+        });
+
+        // Include hidden elements
+        includeHiddenCheckbox.addEventListener('change', (e) => {
+            visualizer.updateConfig({ includeHidden: e.target.checked });
+            refreshVisualization();
+        });
+
+        // Show connecting lines
+        showConnectingLinesCheckbox.addEventListener('change', (e) => {
+            visualizer.updateConfig({ showConnectingLines: e.target.checked });
+            refreshVisualization();
+        });
+
+        // Dynamic content functions
+        function createElement(type) {
+            const element = document.createElement(type);
+
+            switch (type) {
+                case 'input':
+                    element.type = 'text';
+                    element.placeholder = `Dynamic Input ${elementCounter}`;
+                    element.style.margin = '5px';
+                    element.style.padding = '8px';
+                    element.style.border = '1px solid #ddd';
+                    element.style.borderRadius = '4px';
+                    break;
+
+                case 'select':
+                    element.innerHTML = `
+                        <option>Option 1</option>
+                        <option>Option 2</option>
+                        <option>Option 3</option>
+                    `;
+                    element.style.margin = '5px';
+                    element.style.padding = '8px';
+                    break;
+
+                case 'textarea':
+                    element.placeholder = `Dynamic Textarea ${elementCounter}`;
+                    element.rows = 2;
+                    element.style.margin = '5px';
+                    element.style.padding = '8px';
+                    element.style.border = '1px solid #ddd';
+                    element.style.borderRadius = '4px';
+                    break;
+
+                case 'button':
+                    element.textContent = `Button ${elementCounter}`;
+                    element.style.margin = '5px';
+                    element.style.padding = '8px 16px';
+                    element.style.border = '1px solid #ddd';
+                    element.style.borderRadius = '4px';
+                    element.style.background = 'white';
+                    element.style.cursor = 'pointer';
+                    break;
+
+                case 'a':
+                    element.href = '#';
+                    element.textContent = `Link ${elementCounter}`;
+                    element.style.margin = '5px';
+                    element.style.padding = '8px 16px';
+                    element.style.textDecoration = 'none';
+                    element.style.background = '#f0f0f0';
+                    element.style.borderRadius = '4px';
+                    element.style.display = 'inline-block';
+                    break;
+            }
+
+            elementCounter++;
+            return element;
+        }
+
+        function addDynamicElement() {
+            const type = elementTypeSelect.value === 'link' ? 'a' : elementTypeSelect.value;
+            const element = createElement(type);
+
+            if (dynamicContent.classList.contains('empty')) {
+                dynamicContent.classList.remove('empty');
+                dynamicContent.innerHTML = '';
+            }
+
+            dynamicContent.appendChild(element);
+            refreshVisualization();
+        }
+
+        function clearDynamicContent() {
+            dynamicContent.innerHTML = 'Click "Add Element" to dynamically add focusable elements';
+            dynamicContent.classList.add('empty');
+            elementCounter = 1;
+            refreshVisualization();
+        }
+
+        // Event listeners for dynamic content
+        addElementBtn.addEventListener('click', addDynamicElement);
+        addButtonBtn.addEventListener('click', () => {
+            elementTypeSelect.value = 'button';
+            addDynamicElement();
+        });
+        addLinkBtn.addEventListener('click', () => {
+            elementTypeSelect.value = 'link';
+            addDynamicElement();
+        });
+        clearDynamicBtn.addEventListener('click', clearDynamicContent);
+
+        // Initialize
+        updateStatus();
+        updateStats();
+
+        // Auto-refresh stats periodically
+        setInterval(updateStats, 1000);
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'f':
+                        e.preventDefault();
+                        visualizer.toggle();
+                        updateStatus();
+                        updateStats();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        refreshVisualization();
+                        break;
+                }
+            }
+        });
+
+        // Show keyboard shortcuts info
+        console.log('🎯 Focus Order Visualizer Demo');
+        console.log('Keyboard shortcuts:');
+        console.log('  Ctrl/Cmd + F: Toggle visualization');
+        console.log('  Ctrl/Cmd + R: Refresh visualization');
+    </script>
+</body>
+</html>

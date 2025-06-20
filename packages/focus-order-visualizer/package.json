@@ -1,0 +1,64 @@
+{
+  "name": "@allystudio/focus-order-visualizer",
+  "version": "1.0.0",
+  "description": "A lightweight library for visualizing focus order on web pages with numbered overlays and connecting lines",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "lint": "oxlint src",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "accessibility",
+    "focus",
+    "focus-order",
+    "keyboard-navigation",
+    "a11y",
+    "visualization",
+    "web-accessibility",
+    "dom",
+    "testing"
+  ],
+  "author": "Allyship.dev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allyship-dev/allyship.dev.git",
+    "directory": "packages/focus-order-visualizer"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "focusable-selectors": "^0.8.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "jsdom": "^23.0.0",
+    "oxlint": "^1.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
