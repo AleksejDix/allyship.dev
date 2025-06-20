@@ -2,12 +2,11 @@ import { Header } from "@/components/header"
 import { memo } from "react"
 import type { PropsWithChildren } from "react"
 
-import { ColorVisionSimulator } from "../color-vision-simulator/color-vision-simulator"
 import { DOMMonitorToggle } from "../dom-monitor-toggle"
 import { ElementInspector } from "../element-inspector/element-inspector"
 import { ElementOutliner } from "../element-outliner/element-outliner"
 import { FocusOrderVisualizer } from "../focus-order/focus-order"
-import { VisualAcuitySimulator } from "../visual-acuity-simulator/visual-acuity-simulator"
+import { VisionSimulator } from "../vision-simulator"
 import { SpaceProvider } from "./space-context"
 import { SpaceDebug } from "./space-debug"
 import { SpaceEmpty } from "./space-empty"
@@ -33,8 +32,7 @@ const Space = memo(function Space({
           <ElementInspector />
           <ElementOutliner />
           <FocusOrderVisualizer />
-          <ColorVisionSimulator />
-          <VisualAcuitySimulator />
+          <VisionSimulator />
           <DOMMonitorToggle />
         </div>
         <Header />
