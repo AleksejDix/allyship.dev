@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react"
 
 import { DOMMonitorToggle } from "../dom-monitor-toggle"
 import { ElementInspector } from "../element-inspector/element-inspector"
-import { ElementOutliner } from "../element-outliner/element-outliner"
+import { ElementOutliner } from "../element-outliner"
 import { FocusOrderVisualizer } from "../focus-order/focus-order"
 import { VisionSimulator } from "../vision-simulator"
 import { SpaceProvider } from "./space-context"

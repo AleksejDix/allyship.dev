@@ -27,6 +27,7 @@
     "@allystudio/color-vision-simulator": "^0.1.0",
     "@allystudio/diopter-simulator": "^0.1.0",
     "@allystudio/element-inspector": "^0.1.0",
+    "@allystudio/element-outliner": "file:../../packages/element-outliner",
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.9.0",
     "@radix-ui/react-accordion": "^1.2.3",
