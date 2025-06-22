@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACT Test Runner - Modular Demo</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "@aleksejdix/ally-bcp47": "https://cdn.skypack.dev/@aleksejdix/ally-bcp47"
+      }
+    }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #fafafa;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #1a202c;
+        }
+
+        .header p {
+            color: #718096;
+            margin: 0;
+        }
+
+        .config-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .config-section h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+            font-size: 18px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .config-group {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .config-group h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .config-option {
+            margin: 8px 0;
+        }
+
+        .config-option label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .config-option input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .config-option select {
+            padding: 6px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 24px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2c5282;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .test-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .test-content h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+        }
+
+        .element-group {
+            margin-bottom: 24px;
+        }
+
+        .element-group h3 {
+            margin: 0 0 12px 0;
+            color: #4a5568;
+            font-size: 16px;
+        }
+
+        .example {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .example.good {
+            background: #f0fff4;
+            border-color: #68d391;
+        }
+
+        .example.bad {
+            background: #fed7d7;
+            border-color: #fc8181;
+        }
+
+        .example-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .example.good .example-label {
+            color: #22543d;
+        }
+
+        .example.bad .example-label {
+            color: #742a2a;
+        }
+
+        .good-image, .bad-image {
+            display: block;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+
+        .good-button, .bad-button {
+            display: block;
+            margin: 8px 0;
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .good-link, .bad-link {
+            display: inline-block;
+            margin: 8px 0;
+            color: #3182ce;
+            text-decoration: underline;
+        }
+
+        input, textarea {
+            display: block;
+            margin: 8px 0;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 4px 0;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .results-section h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .stat {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stat.passed {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .stat.failed {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .stat.total {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+
+        .stat.performance {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .suite {
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .suite.passed {
+            border-color: #68d391;
+        }
+
+        .suite.failed {
+            border-color: #fc8181;
+        }
+
+        .suite h4 {
+            margin: 0;
+            padding: 16px 20px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 16px;
+        }
+
+        .suite.passed h4 {
+            background: #f0fff4;
+        }
+
+        .suite.failed h4 {
+            background: #fed7d7;
+        }
+
+        .suite-stats {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #718096;
+            background: #f7fafc;
+        }
+
+        .tests {
+            padding: 0 20px 20px;
+        }
+
+        .test {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .test:last-child {
+            border-bottom: none;
+        }
+
+        .test-icon {
+            font-size: 16px;
+            margin-top: 2px;
+        }
+
+        .test-content {
+            flex: 1;
+        }
+
+        .test-name {
+            font-weight: 500;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .test-element {
+            background: #f7fafc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #4a5568;
+        }
+
+        .test-message {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .test.fail .test-message {
+            color: #e53e3e;
+        }
+
+        .error-details {
+            background: #fed7d7;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #742a2a;
+        }
+
+        .highlight-pass {
+            outline: 2px solid #68d391 !important;
+            outline-offset: 2px;
+            background: rgba(104, 211, 145, 0.1) !important;
+        }
+
+        .highlight-fail {
+            outline: 2px solid #fc8181 !important;
+            outline-offset: 2px;
+            background: rgba(252, 129, 129, 0.1) !important;
+        }
+
+        .highlight-skip {
+            outline: 2px solid #f6ad55 !important;
+            outline-offset: 2px;
+            background: rgba(246, 173, 85, 0.1) !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #3182ce;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* New styles for enhanced results display */
+        .results-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .results-summary.has-failures {
+            border-left: 4px solid #fc8181;
+        }
+
+        .results-summary.all-passed {
+            border-left: 4px solid #68d391;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .stat.passed {
+            background: #f0fff4;
+        }
+
+        .stat.passed .stat-value {
+            color: #22543d;
+        }
+
+        .stat.failed {
+            background: #fed7d7;
+        }
+
+        .stat.failed .stat-value {
+            color: #742a2a;
+        }
+
+        .stat.skipped {
+            background: #fef5e7;
+        }
+
+        .stat.skipped .stat-value {
+            color: #c05621;
+        }
+
+        .test-suite {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .test-suite h4 {
+            margin: 0;
+            padding: 16px 20px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 18px;
+            color: #2d3748;
+        }
+
+        .suite-stats {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #718096;
+            background: #f7fafc;
+        }
+
+        .test-results {
+            padding: 20px;
+        }
+
+        .test-result {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .test-result:hover {
+            border-color: #cbd5e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .test-result.pass {
+            border-left: 4px solid #68d391;
+            background: #f0fff4;
+        }
+
+        .test-result.fail {
+            border-left: 4px solid #fc8181;
+            background: #fed7d7;
+        }
+
+        .test-result.skip {
+            border-left: 4px solid #f6ad55;
+            background: #fef5e7;
+        }
+
+        .test-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .test-status {
+            font-size: 18px;
+        }
+
+        .test-name {
+            flex: 1;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .test-duration {
+            font-size: 12px;
+            color: #718096;
+            background: #f7fafc;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .act-metadata {
+            background: #edf2f7;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 13px;
+            color: #4a5568;
+            border-left: 3px solid #3182ce;
+        }
+
+        .act-metadata strong {
+            color: #2d3748;
+        }
+
+        .act-metadata a {
+            color: #3182ce;
+            text-decoration: none;
+        }
+
+        .act-metadata a:hover {
+            text-decoration: underline;
+        }
+
+        .test-message {
+            font-size: 14px;
+            color: #718096;
+            margin: 8px 0;
+        }
+
+        .test-result.fail .test-message {
+            color: #e53e3e;
+            font-weight: 500;
+        }
+
+        .test-element {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .element-details {
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .element-details > div {
+            margin: 4px 0;
+        }
+
+        .element-details strong {
+            color: #2d3748;
+        }
+
+        .element-details details {
+            margin-top: 8px;
+        }
+
+        .element-details summary {
+            cursor: pointer;
+            color: #3182ce;
+            font-weight: 500;
+        }
+
+        .element-details pre {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .plugin-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .plugin-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e9ecef;
+        }
+
+        .plugin-section h4 {
+            margin: 0 0 12px 0;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .plugin-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .plugin-stats span {
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            border: 1px solid #dee2e6;
+            color: #495057;
+        }
+
+        .screenshot-gallery {
+            margin-top: 12px;
+        }
+
+        .screenshot-item {
+            margin: 8px 0;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .screenshot-item.fail {
+            border-color: #dc3545;
+        }
+
+        .screenshot-item.pass {
+            border-color: #28a745;
+        }
+
+        .screenshot-header {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .outcome-badge {
+            font-size: 14px;
+        }
+
+        .test-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .timestamp {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .screenshot-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .screenshot-image.expanded {
+            max-width: none;
+            width: auto;
+            max-height: 80vh;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .test-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .plugin-results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 ACT Test Runner - Modular Demo</h1>
+        <p>Experience the new modular architecture with configurable plugins and reporters</p>
+    </div>
+
+    <div class="config-section">
+        <h2>⚙️ Configuration</h2>
+        <div class="config-grid">
+            <div class="config-group">
+                <h3>🔌 Plugins</h3>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="performance" checked>
+                        Performance Plugin
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="metrics" checked>
+                        Metrics Plugin
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="debugger">
+                        Debugger Plugin
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="allyStudio" checked>
+                        AllyStudio Plugin (Visual Highlighting)
+                    </label>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <h3>📊 Reporter</h3>
+                <div class="config-option">
+                    <label>
+                        Reporter Type:
+                        <select id="reporter">
+                            <option value="console">Console Reporter</option>
+                            <option value="minimal">Minimal Reporter</option>
+                            <option value="json">JSON Reporter</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="verbose">
+                        Verbose Output
+                    </label>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <h3>🎯 Test Options</h3>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="bail">
+                        Bail on First Failure
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        Timeout (ms):
+                        <select id="timeout">
+                            <option value="5000">5000</option>
+                            <option value="10000">10000</option>
+                            <option value="30000">30000</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="run-tests-btn" class="btn btn-primary">🚀 Run Tests</button>
+        <button id="clear-highlights-btn" class="btn btn-secondary">🧹 Clear Highlights</button>
+        <button id="show-config-btn" class="btn btn-secondary">📋 Show Config</button>
+    </div>
+
+    <div class="content">
+        <div class="test-content">
+            <h2>🎯 Test Content</h2>
+
+            <!-- Images -->
+            <div class="element-group">
+                <h3>🖼️ Images</h3>
+                <div class="example good">
+                    <div class="example-label">✅ Good Example</div>
+                    <img class="good-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect fill='%2348bb78' width='120' height='80'/%3E%3Ctext x='60' y='45' text-anchor='middle' fill='white' font-size='14'%3EGood%3C/text%3E%3C/svg%3E" alt="A sample image demonstrating proper alt text usage">
+                </div>
+                <div class="example bad">
+                    <div class="example-label">❌ Bad Example</div>
+                    <img class="bad-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect fill='%23e53e3e' width='120' height='80'/%3E%3Ctext x='60' y='45' text-anchor='middle' fill='white' font-size='14'%3EBad%3C/text%3E%3C/svg%3E">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="element-group">
+                <h3>🔘 Buttons</h3>
+                <div class="example good">
+                    <div class="example-label">✅ Good Example</div>
+                    <button class="good-button">Save Document</button>
+                </div>
+                <div class="example bad">
+                    <div class="example-label">❌ Bad Example</div>
+                    <button class="bad-button"></button>
+                </div>
+            </div>
+
+            <!-- Links -->
+            <div class="element-group">
+                <h3>🔗 Links</h3>
+                <div class="example good">
+                    <div class="example-label">✅ Good Example</div>
+                    <a href="#demo" class="good-link">Learn about accessibility testing methods</a>
+                </div>
+                <div class="example bad">
+                    <div class="example-label">❌ Bad Example</div>
+                    <a href="#demo" class="bad-link">Click here</a>
+                </div>
+            </div>
+
+            <!-- Forms -->
+            <div class="element-group">
+                <h3>📝 Forms</h3>
+                <div class="example good">
+                    <div class="example-label">✅ Good Example</div>
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" placeholder="you@example.com">
+                </div>
+                <div class="example bad">
+                    <div class="example-label">❌ Bad Example</div>
+                    <input type="text" placeholder="Enter your name">
+                </div>
+            </div>
+
+            <!-- Language Tags -->
+            <div class="element-group">
+                <h3>🌐 Language Tags</h3>
+                <div class="example good">
+                    <div class="example-label">✅ Good Example</div>
+                    <p lang="en">This text is properly marked as English.</p>
+                    <p lang="es">Este texto está marcado correctamente como español.</p>
+                </div>
+                <div class="example bad">
+                    <div class="example-label">❌ Bad Example</div>
+                    <p lang="">This text has an empty language attribute.</p>
+                    <p lang="invalid-tag">This text has an invalid language tag.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>📊 Test Results</h2>
+            <div id="results">
+                <div class="loading">Click "Run Tests" to see results</div>
+            </div>
+
+            <div id="plugin-data" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script type="module" src="demo.js"></script>
+</body>
+</html>
