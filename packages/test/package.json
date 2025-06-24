@@ -1,0 +1,76 @@
+{
+  "name": "@allystudio/test",
+  "version": "1.0.0",
+  "description": "Minimal DOM element test runner with Vitest-style API",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch",
+    "test:visual": "vitest --browser.headless=false --watch",
+    "test:browser": "vitest --browser.enabled=true",
+    "test:core": "vitest tests/core --run",
+    "test:unit": "vitest tests/plugins tests/reporters",
+    "test:integration": "vitest tests/integration",
+    "test:e2e": "vitest tests/e2e",
+    "test:performance": "vitest tests/plugins/performance.test.ts",
+    "test:coverage": "vitest --coverage",
+    "test:all": "tsx tests/run-all-tests.ts",
+    "demo": "vite demo --port 3001",
+    "benchmark": "vite --config vite.config.benchmark.js",
+    "benchmark:build": "vite build --config vite.config.benchmark.js",
+    "lint": "oxlint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "testing",
+    "act",
+    "wcag",
+    "test-runner",
+    "browser",
+    "dom",
+    "chrome-extension"
+  ],
+  "author": "Aleksej Dix <privat@aleksejdix.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aleksejdix/allyship.dev.git",
+    "directory": "packages/test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/chrome": "^0.0.326",
+    "@types/node": "^20.0.0",
+    "@vitest/browser": "^2.0.0",
+    "@vitest/coverage-v8": "2.1.9",
+    "@vitest/ui": "^2.0.0",
+    "oxlint": "^0.15.0",
+    "playwright": "^1.40.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.4.19",
+    "vitest": "^2.0.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.5.0"
+  },
+  "dependencies": {
+    "axe-core": "^4.10.3"
+  }
+}
