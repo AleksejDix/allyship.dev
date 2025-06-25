@@ -42,10 +42,7 @@ export class MetricsPlugin implements Plugin {
   private handleEvent(event: TestEvent): void {
     switch (event.type) {
       case 'test-start':
-        this.onTestStart()
-        break
-      case 'test-progress':
-        this.onTestProgress(event.data)
+        this.onTestStart(event.data)
         break
       case 'test-complete':
         this.onTestComplete(event.data)
@@ -53,13 +50,10 @@ export class MetricsPlugin implements Plugin {
     }
   }
 
-  private onTestStart(): void {
+  private onTestStart(data: { suites: number }): void {
     this.data.startTime = performance.now()
+    this.data.suites = data.suites
     this.reset()
-  }
-
-  private onTestProgress(data: any): void {
-    this.data.suites++
   }
 
   private onTestComplete(data: { results: any[] }): void {

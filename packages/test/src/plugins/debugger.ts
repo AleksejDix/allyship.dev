@@ -84,7 +84,7 @@ export class DebuggerPlugin implements Plugin {
     }
   }
 
-  private onTestStart(data: any): void {
+  private onTestStart(_data: any): void {
     this.suiteStartTime = performance.now()
     this.elementStats.clear()
     this.clearExecutionLog()
@@ -143,7 +143,7 @@ export class DebuggerPlugin implements Plugin {
     this.executionLog.length = 0
   }
 
-  private onTestComplete(data: any): void {
+  private onTestComplete(_data: any): void {
     const duration = performance.now() - this.suiteStartTime
 
     this.log('info', `${this.config.prefix} Test analysis complete!`)

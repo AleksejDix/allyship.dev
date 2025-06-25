@@ -1,20 +1,51 @@
 /**
- * ACT Test Runner - Modular Architecture
- *
- * A fast, modular accessibility test runner with:
- * - Core: Minimal execution engine
- * - Plugins: Optional features (performance, AllyStudio, etc.)
- * - Reporters: Flexible output formatting
+ * @allystudio/test - Minimal DOM element test runner
  */
 
-// Main API (simple interface)
-export * from './api.js'
+import { createRunner } from './core/runner.js'
+import { expect } from './core/expectation.js'
+import type { TestFunction, SuiteResult } from './core/types.js'
+import { ExpectationsPlugin } from './plugins/index.js'
 
-// Core modules (for advanced usage)
-export * from './core/index.js'
+/**
+ * Default singleton instance
+ */
+const runner = createRunner()
 
-// Plugins (optional features)
+// Install default plugins
+const expectationsPlugin = new ExpectationsPlugin()
+expectationsPlugin.install(runner)
+
+// Create describe function with .only property
+const describe = ((name: string, fn: () => void, selector?: string) => {
+  runner.describe(name, fn, selector)
+}) as typeof runner.describe & { only: typeof runner['describe.only'] }
+
+describe.only = (name: string, fn: () => void, selector?: string) => {
+  runner['describe.only'](name, fn, selector)
+}
+
+// Create test function with .only property
+const test = ((name: string, fn: TestFunction, selector?: string) => {
+  runner.test(name, fn, selector)
+}) as typeof runner.test & { only: typeof runner['test.only'] }
+
+test.only = (name: string, fn: TestFunction, selector?: string) => {
+  runner['test.only'](name, fn, selector)
+}
+
+// Export singleton API (like Vitest)
+export { describe, test }
+export const run = runner.run.bind(runner)
+export const watch = runner.watch.bind(runner)
+export const clear = runner.clear.bind(runner)
+
+// Re-exports
+export { expect }
+export type { TestFunction, SuiteResult }
+export type { TestContext } from './core/types.js'
+export type { WatchConfig, Watcher } from './core/runner.js'
+
+// Advanced usage
+export { createRunner } from './core/runner.js'
 export * from './plugins/index.js'
-
-// Reporters (output formatting)
-export * from './reporters/index.js'

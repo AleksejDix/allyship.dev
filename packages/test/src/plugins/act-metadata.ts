@@ -63,7 +63,7 @@ export class ACTMetadataPlugin implements Plugin {
     })
   }
 
-  uninstall(runner: ReturnType<typeof createRunner>): void {
+  uninstall(_runner: ReturnType<typeof createRunner>): void {
     this.metadataMap.clear()
   }
 }

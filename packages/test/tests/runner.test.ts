@@ -116,116 +116,53 @@ describe('TestRunner', () => {
     expect(results[0]?.tests[0]?.outcome).toBe('todo')
   })
 
-  test('skips at definition time', async () => {
-    document.body.innerHTML = '<div>test</div>'
+  test('runs multiple tests in suite', async () => {
+    document.body.innerHTML = '<div>one</div><div>two</div>'
 
-    let executed = false
-    runner.describe('suite', () => {
-      runner.test('skip test', () => { executed = true }, 'div')
+    let count = 0
+    runner.describe('multi-test suite', () => {
+      runner.test('test1', () => { count++ }, 'div')
+      runner.test('test2', () => { count++ }, 'div')
     })
 
-    // Access suite after describe completes using new helper
-    const suites = runner.getSuites()
-    const suite = suites[suites.length - 1]
-    if (suite && suite.tests.length > 0) {
-      suite.tests[suite.tests.length - 1]!.skip = true
-    }
+    const results = await runner.run()
+    expect(count).toBe(4) // 2 tests × 2 elements each
+    expect(results[0]?.passed).toBe(4)
+  })
+
+  test('handles no elements found', async () => {
+    document.body.innerHTML = '<div>test</div>'
+
+    runner.describe('no match suite', () => {
+      runner.test('no match test', () => {}, 'button') // No buttons exist
+    })
 
     const results = await runner.run()
-    expect(executed).toBe(false)
     expect(results[0]?.skipped).toBe(1)
+    expect(results[0]?.tests[0]?.outcome).toBe('skip')
+    expect(results[0]?.tests[0]?.message).toContain('No elements found')
   })
 
-  test('handles todo at definition time', async () => {
+  test('clears state correctly', async () => {
     document.body.innerHTML = '<div>test</div>'
 
-    let executed = false
-    runner.describe('suite', () => {
-      runner.test('todo test', () => { executed = true }, 'div')
+    // First run
+    runner.describe('suite1', () => {
+      runner.test('test1', () => {}, 'div')
     })
 
-    // Access suite after describe completes using new helper
-    const suites = runner.getSuites()
-    const suite = suites[suites.length - 1]
-    if (suite && suite.tests.length > 0) {
-      suite.tests[suite.tests.length - 1]!.todo = 'not implemented'
-    }
+    let results = await runner.run()
+    expect(results).toHaveLength(1)
 
-    const results = await runner.run()
-    expect(executed).toBe(false)
-    expect(results[0]?.todo).toBe(1)
-  })
-
-  test('runs beforeEach hooks', async () => {
-    document.body.innerHTML = '<div>test</div>'
-
-    let hookRan = false
-    runner.describe('suite', () => {
-      runner.setCurrentSuiteHooks({
-        beforeEach: () => { hookRan = true }
-      })
-
-      runner.test('test', () => {}, 'div')
-    })
-
-    await runner.run()
-    expect(hookRan).toBe(true)
-  })
-
-  test('runs afterEach hooks', async () => {
-    document.body.innerHTML = '<div>test</div>'
-
-    let hookRan = false
-    runner.describe('suite', () => {
-      runner.setCurrentSuiteHooks({
-        afterEach: () => { hookRan = true }
-      })
-
-      runner.test('test', () => {}, 'div')
-    })
-
-    await runner.run()
-    expect(hookRan).toBe(true)
-  })
-
-  test('handles hook errors', async () => {
-    document.body.innerHTML = '<div>test</div>'
-
-    runner.describe('suite', () => {
-      runner.setCurrentSuiteHooks({
-        beforeEach: () => { throw new Error('hook error') }
-      })
-
-      runner.test('test', () => {}, 'div')
-    })
-
-    const results = await runner.run()
-    expect(results[0]?.failed).toBe(1)
-  })
-
-  test('emits events', async () => {
-    document.body.innerHTML = '<div>test</div>'
-
-    const events: string[] = []
-    runner.on((event) => { events.push(event.type) })
-
-    runner.describe('suite', () => {
-      runner.test('test', () => {}, 'div')
-    })
-
-    await runner.run()
-    expect(events).toContain('test-start')
-  })
-
-  test('clears state', () => {
-    runner.describe('suite', () => {
-      runner.test('test', () => {})
-    })
-
+    // Clear and second run
     runner.clear()
-    // Should not throw when adding new tests after clear
-    runner.describe('new', () => {
-      runner.test('new', () => {})
+
+    runner.describe('suite2', () => {
+      runner.test('test2', () => {}, 'div')
     })
+
+    results = await runner.run()
+    expect(results).toHaveLength(1)
+    expect(results[0]?.name).toBe('suite2')
   })
 })

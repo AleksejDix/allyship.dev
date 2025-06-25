@@ -1,5 +1,4 @@
 import type { createRunner } from '../core/runner.js'
-import type { TestEvent } from '../core/types.js'
 
 /**
  * Plugin type - functional approach

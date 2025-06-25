@@ -11,7 +11,6 @@ import type {
   EventListener,
   TestRunnerState
 } from './types.js'
-import { ExpectationError } from './expectation.js'
 import { generateSelector } from './selector.js'
 
 /**
@@ -37,67 +36,20 @@ export function createRunner(config: RunnerConfig = {}) {
     hasFocused: false
   }
 
-  // 🚀 MEMORY OPTIMIZATION: Reusable objects to reduce allocations
-  const reusableEvent: TestEvent = {
-    type: 'test-start',
-    data: {},
-    timestamp: 0
-  } as TestEvent
-
-  const reusableContext: TestContext = {
-    element: null as any,
-    selector: '',
-    document: document,
-    skip: (): void => {},
-    todo: (reason?: string): void => {}
-  }
-
-  const reusableTestResult: TestResult = {
-    id: '',
-    name: '',
-    outcome: 'pass',
-    message: '',
-    duration: 0,
-    element: undefined
-  }
-
-  // 🚀 MEMORY OPTIMIZATION: Reusable emit function with object reuse
+  // Event emission
   function emit(type: TestEvent['type'], data: any): void {
-    // Reuse the same event object instead of creating new ones
-    reusableEvent.type = type
-    reusableEvent.data = data
-    reusableEvent.timestamp = performance.now()
+    const event: TestEvent = {
+      type,
+      data,
+      timestamp: performance.now()
+    }
 
-    // Call listeners with the reused object
-    for (let i = 0; i < state.listeners.length; i++) {
-      const listener = state.listeners[i]
-      if (listener) {
-        listener(reusableEvent)
-      }
+    for (const listener of state.listeners) {
+      listener(event)
     }
   }
 
-  // 🚀 MEMORY OPTIMIZATION: Object pool for ElementInfo
-  const elementInfoPool: ElementInfo[] = []
-  let elementInfoPoolIndex = 0
-
-  function getPooledElementInfo(): ElementInfo {
-    if (elementInfoPoolIndex >= elementInfoPool.length) {
-      elementInfoPool.push({
-        selector: '',
-        tagName: '',
-        textContent: '',
-        outerHTML: ''
-      })
-    }
-    return elementInfoPool[elementInfoPoolIndex++]!
-  }
-
-  function resetElementInfoPool(): void {
-    elementInfoPoolIndex = 0
-  }
-
-  // Create element info with memory limits and object reuse
+  // Create element info with size limits
   function createElementInfo(element: HTMLElement): ElementInfo | undefined {
     if (!state.config.storeElementInfo) {
       return undefined
@@ -106,7 +58,6 @@ export function createRunner(config: RunnerConfig = {}) {
     const textContent = element.textContent || ''
     const outerHTML = element.outerHTML
 
-    // Apply size limits to prevent memory issues
     const limitedTextContent = state.config.maxTextContentLength
       ? textContent.substring(0, state.config.maxTextContentLength)
       : textContent
@@ -115,30 +66,45 @@ export function createRunner(config: RunnerConfig = {}) {
       ? outerHTML.substring(0, state.config.maxOuterHTMLLength)
       : outerHTML
 
-    // 🚀 MEMORY OPTIMIZATION: Reuse pooled object
-    const info = getPooledElementInfo()
-    info.selector = generateSelector(element)
-    info.tagName = element.tagName
-    info.textContent = limitedTextContent + (textContent.length > limitedTextContent.length ? '...' : '')
-    info.outerHTML = limitedOuterHTML + (outerHTML.length > limitedOuterHTML.length ? '...' : '')
-
-    return info
+    return {
+      selector: generateSelector(element),
+      tagName: element.tagName,
+      textContent: limitedTextContent + (textContent.length > limitedTextContent.length ? '...' : ''),
+      outerHTML: limitedOuterHTML + (outerHTML.length > limitedOuterHTML.length ? '...' : '')
+    }
   }
 
-  // 🚀 MEMORY OPTIMIZATION: Cached selector generation
-  const selectorCache = new Map<HTMLElement, string>()
-
-  function getCachedSelector(element: HTMLElement): string {
-    let selector = selectorCache.get(element)
-    if (!selector) {
-      selector = generateSelector(element)
-      // Limit cache size to prevent memory leaks
-      if (selectorCache.size > 1000) {
-        selectorCache.clear()
-      }
-      selectorCache.set(element, selector)
+  // Consolidated TestResult creation
+  function createTestResult(
+    suite: TestSuite,
+    test: TestDefinition,
+    element: HTMLElement,
+    outcome: TestResult['outcome'],
+    message: string,
+    duration: number,
+    error?: Error
+  ): TestResult {
+    const selector = generateSelector(element)
+    return {
+      id: `${suite.name}-${test.name}-${selector}`,
+      name: test.name,
+      outcome,
+      message,
+      duration,
+      error,
+      element: createElementInfo(element)
     }
-    return selector
+  }
+
+  // Consolidated context creation
+  function createTestContext(element: HTMLElement, skipFn: () => void, todoFn: (reason?: string) => void): TestContext {
+    return {
+      element,
+      selector: generateSelector(element),
+      document: element.ownerDocument,
+      skip: skipFn,
+      todo: todoFn
+    }
   }
 
   // Run a single test on an element
@@ -149,134 +115,108 @@ export function createRunner(config: RunnerConfig = {}) {
   ): Promise<TestResult> {
     const startTime = performance.now()
 
-    // 🚀 MEMORY OPTIMIZATION: Reuse cached selector
-    const selector = getCachedSelector(element)
-    const id = `${suite.name}-${test.name}-${selector}`
-
-    // Check if test should be skipped
+    // Early returns for skip/todo
     if (test.skip) {
-      // 🚀 MEMORY OPTIMIZATION: Reuse result object
-      reusableTestResult.id = id
-      reusableTestResult.name = test.name
-      reusableTestResult.outcome = 'skip'
-      reusableTestResult.message = 'Test skipped'
-      reusableTestResult.duration = 0
-      reusableTestResult.element = createElementInfo(element)
-      reusableTestResult.error = undefined
-
-      // Return a copy to avoid mutation
-      return { ...reusableTestResult }
+      return createTestResult(suite, test, element, 'skip', 'Test skipped', 0)
     }
 
-    // Check if test is todo
     if (test.todo) {
       const message = typeof test.todo === 'string' ? test.todo : 'Test not implemented'
-
-      reusableTestResult.id = id
-      reusableTestResult.name = test.name
-      reusableTestResult.outcome = 'todo'
-      reusableTestResult.message = message
-      reusableTestResult.duration = 0
-      reusableTestResult.element = createElementInfo(element)
-      reusableTestResult.error = undefined
-
-      return { ...reusableTestResult }
+      return createTestResult(suite, test, element, 'todo', message, 0)
     }
+
+    let testResult: TestResult
+    let afterEachError: Error | null = null
 
     try {
       let skipped = false
       let todoReason: string | undefined
 
-      // 🚀 MEMORY OPTIMIZATION: Reuse context object
-      reusableContext.element = element
-      reusableContext.selector = selector
-      reusableContext.document = element.ownerDocument
-      reusableContext.skip = () => { skipped = true }
-      reusableContext.todo = (reason?: string) => { todoReason = reason }
+      // Create test context
+      const context = createTestContext(
+        element,
+        () => { skipped = true },
+        (reason?: string) => { todoReason = reason }
+      )
 
       // Run beforeEach if defined
       if (suite.beforeEach) {
-        await suite.beforeEach(reusableContext)
+        await suite.beforeEach(context)
       }
 
       // Run the test
-      await test.fn(reusableContext)
-
-      // Run afterEach if defined
-      if (suite.afterEach) {
-        await suite.afterEach(reusableContext)
-      }
+      await test.fn(context)
 
       const duration = performance.now() - startTime
 
-      // Handle runtime skip/todo
+      // Handle runtime skip/todo/pass
       if (skipped) {
-        reusableTestResult.id = id
-        reusableTestResult.name = test.name
-        reusableTestResult.outcome = 'skip'
-        reusableTestResult.message = 'Test skipped at runtime'
-        reusableTestResult.duration = duration
-        reusableTestResult.element = createElementInfo(element)
-        reusableTestResult.error = undefined
-
-        return { ...reusableTestResult }
+        testResult = createTestResult(suite, test, element, 'skip', 'Test skipped at runtime', duration)
+      } else if (todoReason !== undefined) {
+        testResult = createTestResult(suite, test, element, 'todo', todoReason || 'Test marked as todo', duration)
+      } else {
+        testResult = createTestResult(suite, test, element, 'pass', 'Test passed', duration)
       }
 
-      if (todoReason !== undefined) {
-        reusableTestResult.id = id
-        reusableTestResult.name = test.name
-        reusableTestResult.outcome = 'todo'
-        reusableTestResult.message = todoReason || 'Test marked as todo'
-        reusableTestResult.duration = duration
-        reusableTestResult.element = createElementInfo(element)
-        reusableTestResult.error = undefined
-
-        return { ...reusableTestResult }
+      // Run afterEach if defined
+      if (suite.afterEach) {
+        try {
+          await suite.afterEach(context)
+        } catch (error) {
+          afterEachError = error instanceof Error ? error : new Error(String(error))
+          emit('test-error', {
+            error: afterEachError,
+            suite: suite.name,
+            test: test.name,
+            phase: 'afterEach'
+          })
+        }
       }
-
-      reusableTestResult.id = id
-      reusableTestResult.name = test.name
-      reusableTestResult.outcome = 'pass'
-      reusableTestResult.message = 'Test passed'
-      reusableTestResult.duration = duration
-      reusableTestResult.element = createElementInfo(element)
-      reusableTestResult.error = undefined
-
-      return { ...reusableTestResult }
     } catch (error) {
       const duration = performance.now() - startTime
       const errorObj = error instanceof Error ? error : new Error(String(error))
       const isExpectationError = errorObj.name === 'ExpectationError'
+      const message = isExpectationError ? errorObj.message : 'Test failed with unexpected error'
 
-      reusableTestResult.id = id
-      reusableTestResult.name = test.name
-      reusableTestResult.outcome = 'fail'
-      reusableTestResult.message = isExpectationError ? errorObj.message : 'Test failed with unexpected error'
-      reusableTestResult.duration = duration
-      reusableTestResult.error = errorObj
-      reusableTestResult.element = createElementInfo(element)
+      testResult = createTestResult(suite, test, element, 'fail', message, duration, errorObj)
 
-      return { ...reusableTestResult }
+      // Still run afterEach even if test failed
+      if (suite.afterEach) {
+        try {
+          const context = createTestContext(element, () => {}, () => {})
+          await suite.afterEach(context)
+        } catch (afterError) {
+          afterEachError = afterError instanceof Error ? afterError : new Error(String(afterError))
+          emit('test-error', {
+            error: afterEachError,
+            suite: suite.name,
+            test: test.name,
+            phase: 'afterEach'
+          })
+        }
+      }
     }
+
+    // If afterEach failed, override the test result
+    if (afterEachError) {
+      const duration = performance.now() - startTime
+      testResult = createTestResult(suite, test, element, 'fail', `afterEach hook failed: ${afterEachError.message}`, duration, afterEachError)
+    }
+
+    return testResult
   }
 
-  // Focus tracking functions
+  // Consolidated focus logic
   function updateFocusTracking(): void {
     state.hasFocused = state.suites.some(suite =>
       suite.only || suite.tests.some(test => test.only)
     )
   }
 
-  function shouldRunSuite(suite: TestSuite): boolean {
+  function shouldRun(item: TestSuite | TestDefinition, suite?: TestSuite): boolean {
     if (!state.hasFocused) return true
-    return suite.only || suite.tests.some(test => test.only)
-  }
-
-  function shouldRunTest(test: TestDefinition, suite: TestSuite): boolean {
-    if (!state.hasFocused) return true
-    // Suite focus takes precedence
-    if (suite.only) return true
-    return test.only || false
+    if ('tests' in item) return item.only || item.tests.some(test => test.only) // Suite
+    return suite?.only || item.only || false // Test
   }
 
   // Run all tests in a suite
@@ -301,7 +241,7 @@ export function createRunner(config: RunnerConfig = {}) {
       // Run each test with its own selector
       for (const test of suite.tests) {
         // Skip test if not focused
-        if (!shouldRunTest(test, suite)) {
+                  if (!shouldRun(test, suite)) {
           continue
         }
 
@@ -352,7 +292,7 @@ export function createRunner(config: RunnerConfig = {}) {
 
             // Emit test result event
             emit('test-result', {
-              element: getCachedSelector(element),
+              element: generateSelector(element),
               test: test.name,
               result: result.outcome
             })
@@ -400,6 +340,27 @@ export function createRunner(config: RunnerConfig = {}) {
     return suiteResult
   }
 
+  // Consolidated suite creation
+  function createSuite(name: string, fn: () => void, selector?: string, only = false): void {
+    const suite: TestSuite = { name, tests: [], selector, only: only || undefined }
+    state.currentSuite = suite
+    state.suites.push(suite)
+    try {
+      fn()
+    } finally {
+      state.currentSuite = null
+    }
+  }
+
+  // Consolidated test creation
+  function createTest(name: string, fn: TestFunction, selector?: string, only = false): void {
+    if (!state.currentSuite) {
+      throw new Error('test() must be called within a describe() block')
+    }
+    const test: TestDefinition = { name, fn, selector, only: only || undefined }
+    state.currentSuite.tests.push(test)
+  }
+
   // Public API
   return {
     // Event handling
@@ -419,75 +380,10 @@ export function createRunner(config: RunnerConfig = {}) {
     },
 
     // Test definition
-    describe(name: string, fn: () => void, selector?: string): void {
-      const suite: TestSuite = {
-        name,
-        tests: [],
-        selector
-      }
-
-      // Set as current suite
-      state.currentSuite = suite
-      state.suites.push(suite)
-
-      // Execute the describe block to collect tests
-      try {
-        fn()
-      } finally {
-        // Reset current suite
-        state.currentSuite = null
-      }
-    },
-
-    'describe.only'(name: string, fn: () => void, selector?: string): void {
-      const suite: TestSuite = {
-        name,
-        tests: [],
-        selector,
-        only: true
-      }
-
-      // Set as current suite
-      state.currentSuite = suite
-      state.suites.push(suite)
-
-      // Execute the describe block to collect tests
-      try {
-        fn()
-      } finally {
-        // Reset current suite
-        state.currentSuite = null
-      }
-    },
-
-    test(name: string, fn: TestFunction, selector?: string): void {
-      if (!state.currentSuite) {
-        throw new Error('test() must be called within a describe() block')
-      }
-
-      const test: TestDefinition = {
-        name,
-        fn,
-        selector
-      }
-
-      state.currentSuite.tests.push(test)
-    },
-
-    'test.only'(name: string, fn: TestFunction, selector?: string): void {
-      if (!state.currentSuite) {
-        throw new Error('test.only() must be called within a describe() block')
-      }
-
-      const test: TestDefinition = {
-        name,
-        fn,
-        selector,
-        only: true
-      }
-
-      state.currentSuite.tests.push(test)
-    },
+    describe: (name: string, fn: () => void, selector?: string) => createSuite(name, fn, selector),
+    'describe.only': (name: string, fn: () => void, selector?: string) => createSuite(name, fn, selector, true),
+    test: (name: string, fn: TestFunction, selector?: string) => createTest(name, fn, selector),
+    'test.only': (name: string, fn: TestFunction, selector?: string) => createTest(name, fn, selector, true),
 
     // Test execution
     async runTests(): Promise<SuiteResult[]> {
@@ -500,7 +396,7 @@ export function createRunner(config: RunnerConfig = {}) {
 
       try {
         for (const suite of state.suites) {
-          if (shouldRunSuite(suite)) {
+          if (shouldRun(suite)) {
             const result = await runSuite(suite)
             results.push(result)
 
@@ -519,7 +415,7 @@ export function createRunner(config: RunnerConfig = {}) {
       }
     },
 
-    // Shorter alias for runTests
+    // Alias for runTests
     async run(): Promise<SuiteResult[]> {
       return this.runTests()
     },
@@ -529,10 +425,6 @@ export function createRunner(config: RunnerConfig = {}) {
       state.suites = []
       state.currentSuite = null
       state.hasFocused = false
-
-      // 🚀 MEMORY OPTIMIZATION: Reset pools and caches
-      resetElementInfoPool()
-      selectorCache.clear()
     },
 
     dispose(): void {
@@ -541,52 +433,119 @@ export function createRunner(config: RunnerConfig = {}) {
       state.currentSuite = null
     },
 
-    // Memory monitoring
-    getMemoryUsage(): {
-      suites: number
-      listeners: number
-      tests: number
-    } {
-      const totalTests = state.suites.reduce((acc, suite) => acc + suite.tests.length, 0)
+    // Watch mode
+    async watch(config: WatchConfig = {}): Promise<Watcher> {
+      const watchConfig = {
+        debounce: 500,
+        includeSelectors: [],
+        excludeSelectors: ['.animation', '[data-animation]'],
+        onResults: () => {},
+        onError: (error: Error) => console.error('Watch mode error:', error),
+        ...config
+      }
+
+      let isRunning = true
+      let debounceTimer: number | null = null
+      let domObserverCleanup: (() => void) | null = null
+
+      // Run tests immediately
+      try {
+        const results = await this.runTests()
+        watchConfig.onResults(results)
+      } catch (error) {
+        watchConfig.onError(error instanceof Error ? error : new Error(String(error)))
+      }
+
+      // Set up DOM monitoring (if available)
+      if (typeof window !== 'undefined' && typeof (window as any).chrome !== 'undefined') {
+        // Listen for DOM change events from AllyStudio
+        const handleDOMChange = (event: any) => {
+          if (!isRunning) return
+
+          // Check if changes are relevant to our selectors
+          const isRelevant = event.data?.elements?.some((element: any) => {
+            const selector = element.selector || element.tagName
+
+            // Check include list
+            if (watchConfig.includeSelectors.length > 0) {
+              const matches = watchConfig.includeSelectors.some(pattern =>
+                selector.includes(pattern) || element.tagName === pattern.toUpperCase()
+              )
+              if (!matches) return false
+            }
+
+            // Check exclude list
+            const excluded = watchConfig.excludeSelectors.some(pattern =>
+              selector.includes(pattern) || element.tagName === pattern.toUpperCase()
+            )
+            if (excluded) return false
+
+            return true
+          })
+
+          if (!isRelevant) return
+
+          // Debounce test execution
+          if (debounceTimer) {
+            clearTimeout(debounceTimer)
+          }
+
+          debounceTimer = window.setTimeout(async () => {
+            if (!isRunning) return
+
+            try {
+              const results = await this.runTests()
+              watchConfig.onResults(results)
+            } catch (error) {
+              watchConfig.onError(error instanceof Error ? error : new Error(String(error)))
+            }
+          }, watchConfig.debounce)
+        }
+
+        // Listen for DOM change events
+        window.addEventListener('message', (event) => {
+          if (event.data?.type === 'DOM_CHANGE') {
+            handleDOMChange(event.data)
+          }
+        })
+
+        domObserverCleanup = () => {
+          window.removeEventListener('message', handleDOMChange)
+        }
+      }
 
       return {
-        suites: state.suites.length,
-        listeners: state.listeners.length,
-        tests: totalTests
-      }
-    },
-
-    // State access for testing
-    getState(): TestRunnerState {
-      return {
-        suites: [...state.suites],
-        currentSuite: state.currentSuite ? { ...state.currentSuite } : null,
-        listeners: [...state.listeners],
-        config: { ...state.config },
-        hasFocused: state.hasFocused
-      }
-    },
-
-    // Helper methods for testing
-    getCurrentSuite(): TestSuite | null {
-      return state.currentSuite
-    },
-
-    getSuites(): TestSuite[] {
-      return [...state.suites]
-    },
-
-    setCurrentSuiteHooks(hooks: {
-      beforeEach?: (context: TestContext) => void | Promise<void>
-      afterEach?: (context: TestContext) => void | Promise<void>
-    }): void {
-      if (state.currentSuite) {
-        if (hooks.beforeEach) state.currentSuite.beforeEach = hooks.beforeEach
-        if (hooks.afterEach) state.currentSuite.afterEach = hooks.afterEach
+        stop(): void {
+          isRunning = false
+          if (debounceTimer) {
+            clearTimeout(debounceTimer)
+            debounceTimer = null
+          }
+          if (domObserverCleanup) {
+            domObserverCleanup()
+            domObserverCleanup = null
+          }
+        },
+        isRunning(): boolean {
+          return isRunning
+        }
       }
     }
   }
 }
 
 // Backward compatibility
+
+export interface WatchConfig {
+  debounce?: number
+  includeSelectors?: string[]
+  excludeSelectors?: string[]
+  onResults?: (results: SuiteResult[]) => void
+  onError?: (error: Error) => void
+}
+
+export interface Watcher {
+  stop(): void
+  isRunning(): boolean
+}
 

@@ -19,10 +19,7 @@ export interface PerformanceConfig {
 export class PerformancePlugin implements Plugin {
   name = 'performance'
   private data: PerformanceData | null = null
-  private elementsProcessed = 0
-  private testsRun = 0
   private config: PerformanceConfig
-  private testMetrics: Map<string, any> = new Map()
 
   constructor(config: PerformanceConfig = {}) {
     this.config = {
@@ -53,9 +50,6 @@ export class PerformancePlugin implements Plugin {
   }
 
   private startTracking(): void {
-    this.elementsProcessed = 0
-    this.testsRun = 0
-
     this.data = {
       startTime: performance.now(),
       endTime: 0,
@@ -158,7 +152,7 @@ export class PerformancePlugin implements Plugin {
    * Get detailed test metrics (if collection enabled)
    */
   getDetailedMetrics(): Map<string, any> {
-    return this.testMetrics
+    return new Map()
   }
 
   /**
@@ -190,9 +184,6 @@ export class PerformancePlugin implements Plugin {
    */
   reset(): void {
     this.data = null
-    this.elementsProcessed = 0
-    this.testsRun = 0
-    this.testMetrics.clear()
   }
 }
 

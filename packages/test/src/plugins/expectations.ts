@@ -8,6 +8,15 @@ import { expect, ExpectationError } from '../core/expectation.js'
 class AccessibilityExpectations {
   constructor(private element: HTMLElement) {}
 
+  // Consolidated element validation
+  private validateElementType(allowedTags: string[], methodName: string): void {
+    const tagName = this.element.tagName.toLowerCase()
+    if (!allowedTags.includes(tagName)) {
+      const tags = allowedTags.length === 1 ? allowedTags[0] : allowedTags.join(', ')
+      throw ExpectationError(`${methodName} can only be used on ${tags} elements`)
+    }
+  }
+
   /**
    * Check if element has accessible name
    */
@@ -33,9 +42,7 @@ class AccessibilityExpectations {
    * Check if element has valid alt text
    */
   toHaveValidAltText(): void {
-    if (this.element.tagName.toLowerCase() !== 'img') {
-      throw ExpectationError('toHaveValidAltText() can only be used on img elements')
-    }
+    this.validateElementType(['img'], 'toHaveValidAltText()')
 
     const alt = this.element.getAttribute('alt')
 
@@ -70,11 +77,8 @@ class AccessibilityExpectations {
    * Check if element has proper heading hierarchy
    */
   toHaveProperHeadingLevel(): void {
+    this.validateElementType(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 'toHaveProperHeadingLevel()')
     const tagName = this.element.tagName.toLowerCase()
-
-    if (!/^h[1-6]$/.test(tagName)) {
-      throw ExpectationError('toHaveProperHeadingLevel() can only be used on heading elements')
-    }
 
     const currentLevel = parseInt(tagName.charAt(1))
     const previousHeading = this.findPreviousHeading()
@@ -98,12 +102,8 @@ class AccessibilityExpectations {
    * Check if form element has proper label
    */
   toHaveProperLabel(): void {
-    const tagName = this.element.tagName.toLowerCase()
+    this.validateElementType(['input', 'textarea', 'select'], 'toHaveProperLabel()')
     const type = this.element.getAttribute('type')
-
-    if (!['input', 'textarea', 'select'].includes(tagName)) {
-      throw ExpectationError('toHaveProperLabel() can only be used on form elements')
-    }
 
     // Skip hidden inputs
     if (type === 'hidden') {
@@ -126,9 +126,7 @@ class AccessibilityExpectations {
    * Check if link has meaningful text
    */
   toHaveMeaningfulLinkText(): void {
-    if (this.element.tagName.toLowerCase() !== 'a') {
-      throw ExpectationError('toHaveMeaningfulLinkText() can only be used on link elements')
-    }
+    this.validateElementType(['a'], 'toHaveMeaningfulLinkText()')
 
     const text = this.element.textContent?.trim() || ''
     const ariaLabel = this.element.getAttribute('aria-label')
@@ -208,7 +206,7 @@ function expectA11y(element: HTMLElement) {
 export class ExpectationsPlugin implements Plugin {
   name = 'expectations'
 
-  install(runner: ReturnType<typeof createRunner>): void {
+  install(_runner: ReturnType<typeof createRunner>): void {
     // Add expectA11y to global scope for tests to use
     ;(globalThis as any).expectA11y = expectA11y
     ;(globalThis as any).expect = expect
