@@ -1,14 +1,24 @@
-import type { Reporter, ReporterConfig } from './types.js'
+import type { Plugin } from '../plugins/types.js'
+import type { createRunner } from '../core/runner.js'
 import type { SuiteResult, TestEvent } from '../core/types.js'
 
 /**
- * Console reporter for browser environments
+ * Console reporter configuration
  */
-export class ConsoleReporter implements Reporter {
-  private config: ReporterConfig
+export interface ConsoleReporterConfig {
+  verbose?: boolean
+  colors?: boolean
+}
+
+/**
+ * Console reporter plugin for browser environments
+ */
+export class ConsoleReporter implements Plugin {
+  name = 'console-reporter'
+  private config: Required<ConsoleReporterConfig>
   private startTime = 0
 
-  constructor(config: ReporterConfig = {}) {
+  constructor(config: ConsoleReporterConfig = {}) {
     this.config = {
       verbose: false,
       colors: true,
@@ -16,7 +26,11 @@ export class ConsoleReporter implements Reporter {
     }
   }
 
-  onEvent(event: TestEvent): void {
+  install(runner: ReturnType<typeof createRunner>): void {
+    runner.on((event: TestEvent) => this.handleEvent(event))
+  }
+
+  private handleEvent(event: TestEvent): void {
     switch (event.type) {
       case 'test-start':
         this.startTime = event.timestamp
@@ -38,13 +52,17 @@ export class ConsoleReporter implements Reporter {
         }
         break
 
+      case 'test-complete':
+        this.onComplete(event.data.results)
+        break
+
       case 'test-error':
         console.error('❌ Test error:', event.data)
         break
     }
   }
 
-  async onComplete(results: SuiteResult[]): Promise<void> {
+  private onComplete(results: SuiteResult[]): void {
     const duration = performance.now() - this.startTime
 
     console.log('\n📊 Test Results:')

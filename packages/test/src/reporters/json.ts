@@ -1,82 +1,51 @@
-import type { Reporter, ReporterConfig } from './types.js'
+import type { Plugin } from '../plugins/types.js'
+import type { createRunner } from '../core/runner.js'
 import type { SuiteResult, TestEvent } from '../core/types.js'
 
 /**
- * JSON reporter for structured output
+ * JSON reporter configuration
  */
-export class JsonReporter implements Reporter {
-  private config: ReporterConfig
-  private events: TestEvent[] = []
-  private startTime = 0
+export interface JsonReporterConfig {
+  output?: string
+  pretty?: boolean
+}
 
-  constructor(config: ReporterConfig = {}) {
-    this.config = config
+/**
+ * JSON reporter plugin - outputs test results as JSON
+ */
+export class JsonReporter implements Plugin {
+  name = 'json-reporter'
+  private config: Required<JsonReporterConfig>
+
+  constructor(config: JsonReporterConfig = {}) {
+    this.config = {
+      output: 'console',
+      pretty: true,
+      ...config
+    }
   }
 
-  onEvent(event: TestEvent): void {
-    if (event.type === 'test-start') {
-      this.startTime = event.timestamp
-    }
-    this.events.push(event)
+  install(runner: ReturnType<typeof createRunner>): void {
+    runner.on((event: TestEvent) => this.handleEvent(event))
   }
 
-  async onComplete(results: SuiteResult[]): Promise<void> {
-    const duration = performance.now() - this.startTime
-
-    const report = {
-      timestamp: new Date().toISOString(),
-      duration,
-      summary: this.generateSummary(results),
-      suites: results,
-      events: this.events
+  private handleEvent(event: TestEvent): void {
+    if (event.type === 'test-complete') {
+      this.onComplete(event.data.results)
     }
+  }
 
-    const json = JSON.stringify(report, null, 2)
+  private onComplete(results: SuiteResult[]): void {
+    const output = this.config.pretty
+      ? JSON.stringify(results, null, 2)
+      : JSON.stringify(results)
 
-    if (this.config.output) {
-      // In browser environment, we can't write files directly
-      // Instead, trigger download or log to console
-      this.downloadJson(json, this.config.output)
+    if (this.config.output === 'console') {
+      console.log(output)
     } else {
-      console.log('📄 JSON Report:')
-      console.log(json)
+      // In browser environment, we can't write to files directly
+      // This could be extended to use different output methods
+      console.log('JSON Results:', output)
     }
-  }
-
-  private generateSummary(results: SuiteResult[]) {
-    const summary = {
-      suites: results.length,
-      passed: 0,
-      failed: 0,
-      skipped: 0,
-      todo: 0,
-      total: 0
-    }
-
-    for (const suite of results) {
-      summary.passed += suite.passed
-      summary.failed += suite.failed
-      summary.skipped += suite.skipped
-      summary.todo += suite.todo
-    }
-
-    summary.total = summary.passed + summary.failed + summary.skipped + summary.todo
-
-    return summary
-  }
-
-  private downloadJson(json: string, filename: string): void {
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename.endsWith('.json') ? filename : `${filename}.json`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-
-    URL.revokeObjectURL(url)
-    console.log(`📄 JSON report downloaded as ${link.download}`)
   }
 }

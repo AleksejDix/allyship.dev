@@ -7,9 +7,7 @@ import { createRunner } from './core/runner.js'
 import { expect } from './core/expectation.js'
 import type { TestFunction, RunnerConfig, SuiteResult } from './core/types.js'
 
-// Reporters
-import { ConsoleReporter, JsonReporter, MinimalReporter } from './reporters/index.js'
-import type { Reporter, ReporterConfig } from './reporters/types.js'
+
 
 // Plugins
 import { PerformancePlugin, ExpectationsPlugin } from './plugins/index.js'
@@ -21,11 +19,9 @@ import type { Plugin } from './plugins/types.js'
 let globalRunner: ReturnType<typeof createRunner> | null = null
 
 /**
- * Configuration for the test runner
+ * Test configuration - simplified to only use plugins
  */
 export interface TestConfig extends RunnerConfig {
-  reporter?: 'console' | 'json' | 'minimal' | Reporter
-  reporterConfig?: ReporterConfig
   plugins?: Plugin[]
 }
 
@@ -35,39 +31,9 @@ export interface TestConfig extends RunnerConfig {
 export function configure(config: TestConfig = {}): ReturnType<typeof createRunner> {
   globalRunner = createRunner(config)
 
-  // Setup reporter
-  let reporter: Reporter
-  if (typeof config.reporter === 'object') {
-    reporter = config.reporter
-  } else {
-    switch (config.reporter) {
-      case 'json':
-        reporter = new JsonReporter(config.reporterConfig)
-        break
-      case 'minimal':
-        reporter = new MinimalReporter()
-        break
-      case 'console':
-      default:
-        reporter = new ConsoleReporter(config.reporterConfig)
-        break
-    }
-  }
-
-  // Connect reporter to runner
-  globalRunner.on(event => reporter.onEvent(event))
-  globalRunner.on(event => {
-    if (event.type === 'test-complete') {
-      reporter.onComplete(event.data.results)
-    }
-  })
-
   // Install default plugins
   const expectationsPlugin = new ExpectationsPlugin()
   expectationsPlugin.install(globalRunner)
-
-
-
 
   // Install custom plugins
   if (config.plugins) {
@@ -220,5 +186,4 @@ export type { TestFunction, SuiteResult, TestContext } from './core/types.js'
 
 // Re-export for advanced usage
 export { createRunner } from './core/runner.js'
-export * from './reporters/index.js'
 export * from './plugins/index.js'

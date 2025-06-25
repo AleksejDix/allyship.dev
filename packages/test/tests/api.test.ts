@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest'
 import { configure, describe as apiDescribe, test as apiTest, run, clear, reset, stream } from '../src/api.js'
+import { ConsoleReporter, JsonReporter, MinimalReporter, PerformancePlugin } from '../src/plugins/index.js'
 
 describe('API Layer', () => {
   beforeEach(() => {
@@ -12,23 +13,31 @@ describe('API Layer', () => {
     expect(runner).toBeDefined()
   })
 
-  test('configures with console reporter', () => {
-    const runner = configure({ reporter: 'console' })
+  test('configures with console reporter plugin', () => {
+    const runner = configure({
+      plugins: [new ConsoleReporter()]
+    })
     expect(runner).toBeDefined()
   })
 
-  test('configures with json reporter', () => {
-    const runner = configure({ reporter: 'json' })
+  test('configures with json reporter plugin', () => {
+    const runner = configure({
+      plugins: [new JsonReporter()]
+    })
     expect(runner).toBeDefined()
   })
 
-  test('configures with minimal reporter', () => {
-    const runner = configure({ reporter: 'minimal' })
+  test('configures with minimal reporter plugin', () => {
+    const runner = configure({
+      plugins: [new MinimalReporter()]
+    })
     expect(runner).toBeDefined()
   })
 
   test('configures with performance plugin', () => {
-    const runner = configure({ performance: true })
+    const runner = configure({
+      plugins: [new PerformancePlugin()]
+    })
     expect(runner).toBeDefined()
   })
 
@@ -38,6 +47,16 @@ describe('API Layer', () => {
       install: () => {}
     }
     const runner = configure({ plugins: [mockPlugin] })
+    expect(runner).toBeDefined()
+  })
+
+  test('configures with multiple plugins', () => {
+    const runner = configure({
+      plugins: [
+        new ConsoleReporter({ verbose: true }),
+        new PerformancePlugin()
+      ]
+    })
     expect(runner).toBeDefined()
   })
 
@@ -76,7 +95,7 @@ describe('API Layer', () => {
   })
 
   test('resets configuration', () => {
-    configure({ performance: true })
+    configure({ plugins: [new PerformancePlugin()] })
     expect(() => reset()).not.toThrow()
   })
 
