@@ -27,7 +27,6 @@ export interface TestConfig extends RunnerConfig {
   reporter?: 'console' | 'json' | 'minimal' | Reporter
   reporterConfig?: ReporterConfig
   plugins?: Plugin[]
-  performance?: boolean
 }
 
 /**
@@ -67,11 +66,6 @@ export function configure(config: TestConfig = {}): ReturnType<typeof createRunn
   const expectationsPlugin = new ExpectationsPlugin()
   expectationsPlugin.install(globalRunner)
 
-  // Install performance plugin if requested
-  if (config.performance) {
-    const performancePlugin = new PerformancePlugin()
-    performancePlugin.install(globalRunner)
-  }
 
 
 
