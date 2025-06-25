@@ -31,7 +31,7 @@ export class ConsoleReporter implements Reporter {
         }
         break
 
-      case 'element-tested':
+      case 'test-result':
         if (this.config.verbose) {
           const icon = this.getOutcomeIcon(event.data.result)
           console.log(`  ${icon} ${event.data.test} on ${event.data.element}`)

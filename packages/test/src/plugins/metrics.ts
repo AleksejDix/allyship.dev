@@ -47,11 +47,8 @@ export class MetricsPlugin implements Plugin {
       case 'test-progress':
         this.onTestProgress(event.data)
         break
-      case 'element-tested':
-        this.onElementTested(event.data)
-        break
       case 'test-complete':
-        this.onTestComplete()
+        this.onTestComplete(event.data)
         break
     }
   }
@@ -65,28 +62,19 @@ export class MetricsPlugin implements Plugin {
     this.data.suites++
   }
 
-  private onElementTested(data: any): void {
-    this.data.total++
-
-    switch (data.result) {
-      case 'pass':
-        this.data.passed++
-        break
-      case 'fail':
-        this.data.failed++
-        break
-      case 'skip':
-        this.data.skipped++
-        break
-      case 'todo':
-        this.data.todo++
-        break
-    }
-  }
-
-  private onTestComplete(): void {
+  private onTestComplete(data: { results: any[] }): void {
     this.data.endTime = performance.now()
     this.data.duration = this.data.endTime - this.data.startTime
+
+    // Count all test results from the final results
+    for (const suiteResult of data.results) {
+      this.data.total += suiteResult.tests.length
+      this.data.passed += suiteResult.passed
+      this.data.failed += suiteResult.failed
+      this.data.skipped += suiteResult.skipped
+      this.data.todo += suiteResult.todo
+    }
+
     this.data.passRate = this.data.total > 0 ? (this.data.passed / this.data.total * 100) : 0
     this.data.testsPerSecond = this.data.duration > 0 ? (this.data.total / (this.data.duration / 1000)) : 0
 

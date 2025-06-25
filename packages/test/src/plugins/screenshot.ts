@@ -390,8 +390,8 @@ export class ScreenshotPlugin implements Plugin {
         this.handleTestStart()
         break
 
-      case 'element-tested':
-        await this.handleElementTested(event)
+      case 'test-result':
+        await this.handleTestResult(event)
         break
 
       case 'test-complete':
@@ -412,7 +412,7 @@ export class ScreenshotPlugin implements Plugin {
   /**
    * Handle individual element test completion
    */
-  private async handleElementTested(event: TestEvent & { type: 'element-tested' }): Promise<void> {
+  private async handleTestResult(event: TestEvent & { type: 'test-result' }): Promise<void> {
     const { element: selector, test: testName, result } = event.data
 
     // Determine if we should capture screenshot

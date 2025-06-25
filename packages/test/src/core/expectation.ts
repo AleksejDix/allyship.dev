@@ -16,7 +16,7 @@ function createExpectation<T>(actual: T): Expectation<T> {
           `Expected ${String(actual)} to be ${String(expected)}`
       )
     }
-    },
+  },
 
   get not() {
     return {

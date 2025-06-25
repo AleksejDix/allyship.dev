@@ -12,8 +12,8 @@ import { ConsoleReporter, JsonReporter, MinimalReporter } from './reporters/inde
 import type { Reporter, ReporterConfig } from './reporters/types.js'
 
 // Plugins
-import { PerformancePlugin, AllyStudioPlugin, ExpectationsPlugin } from './plugins/index.js'
-import type { Plugin, AllyStudioData } from './plugins/types.js'
+import { PerformancePlugin, ExpectationsPlugin } from './plugins/index.js'
+import type { Plugin } from './plugins/types.js'
 
 /**
  * Global test runner instance
@@ -28,7 +28,6 @@ export interface TestConfig extends RunnerConfig {
   reporterConfig?: ReporterConfig
   plugins?: Plugin[]
   performance?: boolean
-  allyStudio?: AllyStudioData
 }
 
 /**
@@ -74,11 +73,7 @@ export function configure(config: TestConfig = {}): ReturnType<typeof createRunn
     performancePlugin.install(globalRunner)
   }
 
-  // Install AllyStudio plugin if configured
-  if (config.allyStudio) {
-    const allyStudioPlugin = new AllyStudioPlugin(config.allyStudio)
-    allyStudioPlugin.install(globalRunner)
-  }
+
 
   // Install custom plugins
   if (config.plugins) {

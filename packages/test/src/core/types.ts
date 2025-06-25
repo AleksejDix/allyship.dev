@@ -100,7 +100,7 @@ export type RunnerConfig = {
 export type TestEvent =
   | { type: 'test-start'; data: { suites: number }; timestamp: number }
   | { type: 'test-progress'; data: { suite: string; tests: number; elements?: number }; timestamp: number }
-  | { type: 'element-tested'; data: { element: string; test: string; result: TestOutcome }; timestamp: number }
+  | { type: 'test-result'; data: { element: string; test: string; result: TestOutcome }; timestamp: number }
   | { type: 'test-complete'; data: { results: SuiteResult[] }; timestamp: number }
   | { type: 'test-error'; data: { error: Error; suite?: string; test?: string }; timestamp: number }
 

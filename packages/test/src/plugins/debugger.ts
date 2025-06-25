@@ -75,8 +75,8 @@ export class DebuggerPlugin implements Plugin {
       case 'test-progress':
         this.onTestProgress(event.data)
         break
-      case 'element-tested':
-        this.onElementTested(event.data)
+      case 'test-result':
+        this.onTestResult(event.data)
         break
       case 'test-complete':
         this.onTestComplete(event.data)
@@ -103,7 +103,7 @@ export class DebuggerPlugin implements Plugin {
     }
   }
 
-  private onElementTested(data: any): void {
+  private onTestResult(data: any): void {
     this.testCounts.total++
 
     if (data.result === 'pass') this.testCounts.passed++

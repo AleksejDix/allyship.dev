@@ -3,8 +3,6 @@ import {
   ContextMenu,
   ContextMenuCheckboxItem,
   ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuTrigger
 } from "@/components/ui/context-menu"
 import {
@@ -14,7 +12,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { Activity, Eye, FileText } from "lucide-react"
+import { Activity, FileText } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"

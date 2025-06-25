@@ -77,9 +77,6 @@ export function FocusOrderVisualizer() {
 
   // Determine status for better UX feedback
   const hasIssues = stats && stats.positiveTabIndex > 0
-  const statusIcon = hasIssues ? AlertTriangle : CheckCircle
-  const statusColor = hasIssues ? "text-amber-500" : "text-green-500"
-
   return (
     <div>
       <ContextMenu>

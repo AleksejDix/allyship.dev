@@ -321,10 +321,10 @@ export function createRunner(config: RunnerConfig = {}) {
               element: undefined
             }
 
-            suiteResult.tests.push(skipResult)
+                        suiteResult.tests.push(skipResult)
             suiteResult.skipped++
 
-            emit('element-tested', {
+            emit('test-result', {
               element: testSelector,
               test: test.name,
               result: 'skip'
@@ -348,11 +348,10 @@ export function createRunner(config: RunnerConfig = {}) {
               case 'fail': suiteResult.failed++; break
               case 'skip': suiteResult.skipped++; break
               case 'todo': suiteResult.todo++; break
-            }
+                        }
 
-            // 🚀 MEMORY OPTIMIZATION: Reuse cached selector
-            // Emit progress event
-            emit('element-tested', {
+            // Emit test result event
+            emit('test-result', {
               element: getCachedSelector(element),
               test: test.name,
               result: result.outcome

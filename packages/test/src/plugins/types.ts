@@ -26,11 +26,4 @@ export type PerformanceData = {
   testsRun: number
 }
 
-/**
- * AllyStudio integration data
- */
-export type AllyStudioData = {
-  highlightElement?: (element: HTMLElement, type: 'pass' | 'fail' | 'skip') => void
-  clearHighlights?: () => void
-  showTooltip?: (element: HTMLElement, message: string) => void
-}
+

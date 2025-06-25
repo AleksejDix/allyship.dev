@@ -44,13 +44,8 @@ export class PerformancePlugin implements Plugin {
         this.startTracking()
         break
 
-      case 'element-tested':
-        this.elementsProcessed++
-        this.testsRun++
-        break
-
       case 'test-complete':
-        this.endTracking()
+        this.endTracking(event.data)
         this.logPerformance()
         this.checkThresholds()
         break
@@ -80,13 +75,17 @@ export class PerformancePlugin implements Plugin {
     }
   }
 
-  private endTracking(): void {
+  private endTracking(data: { results: any[] }): void {
     if (!this.data) return
 
     this.data.endTime = performance.now()
     this.data.duration = this.data.endTime - this.data.startTime
-    this.data.elementsProcessed = this.elementsProcessed
-    this.data.testsRun = this.testsRun
+
+    // Count all test results from the final results
+    for (const suiteResult of data.results) {
+      this.data.elementsProcessed += suiteResult.tests.length
+      this.data.testsRun += suiteResult.tests.length
+    }
 
     // Update memory usage if available - Show current usage instead of delta
     if ('memory' in performance && this.data.memoryUsage) {
