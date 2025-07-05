@@ -39,7 +39,10 @@ const CORE_TEST_TYPES = [
   "interactive",
   "focus",
   "forms",
-  "aria"
+  "aria",
+  "language",
+  "buttons",
+  "custom-ux"
 ] as const
 
 const PlasmoOverlay = () => {
@@ -768,13 +771,11 @@ const PlasmoOverlay = () => {
   return (
     <>
       <LayerSystem highlights={highlights} hiddenLayers={hiddenLayers} />
-      {testsComplete && (
-        <LayerToggle
-          highlights={highlights}
-          hiddenLayers={hiddenLayers}
-          onToggleLayer={toggleLayer}
-        />
-      )}
+      <LayerToggle
+        highlights={highlights}
+        hiddenLayers={hiddenLayers}
+        onToggleLayer={toggleLayer}
+      />
     </>
   )
 }
