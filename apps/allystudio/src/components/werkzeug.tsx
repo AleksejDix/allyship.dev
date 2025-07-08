@@ -7,6 +7,7 @@ import {
 } from "@/contents/tests/registry"
 import { eventBus } from "@/lib/events/event-bus"
 import { cn } from "@/lib/utils"
+import { useCurrentUrl } from "@/providers/url-provider"
 import {
   AlertCircle,
   CheckCircle,
@@ -15,7 +16,7 @@ import {
   Square,
   XCircle
 } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 export default function Werkzeug() {
   const [testSuites, setTestSuites] = useState<EnhancedTestSuite[]>([])
@@ -25,10 +26,123 @@ export default function Werkzeug() {
     current: 0,
     total: 0
   })
+  const [autoRerunEnabled, setAutoRerunEnabled] = useState(false)
+
+  // URL monitoring for auto-rerun
+  const { normalizedUrl } = useCurrentUrl()
+  const previousUrlRef = useRef<string | null>(null)
 
   // Debouncing refs
   const eventTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const processedEventsRef = useRef<Set<string>>(new Set())
+
+  const runSuite = useCallback(
+    async (suiteId: string) => {
+      // Prevent multiple runs of the same test
+      if (runningTests.has(suiteId)) {
+        return
+      }
+
+      // Clear progress bar when running individual tests
+      setProgress({ current: 0, total: 0 })
+
+      // Mark as running
+      setRunningTests((prev) => new Set(prev).add(suiteId))
+
+      // Update suite status to running
+      setTestSuites((prev) =>
+        prev.map((suite) =>
+          suite.id === suiteId ? { ...suite, status: "running" } : suite
+        )
+      )
+
+      try {
+        // Send request to content script to run tests
+        eventBus.publish({
+          type: "TEST_ANALYSIS_REQUEST",
+          timestamp: Date.now(),
+          data: {
+            testId: suiteId
+          }
+        })
+
+        // Add timeout to prevent stuck running state
+        setTimeout(() => {
+          setRunningTests((prev) => {
+            const newRunning = new Set(prev)
+            if (newRunning.has(suiteId)) {
+              newRunning.delete(suiteId)
+            }
+            return newRunning
+          })
+        }, 10000) // 10 second timeout
+      } catch (error) {
+        console.error(`Failed to request test suite ${suiteId}:`, error)
+        setTestSuites((prev) =>
+          prev.map((suite) =>
+            suite.id === suiteId ? { ...suite, status: "fail" } : suite
+          )
+        )
+
+        // Stop running indicator on error
+        setRunningTests((prev) => {
+          const newRunning = new Set(prev)
+          newRunning.delete(suiteId)
+          return newRunning
+        })
+      }
+    },
+    [runningTests]
+  )
+
+  const runAllTests = useCallback(async () => {
+    // Clear any existing timeouts
+    if (eventTimeoutRef.current) {
+      clearTimeout(eventTimeoutRef.current)
+    }
+
+    // Reset all test statuses
+    setTestSuites((prev) =>
+      prev.map((suite) => ({ ...suite, status: "pending" as const }))
+    )
+
+    const allSuites = testSuites
+    setProgress({ current: 0, total: allSuites.length })
+
+    for (let i = 0; i < allSuites.length; i++) {
+      const suite = allSuites[i]
+      setProgress({ current: i, total: allSuites.length })
+      await runSuite(suite.id)
+      // Small delay between tests to prevent overwhelming
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+
+    setProgress({ current: allSuites.length, total: allSuites.length })
+  }, [testSuites, runSuite])
+
+  // Auto-rerun tests when URL changes
+  useEffect(() => {
+    if (!autoRerunEnabled || !normalizedUrl) return
+
+    const currentUrl = normalizedUrl.raw
+    const previousUrl = previousUrlRef.current
+
+    // Skip first run (initialization)
+    if (previousUrl === null) {
+      previousUrlRef.current = currentUrl
+      return
+    }
+
+    // Check if URL actually changed
+    if (previousUrl !== currentUrl) {
+      previousUrlRef.current = currentUrl
+
+      // Small delay to let the page settle
+      setTimeout(() => {
+        runAllTests()
+      }, 1000)
+    }
+  }, [normalizedUrl, autoRerunEnabled, runAllTests])
 
   useEffect(() => {
     loadTestSuites()
@@ -58,11 +172,6 @@ export default function Werkzeug() {
 
         // Debounce the update
         eventTimeoutRef.current = setTimeout(() => {
-          console.log(
-            `[werkzeug] Processing test results for ${testId}:`,
-            issues
-          )
-
           // Ensure issues is an array
           const issuesList = issues || []
 
@@ -117,97 +226,6 @@ export default function Werkzeug() {
     } catch (error) {
       console.error("Failed to load test suites:", error)
     }
-  }
-
-  const runSuite = async (suiteId: string) => {
-    console.log(`[werkzeug] Running test suite: ${suiteId}`)
-
-    // Prevent multiple runs of the same test
-    if (runningTests.has(suiteId)) {
-      console.log(`[werkzeug] Test ${suiteId} already running, skipping`)
-      return
-    }
-
-    // Clear progress bar when running individual tests
-    setProgress({ current: 0, total: 0 })
-
-    // Mark as running
-    setRunningTests((prev) => new Set(prev).add(suiteId))
-
-    // Update suite status to running
-    setTestSuites((prev) =>
-      prev.map((suite) =>
-        suite.id === suiteId ? { ...suite, status: "running" } : suite
-      )
-    )
-
-    try {
-      // Send request to content script to run tests
-      eventBus.publish({
-        type: "TEST_ANALYSIS_REQUEST",
-        timestamp: Date.now(),
-        data: {
-          testId: suiteId
-        }
-      })
-
-      console.log(`[werkzeug] Sent test request for ${suiteId}`)
-
-      // Add timeout to prevent stuck running state
-      setTimeout(() => {
-        setRunningTests((prev) => {
-          const newRunning = new Set(prev)
-          if (newRunning.has(suiteId)) {
-            console.log(
-              `[werkzeug] Test ${suiteId} timed out, clearing running state`
-            )
-            newRunning.delete(suiteId)
-          }
-          return newRunning
-        })
-      }, 10000) // 10 second timeout
-    } catch (error) {
-      console.error(`Failed to request test suite ${suiteId}:`, error)
-      setTestSuites((prev) =>
-        prev.map((suite) =>
-          suite.id === suiteId ? { ...suite, status: "fail" } : suite
-        )
-      )
-
-      // Stop running indicator on error
-      setRunningTests((prev) => {
-        const newRunning = new Set(prev)
-        newRunning.delete(suiteId)
-        return newRunning
-      })
-    }
-  }
-
-  const runAllTests = async () => {
-    console.log("[werkzeug] Running all tests")
-
-    // Clear any existing timeouts
-    if (eventTimeoutRef.current) {
-      clearTimeout(eventTimeoutRef.current)
-    }
-
-    // Reset all test statuses
-    setTestSuites((prev) =>
-      prev.map((suite) => ({ ...suite, status: "pending" as const }))
-    )
-
-    const allSuites = testSuites
-    setProgress({ current: 0, total: allSuites.length })
-
-    for (let i = 0; i < allSuites.length; i++) {
-      const suite = allSuites[i]
-      setProgress({ current: i, total: allSuites.length })
-      await runSuite(suite.id)
-      // Small delay between tests to prevent overwhelming
-      await new Promise((resolve) => setTimeout(resolve, 500))
-    }
-
-    setProgress({ current: allSuites.length, total: allSuites.length })
   }
 
   const getStatusColor = (status: string) => {
@@ -312,29 +330,43 @@ export default function Werkzeug() {
               </p>
             )}
           </div>
-          <Button
-            onClick={runAllTests}
-            disabled={isAnyRunning}
-            size="sm"
-            className={cn(
-              "h-7 px-3 transition-all duration-200 transform",
-              isAnyRunning
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95",
-              "text-white shadow-lg"
-            )}>
-            {isAnyRunning ? (
-              <>
-                <Square className="w-3 h-3 mr-1" aria-hidden="true" />
-                Running...
-              </>
-            ) : (
-              <>
-                <Play className="w-3 h-3 mr-1" aria-hidden="true" />
-                Run All
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setAutoRerunEnabled(!autoRerunEnabled)}
+              variant={autoRerunEnabled ? "default" : "outline"}
+              size="sm"
+              className={cn(
+                "h-7 px-3 text-xs transition-all duration-200",
+                autoRerunEnabled
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-gray-600 hover:bg-gray-700 text-gray-300"
+              )}>
+              {autoRerunEnabled ? "Auto: ON" : "Auto: OFF"}
+            </Button>
+            <Button
+              onClick={runAllTests}
+              disabled={isAnyRunning}
+              size="sm"
+              className={cn(
+                "h-7 px-3 transition-all duration-200 transform",
+                isAnyRunning
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95",
+                "text-white shadow-lg"
+              )}>
+              {isAnyRunning ? (
+                <>
+                  <Square className="w-3 h-3 mr-1" aria-hidden="true" />
+                  Running...
+                </>
+              ) : (
+                <>
+                  <Play className="w-3 h-3 mr-1" aria-hidden="true" />
+                  Run All
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Progress Bar for Run All */}

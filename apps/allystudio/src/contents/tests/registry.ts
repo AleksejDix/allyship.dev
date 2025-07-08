@@ -61,8 +61,6 @@ export type EnhancedTestSuite = {
  * Register all tests with the test runner
  */
 function registerTests() {
-  console.log("[registry] Registering tests...")
-
   // Clear any existing tests
   clear()
 
@@ -177,8 +175,6 @@ function registerTests() {
       "[role]"
     )
   })
-
-  console.log("[registry] Tests registered successfully")
 }
 
 /**
@@ -186,192 +182,107 @@ function registerTests() {
  */
 export async function getTestSuites(): Promise<EnhancedTestSuite[]> {
   try {
-    console.log("[registry] Getting enhanced test suites...")
-
     // Register tests first
     registerTests()
 
     // Get test structure using inspect()
     const testSuites = inspect()
-    console.log("[registry] Raw inspect result:", testSuites)
 
     // Convert to enhanced format
-    const enhancedSuites: EnhancedTestSuite[] = testSuites.map((suite) => ({
-      id: suite.name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, ""),
-      name: suite.name,
-      status: "pending" as const,
-      canToggle: true,
-      isOnly: suite.only || false,
-      tests: suite.tests.map((test: any) => ({
-        id: test.name
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, ""),
-        name: test.name,
-        status: "pending" as const,
-        message: undefined,
-        canToggle: true,
-        isSkipped: test.skip || false,
-        isTodo: test.todo || false,
-        isOnly: test.only || false,
-        // Add WCAG metadata
-        wcagLevel:
-          WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.wcagLevel,
-        guideline:
-          WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.guideline,
-        impact: WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.impact,
-        actRule: WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.actRule
-      }))
-    }))
+    const enhancedSuites: EnhancedTestSuite[] = testSuites.map(
+      (suite: any) => ({
+        id: suite.name.toLowerCase().replace(/\s+/g, "-"),
+        name: suite.name,
+        status: "pending",
+        tests: suite.tests.map((test: any) => ({
+          id: test.name.toLowerCase().replace(/\s+/g, "-"),
+          name: test.name,
+          status: "pending",
+          canToggle: false,
+          isSkipped: false,
+          isTodo: false,
+          isOnly: false,
+          // Add WCAG metadata if available
+          ...(WCAG_METADATA[test.name as keyof typeof WCAG_METADATA] || {})
+        })),
+        canToggle: false,
+        isOnly: false
+      })
+    )
 
-    console.log("[registry] Enhanced test suites:", enhancedSuites)
     return enhancedSuites
   } catch (error) {
-    console.error("[registry] Error getting test suites:", error)
+    console.error("Failed to get test suites:", error)
     return []
   }
 }
 
 /**
- * Run a specific test suite
+ * Run a specific test suite and return enhanced results
  */
 export async function runTestSuite(
   suiteId: string
 ): Promise<EnhancedTestResult[]> {
-  console.log(`[registry] Running test suite: ${suiteId}`)
-
   try {
-    // Register tests first to ensure they're available
+    // Register tests to ensure they're available
     registerTests()
 
-    const results: any[] = await run()
-    console.log(`[registry] Raw results for ${suiteId}:`, results)
+    // Run tests and get results
+    const suiteResults = await run()
 
-    // Debug: Log all available suite names and their generated IDs
-    console.log(`[registry] Available suites:`)
-    results.forEach((suite) => {
-      const generatedId = suite.name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "")
-      console.log(`  - "${suite.name}" -> ID: "${generatedId}"`)
-    })
-
-    const targetSuite = results.find(
-      (suite) =>
-        suite.name
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "") === suiteId
+    // Find the matching suite result
+    const matchingSuiteResult = suiteResults.find(
+      (suiteResult: any) =>
+        suiteResult.name.toLowerCase().replace(/\s+/g, "-") === suiteId
     )
 
-    if (!targetSuite) {
+    if (!matchingSuiteResult) {
       throw new Error(`Test suite not found: ${suiteId}`)
     }
 
-    return targetSuite.tests.map((testResult: any) => {
-      console.log(`[registry] Processing test result:`, testResult)
-
-      // Extract the actual error message from the test result
-      let message = testResult.message || ""
-
-      // If there's an error object, extract the message
-      if (testResult.error) {
-        if (typeof testResult.error === "string") {
-          message = testResult.error
-        } else if (testResult.error.message) {
-          message = testResult.error.message
-        } else {
-          message = String(testResult.error)
+    // Process test results from the suite
+    const enhancedResults: EnhancedTestResult[] = matchingSuiteResult.tests.map(
+      (testResult: any) => {
+        return {
+          id: testResult.name.toLowerCase().replace(/\s+/g, "-"),
+          name: testResult.name,
+          status:
+            testResult.outcome === "pass"
+              ? "pass"
+              : testResult.outcome === "fail"
+                ? "fail"
+                : "pending",
+          message: testResult.message,
+          canToggle: false,
+          isSkipped: false,
+          isTodo: false,
+          isOnly: false,
+          // Add WCAG metadata if available
+          ...(WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA] ||
+            {}),
+          // Add selector for highlighting
+          selector: getTestSelector(testResult.name)
         }
       }
+    )
 
-      // Add element information to the error message for better debugging
-      if (testResult.outcome === "fail" && testResult.element) {
-        const element = testResult.element
-        const elementInfo: string[] = []
-
-        // Add tag name
-        if (element.tagName) {
-          elementInfo.push(`<${element.tagName.toLowerCase()}>`)
-        }
-
-        // Add ID if present
-        if (element.id) {
-          elementInfo.push(`#${element.id}`)
-        }
-
-        // Add classes if present
-        if (element.className && typeof element.className === "string") {
-          const classes = element.className
-            .split(" ")
-            .filter((c: string) => c.trim())
-          if (classes.length > 0) {
-            elementInfo.push(
-              `.${classes.slice(0, 2).join(".")}${classes.length > 2 ? "..." : ""}`
-            )
-          }
-        }
-
-        // Add text content if present and short enough
-        if (element.textContent && element.textContent.trim()) {
-          const text = element.textContent.trim()
-          if (text.length <= 30) {
-            elementInfo.push(`"${text}"`)
-          } else {
-            elementInfo.push(`"${text.substring(0, 27)}..."`)
-          }
-        }
-
-        // Add attributes that might be relevant
-        if (element.getAttribute) {
-          const role = element.getAttribute("role")
-          const ariaLabel = element.getAttribute("aria-label")
-          const lang = element.getAttribute("lang")
-
-          if (role) elementInfo.push(`[role="${role}"]`)
-          if (ariaLabel) elementInfo.push(`[aria-label="${ariaLabel}"]`)
-          if (lang) elementInfo.push(`[lang="${lang}"]`)
-        }
-
-        // Prepend element info to the message
-        if (elementInfo.length > 0) {
-          message = `${elementInfo.join(" ")}: ${message}`
-        }
-      }
-
-      return {
-        id: testResult.id || testResult.name,
-        name: testResult.name,
-        status:
-          testResult.outcome === "pass"
-            ? "pass"
-            : testResult.outcome === "fail"
-              ? "fail"
-              : "skip",
-        message: message,
-        canToggle: true,
-        isSkipped: false,
-        isTodo: false,
-        isOnly: false,
-        // Add WCAG metadata
-        wcagLevel:
-          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]
-            ?.wcagLevel,
-        guideline:
-          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]
-            ?.guideline,
-        impact:
-          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]?.impact,
-        actRule:
-          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]?.actRule
-      }
-    })
+    return enhancedResults
   } catch (error) {
-    console.error(`[registry] Error running test suite ${suiteId}:`, error)
-    throw error
+    console.error(`Failed to run test suite ${suiteId}:`, error)
+    return []
   }
+}
+
+/**
+ * Get the appropriate selector for a test based on its name
+ */
+function getTestSelector(testName: string): string {
+  if (testName.includes("language")) {
+    return "html"
+  } else if (testName.includes("button")) {
+    return "button"
+  } else if (testName.includes("role")) {
+    return "[role]"
+  }
+  return "html" // fallback
 }
