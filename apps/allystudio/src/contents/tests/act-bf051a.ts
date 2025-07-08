@@ -1,12 +1,19 @@
 import { isValidLanguageTag } from "@aleksejdix/ally-bcp47"
 
 /**
- * Language accessibility tests using ACT rule bf051a
- * Tests that HTML elements have valid lang attributes
- * Uses ally-bcp47 library for proper BCP-47 validation
+ * ACT Rule bf051a: HTML page has lang attribute
+ *
+ * @see https://www.w3.org/WAI/WCAG21/Understanding/language-of-page.html
+ * @see https://act-rules.github.io/rules/bf051a
+ *
+ * WCAG Success Criteria:
+ * - 3.1.1 Language of Page (Level A)
+ *
+ * This rule checks that the HTML document has a non-empty lang attribute
+ * that contains a valid language tag according to BCP 47.
  */
-export function defineLanguageTests(runner: any) {
-  runner.describe("Language", () => {
+export function defineACTRule_bf051a(runner: any) {
+  runner.describe("ACT bf051a: Language of Page", () => {
     runner.test(
       "should have valid language tag",
       ({ element }: { element: HTMLElement }) => {

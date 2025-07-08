@@ -1,9 +1,17 @@
 /**
- * ARIA Roles accessibility tests using ACT rule 674b10
- * Tests that role attributes have valid values according to WAI-ARIA specification
+ * ACT Rule 674b10: Role attribute has valid value
+ *
+ * @see https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html
+ * @see https://act-rules.github.io/rules/674b10
+ *
+ * WCAG Success Criteria:
+ * - 4.1.2 Name, Role, Value (Level A)
+ *
+ * This rule checks that each role attribute has a valid value according to
+ * the WAI-ARIA 1.2 specification.
  */
-export function defineAriaRolesTests(runner: any) {
-  runner.describe("ARIA Roles Accessibility", () => {
+export function defineACTRule_674b10(runner: any) {
+  runner.describe("ACT 674b10: Valid ARIA Role", () => {
     runner.test(
       "role attribute has valid value",
       ({ element }: { element: HTMLElement }) => {

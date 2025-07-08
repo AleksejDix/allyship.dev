@@ -1,9 +1,11 @@
 import { clear, describe, inspect, run, test } from "@allystudio/test"
 
-import { defineLanguageTests } from "./language"
+import { defineACTRule_97a4e1 } from "./act-97a4e1"
+import { defineACTRule_674b10 } from "./act-674b10"
+import { defineACTRule_bf051a } from "./act-bf051a"
 
 /**
- * WCAG metadata for test results
+ * WCAG metadata for test results - organized by ACT rules
  */
 const WCAG_METADATA = {
   "should have valid language tag": {
@@ -43,6 +45,8 @@ export type EnhancedTestResult = {
   guideline?: string
   impact?: string
   actRule?: string
+  // Add selector for highlighting
+  selector?: string
 }
 
 /**
@@ -59,122 +63,16 @@ export type EnhancedTestSuite = {
 
 /**
  * Register all tests with the test runner
+ * Each ACT rule is defined in its own file
  */
 function registerTests() {
   // Clear any existing tests
   clear()
 
-  // Register language tests
-  defineLanguageTests({ describe, test })
-
-  // Register button tests
-  describe("Buttons", () => {
-    test(
-      "should have accessible name",
-      ({ element }: any) => {
-        const accessibleName =
-          element.getAttribute("aria-label") ||
-          element.getAttribute("aria-labelledby") ||
-          element.textContent?.trim()
-
-        if (!accessibleName) {
-          throw new Error("Button must have an accessible name")
-        }
-      },
-      "button"
-    )
-  })
-
-  // Register ARIA tests
-  describe("ARIA Roles", () => {
-    test(
-      "role attribute has valid value",
-      ({ element }: any) => {
-        const role = element.getAttribute("role")
-
-        if (!role) {
-          return // No role attribute is fine
-        }
-
-        const validRoles = [
-          "alert",
-          "alertdialog",
-          "application",
-          "article",
-          "banner",
-          "button",
-          "cell",
-          "checkbox",
-          "columnheader",
-          "combobox",
-          "complementary",
-          "contentinfo",
-          "definition",
-          "dialog",
-          "directory",
-          "document",
-          "feed",
-          "figure",
-          "form",
-          "grid",
-          "gridcell",
-          "group",
-          "heading",
-          "img",
-          "link",
-          "list",
-          "listbox",
-          "listitem",
-          "log",
-          "main",
-          "marquee",
-          "math",
-          "menu",
-          "menubar",
-          "menuitem",
-          "menuitemcheckbox",
-          "menuitemradio",
-          "navigation",
-          "none",
-          "note",
-          "option",
-          "presentation",
-          "progressbar",
-          "radio",
-          "radiogroup",
-          "region",
-          "row",
-          "rowgroup",
-          "rowheader",
-          "scrollbar",
-          "search",
-          "searchbox",
-          "separator",
-          "slider",
-          "spinbutton",
-          "status",
-          "switch",
-          "tab",
-          "table",
-          "tablist",
-          "tabpanel",
-          "term",
-          "textbox",
-          "timer",
-          "toolbar",
-          "tooltip",
-          "tree",
-          "treegrid",
-          "treeitem"
-        ]
-
-        if (!validRoles.includes(role)) {
-          throw new Error(`Invalid ARIA role: "${role}"`)
-        }
-      },
-      "[role]"
-    )
-  })
+  // Register ACT rules - each in its own file
+  defineACTRule_bf051a({ describe, test }) // Language of Page
+  defineACTRule_97a4e1({ describe, test }) // Button has accessible name
+  defineACTRule_674b10({ describe, test }) // Role attribute has valid value
 }
 
 /**
