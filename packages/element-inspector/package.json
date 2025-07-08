@@ -37,13 +37,13 @@
   "author": "Allyship.dev",
   "license": "MIT",
   "devDependencies": {
-    "@vitest/browser": "^2.1.9",
-    "@vitest/coverage-v8": "2.1.9",
+    "@vitest/browser": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4",
     "@workspace/eslint-config": "*",
     "@workspace/typescript-config": "*",
     "playwright": "^1.53.0",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.8"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "typescript": ">=4.0.0"

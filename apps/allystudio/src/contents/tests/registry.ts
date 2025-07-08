@@ -3,6 +3,30 @@ import { clear, describe, inspect, run, test } from "@allystudio/test"
 import { defineLanguageTests } from "./language"
 
 /**
+ * WCAG metadata for test results
+ */
+const WCAG_METADATA = {
+  "should have valid language tag": {
+    wcagLevel: "A",
+    guideline: "3.1.1 Language of Page",
+    impact: "serious",
+    actRule: "bf051a"
+  },
+  "should have accessible name": {
+    wcagLevel: "A",
+    guideline: "4.1.2 Name, Role, Value",
+    impact: "serious",
+    actRule: "97a4e1"
+  },
+  "role attribute has valid value": {
+    wcagLevel: "A",
+    guideline: "4.1.2 Name, Role, Value",
+    impact: "serious",
+    actRule: "674b10"
+  }
+} as const
+
+/**
  * Enhanced test result with additional metadata and control capabilities
  */
 export type EnhancedTestResult = {
@@ -14,6 +38,11 @@ export type EnhancedTestResult = {
   isSkipped: boolean
   isTodo: boolean | string
   isOnly: boolean
+  // WCAG metadata
+  wcagLevel?: string
+  guideline?: string
+  impact?: string
+  actRule?: string
 }
 
 /**
@@ -187,7 +216,14 @@ export async function getTestSuites(): Promise<EnhancedTestSuite[]> {
         canToggle: true,
         isSkipped: test.skip || false,
         isTodo: test.todo || false,
-        isOnly: test.only || false
+        isOnly: test.only || false,
+        // Add WCAG metadata
+        wcagLevel:
+          WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.wcagLevel,
+        guideline:
+          WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.guideline,
+        impact: WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.impact,
+        actRule: WCAG_METADATA[test.name as keyof typeof WCAG_METADATA]?.actRule
       }))
     }))
 
@@ -320,7 +356,18 @@ export async function runTestSuite(
         canToggle: true,
         isSkipped: false,
         isTodo: false,
-        isOnly: false
+        isOnly: false,
+        // Add WCAG metadata
+        wcagLevel:
+          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]
+            ?.wcagLevel,
+        guideline:
+          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]
+            ?.guideline,
+        impact:
+          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]?.impact,
+        actRule:
+          WCAG_METADATA[testResult.name as keyof typeof WCAG_METADATA]?.actRule
       }
     })
   } catch (error) {

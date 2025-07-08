@@ -1,19 +1,23 @@
-import { describe, test, expect, beforeEach } from 'vitest'
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { createRunner } from '../src/core/runner.js'
-import { MetricsPlugin } from '../src/plugins/metrics.js'
+import { useMetrics } from '../src/plugins/use-metrics.js'
 
-describe('Metrics Plugin', () => {
+describe('useMetrics Plugin', () => {
   let runner: ReturnType<typeof createRunner>
-  let metricsPlugin: MetricsPlugin
+  let consoleSpy: any
 
   beforeEach(() => {
     runner = createRunner()
-    metricsPlugin = new MetricsPlugin()
     document.body.innerHTML = ''
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 
-  test('should track test statistics', async () => {
-    metricsPlugin.install(runner)
+  afterEach(() => {
+    consoleSpy.mockRestore()
+  })
+
+  test('should provide metrics logging', async () => {
+    runner.use(useMetrics)
 
     document.body.innerHTML = `
       <img src="test.jpg" alt="Test image">
@@ -32,69 +36,68 @@ describe('Metrics Plugin', () => {
 
     await runner.run()
 
-    const data = metricsPlugin.getData()
-    expect(data.total).toBe(2)
-    expect(data.passed).toBe(2)
-    expect(data.failed).toBe(0)
-    expect(data.passRate).toBe(100)
-    expect(data.duration).toBeGreaterThan(0)
+    // Check that metrics were logged
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('📊 Test Metrics:')
+    )
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('• Tests: 2')
+    )
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('• Duration:')
+    )
   })
 
-  test('should calculate pass rate correctly', async () => {
-    metricsPlugin.install(runner)
+  test('should track elements during test execution', async () => {
+    runner.use(useMetrics)
+
+    document.body.innerHTML = '<div>Test</div><span>Another</span>'
+
+    runner.describe('Element Tracking', () => {
+      runner.test('should track div', () => {}, 'div')
+    }, 'div')
+
+    await runner.run()
+
+    // Check that element counting was included in metrics
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('• Elements:')
+    )
+  })
+
+  test('should calculate average time per test', async () => {
+    runner.use(useMetrics)
 
     document.body.innerHTML = '<div>Test</div>'
 
-    runner.describe('Pass Rate Test', () => {
-      runner.test('should pass', (ctx) => {
-        expect(ctx.element.tagName.toLowerCase()).toBe('div')
-      }, 'div')
-
-      runner.test('should fail', () => {
-        expect(true).toBe(false)
-      }, 'div')
+    runner.describe('Average Test', () => {
+      runner.test('test 1', () => {}, 'div')
+      runner.test('test 2', () => {}, 'div')
     })
 
     await runner.run()
 
-    const data = metricsPlugin.getData()
-    expect(data.total).toBe(2)
-    expect(data.passed).toBe(1)
-    expect(data.failed).toBe(1)
-    expect(data.passRate).toBe(50)
+    // Check that average per test was calculated
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('• Avg per test:')
+    )
   })
 
-  test('should reset metrics', () => {
-    metricsPlugin.install(runner)
+  test('should work with composition chaining', async () => {
+    document.body.innerHTML = '<div>Test</div>'
 
-    // Manually set some data
-    const initialData = metricsPlugin.getData()
-    expect(initialData.total).toBe(0)
+    // Test chaining with useMetrics
+    const result = runner.use(useMetrics)
+    expect(result).toBe(runner) // Should return runner for chaining
 
-    metricsPlugin.reset()
-    const resetData = metricsPlugin.getData()
-    expect(resetData.total).toBe(0)
-    expect(resetData.passed).toBe(0)
-    expect(resetData.duration).toBe(0)
-  })
-
-  test('should track multiple test outcomes', async () => {
-    metricsPlugin.install(runner)
-
-    document.body.innerHTML = '<div>test</div>'
-
-    runner.describe('Pass Rate Suite', () => {
-      runner.test('pass 1', () => {}, 'div')
-      runner.test('pass 2', () => {}, 'div')
-      runner.test('pass 3', () => {}, 'div')
-      runner.test('fail 1', () => { throw new Error('fail') }, 'div')
+    runner.describe('Chain Test', () => {
+      runner.test('should work', () => {}, 'div')
     })
 
     await runner.run()
 
-    const data = metricsPlugin.getData()
-    expect(data.total).toBe(4)
-    expect(data.passed).toBe(3)
-    expect(data.failed).toBe(1)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('📊 Test Metrics:')
+    )
   })
 })

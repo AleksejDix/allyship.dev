@@ -23,6 +23,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@aleksejdix/ally-bcp47": "^1.1.0",
     "@allystudio/accessibility-utils": "^0.1.0",
     "@allystudio/color-vision-simulator": "^0.1.0",
     "@allystudio/diopter-simulator": "^0.1.0",

@@ -28,6 +28,8 @@ export type TestDefinition = {
   skip?: boolean
   todo?: boolean | string
   only?: boolean
+  timeout?: number
+  retry?: number
 }
 
 /**
@@ -40,12 +42,14 @@ export type TestSuite = {
   beforeEach?: (context: TestContext) => void | Promise<void>
   afterEach?: (context: TestContext) => void | Promise<void>
   only?: boolean
+  timeout?: number
+  retry?: number
 }
 
 /**
  * Test result outcomes
  */
-export type TestOutcome = 'pass' | 'fail' | 'skip' | 'todo'
+export type TestOutcome = "pass" | "fail" | "skip" | "todo" | "timeout"
 
 /**
  * Element information
@@ -68,6 +72,7 @@ export type TestResult = {
   duration: number
   error?: Error
   element?: ElementInfo
+  retries?: number
 }
 
 /**
@@ -81,28 +86,71 @@ export type SuiteResult = {
   failed: number
   skipped: number
   todo: number
+  timeout: number
 }
 
 /**
- * Runner configuration
+ * Runner configuration - simplified to essential options only
  */
 export type RunnerConfig = {
+  // Core test execution (3 essential options)
   timeout?: number
+  retry?: number
   bail?: boolean
-  maxTextContentLength?: number // Limit text content storage
-  maxOuterHTMLLength?: number   // Limit HTML storage
-  storeElementInfo?: boolean    // Option to disable element storage
+
+  // Simple event callbacks (3 useful callbacks)
+  onStart?: (suites: number) => void
+  onComplete?: (results: SuiteResult[]) => void
+  onError?: (error: Error) => void
 }
 
 /**
- * Test events
+ * Composition-style plugin (Vue-inspired)
  */
-export type TestEvent =
-  | { type: 'test-start'; data: { suites: number }; timestamp: number }
-  | { type: 'test-progress'; data: { suite: string; tests: number; elements?: number }; timestamp: number }
-  | { type: 'test-result'; data: { element: string; test: string; result: TestOutcome }; timestamp: number }
-  | { type: 'test-complete'; data: { results: SuiteResult[] }; timestamp: number }
-  | { type: 'test-error'; data: { error: Error; suite?: string; test?: string }; timestamp: number }
+export type Plugin = (runner: Runner) => void
+
+/**
+ * Runner interface for plugins
+ */
+export type Runner = {
+  use: (plugin: Plugin) => Runner
+  describe: (name: string, fn: () => void, selector?: string) => void
+  "describe.only": (name: string, fn: () => void, selector?: string) => void
+  test: (name: string, fn: TestFunction, selector?: string) => void
+  "test.only": (name: string, fn: TestFunction, selector?: string) => void
+  inspect: () => TestSuite[]
+  run: () => Promise<SuiteResult[]>
+  clear: () => void
+  watch: (config?: WatchConfig) => Promise<Watcher>
+}
+
+/**
+ * Test runner state (simplified)
+ */
+export type TestRunnerState = {
+  suites: TestSuite[]
+  currentSuite: TestSuite | null
+  config: RunnerConfig
+  hasFocused: boolean
+}
+
+/**
+ * Watch configuration
+ */
+export type WatchConfig = {
+  debounce?: number
+  onResults?: (results: SuiteResult[]) => void
+  onError?: (error: Error) => void
+}
+
+/**
+ * Watcher interface
+ */
+export type Watcher = {
+  trigger(): void
+  stop(): void
+  isRunning(): boolean
+}
 
 /**
  * Basic expectation type
@@ -112,20 +160,4 @@ export type Expectation<T> = {
   not: {
     toBe(expected: T): void
   }
-}
-
-/**
- * Event listener function
- */
-export type EventListener = (event: TestEvent) => void
-
-/**
- * Test runner state
- */
-export type TestRunnerState = {
-  suites: TestSuite[]
-  currentSuite: TestSuite | null
-  listeners: EventListener[]
-  config: RunnerConfig
-  hasFocused: boolean
 }

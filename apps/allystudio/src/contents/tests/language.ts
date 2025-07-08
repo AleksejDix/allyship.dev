@@ -1,6 +1,9 @@
+import { isValidLanguageTag } from "@aleksejdix/ally-bcp47"
+
 /**
  * Language accessibility tests using ACT rule bf051a
  * Tests that HTML elements have valid lang attributes
+ * Uses ally-bcp47 library for proper BCP-47 validation
  */
 export function defineLanguageTests(runner: any) {
   runner.describe("Language", () => {
@@ -13,12 +16,10 @@ export function defineLanguageTests(runner: any) {
           throw new Error("HTML element must have a lang attribute")
         }
 
-        // BCP 47 language tag validation
-        const bcp47Pattern =
-          /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2}|[0-9]{3})?(-[a-zA-Z0-9]{4,8})*$/
-        if (!bcp47Pattern.test(langAttribute.trim())) {
+        // Use ally-bcp47 library for proper BCP-47 validation
+        if (!isValidLanguageTag(langAttribute.trim())) {
           throw new Error(
-            `HTML lang attribute "${langAttribute}" is not a valid BCP 47 language tag`
+            `HTML lang attribute "${langAttribute}" is not a valid BCP-47 language tag. See https://bcp47.allystudio.dev/ for valid examples.`
           )
         }
       },

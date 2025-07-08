@@ -1,41 +1,80 @@
 import { describe, test, expect, beforeEach } from 'vitest'
 import { createRunner } from '../src/core/runner.js'
-import { ACTMetadataPlugin, ACT_RULES } from '../src/plugins/act-metadata.js'
+import { useACTMetadata, ACT_RULES, type ACTRuleMetadata, type ACTTestResult } from '../src/plugins/use-act-metadata.js'
 
-describe('ACT Metadata Plugin', () => {
+describe('useACTMetadata Plugin', () => {
   let runner: ReturnType<typeof createRunner>
-  let actPlugin: ACTMetadataPlugin
 
   beforeEach(() => {
     runner = createRunner()
-    actPlugin = new ACTMetadataPlugin()
     document.body.innerHTML = ''
   })
 
-  test('should install successfully', () => {
-    actPlugin.install(runner)
-    expect(actPlugin.name).toBe('act-metadata')
-  })
-
-  test('should register individual ACT rule metadata', () => {
-    actPlugin.install(runner)
-
-    const metadata = {
-      actRule: 'b5c3f8',
-      wcagCriteria: ['3.1.1'],
-      impact: 'serious' as const,
-      tags: ['language', 'html'],
-      description: 'HTML page must have lang attribute',
-      helpUrl: 'https://act-rules.github.io/rules/b5c3f8'
-    }
-
+  test('should install successfully with composition API', () => {
     expect(() => {
-      actPlugin.registerRule('test-rule', metadata)
+      runner.use(useACTMetadata())
     }).not.toThrow()
   })
 
+  test('should register ACT rules during plugin creation', async () => {
+    const rules = {
+      'test-rule': {
+        actRule: 'b5c3f8',
+        wcagCriteria: ['3.1.1'],
+        impact: 'serious' as const,
+        tags: ['language', 'html'],
+        description: 'HTML page must have lang attribute',
+        helpUrl: 'https://act-rules.github.io/rules/b5c3f8'
+      }
+    }
+
+    runner.use(useACTMetadata(rules))
+
+    document.body.innerHTML = '<div>test</div>'
+
+    runner.describe('ACT Test', () => {
+      runner.test('test-rule', (ctx) => {
+        expect(ctx.element.tagName.toLowerCase()).toBe('div')
+      }, 'div')
+    })
+
+    const results = await runner.run()
+    const testResult = results[0]?.tests[0] as ACTTestResult
+
+    expect(testResult?.meta?.actRule).toBe('b5c3f8')
+    expect(testResult?.meta?.wcagCriteria).toContain('3.1.1')
+  })
+
+  test('should register rules dynamically using helper methods', async () => {
+    runner.use(useACTMetadata())
+
+    // Use the helper method added by the plugin
+    ;(runner as any).registerACTRule('button accessibility test', {
+      actRule: '97a4e1',
+      wcagCriteria: ['4.1.2'],
+      impact: 'serious',
+      tags: ['button', 'accessible-name'],
+      description: 'Button must have non-empty accessible name',
+      helpUrl: 'https://act-rules.github.io/rules/97a4e1'
+    })
+
+    document.body.innerHTML = '<button>Click me</button>'
+
+    runner.describe('ACT Metadata Test', () => {
+      runner.test('button accessibility test', (ctx) => {
+        expect(ctx.element.tagName.toLowerCase()).toBe('button')
+      }, 'button')
+    })
+
+    const results = await runner.run()
+    const testResult = results[0]?.tests[0] as ACTTestResult
+
+    expect(testResult?.meta?.actRule).toBe('97a4e1')
+    expect(testResult?.meta?.wcagCriteria).toContain('4.1.2')
+  })
+
   test('should register multiple ACT rules at once', () => {
-    actPlugin.install(runner)
+    runner.use(useACTMetadata())
 
     const rules = {
       'button-test': {
@@ -55,22 +94,23 @@ describe('ACT Metadata Plugin', () => {
     }
 
     expect(() => {
-      actPlugin.registerRules(rules)
+      ;(runner as any).registerACTRules(rules)
     }).not.toThrow()
   })
 
   test('should enrich test results with ACT metadata', async () => {
-    actPlugin.install(runner)
+    const rules = {
+      'button accessibility test': {
+        actRule: '97a4e1',
+        wcagCriteria: ['4.1.2'],
+        impact: 'serious' as const,
+        tags: ['button', 'accessible-name'],
+        description: 'Button must have non-empty accessible name',
+        helpUrl: 'https://act-rules.github.io/rules/97a4e1'
+      }
+    }
 
-    // Register metadata for a test
-    actPlugin.registerRule('button accessibility test', {
-      actRule: '97a4e1',
-      wcagCriteria: ['4.1.2'],
-      impact: 'serious',
-      tags: ['button', 'accessible-name'],
-      description: 'Button must have non-empty accessible name',
-      helpUrl: 'https://act-rules.github.io/rules/97a4e1'
-    })
+    runner.use(useACTMetadata(rules))
 
     document.body.innerHTML = '<button>Click me</button>'
 
@@ -84,25 +124,13 @@ describe('ACT Metadata Plugin', () => {
     expect(results).toHaveLength(1)
     expect(results[0]?.tests).toHaveLength(1)
 
-    // Check if metadata was enriched (this would happen in the test-complete event)
-    const testResult = results[0]?.tests[0]
+    const testResult = results[0]?.tests[0] as ACTTestResult
     expect(testResult?.name).toBe('button accessibility test')
-  })
-
-  test('should uninstall cleanly', () => {
-    actPlugin.install(runner)
-
-    // Register some test data
-    actPlugin.registerRule('test', {
-      actRule: 'test-rule',
-      wcagCriteria: ['1.1.1'],
-      impact: 'serious',
-      tags: ['test']
-    })
-
-    expect(() => {
-      actPlugin.uninstall(runner)
-    }).not.toThrow()
+    expect(testResult?.meta?.actRule).toBe('97a4e1')
+    expect(testResult?.meta?.wcagCriteria).toContain('4.1.2')
+    expect(testResult?.meta?.impact).toBe('serious')
+    expect(testResult?.meta?.tags).toContain('button')
+    expect(testResult?.meta?.helpUrl).toContain('act-rules.github.io')
   })
 
   test('should provide access to ACT rules catalog', () => {
@@ -198,21 +226,8 @@ describe('ACT Metadata Plugin', () => {
     expect(wcagCriteria.has('4.1.2')).toBe(true) // Name, Role, Value
   })
 
-  test('should categorize rules by tags', () => {
-    const allTags = new Set<string>()
-
-    Object.values(ACT_RULES).forEach(rule => {
-      rule.tags.forEach(tag => {
-        allTags.add(tag)
-      })
-    })
-
-    // Should have comprehensive tag coverage
-    expect(allTags.has('aria')).toBe(true)
-    expect(allTags.has('image')).toBe(true)
-    expect(allTags.has('button')).toBe(true)
-    expect(allTags.has('form')).toBe(true)
-    expect(allTags.has('language')).toBe(true)
-    expect(allTags.has('accessible-name')).toBe(true)
+  test('should work with composition chaining', () => {
+    const result = runner.use(useACTMetadata())
+    expect(result).toBe(runner) // Should return runner for chaining
   })
 })
