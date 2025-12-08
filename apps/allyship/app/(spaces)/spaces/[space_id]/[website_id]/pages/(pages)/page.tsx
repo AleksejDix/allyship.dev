@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import { CrawlButton } from '@/features/crawl/components/crawl-button'
 import { PageCreateDialog } from '@/features/pages/components/page-create-dialog'
 import { PagesIndex } from '@/features/pages/components/pages-index'
 import { PageHeader } from '@/features/websites/components/page-header'
@@ -68,10 +67,6 @@ export default async function PagesPage(props: Props) {
     <div className="space-y-6">
       <PageHeader title="Pages" description="Manage pages">
         <div className="flex items-center gap-2">
-          <CrawlButton
-            website_id={params.website_id}
-            website_url={website.url}
-          />
           <PageCreateDialog
             space_id={params.space_id}
             website_id={params.website_id}

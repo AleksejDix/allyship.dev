@@ -9,10 +9,8 @@ import { Badge } from '@workspace/ui/components/badge'
 // Import component blocks
 import { Faqs } from '@/components/blocks/Faqs'
 import { Issues } from '@/components/blocks/Issues'
-import { ScanProcess } from '@/components/blocks/ScanProcess'
 import { Services } from '@/components/blocks/Services'
 import { Stats } from '@/components/blocks/Stats'
-import { WebScanner } from '@/components/blocks/WebScanner'
 import { Compliance } from '@/components/charts/Compliance'
 import { UserTestimonials } from '@/components/blocks/UserTestimonials'
 import { BenefitsSection } from '@/components/blocks/BenefitsSection'
@@ -501,16 +499,8 @@ const Page = async () => {
       <BenefitsSection />
 
       {/* Pre-built components with consistent styling */}
-      <ComponentWrapper title="Scan your website for accessibility issues">
-        <WebScanner />
-      </ComponentWrapper>
-
       <ComponentWrapper title="Why Accessibility Matters">
         <Stats />
-      </ComponentWrapper>
-
-      <ComponentWrapper title="Our Accessibility Scanning Process">
-        <ScanProcess />
       </ComponentWrapper>
 
       <ComponentWrapper title="Common Accessibility Issues We Detect">

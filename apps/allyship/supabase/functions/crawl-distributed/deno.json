@@ -1,9 +1,0 @@
-{
-  "tasks": {
-    "serve": "deno run --allow-net --allow-env index.ts"
-  },
-  "imports": {
-    "jsr:@supabase/functions-js/edge-runtime.d.ts": "https://deno.land/x/supabase_edge_runtime@v0.0.1/mod.ts",
-    "jsr:@supabase/supabase-js@2": "https://deno.land/x/supabase@2.39.7/mod.ts"
-  }
-}
