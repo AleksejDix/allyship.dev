@@ -198,12 +198,6 @@ const staticRoutes: SitemapEntry[] = [
     changeFrequency: 'weekly',
     priority: PRIORITIES.glossary,
   },
-  {
-    url: 'https://allyship.dev/cartoons',
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.8,
-  },
 ]
 
 /**

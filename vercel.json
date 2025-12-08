@@ -2,15 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "yarn turbo build",
   "installCommand": "yarn install",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/cartoons/(.*)",
-      "destination": "https://accessibility-is.vercel.app/$1"
-    },
-    {
-      "source": "/cartoons",
-      "destination": "https://accessibility-is.vercel.app/"
-    }
-  ]
+  "framework": "nextjs"
 }
