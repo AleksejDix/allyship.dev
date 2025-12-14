@@ -1,19 +1,39 @@
-import { notFound } from "next/navigation"
-import { getSpace } from "@/features/spaces/actions"
-import { SpaceDelete } from "@/features/spaces/components/space-delete"
-import { SpaceUpdate } from "@/features/spaces/components/space-update"
+import { notFound, redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { SpaceDelete } from "@/features/spaces/components/SpaceDelete"
+import { SpaceUpdate } from "@/features/spaces/components/SpaceUpdate"
 
 type Props = {
   params: Promise<{ space_id: string }>
 }
 
 export default async function SettingsPage(props: Props) {
-  const params = await props.params;
-  const { space_id } = params
-  const { data: space } = await getSpace(space_id)
+  const params = await props.params
+  const { space_id } = params // Note: space_id is actually account_id
+  const supabase = await createClient()
 
-  if (!space) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  // Fetch account by ID
+  const { data: accounts } = await supabase.rpc("get_accounts")
+  const account = accounts?.find((acc: any) => acc.account_id === space_id)
+
+  if (!account) {
     notFound()
+  }
+
+  // Map account to space-like object for existing components
+  const space = {
+    id: account.account_id,
+    name: account.name,
+    created_at: account.created_at,
+    updated_at: account.updated_at,
   }
 
   return (

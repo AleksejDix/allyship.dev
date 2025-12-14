@@ -9,7 +9,7 @@ import { normalizeUrlString, extractPath } from '@allystudio/url-utils'
 
 const deleteWebsiteSchema = z.object({
   websiteId: z.string(),
-  spaceId: z.string(),
+  accountId: z.string(),
 })
 
 const createWebsiteSchema = z.object({
@@ -24,11 +24,11 @@ const createWebsiteSchema = z.object({
       return z.NEVER
     }
   }),
-  space_id: z.string(),
+  account_id: z.string(),
 })
 
 const normalizeUrlsSchema = z.object({
-  spaceId: z.string(),
+  accountId: z.string(),
 })
 
 export const createWebsite = createServerAction()
@@ -49,7 +49,7 @@ export const createWebsite = createServerAction()
       }
     }
 
-    const { url, space_id } = input
+    const { url, account_id } = input
 
     try {
       // URL is already normalized from the schema transform
@@ -58,7 +58,7 @@ export const createWebsite = createServerAction()
       const { data, error } = await supabase.from('Website').insert({
         url: normalized_url, // Use normalized URL for both fields
         normalized_url,
-        space_id,
+        account_id,
       })
 
       console.log(data, error)
@@ -73,7 +73,7 @@ export const createWebsite = createServerAction()
         }
       }
 
-      revalidatePath(`/spaces/${space_id}/websites`)
+      revalidatePath(`/dashboard`)
 
       return {
         success: true,
@@ -109,13 +109,13 @@ export const websiteDelete = createServerAction()
       }
     }
 
-    const { websiteId, spaceId } = input
+    const { websiteId, accountId } = input
 
     // Delete the domain - RLS policies will ensure user has access
     const { error: deleteError } = await supabase
       .from('Website')
       .delete()
-      .match({ id: websiteId, space_id: spaceId })
+      .match({ id: websiteId, account_id: accountId })
 
     if (deleteError) {
       return {
@@ -128,7 +128,7 @@ export const websiteDelete = createServerAction()
     }
 
     // Revalidate the domains list
-    revalidatePath(`/spaces/${spaceId}`)
+    revalidatePath(`/dashboard`)
 
     return {
       success: true,
@@ -154,11 +154,11 @@ export const normalizeUrls = createServerAction()
       }
     }
 
-    // First get all websites in the space
+    // First get all websites in the account
     const { data: websites, error: websitesError } = await supabase
       .from('Website')
       .select('id, url')
-      .eq('space_id', input.spaceId)
+      .eq('account_id', input.accountId)
 
     if (websitesError) {
       return {
@@ -219,7 +219,7 @@ export const normalizeUrls = createServerAction()
     // Wait for all updates to complete
     await Promise.all([...websiteUpdates, ...pageUpdates.flat()])
 
-    revalidatePath(`/spaces/${input.spaceId}`)
+    revalidatePath(`/dashboard`)
 
     return {
       success: true,

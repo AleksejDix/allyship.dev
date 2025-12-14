@@ -1,30 +1,31 @@
 "use client"
 
 import { createContext, useContext } from "react"
+import type { AccountWithRole } from "@/lib/hooks/use-accounts"
 
-import type { SpaceData } from "./actions"
-
-interface SpaceContextValue {
-  space: SpaceData
+interface AccountContextValue {
+  account: AccountWithRole
 }
 
-const SpaceContext = createContext<SpaceContextValue | undefined>(undefined)
+const AccountContext = createContext<AccountContextValue | undefined>(undefined)
 
-export function useSpace() {
-  const context = useContext(SpaceContext)
+export function useAccount() {
+  const context = useContext(AccountContext)
   if (!context) {
-    throw new Error("useSpace must be used within a SpaceProvider")
+    throw new Error("useAccount must be used within an AccountProvider")
   }
   return context
 }
 
-interface SpaceProviderProps {
-  space: SpaceData
+interface AccountProviderProps {
+  account: AccountWithRole
   children: React.ReactNode
 }
 
-export function SpaceProvider({ space, children }: SpaceProviderProps) {
+export function AccountProvider({ account, children }: AccountProviderProps) {
   return (
-    <SpaceContext.Provider value={{ space }}>{children}</SpaceContext.Provider>
+    <AccountContext.Provider value={{ account }}>
+      {children}
+    </AccountContext.Provider>
   )
 }

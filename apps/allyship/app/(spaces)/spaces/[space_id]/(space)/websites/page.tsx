@@ -13,13 +13,14 @@ type Props = {
 
 export default async function WebsitesPage(props: Props) {
   const params = await props.params
-  const { space_id } = params
+  const { space_id } = params // Note: space_id param is actually account_id now
   const supabase = await createClient()
 
+  // Query websites by account_id (the space_id param now holds account_id)
   const { data: websites } = await supabase
     .from('Website')
     .select('*')
-    .eq('space_id', space_id)
+    .eq('account_id', space_id)
 
   return (
     <div className="container mx-auto py-6">

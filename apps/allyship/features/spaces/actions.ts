@@ -6,180 +6,273 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 
 import { createClient } from "@/lib/supabase/server"
-import { spaceSchema } from "./schema"
+import { accountSchema, teamAccountSchema } from "./schema"
+import type { AccountWithRole } from "@/lib/hooks/use-accounts"
 
+// Get all accounts for the current user
+export async function getAccounts() {
+  const supabase = await createClient()
 
-// Create a new space
-export const createSpace = createServerAction()
-  .input(spaceSchema)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return {
+      success: false,
+      error: {
+        message: "Unauthorized",
+        code: "unauthorized",
+        status: 401,
+      },
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("get_accounts")
+
+    if (error) {
+      console.error("Supabase error:", error)
+      return {
+        success: false,
+        error: {
+          message: error.message || "Failed to fetch accounts",
+          code: error.code || "fetch_accounts_failed",
+          status: 500,
+        },
+      }
+    }
+
+    return { success: true, data: data as AccountWithRole[] }
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to fetch accounts",
+        code: "fetch_accounts_failed",
+        status: 500,
+      },
+    }
+  }
+}
+
+// Get a single account by ID
+export async function getAccountById(accountId: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.rpc("get_account_by_id", {
+      account_id: accountId,
+    })
+
+    if (error) {
+      console.error("Supabase error:", error)
+      return {
+        success: false,
+        error: {
+          message: error.message || "Failed to fetch account",
+          code: error.code || "fetch_account_failed",
+          status: 500,
+        },
+      }
+    }
+
+    if (!data) {
+      return {
+        success: false,
+        error: {
+          message: "Account not found",
+          code: "account_not_found",
+          status: 404,
+        },
+      }
+    }
+
+    return { success: true, data: data as AccountWithRole }
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to fetch account",
+        code: "fetch_account_failed",
+        status: 500,
+      },
+    }
+  }
+}
+
+// Get account by slug (for team accounts)
+export async function getAccountBySlug(slug: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.rpc("get_account_by_slug", {
+      slug,
+    })
+
+    if (error) {
+      console.error("Supabase error:", error)
+      return {
+        success: false,
+        error: {
+          message: error.message || "Failed to fetch account",
+          code: error.code || "fetch_account_failed",
+          status: 500,
+        },
+      }
+    }
+
+    if (!data) {
+      return {
+        success: false,
+        error: {
+          message: "Account not found",
+          code: "account_not_found",
+          status: 404,
+        },
+      }
+    }
+
+    return { success: true, data: data as AccountWithRole }
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        message: "Failed to fetch account",
+        code: "fetch_account_failed",
+        status: 500,
+      },
+    }
+  }
+}
+
+// Create a new team account
+// NOTE: This server action is deprecated in favor of direct client-side RPC calls
+// Kept for reference but not actively used
+export const createTeamAccount = createServerAction()
+  .input(teamAccountSchema)
   .handler(async ({ input }) => {
     const supabase = await createClient()
-    const { name } = input
-
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return {
-        success: false,
-        error: {
-          message: "Unauthorized",
-          code: "unauthorized",
-          status: 401,
-        },
-      }
+      throw new Error("Unauthorized")
     }
 
+    const { name, slug } = input
+
+    const { data, error } = await supabase.rpc("create_account", {
+      name,
+      slug,
+    })
+
+    if (error) {
+      throw new Error(error.message || "Failed to create team")
+    }
+
+    if (!data) {
+      throw new Error("No data returned from create_account")
+    }
+
+    revalidatePath("/spaces")
+
+    return {
+      account_id: data.account_id,
+      name: data.name,
+      slug: data.slug,
+    }
+  })
+
+// Update account name
+const updateAccountNameSchema = z.object({
+  accountId: z.string().uuid(),
+  name: z.string().min(1, "Name is required").max(50),
+})
+
+export const updateAccountName = createServerAction()
+  .input(updateAccountNameSchema)
+  .handler(async ({ input }) => {
+    const supabase = await createClient()
+    const { accountId, name } = input
+
     try {
-      const { data: space, error } = await supabase
-        .from("Space")
-        .insert({
-          name,
-          owner_id: user.id,
-        })
-        .select()
-        .single()
+      const { error } = await supabase.rpc("update_account", {
+        account_id: accountId,
+        name,
+      })
 
       if (error) {
         console.error("Supabase error:", error)
         return {
           success: false,
           error: {
-            message: error.message || "Failed to create workspace",
-            code: error.code || "create_space_failed",
+            message: error.message || "Failed to update account",
+            code: error.code || "update_account_failed",
             status: 500,
           },
         }
       }
 
-      revalidatePath("/", "layout")
-      return { success: true, data: space }
+      revalidatePath("/dashboard")
+      return { success: true }
     } catch (error) {
       return {
         success: false,
         error: {
-          message: "Failed to create workspace",
-          code: "create_space_failed",
+          message: "Failed to update account",
+          code: "update_account_failed",
           status: 500,
         },
       }
     }
   })
 
-// Get a single space by ID
-export async function getSpace(spaceId: string) {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from("Space")
-    .select()
-    .eq("id", spaceId)
-    .single()
-
-  if (error) {
-    return {
-      success: false,
-      error: {
-        message: "Failed to fetch space",
-        code: "fetch_failed",
-        status: 500,
-      },
-    }
-  }
-
-  return { success: true, data }
-}
-
-export async function getSpaces() {
-  const supabase = await createClient()
-  const { data, error } = await supabase.from("Space").select()
-
-  if (error) {
-    return {
-      success: false,
-      error: {
-        message: "Failed to fetch spaces",
-        code: "fetch_failed",
-        status: 500,
-      },
-    }
-  }
-  return { success: true, data }
-}
-
-const updateSpaceSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  id: z.string().min(1, "ID is required"),
+// Update team slug
+const updateTeamSlugSchema = z.object({
+  accountId: z.string().uuid(),
+  slug: z
+    .string()
+    .min(3)
+    .max(50)
+    .regex(/^[a-z0-9-]+$/),
 })
 
-// Create a server action for updating spaces
-export const updateSpaceAction = createServerAction()
-  .input(updateSpaceSchema)
-  .handler(async ({ input }) => {
-    try {
-      const supabase = await createClient()
-
-      // Update the space - RLS will handle permissions
-      const { data: updatedSpace, error: updateError } = await supabase
-        .from("Space")
-        .update({
-          name: input.name,
-        })
-        .eq("id", input.id)
-        .select()
-        .single()
-
-      // Revalidate paths
-      revalidatePath(`/spaces/${input.id}`)
-      revalidatePath(`/spaces/${input.id}/settings`)
-      revalidatePath("/spaces")
-
-      return {
-        success: true,
-        data: updatedSpace,
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error)
-      return {
-        success: false,
-        error: {
-          message: "An unexpected error occurred",
-          code: "internal_error",
-          status: 500,
-        },
-      }
-    }
-  })
-
-// Type for the space data to be used across components
-export interface SpaceData {
-  id: string
-  name: string
-  domain_count: number
-  member_count: number
-  created_at: string
-  updated_at: string
-  // Add other fields as needed
-}
-
-const deleteSpaceSchema = z.object({
-  id: z.string().min(1, "ID is required"),
-})
-
-
-export const deleteSpaceAction = createServerAction()
-  .input(deleteSpaceSchema)
+export const updateTeamSlug = createServerAction()
+  .input(updateTeamSlugSchema)
   .handler(async ({ input }) => {
     const supabase = await createClient()
-    const { data, error } = await supabase.from("Space").delete().eq("id", input.id)
+    const { accountId, slug } = input
 
+    try {
+      const { data, error } = await supabase.rpc("update_account", {
+        account_id: accountId,
+        slug,
+      })
 
-    revalidatePath("/spaces")
-    redirect("/spaces")
+      if (error) {
+        console.error("Supabase error:", error)
+        return {
+          success: false,
+          error: {
+            message: error.message || "Failed to update team slug",
+            code: error.code || "update_slug_failed",
+            status: 500,
+          },
+        }
+      }
 
-    return {
-      success: true,
-      data,
+      revalidatePath("/dashboard")
+      redirect(`/dashboard/${slug}/settings`)
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          message: "Failed to update team slug",
+          code: "update_slug_failed",
+          status: 500,
+        },
+      }
     }
   })

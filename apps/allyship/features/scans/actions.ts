@@ -28,26 +28,26 @@ const urlSchema = z.object({
       return z.NEVER
     }
   }),
-  space_id: z.string().optional(),
+  account_id: z.string().optional(),
 })
 
 type ScanInput = z.infer<typeof urlSchema>
 
 const parseFormData = (
-  data: FormData | { url: string; space_id?: string }
+  data: FormData | { url: string; account_id?: string }
 ): ScanInput => {
   if (data instanceof FormData) {
     const formObject = Object.fromEntries(data)
     return {
       url: String(formObject.url || ''),
-      space_id: formObject.space_id ? String(formObject.space_id) : undefined,
+      account_id: formObject.account_id ? String(formObject.account_id) : undefined,
     }
   }
   return data
 }
 
 export async function createScan(
-  formData: FormData | { url: string; space_id?: string }
+  formData: FormData | { url: string; account_id?: string }
 ) {
   console.log('[SERVER] Creating scan with form data:', formData)
   const supabase = await createClient()
@@ -70,8 +70,8 @@ export async function createScan(
       }
     }
 
-    const { url, space_id } = result.data
-    console.log('[SERVER] Validated data:', { url, space_id })
+    const { url, account_id } = result.data
+    console.log('[SERVER] Validated data:', { url, account_id })
 
     // Check user is logged in
     const {
@@ -96,56 +96,33 @@ export async function createScan(
       }
     }
 
-    // Get or create space (use personal space if none specified)
-    let targetSpaceId = space_id
-    if (!targetSpaceId) {
-      console.log('[SERVER] No space_id provided, looking for personal space')
-      const { data: personalSpace, error: spaceError } = await supabase
-        .from('Space')
-        .select('id, name')
-        .match({ owner_id: user.id, is_personal: true })
-        .single()
+    // Get personal account (use provided account_id or get personal account)
+    let targetAccountId = account_id
+    if (!targetAccountId) {
+      console.log('[SERVER] No account_id provided, looking for personal account')
+      const { data: accounts, error: accountsError } = await supabase.rpc(
+        'get_accounts'
+      )
 
-      console.log('[SERVER] Personal space query result:', {
-        personalSpace,
-        spaceError,
+      console.log('[SERVER] Accounts query result:', {
+        accounts,
+        accountsError,
       })
 
-      if (spaceError) {
-        if (spaceError.code === 'PGRST116') {
-          console.log('[SERVER] Personal space not found, creating one')
-          // Create personal space
-          const { data: newSpace, error: createSpaceError } = await supabase
-            .from('Space')
-            .insert({
-              name: 'Personal Space',
-              owner_id: user.id,
-              is_personal: true,
-            })
-            .select()
-            .single()
-
-          if (createSpaceError) {
-            console.error(
-              '[SERVER] Failed to create personal space:',
-              createSpaceError
-            )
-            throw createSpaceError
-          }
-          if (!newSpace) {
-            console.error('[SERVER] Personal space creation returned no data')
-            throw new Error('Failed to create personal space')
-          }
-          targetSpaceId = newSpace.id
-          console.log('[SERVER] Created personal space:', targetSpaceId)
-        } else {
-          console.error('[SERVER] Failed to fetch personal space:', spaceError)
-          throw spaceError
-        }
-      } else {
-        targetSpaceId = personalSpace.id
-        console.log('[SERVER] Found existing personal space:', targetSpaceId)
+      if (accountsError) {
+        console.error('[SERVER] Failed to fetch accounts:', accountsError)
+        throw accountsError
       }
+
+      const personalAccount = accounts?.find((acc: any) => acc.personal_account)
+
+      if (!personalAccount) {
+        console.error('[SERVER] No personal account found')
+        throw new Error('No personal account found')
+      }
+
+      targetAccountId = personalAccount.account_id
+      console.log('[SERVER] Found personal account:', targetAccountId)
     }
 
     // Parse URL to get website URL (hostname) and page path
@@ -177,7 +154,7 @@ export async function createScan(
       // 1. Create or update website
       console.log('[SERVER] Creating/updating website:', {
         websiteUrl,
-        targetSpaceId,
+        targetAccountId,
       })
       const { data: website, error: websiteError } = await supabase
         .from('Website')
@@ -185,11 +162,11 @@ export async function createScan(
           {
             url: websiteUrl,
             normalized_url: websiteUrl,
-            space_id: targetSpaceId,
+            account_id: targetAccountId,
             user_id: user.id,
             theme: 'BOTH',
           },
-          { onConflict: 'normalized_url,space_id' }
+          { onConflict: 'normalized_url,account_id' }
         )
         .select()
         .single()

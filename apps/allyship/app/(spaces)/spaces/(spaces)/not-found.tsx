@@ -1,4 +1,4 @@
-import { SpaceCreateDialog } from "@/features/spaces/components/space-create-dialog"
+import { CreateSpaceDialog as SpaceCreateDialog } from "@/features/spaces/components/CreateSpaceDialog"
 
 export default function NotFound() {
   return (

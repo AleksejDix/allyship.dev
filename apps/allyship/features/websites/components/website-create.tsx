@@ -36,13 +36,13 @@ const formSchema = z.object({
       return z.NEVER
     }
   }),
-  space_id: z.string(),
+  account_id: z.string(),
 })
 
 type FormData = z.infer<typeof formSchema>
 
 type Props = {
-  space_id: string
+  space_id: string // Note: space_id param is actually account_id
   onSuccess?: () => void
 }
 
@@ -51,7 +51,7 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       url: '',
-      space_id,
+      account_id: space_id, // space_id is actually account_id
     },
   })
 
@@ -93,7 +93,7 @@ export function WebsiteCreate({ space_id, onSuccess }: Props) {
           placeholder="example.com"
         />
 
-        <Field type="hidden" name="space_id" label="Space ID" />
+        <Field type="hidden" name="account_id" label="Account ID" />
 
         <Button type="submit" disabled={isPending}>
           {isPending ? 'Creating...' : 'Create'}

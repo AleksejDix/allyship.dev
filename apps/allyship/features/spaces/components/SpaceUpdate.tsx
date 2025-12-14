@@ -1,12 +1,13 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState } from 'react'
 import { Tables } from '@/apps/AllyShip/database.types'
-import { updateSpaceAction } from '@/features/spaces/actions'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
+import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -31,7 +32,9 @@ interface SpaceUpdateProps {
 }
 
 export function SpaceUpdate(props: SpaceUpdateProps) {
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
+  const supabase = createClient()
+  const router = useRouter()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -41,19 +44,33 @@ export function SpaceUpdate(props: SpaceUpdateProps) {
     },
   })
 
-  const { execute } = useServerAction(updateSpaceAction)
-
   const onSubmit = async (data: FormData) => {
-    const [result, validationError] = await execute(data)
+    setIsPending(true)
 
-    if (validationError) {
+    try {
+      const { error } = await supabase.rpc('update_account', {
+        account_id: data.id,
+        name: data.name,
+      })
+
+      if (error) {
+        form.setError('root', {
+          type: 'server',
+          message: error.message || 'Failed to update workspace',
+        })
+        return
+      }
+
+      toast.success('Workspace updated successfully')
+      router.refresh()
+    } catch (err) {
       form.setError('root', {
         type: 'server',
-        message: validationError.message,
+        message: 'An unexpected error occurred',
       })
+    } finally {
+      setIsPending(false)
     }
-
-    console.log(result, validationError)
   }
 
   return (
@@ -73,7 +90,7 @@ export function SpaceUpdate(props: SpaceUpdateProps) {
               label="Workspace Name"
               type="text"
               autoComplete="organization"
-              description="This is your team's visible name within Allyship. For example, the name of your company or department."
+              description="This is your space's visible name within Allyship. For example, the name of your company or department."
               disabled={isPending}
             />
             <Field name="id" label="id" type="hidden" />

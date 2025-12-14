@@ -29,6 +29,10 @@ export async function UserMenu() {
       </div>
     )
   }
+
+  // Fetch user's accounts to link to their workspaces
+  const { data: accounts } = await supabase.rpc('get_accounts')
+
   return (
     <div className="flex items-center gap-2">
       <span className="hidden text-sm sm:inline-flex">{data.user.email}</span>
@@ -64,9 +68,25 @@ export async function UserMenu() {
           <DropdownMenuItem asChild>
             <Link href="/account">Account</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/spaces">Spaces</Link>
-          </DropdownMenuItem>
+          {accounts && accounts.length > 0 && (
+            <>
+              <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
+                Workspaces
+              </DropdownMenuLabel>
+              {accounts.map((account: any) => (
+                <DropdownMenuItem key={account.account_id} asChild>
+                  <Link href={`/spaces/${account.account_id}`}>
+                    {account.name}
+                    {account.personal_account && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        Personal
+                      </span>
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </>
+          )}
 
           <SignoutButton />
         </DropdownMenuContent>

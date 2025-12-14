@@ -33,24 +33,19 @@ export const createPage = createServerAction()
     }
     console.log('[createPage] User authenticated:', user.id)
 
-    // Verify space ownership and get website domain
+    // Verify account access and get website domain
     console.log(
-      '[createPage] Verifying space ownership and domain for website:',
+      '[createPage] Verifying account access and domain for website:',
       input.website_id
     )
     const { data: website, error: websiteError } = await supabase
       .from('Website')
-      .select(
-        `
-        url,
-        space:Space!Domain_space_id_fkey(owner_id)
-      `
-      )
+      .select('url, account_id')
       .eq('id', input.website_id)
       .single()
 
-    if (websiteError || !website?.space?.owner_id) {
-      console.error('[createPage] Website/space error:', websiteError)
+    if (websiteError || !website) {
+      console.error('[createPage] Website error:', websiteError)
       return {
         success: false,
         error: {
@@ -61,21 +56,9 @@ export const createPage = createServerAction()
     }
     console.log('[createPage] Found website with domain:', website.url)
 
-    if (website.space.owner_id !== user.id) {
-      console.error(
-        '[createPage] User is not space owner. User:',
-        user.id,
-        'Owner:',
-        website.space.owner_id
-      )
-      return {
-        success: false,
-        error: {
-          message: 'Not authorized to create pages in this space',
-          code: 'NOT_SPACE_OWNER',
-        },
-      }
-    }
+    // Check if user has access to this account using Basejump's RLS
+    // The RLS policies will automatically handle this check
+    // If the user doesn't have access, the query above would have failed
 
     // Validate URL domain matches website domain
     try {

@@ -1,4 +1,4 @@
-import { SpaceCreateDialog } from "@/features/spaces/components/space-create-dialog"
+import { CreateSpaceDialog } from "@/features/spaces/components/CreateSpaceDialog"
 import { PageHeader } from "@/features/websites/components/page-header"
 
 interface SpacesLayoutProps {
@@ -10,9 +10,9 @@ export default function SpacesLayout({ children }: SpacesLayoutProps) {
     <div className="space-y-6">
       <PageHeader
         title="Your Workspaces"
-        description="Manage your workspace memberships and access settings."
+        description="Manage your personal and team workspaces."
       >
-        <SpaceCreateDialog />
+        <CreateSpaceDialog />
       </PageHeader>
 
       {children}

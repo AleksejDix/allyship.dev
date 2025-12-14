@@ -1,11 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { deleteSpaceAction } from '@/features/spaces/actions'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useServerAction } from 'zsa-react'
+import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -43,6 +44,9 @@ interface SpaceDeleteProps {
 
 export function SpaceDelete(props: SpaceDeleteProps) {
   const router = useRouter()
+  const [isPending, setIsPending] = useState(false)
+  const supabase = createClient()
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     context: { spaceName: props.space.name },
@@ -52,25 +56,32 @@ export function SpaceDelete(props: SpaceDeleteProps) {
     },
   })
 
-  const { execute, isPending } = useServerAction(deleteSpaceAction)
-
   const onSubmit = async () => {
-    const [result, error] = await execute({ id: props.space.id })
+    setIsPending(true)
 
-    if (error) {
+    try {
+      const { error } = await supabase.rpc('delete_account', {
+        account_id: props.space.id,
+      })
+
+      if (error) {
+        form.setError('root', {
+          type: 'server',
+          message: error.message || 'Failed to delete workspace',
+        })
+        return
+      }
+
+      toast.success('Workspace deleted successfully')
+      router.push('/spaces')
+      router.refresh()
+    } catch (err) {
       form.setError('root', {
         type: 'server',
-        message: error.message,
+        message: 'An unexpected error occurred',
       })
-      return
-    }
-
-    if (!result?.success) {
-      form.setError('root', {
-        type: 'server',
-        message: 'Failed to delete workspace',
-      })
-      return
+    } finally {
+      setIsPending(false)
     }
   }
 
@@ -101,7 +112,7 @@ export function SpaceDelete(props: SpaceDeleteProps) {
           <CardHeader>
             <CardTitle>Delete Space</CardTitle>
             <CardDescription>
-              Permanently remove your team and all of its contents from the
+              Permanently remove your space and all of its contents from the
               Allyship platform. This action is not reversible — please continue
               with caution.
             </CardDescription>

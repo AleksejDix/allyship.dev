@@ -1,4 +1,4 @@
-import { SpaceNavigation } from "@/features/spaces/components/space-navigation"
+import { SpaceNavigation } from "@/features/spaces/components/SpaceNavigation"
 
 type LayoutProps = {
   children: React.ReactNode
