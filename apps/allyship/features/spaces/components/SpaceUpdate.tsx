@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Tables } from '@/apps/AllyShip/database.types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -27,8 +26,13 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
+type Space = {
+  id: string
+  name: string
+}
+
 interface SpaceUpdateProps {
-  space: Tables<'Space'>
+  space: Space
 }
 
 export function SpaceUpdate(props: SpaceUpdateProps) {

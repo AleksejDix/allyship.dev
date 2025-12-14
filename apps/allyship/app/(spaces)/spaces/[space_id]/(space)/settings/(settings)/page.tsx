@@ -32,6 +32,7 @@ export default async function SettingsPage(props: Props) {
   const space = {
     id: account.account_id,
     name: account.name,
+    is_personal: account.personal_account,
     created_at: account.created_at,
     updated_at: account.updated_at,
   }
