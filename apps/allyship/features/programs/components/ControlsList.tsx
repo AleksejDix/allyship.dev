@@ -1,6 +1,6 @@
 import type { ProgramControl } from "../actions"
 import { ControlStatusBadge } from "./ControlStatusBadge"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@workspace/ui/components/badge"
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@workspace/ui/components/table"
 
 type ControlsListProps = {
   controls: ProgramControl[]

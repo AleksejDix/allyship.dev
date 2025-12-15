@@ -5,7 +5,7 @@ import { Check, ChevronsUpDown, PlusCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "@workspace/ui/components/button"
 import {
   Command,
   CommandEmpty,
@@ -14,7 +14,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command"
+} from "@workspace/ui/components/command"
 import {
   Dialog,
   DialogContent,
@@ -22,12 +22,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@workspace/ui/components/dialog"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@workspace/ui/components/popover"
 import { useAccounts, type AccountWithRole } from "@/lib/hooks/use-accounts"
 import { SpaceCreateForm } from "./SpaceCreateForm"
 

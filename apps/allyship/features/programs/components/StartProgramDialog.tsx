@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { PlayCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@workspace/ui/components/dialog"
 import { StartProgramForm } from "./StartProgramForm"
 
 type StartProgramDialogProps = {

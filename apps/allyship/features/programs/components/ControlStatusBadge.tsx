@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@workspace/ui/components/badge"
 import { CheckCircle2, XCircle, AlertTriangle, Circle, Clock } from "lucide-react"
 
 type ControlStatusBadgeProps = {
