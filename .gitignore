@@ -9,6 +9,7 @@
 node_modules
 /.pnp
 .pnp.js
+package-lock.json
 
 # testing
 /coverage
@@ -50,5 +51,6 @@ next-env.d.ts
 .turbo
 
 docs/
+experiment/
 
 apps/allyship/app/compliance-martix/
