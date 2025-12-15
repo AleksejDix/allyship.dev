@@ -11,6 +11,8 @@ type Framework = {
 type Control = {
   id: string
   name: string
+  description: string | null
+  is_production_ready: boolean
 }
 
 type Mapping = {
@@ -34,7 +36,8 @@ export default async function ComplianceMatrixPage() {
       .limit(20), // Limit to important frameworks
     supabase
       .from("controls")
-      .select("id, name")
+      .select("id, name, description, is_production_ready")
+      .eq("is_production_ready", true)  // Only show quality-approved controls
       .order("id"),
     supabase
       .from("framework_controls")
@@ -74,7 +77,10 @@ export default async function ComplianceMatrixPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-semibold mb-2">Compliance Matrix</h1>
         <p className="text-muted-foreground text-sm">
-          {frameworks.length} frameworks × {controls.length} controls = {mappings?.length || 0} mappings
+          {frameworks.length} frameworks × {controls.length} production-ready controls = {mappings?.length || 0} mappings
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          ✓ Showing only quality-approved controls
         </p>
       </div>
 
@@ -82,7 +88,7 @@ export default async function ComplianceMatrixPage() {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="sticky left-0 z-20 bg-background border-r border-b p-2 text-left font-semibold text-sm min-w-[250px]">
+              <th className="sticky left-0 z-20 bg-background border-r border-b p-3 text-left font-semibold text-sm min-w-[300px]">
                 Control
               </th>
               {frameworks.map((framework: Framework) => (
@@ -107,10 +113,17 @@ export default async function ComplianceMatrixPage() {
           <tbody>
             {controls.map((control: Control) => (
               <tr key={control.id} className="hover:bg-muted/50">
-                <td className="sticky left-0 z-10 bg-background border-r p-2 text-sm font-medium">
-                  <div className="max-w-[250px]">
-                    <div className="font-mono text-xs text-muted-foreground">{control.id}</div>
-                    <div className="font-semibold text-sm">{control.name}</div>
+                <td className="sticky left-0 z-10 bg-background border-r p-3 text-sm">
+                  <div className="max-w-[300px] space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-muted-foreground">{control.id}</span>
+                      <span className="font-semibold text-sm">{control.name}</span>
+                    </div>
+                    {control.description && (
+                      <div className="text-xs text-muted-foreground leading-relaxed">
+                        {control.description}
+                      </div>
+                    )}
                   </div>
                 </td>
                 {frameworks.map((framework: Framework) => {
