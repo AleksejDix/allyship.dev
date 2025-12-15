@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { PageHeader } from "@/components/page-header"
+import { StartProgramDialog } from "@/features/programs/components/StartProgramDialog"
 
 type PageProps = {
   params: Promise<{ space_id: string }>
@@ -49,6 +50,18 @@ export default async function Page(props: PageProps) {
             <dd className="mt-1 text-sm capitalize">{account.account_role}</dd>
           </div>
         </dl>
+      </div>
+
+      <div className="border rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold">Compliance Programs</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Track and manage your compliance requirements
+            </p>
+          </div>
+          <StartProgramDialog accountId={params.space_id} />
+        </div>
       </div>
     </div>
   )
