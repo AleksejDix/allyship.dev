@@ -11,7 +11,6 @@ import { Analytics } from '@vercel/analytics/react'
 
 import AccessibleNavigation from '@/components/site/AccessibleNavigation'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { AccessibilityToolbar } from '@/components/tools/toolbar'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -152,7 +151,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <RouterLinkProvider>{children}</RouterLinkProvider>
-          <AccessibilityToolbar />
         </ThemeProvider>
         <Analytics />
       </body>
