@@ -13,7 +13,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2020"]
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "types": []
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

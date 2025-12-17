@@ -57,6 +57,7 @@
     "tldts": "^6.1.11"
   },
   "devDependencies": {
+    "@types/minimatch": "^6.0.0",
     "@types/node": "^20.11.5",
     "oxlint": "^0.15.0",
     "tsup": "^8.3.5",

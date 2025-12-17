@@ -95,7 +95,7 @@ export function validateUrl(urlString: string): ValidationResult {
     return {
       isValid: true
     }
-  } catch {
+  } catch (error) {
     return {
       isValid: false,
       error: error instanceof Error ? error.message : "Invalid URL format"
