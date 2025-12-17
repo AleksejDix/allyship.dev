@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server"
-import { Check } from "lucide-react"
+import { createClient } from '@/lib/supabase/server'
+import { Check } from 'lucide-react'
 
 export const revalidate = 0
 
@@ -27,21 +27,19 @@ export default async function ComplianceMatrixPage() {
   const [
     { data: frameworks, error: frameworksError },
     { data: controls, error: controlsError },
-    { data: mappings, error: mappingsError }
+    { data: mappings, error: mappingsError },
   ] = await Promise.all([
     supabase
-      .from("frameworks")
-      .select("id, display_name")
-      .order("display_name")
+      .from('frameworks')
+      .select('id, display_name')
+      .order('display_name')
       .limit(20), // Limit to important frameworks
     supabase
-      .from("controls")
-      .select("id, name, description, is_production_ready")
-      .eq("is_production_ready", true)  // Only show quality-approved controls
-      .order("id"),
-    supabase
-      .from("framework_controls")
-      .select("framework_id, control_id"),
+      .from('controls')
+      .select('id, name, description, is_production_ready')
+      // .eq("is_production_ready", true)  // TODO: Uncomment when controls are approved
+      .order('id'),
+    supabase.from('framework_controls').select('framework_id, control_id'),
   ])
 
   if (frameworksError || controlsError || mappingsError) {
@@ -51,7 +49,9 @@ export default async function ComplianceMatrixPage() {
         <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
           <p className="font-semibold text-destructive">Failed to load data</p>
           <p className="text-sm text-muted-foreground mt-2">
-            {frameworksError?.message || controlsError?.message || mappingsError?.message}
+            {frameworksError?.message ||
+              controlsError?.message ||
+              mappingsError?.message}
           </p>
         </div>
       </div>
@@ -77,10 +77,12 @@ export default async function ComplianceMatrixPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-semibold mb-2">Compliance Matrix</h1>
         <p className="text-muted-foreground text-sm">
-          {frameworks.length} frameworks × {controls.length} production-ready controls = {mappings?.length || 0} mappings
+          {frameworks.length} frameworks × {controls.length} controls ={' '}
+          {mappings?.length || 0} mappings
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          ✓ Showing only quality-approved controls
+          ⚠️ Showing all controls (use is_production_ready filter once controls
+          are approved)
         </p>
       </div>
 
@@ -114,10 +116,14 @@ export default async function ComplianceMatrixPage() {
             {controls.map((control: Control) => (
               <tr key={control.id} className="hover:bg-muted/50">
                 <td className="sticky left-0 z-10 bg-background border-r p-3 text-sm">
-                  <div className="max-w-[300px] space-y-1">
+                  <div className=" space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-muted-foreground">{control.id}</span>
-                      <span className="font-semibold text-sm">{control.name}</span>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {control.id}
+                      </span>
+                      <span className="font-semibold text-sm">
+                        {control.name}
+                      </span>
                     </div>
                     {control.description && (
                       <div className="text-xs text-muted-foreground leading-relaxed">
@@ -127,7 +133,9 @@ export default async function ComplianceMatrixPage() {
                   </div>
                 </td>
                 {frameworks.map((framework: Framework) => {
-                  const hasMapping = mappingSet.has(`${framework.id}:${control.id}`)
+                  const hasMapping = mappingSet.has(
+                    `${framework.id}:${control.id}`
+                  )
                   return (
                     <td
                       key={framework.id}

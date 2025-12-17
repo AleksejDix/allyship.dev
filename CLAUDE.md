@@ -2,6 +2,62 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Structure
+
+This is a monorepo containing:
+- **apps/allyship** - Main web application (Next.js)
+- **apps/allystudio** - Chrome extension for accessibility testing (Plasmo)
+- **supabase/** - Database migrations and configuration
+- **docs/** - Project documentation
+
+## Database Migrations
+
+**IMPORTANT:** Always follow the migration workflow.
+
+### 📖 Documentation
+Step-by-step guides in `docs/supabase-migrations/`:
+
+- **New to migrations?** → [Getting Started](docs/supabase-migrations/00-getting-started.md)
+- **Daily workflow** → [Daily Workflow](docs/supabase-migrations/01-daily-workflow.md)
+- **Writing migrations** → [Creating Migrations](docs/supabase-migrations/02-creating-migrations.md)
+- **Emergency fixes** → [Deploying](docs/supabase-migrations/04-deploying.md)
+- **Problems?** → [Troubleshooting](docs/supabase-migrations/06-troubleshooting.md)
+- **Reference** → [Safety Rules](docs/supabase-migrations/07-safety-rules.md)
+
+**[→ Start here: README](docs/supabase-migrations/README.md)**
+
+### ⚡ Quick Daily Workflow
+```bash
+# 1. Sync
+git pull && supabase migration up
+
+# 2. Create
+supabase migration new schema_<feature_name>
+
+# 3. Test (preserves data)
+supabase migration up
+
+# 4. Test idempotency (destroys data)
+supabase db reset
+
+# 5. Deploy
+supabase db push
+
+# 6. Commit
+git add supabase/migrations/ && git commit -m "feat: ..." && git push
+```
+
+### 🚨 Critical Safety Rules
+1. **NEVER** run `supabase db reset` against production - destroys all data
+2. **NEVER** modify migrations after applying to production - create new ones
+3. **NEVER** commit `schema.sql` - only commit migration files
+4. **USE `supabase db pull` ONLY** on fresh clone or after emergency fixes
+5. **ALWAYS** use `migration up` for daily dev (preserves data)
+
+Full details: [Safety Rules](docs/supabase-migrations/07-safety-rules.md)
+
+---
+
 ## AllyStudio Chrome Extension
 
 AllyStudio is a Plasmo-based Chrome extension for real-time accessibility testing. This guide focuses specifically on extension development.
