@@ -9,9 +9,8 @@ export default defineEventHandler(async (event) => {
   // Define filter handlers for different parameter types
   const filterHandlers = {
     id: {
-      field: "id",
-      getValue: async (value: any) => String(value),
-      useRpc: false,
+      useRpc: true,
+      rpcName: "get_account",
       single: true, // Return single record
     },
     slug: {
@@ -49,10 +48,18 @@ export default defineEventHandler(async (event) => {
       // Check if this handler uses RPC or direct query
       if (handler.useRpc && "rpcName" in handler) {
         // Use RPC approach
-        console.log(`Calling RPC ${handler.rpcName} with slug:`, String(value))
-        const { data, error } = await supabase.rpc(handler.rpcName, {
-          slug: String(value),
-        } as any)
+        console.log(`Calling RPC ${handler.rpcName} with param:`, String(value))
+
+        // Determine the parameter name based on the RPC function
+        const rpcParams =
+          handler.rpcName === "get_account"
+            ? { account_id: String(value) }
+            : { slug: String(value) }
+
+        const { data, error } = await supabase.rpc(
+          handler.rpcName,
+          rpcParams as any
+        )
         console.log("RPC response:", { data, error })
 
         if (error) {
