@@ -30,12 +30,13 @@ const {
 
 <template>
   <div class="mx-auto container p-4">
-    <h1 class="text-2xl bold">Your Accounts</h1>
-    <div class="mb-4">
-      <NuxtLink to="/create" class="text-blue-600 underline"
-        >Create New Account</NuxtLink
-      >
-    </div>
+    <header class="flex justify-between pb-4">
+      <h1 class="text-2xl bold">Your Accounts</h1>
+
+      <Button asChild>
+        <NuxtLink to="/create">Create New Account</NuxtLink>
+      </Button>
+    </header>
 
     <!-- Show loading state -->
     <div v-if="pending">

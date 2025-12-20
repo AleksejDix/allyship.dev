@@ -77,7 +77,7 @@ watch(
     <form v-else @submit.prevent="createAccount">
       <div>
         <label for="name">Account Name</label>
-        <input
+        <Input
           id="name"
           v-model="form.name"
           type="text"
@@ -90,7 +90,7 @@ watch(
 
       <div>
         <label for="slug">Account Slug</label>
-        <input
+        <Input
           id="slug"
           v-model="form.slug"
           type="text"
@@ -108,14 +108,14 @@ watch(
         {{ state.error }}
       </div>
 
-      <button
+      <Button
         type="submit"
         :disabled="state.type === 'loading' || !isFormValid"
       >
         {{
           state.type === "loading" ? "Creating Account..." : "Create Account"
         }}
-      </button>
+      </Button>
 
       <p>
         <NuxtLink to="/">Cancel</NuxtLink>
@@ -142,41 +142,9 @@ label {
   font-weight: bold;
 }
 
-input {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
 small {
   color: #666;
   font-size: 0.875rem;
-}
-
-button {
-  padding: 0.75rem 1rem;
-  background-color: #000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button:hover:not(:disabled) {
-  background-color: #333;
-}
-
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 
 .error-message {
