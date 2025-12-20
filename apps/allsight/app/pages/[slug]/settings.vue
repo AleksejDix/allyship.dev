@@ -64,100 +64,63 @@ const {
 
 <style scoped>
 .space-settings {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e1e5e9;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .page-header h1 {
   margin: 0;
-  color: #2d3748;
 }
 
 .back-link {
-  color: #667eea;
+  color: #6b7280;
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.back-link:hover {
-  color: #5a67d8;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-.error {
-  text-align: center;
-  padding: 2rem;
-  color: #e74c3c;
-}
-
-.error h2 {
-  color: #e74c3c;
-  margin-bottom: 1rem;
 }
 
 .settings-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  margin: 1rem 0;
 }
 
 .settings-section {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 4px;
 }
 
 .settings-section h2 {
-  margin: 0 0 1rem 0;
-  color: #2d3748;
-  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
 }
 
 .info-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  justify-content: space-between;
+  padding: 0.25rem 0;
 }
 
 .info-item label {
-  font-weight: 600;
-  color: #4a5568;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.info-item span {
-  color: #2d3748;
-  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
 }
 
 .coming-soon {
-  color: #718096;
+  color: #9ca3af;
   font-style: italic;
-  margin: 0;
 }
 </style>

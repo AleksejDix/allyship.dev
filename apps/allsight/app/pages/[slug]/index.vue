@@ -78,123 +78,58 @@ const formatDate = (dateString) => {
 
 <style scoped>
 .space-page {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.error {
-  text-align: center;
-  padding: 2rem;
-  color: #e74c3c;
-}
-
-.error h2 {
-  color: #e74c3c;
-  margin-bottom: 1rem;
+  padding: 1rem;
 }
 
 .space-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  margin: 1rem 0;
 }
 
 .space-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 2rem;
   text-align: center;
-}
-
-.space-header h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-.space-slug {
-  margin: 0;
-  opacity: 0.9;
-  font-size: 1.1rem;
-}
-
-.personal-badge {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .space-actions {
-  margin: 1.5rem 2rem;
+  margin: 1rem 0;
 }
 
 .action-btn {
   display: inline-block;
-  background: #667eea;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.action-btn:hover {
-  background: #5a67d8;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
 }
 
 .space-details {
-  padding: 2rem;
+  margin: 1rem 0;
 }
 
 .detail-item {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: #f8f9fa;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #f9fafb;
   border-radius: 4px;
-  border-left: 4px solid #667eea;
-}
-
-.detail-item strong {
-  color: #333;
-  display: inline-block;
-  min-width: 120px;
 }
 
 .not-found {
   text-align: center;
-  padding: 4rem 2rem;
-}
-
-.not-found h2 {
-  color: #666;
-  margin-bottom: 1rem;
+  padding: 2rem;
 }
 
 .home-link {
   display: inline-block;
-  margin-top: 2rem;
-  padding: 0.75rem 1.5rem;
-  background: #667eea;
-  color: white;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
   text-decoration: none;
   border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.home-link:hover {
-  background: #5a67d8;
+  border: 1px solid #d1d5db;
 }
 </style>
