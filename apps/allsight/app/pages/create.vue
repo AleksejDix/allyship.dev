@@ -97,7 +97,6 @@ watch(
           v-model="form.name"
           type="text"
           placeholder="My Team"
-          :disabled="state.type === 'loading'"
           required
         />
         <small>The display name for your account</small>
@@ -110,7 +109,6 @@ watch(
           v-model="form.slug"
           type="text"
           placeholder="my-team"
-          :disabled="state.type === 'loading'"
           pattern="[a-z0-9-]+"
           required
         />
@@ -123,7 +121,7 @@ watch(
         {{ state.error }}
       </div>
 
-      <Button type="submit" :disabled="state.type === 'loading'">
+      <Button type="submit">
         {{
           state.type === "loading" ? "Creating Account..." : "Create Account"
         }}

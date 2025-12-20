@@ -1,71 +1,48 @@
 <template>
-  <div class="space-settings">
-    <header class="page-header">
-      <h1>{{ space?.name || "Space" }} Settings</h1>
-    </header>
-
-    <div v-if="loading" class="loading">Loading space settings...</div>
-
-    <div v-else-if="error" class="error">
-      <h2>Error loading space</h2>
-      <p>{{ error }}</p>
-    </div>
-
-    <div v-else-if="space" class="settings-content">
-      <nav>
-        <ul>
+  <div class="flex gap-8 py-8">
+    <!-- Left Sidebar Navigation -->
+    <aside class="w-64 flex-shrink-0">
+      <nav class="sticky top-6">
+        <ul class="space-y-1">
           <li>
-            <NuxtLink :to="`/${accountId}/settings`" exact-path-class="active">
+            <NuxtLink
+              :to="`/${accountId}/settings`"
+              class="block px-4 py-2 text-sm font-medium"
+              exact-active-class="bg-gray-100"
+            >
               General
             </NuxtLink>
           </li>
           <li>
             <NuxtLink
               :to="`/${accountId}/settings/members`"
-              exact-path-class="active"
+              class="block px-4 py-2 text-sm font-medium"
+              active-class="bg-gray-100"
             >
               Members
             </NuxtLink>
           </li>
           <li>
             <NuxtLink
-              :to="`/${accountId}/settings/billing`"
-              exact-path-class="active"
-            >
-              Billing
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink
               :to="`/${accountId}/settings/danger`"
-              exact-path-class="active"
+              class="block px-4 py-2 text-sm font-medium text-red-700"
+              active-class="bg-red-50"
             >
               Danger Zone
             </NuxtLink>
           </li>
         </ul>
       </nav>
+    </aside>
 
-      <main class="settings-main">
-        <NuxtPage />
-      </main>
-    </div>
+    <!-- Main Content -->
+    <main class="flex-1 max-w-3xl">
+      <NuxtPage />
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
 const accountId = route.params.account_id as string
-
-// Fetch space data with SSR support and cookie headers
-const {
-  data: space,
-  error,
-  pending: loading,
-} = await useFetch(`/api/accounts?id=${accountId}`, {
-  server: true,
-  default: () => null,
-  // Pass cookies from the request during SSR so authentication works
-  headers: useRequestHeaders(["cookie"]),
-})
 </script>
