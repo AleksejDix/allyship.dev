@@ -46,10 +46,8 @@ const createAccount = async () => {
       state.value = { type: "success", accountId }
       // Refresh all data to update AccountSelector and other components
       await refreshNuxtData()
-      // Redirect to the new account after a short delay
-      setTimeout(() => {
-        router.push(`/${accountId}`)
-      }, 1500)
+      // Redirect to the new account immediately
+      router.push(`/${accountId}`)
     }
   } catch (err) {
     state.value = { type: "error", error: "An unexpected error occurred" }
