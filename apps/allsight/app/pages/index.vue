@@ -31,6 +31,11 @@ const {
 <template>
   <div class="mx-auto container p-4">
     <h1 class="text-2xl bold">Your Accounts</h1>
+    <div class="mb-4">
+      <NuxtLink to="/create" class="text-blue-600 underline"
+        >Create New Account</NuxtLink
+      >
+    </div>
 
     <!-- Show loading state -->
     <div v-if="pending">
@@ -75,9 +80,6 @@ const {
     <!-- Show empty state when authenticated but no accounts -->
     <div v-else-if="accounts && accounts.length === 0 && !pending">
       <p>You don't have any accounts yet.</p>
-      <p>
-        <NuxtLink to="/account/create">Create your first account</NuxtLink>
-      </p>
     </div>
 
     <!-- Fallback: show sign-in if nothing else matches -->
