@@ -7,6 +7,7 @@
     <nav>
       <ul>
         <li><NuxtLink to="/account">Overview</NuxtLink></li>
+        <li><NuxtLink to="/account/create">Create Account</NuxtLink></li>
         <li><NuxtLink to="/account/edit">Edit Profile</NuxtLink></li>
         <li><NuxtLink to="/password/update">Change Password</NuxtLink></li>
       </ul>

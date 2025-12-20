@@ -75,6 +75,9 @@ const {
     <!-- Show empty state when authenticated but no accounts -->
     <div v-else-if="accounts && accounts.length === 0 && !pending">
       <p>You don't have any accounts yet.</p>
+      <p>
+        <NuxtLink to="/account/create">Create your first account</NuxtLink>
+      </p>
     </div>
 
     <!-- Fallback: show sign-in if nothing else matches -->
