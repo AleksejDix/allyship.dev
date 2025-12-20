@@ -28,11 +28,18 @@ const createAccount = async () => {
       state.value = { type: "error", error: error.message }
       console.error("Account creation error:", error)
     } else {
+      console.log(
+        "Account creation successful, data:",
+        data,
+        "type:",
+        typeof data
+      )
       state.value = { type: "success", accountId: data }
       // Refresh all data to update AccountSelector and other components
       await refreshNuxtData()
       // Redirect to the new account after a short delay
       setTimeout(() => {
+        console.log("Redirecting to:", `/${data}`)
         router.push(`/${data}`)
       }, 1500)
     }
@@ -122,35 +129,3 @@ watch(
     </form>
   </div>
 </template>
-
-<style scoped>
-form {
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-label {
-  font-weight: bold;
-}
-
-small {
-  color: #666;
-  font-size: 0.875rem;
-}
-
-.error-message {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 0.75rem;
-  border-radius: 4px;
-}
-</style>
