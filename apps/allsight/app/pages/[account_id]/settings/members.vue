@@ -41,29 +41,16 @@ const {
   headers: useRequestHeaders(["cookie"]),
 })
 
-// Fetch members data using account ID from space data
-const spaceAccountId = computed(() => space.value?.account_id)
+// Fetch members data using account ID from route params
 const {
   data: members,
   error: membersError,
   pending: membersLoading,
-} = await useFetch(
-  computed(() => spaceAccountId.value ? `/api/accounts/${spaceAccountId.value}/members` : ''),
-  {
-    server: true,
-    default: () => [],
-    headers: useRequestHeaders(["cookie"]),
-    // Only run when accountId is available
-    immediate: false,
-  }
-)
-
-// Trigger fetch when space data becomes available
-watch(space, (newSpace) => {
-  if (newSpace?.account_id && !members.value) {
-    refresh()
-  }
-}, { immediate: true })
+} = await useFetch(`/api/accounts/${accountId}/members`, {
+  server: true,
+  default: () => [],
+  headers: useRequestHeaders(["cookie"]),
+})
 
 // Format date helper
 const formatDate = (dateString) => {
