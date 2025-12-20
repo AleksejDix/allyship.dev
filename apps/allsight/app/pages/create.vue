@@ -28,19 +28,27 @@ const createAccount = async () => {
       state.value = { type: "error", error: error.message }
       console.error("Account creation error:", error)
     } else {
-      console.log(
-        "Account creation successful, data:",
-        data,
-        "type:",
-        typeof data
-      )
-      state.value = { type: "success", accountId: data }
+      // Extract account ID from response - handle both object and direct string returns
+      const accountId =
+        typeof data === "object" && data !== null
+          ? data.account_id || data.id || data.slug
+          : data
+
+      if (!accountId) {
+        state.value = {
+          type: "error",
+          error: "Account created but no ID returned",
+        }
+        console.error("No account ID found in response:", data)
+        return
+      }
+
+      state.value = { type: "success", accountId }
       // Refresh all data to update AccountSelector and other components
       await refreshNuxtData()
       // Redirect to the new account after a short delay
       setTimeout(() => {
-        console.log("Redirecting to:", `/${data}`)
-        router.push(`/${data}`)
+        router.push(`/${accountId}`)
       }, 1500)
     }
   } catch (err) {

@@ -51,8 +51,6 @@ const accountId = Array.isArray(route.params.account_id)
   ? route.params.account_id[0]
   : (route.params.account_id as string)
 
-console.log("Account ID from route:", accountId, "type:", typeof accountId)
-
 if (!accountId) {
   throw createError({
     statusCode: 400,
