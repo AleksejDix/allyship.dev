@@ -22,15 +22,6 @@
               Members
             </NuxtLink>
           </li>
-          <li>
-            <NuxtLink
-              :to="`/${accountId}/settings/danger`"
-              class="block px-4 py-2 text-sm font-medium text-red-700"
-              active-class="bg-red-50"
-            >
-              Danger Zone
-            </NuxtLink>
-          </li>
         </ul>
       </nav>
     </aside>
