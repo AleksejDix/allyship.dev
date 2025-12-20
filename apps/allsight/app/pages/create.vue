@@ -108,10 +108,7 @@ watch(
         {{ state.error }}
       </div>
 
-      <Button
-        type="submit"
-        :disabled="state.type === 'loading' || !isFormValid"
-      >
+      <Button type="submit" :disabled="state.type === 'loading'">
         {{
           state.type === "loading" ? "Creating Account..." : "Create Account"
         }}
