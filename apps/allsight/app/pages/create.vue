@@ -29,6 +29,8 @@ const createAccount = async () => {
       console.error("Account creation error:", error)
     } else {
       state.value = { type: "success", accountId: data }
+      // Refresh all data to update AccountSelector and other components
+      await refreshNuxtData()
       // Redirect to the new account after a short delay
       setTimeout(() => {
         router.push(`/${data}`)

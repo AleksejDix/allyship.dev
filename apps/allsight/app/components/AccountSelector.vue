@@ -20,6 +20,7 @@ const {
   data: accounts,
   error,
   pending,
+  refresh: refreshAccounts,
 } = await useFetch<Account[]>("/api/accounts", {
   server: true,
   default: () => [],
@@ -40,6 +41,14 @@ const otherAccounts = computed(
       (account) => account.account_id !== currentAccountId.value
     ) || []
 )
+
+// Reactive state for dropdown
+const isOpen = ref(false)
+
+// Expose refresh method for external use
+defineExpose({
+  refreshAccounts,
+})
 </script>
 
 <template>
@@ -140,13 +149,3 @@ const otherAccounts = computed(
     <div v-if="isOpen" class="fixed inset-0 z-40" @click="isOpen = false"></div>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  data() {
-    return {
-      isOpen: false,
-    }
-  },
-}
-</script>
