@@ -17,7 +17,7 @@
       </header>
 
       <div class="space-actions">
-        <NuxtLink :to="`/${space.slug}/settings`" class="action-btn">
+        <NuxtLink :to="`/${accountId}/settings`" class="action-btn">
           ⚙️ Settings
         </NuxtLink>
       </div>
@@ -44,7 +44,7 @@
 
     <div v-else class="not-found">
       <h2>Space not found</h2>
-      <p>The space with slug "{{ $route.params.slug }}" could not be found.</p>
+      <p>The space with ID "{{ $route.params.account_id }}" could not be found.</p>
       <NuxtLink to="/" class="home-link">Go back home</NuxtLink>
     </div>
   </div>
@@ -52,14 +52,14 @@
 
 <script setup lang="ts">
 const route = useRoute()
-const slug = route.params.slug as string
+const accountId = route.params.account_id as string
 
 // Fetch space data with SSR support and cookie headers
 const {
   data: space,
   error,
   pending: loading,
-} = await useFetch(`/api/accounts?slug=${slug}`, {
+} = await useFetch(`/api/accounts?id=${accountId}`, {
   server: true,
   default: () => null,
   // Pass cookies from the request during SSR so authentication works

@@ -18,22 +18,22 @@
       <nav class="settings-nav">
         <ul>
           <li>
-            <NuxtLink :to="`/${space.slug}/settings`" exact-path-class="active">
+            <NuxtLink :to="`/${accountId}/settings`" exact-path-class="active">
               General
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink :to="`/${space.slug}/settings/members`" exact-path-class="active">
+            <NuxtLink :to="`/${accountId}/settings/members`" exact-path-class="active">
               Members
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink :to="`/${space.slug}/settings/billing`" exact-path-class="active">
+            <NuxtLink :to="`/${accountId}/settings/billing`" exact-path-class="active">
               Billing
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink :to="`/${space.slug}/settings/danger`" exact-path-class="active">
+            <NuxtLink :to="`/${accountId}/settings/danger`" exact-path-class="active">
               Danger Zone
             </NuxtLink>
           </li>
@@ -81,14 +81,14 @@
 
 <script setup lang="ts">
 const route = useRoute()
-const slug = route.params.slug as string
+const accountId = route.params.account_id as string
 
 // Fetch space data with SSR support and cookie headers
 const {
   data: space,
   error,
   pending: loading,
-} = await useFetch(`/api/accounts?slug=${slug}`, {
+} = await useFetch(`/api/accounts?id=${accountId}`, {
   server: true,
   default: () => null,
   // Pass cookies from the request during SSR so authentication works

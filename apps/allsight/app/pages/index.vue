@@ -50,8 +50,7 @@ const {
         <div class="account-header">
           <h2>{{ account.name || "Unnamed Account" }}</h2>
           <NuxtLink
-            v-if="account.slug"
-            :to="`/${account.slug}`"
+            :to="`/${account.account_id}`"
             class="view-space-btn"
           >
             View Space
