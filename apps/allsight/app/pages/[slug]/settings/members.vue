@@ -95,18 +95,38 @@ const {
   headers: useRequestHeaders(["cookie"]),
 })
 
-// Fetch members data
-const {
-  data: members,
-  error: membersError,
-  pending: membersLoading,
-} = await useFetch(`/api/accounts/${space.value?.account_id}/members`, {
-  server: true,
-  default: () => [],
-  headers: useRequestHeaders(["cookie"]),
-  // Only fetch when space data is available
-  transform: (data) => data || [],
-})
+// Reactive members data
+const members = ref([])
+const membersError = ref(null)
+const membersLoading = ref(false)
+
+// Fetch members when space data is available
+const fetchMembers = async () => {
+  if (!space.value?.account_id) return
+
+  try {
+    membersLoading.value = true
+    membersError.value = null
+
+    const { data } = await $fetch(`/api/accounts/${space.value.account_id}/members`, {
+      headers: useRequestHeaders(["cookie"]),
+    })
+
+    members.value = data || []
+  } catch (err) {
+    console.error('Error fetching members:', err)
+    membersError.value = err.message || 'Failed to load members'
+  } finally {
+    membersLoading.value = false
+  }
+}
+
+// Watch for space data and fetch members
+watch(space, (newSpace) => {
+  if (newSpace?.account_id) {
+    fetchMembers()
+  }
+}, { immediate: true })
 
 // Format date helper
 const formatDate = (dateString) => {
