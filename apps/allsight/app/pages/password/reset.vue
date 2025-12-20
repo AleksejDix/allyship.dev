@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Input from "~/components/Input.vue"
+
 type State =
   | { type: "idle" }
   | { type: "loading" }
@@ -8,7 +10,7 @@ type State =
 const supabase = useSupabaseClient()
 
 const form = reactive({
-  email: ""
+  email: "",
 })
 
 const state = ref<State>({ type: "idle" })
@@ -16,12 +18,9 @@ const state = ref<State>({ type: "idle" })
 const requestResetPassword = async () => {
   state.value = { type: "loading" }
 
-  const { error } = await supabase.auth.resetPasswordForEmail(
-    form.email,
-    {
-      redirectTo: "http://localhost:3000/password/update",
-    }
-  )
+  const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+    redirectTo: "http://localhost:3000/password/update",
+  })
 
   if (error) {
     state.value = { type: "error", error: error.message }
@@ -46,7 +45,7 @@ const requestResetPassword = async () => {
     <form v-else @submit.prevent="requestResetPassword">
       <div>
         <label for="email">Email address</label>
-        <input
+        <Input
           id="email"
           v-model="form.email"
           type="email"

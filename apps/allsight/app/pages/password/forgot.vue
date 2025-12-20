@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Input from "~/components/Input.vue"
+
 type State =
   | { type: "idle" }
   | { type: "loading" }
@@ -8,7 +10,7 @@ type State =
 const supabase = useSupabaseClient()
 
 const form = reactive({
-  email: ""
+  email: "",
 })
 
 const state = ref<State>({ type: "idle" })
@@ -33,8 +35,8 @@ const resetPassword = async () => {
 </script>
 
 <template>
-  <div>
-    <h1>Forgot Password</h1>
+  <div class="mx-auto max-w-xs">
+    <h1 class="text-2xl bold">Forgot Password</h1>
 
     <div v-if="state.type === 'success'">
       <p>✉️ Check your email! We've sent you a password reset link.</p>
@@ -46,7 +48,7 @@ const resetPassword = async () => {
     <form v-else @submit.prevent="resetPassword">
       <div>
         <label for="email">Email address</label>
-        <input
+        <Input
           id="email"
           v-model="form.email"
           type="email"
@@ -61,13 +63,15 @@ const resetPassword = async () => {
         {{ state.error }}
       </div>
 
-      <button type="submit" :disabled="state.type === 'loading'">
-        {{ state.type === "loading" ? "Sending..." : "Send Reset Link" }}
-      </button>
+      <div class="pt-2 flex justify-between items-center">
+        <Button type="submit" :disabled="state.type === 'loading'">
+          {{ state.type === "loading" ? "Sending..." : "Send Reset Link" }}
+        </Button>
+      </div>
 
-      <p>
+      <Link asChild>
         <NuxtLink to="/signin-password">Back to sign in</NuxtLink>
-      </p>
+      </Link>
     </form>
   </div>
 </template>

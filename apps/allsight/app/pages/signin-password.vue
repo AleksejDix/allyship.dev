@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import Input from "~/components/Input.vue"
+import Link from "~/components/Link.vue"
+
 type State =
   | { type: "idle" }
   | { type: "loading" }
@@ -10,7 +13,7 @@ const router = useRouter()
 
 const form = reactive({
   email: "",
-  password: ""
+  password: "",
 })
 
 const state = ref<State>({ type: "idle" })
@@ -35,33 +38,35 @@ const signInWithPassword = async () => {
 </script>
 
 <template>
-  <div>
-    <h1>Sign In</h1>
+  <div class="mx-auto max-w-xs">
+    <h1 class="text-2xl bold">Sign In</h1>
 
-    <form @submit.prevent="signInWithPassword">
+    <form
+      @submit.prevent="signInWithPassword"
+      :disabled="state.type === 'loading'"
+      class="p-4 border-2 border-black bg-gray-100 space-y-2"
+    >
       <div>
         <label for="email">Email address</label>
-        <input
+        <Input
           id="email"
           v-model="form.email"
-          type="email"
-          name="email"
-          placeholder="you@example.com"
+          type="text"
+          name="username"
+          placeholder="your@account.com"
           required
-          :disabled="state.type === 'loading'"
         />
       </div>
 
       <div>
         <label for="password">Password</label>
-        <input
+        <Input
           id="password"
           v-model="form.password"
           type="password"
           name="password"
           placeholder="Enter your password"
           required
-          :disabled="state.type === 'loading'"
         />
       </div>
 
@@ -69,21 +74,18 @@ const signInWithPassword = async () => {
         {{ state.error }}
       </div>
 
-      <button type="submit" :disabled="state.type === 'loading'">
-        {{ state.type === "loading" ? "Signing in..." : "Sign In" }}
-      </button>
-
-      <p>
-        <NuxtLink to="/password/forgot">Forgot password?</NuxtLink>
-      </p>
-
-      <p>
-        <NuxtLink to="/signin-otp">Sign in with magic link instead</NuxtLink>
-      </p>
-
-      <p>
-        <NuxtLink to="/signin-google">Sign in with Google instead</NuxtLink>
-      </p>
+      <div class="pt-2 flex justify-between items-center">
+        <Link>
+          <NuxtLink to="/password/forgot">Forgot password?</NuxtLink>
+        </Link>
+        <Button
+          class="w-1/2"
+          type="submit"
+          :disabled="state.type === 'loading'"
+        >
+          {{ state.type === "loading" ? "Signing in..." : "Sign In" }}
+        </Button>
+      </div>
     </form>
   </div>
 </template>

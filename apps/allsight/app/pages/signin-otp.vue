@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Input from "~/components/Input.vue"
+
 type State =
   | { type: "idle" }
   | { type: "loading" }
@@ -8,7 +10,7 @@ type State =
 const supabase = useSupabaseClient()
 
 const form = reactive({
-  email: ""
+  email: "",
 })
 
 const state = ref<State>({ type: "idle" })
@@ -42,7 +44,7 @@ const signInWithOtp = async () => {
     <form v-else @submit.prevent="signInWithOtp">
       <div>
         <label for="email">Email address</label>
-        <input
+        <Input
           id="email"
           v-model="form.email"
           type="email"

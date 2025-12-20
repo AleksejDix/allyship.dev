@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Input from "~/components/Input.vue"
+
 type State =
   | { type: "idle" }
   | { type: "loading" }
@@ -10,7 +12,7 @@ const router = useRouter()
 
 const form = reactive({
   newPassword: "",
-  confirmPassword: ""
+  confirmPassword: "",
 })
 
 const state = ref<State>({ type: "idle" })
@@ -46,7 +48,7 @@ const updateUserPassword = async () => {
     <form v-else @submit.prevent="updateUserPassword">
       <div>
         <label for="newPassword">New Password</label>
-        <input
+        <Input
           id="newPassword"
           v-model="form.newPassword"
           type="password"
@@ -58,7 +60,7 @@ const updateUserPassword = async () => {
 
       <div>
         <label for="confirmPassword">Confirm Password</label>
-        <input
+        <Input
           id="confirmPassword"
           v-model="form.confirmPassword"
           type="password"
