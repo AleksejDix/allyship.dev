@@ -46,10 +46,10 @@
 
       <!-- Navigation tabs -->
       <div class="flex border-b-2 border-black">
-        <NuxtLink exact :to="`/${programId}`" class="tab root">
+        <NuxtLink exact :to="`/${accountId}/programs/${programId}`" class="tab root">
           Overview
         </NuxtLink>
-        <NuxtLink :to="`/${programId}/settings`" class="tab">
+        <NuxtLink :to="`/${accountId}/programs/${programId}/settings`" class="tab">
           Settings
         </NuxtLink>
       </div>
@@ -68,14 +68,18 @@
 import { FETCH_KEYS } from "~/lib/fetchKeys"
 
 const route = useRoute()
+const accountId = Array.isArray(route.params.account_id)
+  ? route.params.account_id[0]
+  : (route.params.account_id as string)
+
 const programId = Array.isArray(route.params.program_id)
   ? route.params.program_id[0]
   : (route.params.program_id as string)
 
-if (!programId) {
+if (!accountId || !programId) {
   throw createError({
     statusCode: 400,
-    statusMessage: "Invalid program ID",
+    statusMessage: "Invalid account ID or program ID",
   })
 }
 
@@ -83,8 +87,8 @@ const {
   data: program,
   error,
   pending: loading,
-} = await useFetch(`/api/programs/${programId}`, {
-  key: `program:${programId}`,
+} = await useFetch(`/api/accounts/${accountId}/programs/${programId}`, {
+  key: FETCH_KEYS.accounts.programById(accountId, programId),
   server: true,
   default: () => null,
   headers: useRequestHeaders(["cookie"]),
