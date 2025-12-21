@@ -29,6 +29,12 @@ export const FETCH_KEYS = {
      * Programs (frameworks) associated with an account
      */
     programs: (accountId: string) => `accounts:${accountId}:programs` as const,
+
+    /**
+     * Single program by ID
+     */
+    programById: (accountId: string, programId: string) =>
+      `accounts:${accountId}:programs:${programId}` as const,
   },
 } as const
 
