@@ -129,7 +129,7 @@ const startProgram = async (frameworkId: string) => {
               </div>
 
               <NuxtLink
-                :to="`/${accountId}/programs/${program.id}`"
+                :to="`/${program.id}`"
                 class="text-sm text-blue-600 hover:underline inline-block"
               >
                 View Details →

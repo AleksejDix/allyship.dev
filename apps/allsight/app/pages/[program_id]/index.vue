@@ -1,56 +1,26 @@
 <script setup lang="ts">
-import { FETCH_KEYS } from "~/lib/fetchKeys"
-
 const route = useRoute()
-const accountId = Array.isArray(route.params.account_id)
-  ? route.params.account_id[0]
-  : (route.params.account_id as string)
-
 const programId = Array.isArray(route.params.program_id)
   ? route.params.program_id[0]
   : (route.params.program_id as string)
 
-// Fetch program details with controls
-const { data: program, error, pending } = await useFetch(
-  `/api/accounts/${accountId}/programs/${programId}`,
-  {
-    key: FETCH_KEYS.accounts.programById(accountId, programId),
-    server: true,
-    default: () => null,
-    headers: useRequestHeaders(["cookie"]),
-  }
-)
+// Fetch program details with controls (already fetched in parent layout)
+const { data: program } = await useFetch(`/api/programs/${programId}`, {
+  key: `program:${programId}`,
+  server: true,
+  default: () => null,
+  headers: useRequestHeaders(["cookie"]),
+})
 </script>
 
 <template>
   <div class="py-8">
-    <div v-if="pending" class="text-gray-600">Loading program...</div>
-    <div v-else-if="error" class="text-red-600">
-      <h1 class="text-2xl font-bold mb-4">Error</h1>
-      <p>{{ error.statusMessage || "Failed to load program" }}</p>
-      <NuxtLink
-        :to="`/${accountId}/programs`"
-        class="text-blue-600 hover:underline mt-4 inline-block"
-      >
-        ← Back to programs
-      </NuxtLink>
-    </div>
-    <div v-else-if="program">
-      <!-- Header -->
-      <div class="mb-6">
-        <NuxtLink
-          :to="`/${accountId}/programs`"
-          class="text-sm text-gray-600 hover:text-black mb-2 inline-block"
-        >
-          ← Back to programs
-        </NuxtLink>
-        <h1 class="text-2xl font-bold">{{ program.framework.display_name }}</h1>
-        <p class="text-gray-600 mt-2">{{ program.framework.description }}</p>
-      </div>
-
+    <div v-if="program">
       <!-- Framework Details -->
       <div class="bg-white border-2 border-black p-6 mb-6">
         <h2 class="text-lg font-semibold mb-4">Framework Details</h2>
+        <p class="text-gray-600 mb-4">{{ program.framework.description }}</p>
+
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span class="font-medium">Jurisdiction:</span>
@@ -75,9 +45,7 @@ const { data: program, error, pending } = await useFetch(
         </div>
 
         <div
-          v-if="
-            program.framework.tags && program.framework.tags.length > 0
-          "
+          v-if="program.framework.tags && program.framework.tags.length > 0"
           class="mt-4"
         >
           <div class="flex flex-wrap gap-2">
