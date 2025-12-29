@@ -1,11 +1,17 @@
 -- Rename and enrich Secure Session Timeout control and align framework mappings
 
--- Update control definition
-UPDATE public.controls
+-- Create or update control definition
+INSERT INTO public.controls (id, name, description)
+VALUES (
+  'CIS-020',
+  'Secure Session Timeout',
+  'Automatic session locking with warning and user extension to balance security and accessibility.'
+)
+ON CONFLICT (id) DO UPDATE
 SET
-  name = 'Secure Session Timeout',
-  description = 'Automatic session locking with warning and user extension to balance security and accessibility.'
-WHERE id = 'CIS-020';
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  updated_at = NOW();
 
 -- CIS Controls v8.1 Safeguard 4.3
 INSERT INTO public.framework_controls (

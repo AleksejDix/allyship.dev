@@ -42,6 +42,13 @@ select ok(
 );
 
 -- === CREATE TEST DATA ===
+-- Clean up any existing test data from previous runs
+delete from public."Website" where id = '30000000-0000-0000-0000-000000000001';
+delete from public."Space" where id = '40000000-0000-0000-0000-000000000001';
+delete from basejump.account_user where account_id in ('10000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001');
+delete from basejump.accounts where id in ('10000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001');
+delete from auth.users where id in ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002');
+
 -- Create test user
 insert into auth.users (id, email, encrypted_password, email_confirmed_at)
 values
@@ -54,20 +61,32 @@ values
     ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', true, 'Personal Account'),
     ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', true, 'Personal Account 2');
 
--- Add account_user entries
-insert into basejump.account_user (account_id, user_id, account_role)
+-- Add account_user entries (for membership tracking only)
+insert into basejump.account_user (account_id, user_id)
 values
-    ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner'),
-    ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', 'owner');
+    ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001'),
+    ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002');
+
+-- Add custom roles for personal accounts
+insert into public.account_user_roles (account_id, user_id, role_id, granted_by)
+values
+    ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', '00000000-0000-0000-0000-000000000001'),
+    ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', 'owner', '00000000-0000-0000-0000-000000000002');
 
 -- Create team account
 insert into basejump.accounts (id, primary_owner_user_id, personal_account, name, slug)
 values ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', false, 'Test Team', 'test-team');
 
-insert into basejump.account_user (account_id, user_id, account_role)
+insert into basejump.account_user (account_id, user_id)
 values
-    ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner'),
-    ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'member');
+    ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001'),
+    ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002');
+
+-- Add custom roles for team account
+insert into public.account_user_roles (account_id, user_id, role_id, granted_by)
+values
+    ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', '00000000-0000-0000-0000-000000000001'),
+    ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'member', '00000000-0000-0000-0000-000000000001');
 
 -- Create legacy Space for Website (still required until full migration)
 insert into public."Space" (id, name, owner_id, is_personal)

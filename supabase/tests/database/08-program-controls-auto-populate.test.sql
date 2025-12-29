@@ -8,6 +8,12 @@ select plan(10);
 
 -- === SETUP TEST DATA ===
 
+-- Clean up any existing test data from previous runs
+DELETE FROM public.controls WHERE id IN ('TEST-001', 'TEST-002', 'TEST-003');
+DELETE FROM basejump.account_user WHERE account_id = '00000000-0000-0000-0000-000000000010';
+DELETE FROM basejump.accounts WHERE id = '00000000-0000-0000-0000-000000000010';
+DELETE FROM auth.users WHERE id = '00000000-0000-0000-0000-000000000001';
+
 -- Create test user
 INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at)
 VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com', crypt('password', gen_salt('bf')), now());
@@ -16,9 +22,13 @@ VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com', crypt('passw
 INSERT INTO basejump.accounts (id, primary_owner_user_id, personal_account, name, slug)
 VALUES ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', false, 'Test Account for Program Controls', 'test-program-account');
 
--- Add account_user entry
-INSERT INTO basejump.account_user (account_id, user_id, account_role)
-VALUES ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'owner');
+-- Add account_user entry (for membership tracking only)
+INSERT INTO basejump.account_user (account_id, user_id)
+VALUES ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001');
+
+-- Add custom role for owner
+INSERT INTO public.account_user_roles (account_id, user_id, role_id, granted_by)
+VALUES ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001', 'owner', '00000000-0000-0000-0000-000000000001');
 
 -- Create test controls
 INSERT INTO public.controls (id, name, description) VALUES
